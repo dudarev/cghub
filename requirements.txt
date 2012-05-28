@@ -1,0 +1,7 @@
+Django==1.4
+South
+django-debug-toolbar
+coverage
+django-coverage
+wsgiref
+PyXB==1.1.3

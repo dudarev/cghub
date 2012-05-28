@@ -1,0 +1,27 @@
+#
+# Excluded objects (standard)
+#
+
+.*
+*~
+*.py[co]
+*.ipr
+*.iml
+*.iws
+Vagrantfile
+tests/coverage/modules/*
+Makefile.def
+cghub/settings/local.py
+
+#
+# Added to this project
+#
+
+docs
+utils
+db.sqlite3
+
+#
+# Included objects
+#
+!.gitignore
