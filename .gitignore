@@ -20,8 +20,13 @@ cghub/settings/local.py
 docs
 utils
 db.sqlite3
+cghub_api/build
+cghub_api/dist
+cghub_api/MANIFEST
 
 #
 # Included objects
 #
 !.gitignore
+!cghub_api/docs
+cghub_api/docs/build

@@ -67,6 +67,7 @@ setup(name='cghub_api',
       long_description='''
 ''',
       provides=[ 'cghub' ],
+      requires=[ 'pyxb (1.1.3)'],
       packages=packages,
       package_data=package_data,
       cmdclass = { 'update_version' : update_version },
