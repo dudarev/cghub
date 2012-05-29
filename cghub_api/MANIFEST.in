@@ -1,0 +1,19 @@
+# Legal stuff
+include LICENSE
+include NOTICE
+
+# Miscellaneous other
+include MANIFEST.in
+include MANIFEST
+
+# Include the abstract (version-independent) stuff, for completeness
+include README.txt
+
+# Include all the unit tests
+recursive-include tests *.py *.sh
+
+# Documentation, not including cached W3C material
+global-include README*
+
+# Detritus
+global-exclude *~ #*# *.pyc *.pyo
