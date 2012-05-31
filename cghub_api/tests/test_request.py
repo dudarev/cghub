@@ -39,5 +39,11 @@ class RequestTest(unittest.TestCase):
         """
         self.assertEqual(len(request(file_name='tests/test_data/aliquot_id.xml')), 1)
 
+    def test_item_has_experiment_instance(self):
+        response = request(file_name='tests/test_data/aliquot_id.xml')
+        experiment = response[0].EXPERIMENT[1]
+        self.assertEqual(experiment.TITLE, 
+                'Whole Exome Sequencing of TCGA Lung Squamous tumor/normal pairs')
+
 if __name__ == '__main__':
     unittest.main()
