@@ -35,5 +35,11 @@ class RequestTest(unittest.TestCase):
         print os.getcwd()
         self.assertEqual(request(file_name='tests/test_data/aliquot_id.xml'), None)
 
+    def test_number_of_items(self):
+        """
+        Test number of items in one response.
+        """
+        self.assertEqual(len(request(file_name='tests/test_data/aliquot_id.xml')), 1)
+
 if __name__ == '__main__':
     unittest.main()
