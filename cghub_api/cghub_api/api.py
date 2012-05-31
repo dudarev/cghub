@@ -19,4 +19,7 @@ def request(query=None, file_name=None):
     if query==None and file_name==None:
         raise QueryRequired
 
+    if query==None and file_name:
+        f = open(file_name, 'r')
+
     return None
