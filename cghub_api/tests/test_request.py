@@ -19,7 +19,7 @@ class RequestTest(unittest.TestCase):
         """
         Test that something is returned when query is passed.
         TODO: re-write this test to raise exception if query is not allowed."""
-        self.assertEqual(request(query='test'), None)
+        request(query='test')
 
     def test_no_file_exists(self):
         """
@@ -31,9 +31,7 @@ class RequestTest(unittest.TestCase):
         """
         Test that no exception is raised when file exists.
         """
-        import os
-        print os.getcwd()
-        self.assertEqual(request(file_name='tests/test_data/aliquot_id.xml'), None)
+        request(file_name='tests/test_data/aliquot_id.xml')
 
     def test_number_of_items(self):
         """

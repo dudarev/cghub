@@ -7,6 +7,7 @@ cghub_api.api
 Functions for external use.
 
 """
+import xml.dom.minidom
 
 from exceptions import QueryRequired
 
@@ -19,7 +20,12 @@ def request(query=None, file_name=None):
     if query==None and file_name==None:
         raise QueryRequired
 
+    results = []
+
     if query==None and file_name:
         f = open(file_name, 'r')
+        raw_xml = f.read()
+        dom = xml.dom.minidom.parseString(raw_xml)
+        results = dom.getElementsByTagName('Result')
 
-    return None
+    return results
