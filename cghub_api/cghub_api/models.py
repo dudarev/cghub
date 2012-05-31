@@ -42,14 +42,8 @@ class Response(object):
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
-        #: Encoding to decode with when accessing r.text.
-        self.encoding = None
-
         #: The :class:`Request <Request>` that created the Response.
         self.request = None
-
-        #: Dictionary of configurations for this request.
-        self.config = {}
 
     def __repr__(self):
         return '<Response to request [%s]>' % (self.request)
