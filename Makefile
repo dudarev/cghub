@@ -33,6 +33,7 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
+	cd cghub_api && nosetests
 
 clean:
 	@echo Cleaning up...
