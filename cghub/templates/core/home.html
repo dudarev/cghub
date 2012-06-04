@@ -1,1 +1,512 @@
 {% extends 'base.html' %}
+{% block extra_header_css %}
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/home.less" media="all">
+{% endblock %}
+{% block extra_sidebar %}
+    <div class="well sidebar">
+        <ul class="nav nav-list">
+            <li class="nav-header">Search</li>
+            <li>
+                <form class="form-search">
+                    <input class="search-query" type="text" id="home-search" placeholder="Search">
+                </form>
+            </li>
+            <li class="nav-header">By Center</li>
+            <li><a href="#">All</a></li>
+            <li><a href="#">Baylor</a></li>
+            <li><a href="#">Broad</a></li>
+            <li><a href="#">Harvard</a></li>
+            <li><a href="#">UNC-LCCC</a></li>
+            <li><a href="#">USC/Sidney K. B.</a></li>
+            <li><a href="#">VancouverGSC</a></li>
+            <li><a href="#">Washington U.</a></li>
+            <li class="nav-header">By Date Uploaded</li>
+            <li><a href="#">Any date</a></li>
+            <li><a href="#">Today</a></li>
+            <li><a href="#">Past 7 days</a></li>
+            <li><a href="#">This month</a></li>
+            <li><a href="#">This year</a></li>
+            <li class="nav-header">By Experiment Type</li>
+            <li><a href="#">All</a></li>
+            <li><a href="#">DNA</a></li>
+            <li><a href="#">RNA</a></li>
+            <li><a href="#">WGA</a></li>
+            <li class="nav-header">By Sample Type</li>
+            <li><a href="#">All</a></li>
+            <li><a href="#">Normal</a></li>
+            <li><a href="#">Tumor</a></li>
+            <li class="nav-header">By Run Type</li>
+            <li><a href="#">All</a></li>
+            <li><a href="#">NA</a></li>
+            <li><a href="#">WGS</a></li>
+            <li><a href="#">Exome</a></li>
+            <li><a href="#">Lowpass</a></li>
+            <li class="nav-header">By Disease</li>
+            <li><a href="#">All</a></li>
+            <li><a href="#">Acute mye. leuk.</a></li>
+            <li><a href="#">Bladder</a></li>
+            <li><a href="#">Brain glioma</a></li>
+            <li><a href="#">Breast</a></li>
+            <li><a href="#">Cervical sqm. cell</a></li>
+            <li><a href="#">Colon adeno.</a></li>
+            <li><a href="#">Glioblastoma</a></li>
+            <li><a href="#">Head&Neck sqm. cell</a></li>
+            <li><a href="#">Kidney clear</a></li>
+            <li><a href="#">Kidney papillary</a></li>
+            <li><a href="#">Liver</a></li>
+            <li><a href="#">Lung adeno.</a></li>
+            <li><a href="#">Lung sqm. cell</a></li>
+            <li><a href="#">Ovarian cystadeno.</a></li>
+            <li><a href="#">Pancreatic adeno.</a></li>
+            <li><a href="#">Prostate adeno.</a></li>
+            <li><a href="#">Rectum adeno.</a></li>
+            <li><a href="#">Stomach adeno.</a></li>
+            <li><a href="#">Thyroid</a></li>
+            <li><a href="#">Uterine</a></li>
+        </ul>
+    </div>
+{% endblock %}
+{% block extra_content %}
+    <div class="page-header">
+        <h1>Select Bam File to change</h1>
+    </div>
+    <table class="table table-striped table-condensed home-table">
+    <thead>
+    <tr>
+        <th><input type="checkbox" name="" id=""></th>
+        <th>Barcode</th>
+        <th>UUID</th>
+        <th>Accession</th>
+        <th>File Size (bytes)</th>
+        <th>Date Uploaded</th>
+        <th>Disease</th>
+        <th>Sample Type</th>
+        <th>Run Type</th>
+        <th>Center</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    <tr>
+        <td><input type="checkbox" name="" id=""></td>
+        <td>TCGA-A2-A04T-01A-21W-A050-09</td>
+        <td>ed60f7d5-9e91-4742-94c0-74748a3ebe0e</td>
+        <td>SRZ017366</td>
+        <td>16299610484</td>
+        <td>Aug. 12, 2011, midnight</td>
+        <td>Breast</td>
+        <td>tumor</td>
+        <td>exome</td>
+        <td>Washington U.</td>
+    </tr>
+    </tbody>
+    </table>
+    <div class="pagination pagination-centered">
+        <ul>
+            <li><a href="#">Prev</a></li>
+            <li class="active"><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li class="disabled"><a href="#">...</a></li>
+            <li><a href="#">60</a></li>
+            <li><a href="#">61</a></li>
+            <li><a href="#">62</a></li>
+            <li><a href="#">Next</a></li>
+        </ul>
+    </div>
+{% endblock %}
