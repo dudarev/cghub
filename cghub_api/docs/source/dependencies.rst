@@ -4,9 +4,12 @@ Dependencies
 ============================================
 
 -----
-PyXB
+lxml
 -----
 
-PyXB (“pixbee”) is a pure Python package that generates Python source code for classes that correspond to data structures defined by XMLSchema. The generated classes support bi-directional conversion between XML documents and Python objects.
+The lxml XML toolkit is a Pythonic binding for the C libraries libxml2 and libxslt. It is unique in that it combines the speed and XML feature completeness of these libraries with the simplicity of a native Python API, mostly compatible but superior to the well-known ElementTree API.
 
-http://pyxb.sourceforge.net/
+Here we also use its alternative API -- `lxml.objectify <http://lxml.de/objectify.html>`__
+
+- http://lxml.de/
+- http://lxml.de/objectify.html
