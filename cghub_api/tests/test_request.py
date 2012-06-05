@@ -40,15 +40,21 @@ class RequestTest(unittest.TestCase):
         self.assertEqual(len(request(file_name='tests/test_data/aliquot_id.xml')), 1)
 
     def test_item_has_experiment_instance(self):
-        response = request(file_name='tests/test_data/aliquot_id.xml')
-        experiment = response[0].experiment_xml.EXPERIMENT[1]
-        self.assertEqual(experiment.TITLE, 
+        """
+        Test via experiment title of that instance.
+        """
+        results = request(file_name='tests/test_data/aliquot_id.xml')
+        first_experiment_title = results.Result[0].experiment_xml.EXPERIMENT_SET[0].EXPERIMENT[0].TITLE
+        self.assertEqual(first_experiment_title, 
                 'Whole Exome Sequencing of TCGA Lung Squamous tumor/normal pairs')
 
     def test_item_has_analysis_instance(self):
-        response = request(file_name='tests/test_data/aliquot_id.xml')
-        analysis = response[0].analysis_xml.ANALYSIS_SET[0].ANALYSIS[0]
-        self.assertEqual(analysis.TITLE, 
+        """
+        Test via analysis title of that instance.
+        """
+        results = request(file_name='tests/test_data/aliquot_id.xml')
+        first_analysis_title = results.Result[0].analysis_xml.ANALYSIS_SET[0].ANALYSIS[0].TITLE
+        self.assertEqual(first_analysis_title, 
                 'NHGRI_TCGA Sequence Alignment/Map for SAMPLE:TCGA:TCGA-55-1594-11A-01D-1040-01:SRS127193')
 
 
