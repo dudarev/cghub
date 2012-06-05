@@ -10,3 +10,4 @@ django-debug-toolbar==0.9.4
 docutils==0.9
 wsgiref==0.1.2
 nose==1.1.2
+lxml==2.3.4
