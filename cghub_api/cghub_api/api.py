@@ -12,6 +12,12 @@ import xml.dom.minidom
 from exceptions import QueryRequired
 
 import experiment 
+import analysis
+
+class Result(object):
+    experiment_xml = None
+    analysis_xml = None
+    pass
 
 def request(query=None, file_name=None):
     """
@@ -31,8 +37,13 @@ def request(query=None, file_name=None):
         results_dom = dom.getElementsByTagName('Result')
         results = []
         for r in results_dom:
+            t = Result()
             experimentTag = r.getElementsByTagName('experiment_xml')[0].firstChild
             dom_instance = experiment.CreateFromDOM(experimentTag)
-            results.append(dom_instance)
+            t.experiment_xml = dom_instance
+            analysisTag = r.getElementsByTagName('analysis_xml')[0].firstChild
+            dom_instance = analysis.CreateFromDOM(analysisTag)
+            t.analysis_xml = dom_instance
+            results.append(t)
             
     return results

@@ -41,13 +41,13 @@ class RequestTest(unittest.TestCase):
 
     def test_item_has_experiment_instance(self):
         response = request(file_name='tests/test_data/aliquot_id.xml')
-        experiment = response[0].EXPERIMENT[1]
+        experiment = response[0].experiment_xml.EXPERIMENT[1]
         self.assertEqual(experiment.TITLE, 
                 'Whole Exome Sequencing of TCGA Lung Squamous tumor/normal pairs')
 
     def test_item_has_analysis_instance(self):
         response = request(file_name='tests/test_data/aliquot_id.xml')
-        analysis = response[0].ANALYSIS[1]
+        analysis = response[0].analysis_xml.ANALYSIS[0]
         self.assertEqual(analysis.TITLE, 
                 'NHGRI_TCGA Sequence Alignment/Map for SAMPLE:TCGA:TCGA-55-1594-11A-01D-1040-01:SRS127193')
 
