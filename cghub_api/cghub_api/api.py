@@ -7,18 +7,16 @@ cghub_api.api
 Functions for external use.
 
 """
-import xml.dom.minidom
-from lxml import objectify, etree
+from lxml import objectify
 
 from exceptions import QueryRequired
 
-import experiment 
-import analysis
 
 class Result(object):
     experiment_xml = None
     analysis_xml = None
     pass
+
 
 def request(query=None, file_name=None):
     """
