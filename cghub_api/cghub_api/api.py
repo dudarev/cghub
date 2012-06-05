@@ -8,6 +8,7 @@ Functions for external use.
 
 """
 import xml.dom.minidom
+from lxml import objectify
 
 from exceptions import QueryRequired
 
@@ -41,8 +42,10 @@ def request(query=None, file_name=None):
             experimentTag = r.getElementsByTagName('experiment_xml')[0].firstChild
             dom_instance = experiment.CreateFromDOM(experimentTag)
             t.experiment_xml = dom_instance
-            analysisTag = r.getElementsByTagName('analysis_xml')[0].firstChild
-            dom_instance = analysis.CreateFromDOM(analysisTag)
+            analysisTag = r.getElementsByTagName('analysis_xml')[0]
+            dom_instance = objectify.XML(analysisTag.toxml())
+            print dir(dom_instance)
+            print dom_instance.ANALYSIS_SET.ANALYSIS[0].TITLE
             t.analysis_xml = dom_instance
             results.append(t)
             

@@ -47,7 +47,7 @@ class RequestTest(unittest.TestCase):
 
     def test_item_has_analysis_instance(self):
         response = request(file_name='tests/test_data/aliquot_id.xml')
-        analysis = response[0].analysis_xml.ANALYSIS[0]
+        analysis = response[0].analysis_xml.ANALYSIS_SET[0].ANALYSIS[0]
         self.assertEqual(analysis.TITLE, 
                 'NHGRI_TCGA Sequence Alignment/Map for SAMPLE:TCGA:TCGA-55-1594-11A-01D-1040-01:SRS127193')
 
