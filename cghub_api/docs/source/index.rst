@@ -19,6 +19,8 @@ Contents:
 
     cgquery.rst
 
+    tried.rst
+
 
 
 Indices and tables
