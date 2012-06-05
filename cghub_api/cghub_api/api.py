@@ -12,12 +12,6 @@ from lxml import objectify
 from exceptions import QueryRequired
 
 
-class Result(object):
-    experiment_xml = None
-    analysis_xml = None
-    pass
-
-
 def request(query=None, file_name=None):
     """
     Makes a request to CGHub web service or gets data from a file.
