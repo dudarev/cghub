@@ -13,6 +13,8 @@ Contents:
 
     installation.rst
 
+    usage.rst
+
     docs.rst
 
     dependencies.rst
