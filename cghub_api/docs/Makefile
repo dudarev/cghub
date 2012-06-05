@@ -153,4 +153,4 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 serve:
-	cd build/html/ && python -m SimpleHTTPServer 8001
+	make html && cd build/html/ && python -m SimpleHTTPServer 8001
