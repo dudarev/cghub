@@ -1,5 +1,19 @@
-.home-table th {
+.home-table {
     white-space: nowrap;
+    th, td {
+        border-left: 1px solid #ddd;
+        text-align: center;
+    }
+    th.home-table-checkbox-cell, td.home-table-checkbox-cell {
+        width: 20px;
+        border-left-style: none;
+    }
+    th.home-table-data-cell {
+        width: 150px;
+    }
+    td.home-table-data-cell {
+        text-overflow: ellipsis;
+    }
 }
 
 #home-search {
