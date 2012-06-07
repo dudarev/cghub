@@ -59,7 +59,7 @@ class RequestTest(unittest.TestCase):
 
     def test_item_has_run_instance(self):
         """
-        Test via analysis title of that instance.
+        Test via EXPERIMENT_REF attribute.
         """
         results = request(file_name='tests/test_data/aliquot_id.xml')
         first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
