@@ -11,7 +11,6 @@
     <![endif]-->
     <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/less/bootstrap.less"
           media="all">
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/base.less" media="all">
     <link rel="stylesheet" type="text/css"
           href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css" media="all">
     {% block extra_header_css %} {% endblock %}
@@ -24,9 +23,10 @@
         <div class="container-fluid">
             <a class="brand" href="/">UC SANTA CRUZ</a>
             <ul class="nav">
-                <li class="active"><a href="#">Home</a></li>
+                <li class="active"><a href="{% url home_page %}">Home</a></li>
                 <li><a href="#">Browser</a></li>
                 <li><a href="#">Help</a></li>
+                <li><a href="{% url cart_page %}">Cart</a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>

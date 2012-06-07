@@ -12,7 +12,7 @@ jQuery(function ($) {
             cghub.home.bindEvents();
         },
         cacheElements:function () {
-            cghub.home.$homeTable = $('table.home-table');
+            cghub.home.$homeTable = $('table.data-table');
             cghub.home.$homeTable.colResizable({
                 liveDrag:true
             });
