@@ -8,6 +8,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home_page'),
+    url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
 
