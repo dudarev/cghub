@@ -15,11 +15,12 @@ class RequestTest(unittest.TestCase):
         when function request is called without query and file_name."""
         self.assertRaises(QueryRequired, request)
 
-    def test_returns_something(self):
+    def test_invalid_query(self):
         """
-        Test that something is returned when query is passed.
-        TODO: re-write this test to raise exception if query is not allowed."""
-        request(query='test')
+        Test that ValueError is raised when not a valid query is passed.
+        """
+        # test is the first parameter of request() (not valid)
+        self.assertRaises(ValueError, request, 'test')
 
     def test_no_file_exists(self):
         """
@@ -59,7 +60,7 @@ class RequestTest(unittest.TestCase):
 
     def test_item_has_run_instance(self):
         """
-        Test via analysis title of that instance.
+        Test via EXPERIMENT_REF attribute.
         """
         results = request(file_name='tests/test_data/aliquot_id.xml')
         first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
