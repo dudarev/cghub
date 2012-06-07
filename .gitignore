@@ -18,11 +18,12 @@ cghub/settings/local.py
 #
 
 docs
-utils
+utils/*
 db.sqlite3
 cghub_api/build
 cghub_api/dist
 cghub_api/MANIFEST
+cghub_api/cghub_api/tags
 
 #
 # Included objects
