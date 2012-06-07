@@ -6,6 +6,13 @@
     {% include 'bam_filter_sidebar.html' %}
 {% endblock %}
 {% block extra_content %}
+    <div class="page-header">
+        <h1>
+            In your cart
+            <small>You can manage contents of your cart</small>
+        </h1>
+    </div>
+    Temporary note: You may drag lines between columns to show more/less content.<br/><br/>
     {% include 'data_table.html' %}
 {% endblock %}
 {% block extra_body_js %}
