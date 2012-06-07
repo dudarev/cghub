@@ -13,7 +13,7 @@ class RequestTest(unittest.TestCase):
         """
         A query to external site from docs. Make sure that somethis is returned.
         """
-        results = request(query='aliquot_id:087484e8-dc3e-461a-be5f-4217b7c39732')
+        results = request(query='aliquot_id=087484e8-dc3e-461a-be5f-4217b7c39732')
         self.assertTrue(len(results) > 0)
 
 
