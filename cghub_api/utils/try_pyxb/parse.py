@@ -30,7 +30,7 @@ print
 
 # analysis_xml tag
 
-print 'parsing experiment_xml tag:'
+print 'parsing analysis_xml tag:'
 mt6 = time.time()
 analysisTag = dom.getElementsByTagName('analysis_xml')[0].firstChild
 dom_instance = analysis.CreateFromDOM(analysisTag)
