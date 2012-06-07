@@ -23,7 +23,7 @@
         <div class="container-fluid">
             <a class="brand" href="/">UC SANTA CRUZ</a>
             <ul class="nav">
-                <li class="active"><a href="{% url home_page %}">Home</a></li>
+                <li><a href="{% url home_page %}">Home</a></li>
                 <li><a href="#">Browser</a></li>
                 <li><a href="#">Help</a></li>
                 <li><a href="{% url cart_page %}">Cart</a></li>
@@ -66,6 +66,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap-transition.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
 {% block extra_body_js %} {% endblock %}
 </body>
 </html>
