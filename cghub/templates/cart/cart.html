@@ -12,8 +12,16 @@
             <small>You can manage contents of your cart</small>
         </h1>
     </div>
-    Temporary note: You may drag lines between columns to show more/less content.<br/><br/>
+    <span>Temporary note: You may drag lines between columns to show more/less content.</span>
+    <div class="btn-group cart-btn-group">
+        <button class="btn">Remove from cart</button>
+        <button class="btn">Download XML</button>
+    </div>
     {% include 'data_table.html' %}
+    <div class="btn-group cart-btn-group">
+        <button class="btn">Remove from cart</button>
+        <button class="btn">Download XML</button>
+    </div>
 {% endblock %}
 {% block extra_body_js %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
