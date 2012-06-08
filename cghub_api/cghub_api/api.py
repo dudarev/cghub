@@ -36,7 +36,6 @@ def request(query=None, file_name=None):
     elif query:
         uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
         query_tuple = tuple(query.split('='))
-        print len(query_tuple)
         if len(query_tuple) != 2:
             raise ValueError("Invalid field=value pair in query: %s" % query)
         url = server + uri + "?" + urllib.urlencode( [query_tuple] )
