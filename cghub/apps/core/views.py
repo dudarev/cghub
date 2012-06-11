@@ -11,8 +11,10 @@ class SearchView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
-        if self.request.GET.get('q'):
-            results = api_request(query="xml_text=6d7*")
+        q= self.request.GET.get('q')
+        if q:
+            results = api_request(query="xml_text=%s" % q)
             len(results)
-            context['data'] = len(results.Result)
+            context['num_results'] = len(results.Result)
+            context['results'] = results.Result
         return context
