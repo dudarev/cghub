@@ -13,8 +13,9 @@
         </h1>
     </div>
     <span>Temporary note: You may drag lines between columns to show more/less content.</span>
+    {% if message %}<div>{{ message }}</div>{% endif %}
     {% if num_results %}
-    <div>{{num_results}} results</div>
+    <div>Found {{num_results}} results</div>
     {% endif %}
     <div class="btn-group home-btn-group">
         <button class="btn">Add to cart</button>
