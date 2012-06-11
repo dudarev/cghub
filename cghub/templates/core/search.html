@@ -17,13 +17,7 @@
     {% if num_results %}
     <div>Found {{num_results}} results</div>
     {% endif %}
-    <div class="btn-group home-btn-group">
-        <button class="btn">Add to cart</button>
-    </div>
     {% include 'data_table.html' %}
-    <div class="btn-group home-btn-group">
-        <button class="btn">Add to cart</button>
-    </div>
 {% endblock %}
 {% block extra_body_js %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
