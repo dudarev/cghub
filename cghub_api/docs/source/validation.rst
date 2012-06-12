@@ -34,13 +34,13 @@ Change to corresponding directories and run the relevant scripts:
 
 Both these files use a test file stored at ``../../tests/test_data/aliquot_id.xml`` and schemas that were pre-downloaded and stored in the repository.
 
-One may get a file with cgquery (see :doc:`cgquery` in this documentation).
+One may get a file with ``cgquery`` command (see :doc:`cgquery` in this documentation). This needs to be done in both ``try_*`` directories (or the file should be copied).
 
 .. code-block:: bash
 
     cgquery -a "aliquot_id=087484e8-dc3e-461a-be5f-4217b7c39732" -o out.xml
 
-And use
+and use
 
 .. code-block:: bash
 
