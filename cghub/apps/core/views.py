@@ -1,5 +1,6 @@
 from django.views.generic.base import TemplateView
-from cghub_api.api import request as api_request
+
+from cghub.cghub_api.api import request as api_request
 
 
 class HomeView(TemplateView):
