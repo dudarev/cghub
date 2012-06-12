@@ -18,3 +18,6 @@ INSTALLED_APPS += [
     'south',
     'django_coverage',
     ]
+
+# skip migrations while testing
+SOUTH_TESTS_MIGRATE = False
