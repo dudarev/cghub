@@ -1,12 +1,13 @@
-xml_file = "../../tests/test_data/aliquot_id.xml"
+import sys
+from optparse import OptionParser
 
-file_schema_experiment = "../data/schemas/SRA.experiment.xsd"
-file_schema_analysis = "../data/schemas/SRA.analysis.xsd"
-file_schema_run = "../data/schemas/SRA.run.xsd"
+XML_FILE = "../../tests/test_data/aliquot_id.xml"
+
+FILE_SCHEMA_EXPERIMENT = "../data/schemas/SRA.experiment.xsd"
+FILE_SCHEMA_ANALYSIS = "../data/schemas/SRA.analysis.xsd"
+FILE_SCHEMA_RUN = "../data/schemas/SRA.run.xsd"
 
 from lxml import etree
-
-doc = etree.parse(open(xml_file, 'r'))
 
 def validate_schema(schema_file, doc, element_path):
 
@@ -24,11 +25,34 @@ def validate_schema(schema_file, doc, element_path):
     else:
         print "Valid"
 
-print "Validating experiment_xml:"
-validate_schema(file_schema_experiment, doc, './/EXPERIMENT_SET')
+def validate(xml_file):
 
-print "Validating analysis_xml:"
-validate_schema(file_schema_analysis, doc, './/ANALYSIS_SET')
+    if not xml_file:
+        xml_file = XML_FILE
 
-print "Validating run_xml:"
-validate_schema(file_schema_run, doc, './/RUN_SET')
+    try:
+        doc = etree.parse(open(xml_file, 'r'))
+    except IOError, e:
+        print e
+        return
+
+    print "Validating experiment_xml:"
+    validate_schema(FILE_SCHEMA_EXPERIMENT, doc, './/EXPERIMENT_SET')
+
+    print "Validating analysis_xml:"
+    validate_schema(FILE_SCHEMA_ANALYSIS, doc, './/ANALYSIS_SET')
+
+    print "Validating run_xml:"
+    validate_schema(FILE_SCHEMA_RUN, doc, './/RUN_SET')
+
+def main():
+
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="file", default=None,
+                      help="specify file to validate")
+    (opts, args) = parser.parse_args(sys.argv)
+
+    validate(opts.file)
+
+if __name__ == "__main__":
+    main()

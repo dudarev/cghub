@@ -1,41 +1,65 @@
+import sys
+from optparse import OptionParser
+
 import time
 import xml.dom.minidom
 
 import analysis
 import experiment 
 
-xml_file = "../../tests/test_data/aliquot_id.xml"
+XML_FILE = "../../tests/test_data/aliquot_id.xml"
 
+def parse(xml_file):
 
-print 'Generating binding from %s with minidom' % (xml_file,)
-mt1 = time.time()
-xmls = open(xml_file).read()
-mt2 = time.time()
-dom = xml.dom.minidom.parseString(xmls)
-mt3 = time.time()
-print mt3 - mt2, 'seconds'
-print
+    if not xml_file:
+        xml_file = XML_FILE
 
-# experiment_xml tag
+    print 'Generating binding from %s with minidom' % (xml_file,)
 
-print 'parsing experiment_xml tag:'
-mt4 = time.time()
-experimentTag = dom.getElementsByTagName('experiment_xml')[0].firstChild
-dom_instance = experiment.CreateFromDOM(experimentTag)
-mt5 = time.time()
-for e in dom_instance.EXPERIMENT:
-    print e.TITLE
-print mt5 - mt4, 'seconds'
-print
+    try:
+        xmls = open(xml_file).read()
+    except IOError, e:
+        print e
+        return
 
-# analysis_xml tag
+    mt2 = time.time()
+    dom = xml.dom.minidom.parseString(xmls)
+    mt3 = time.time()
+    print mt3 - mt2, 'seconds'
+    print
 
-print 'parsing analysis_xml tag:'
-mt6 = time.time()
-analysisTag = dom.getElementsByTagName('analysis_xml')[0].firstChild
-dom_instance = analysis.CreateFromDOM(analysisTag)
-mt7 = time.time()
-for e in dom_instance.ANALYSIS:
-    print e.TITLE
-print mt7 - mt6, 'seconds'
-print
+    # experiment_xml tag
+
+    print 'parsing experiment_xml tag:'
+    mt4 = time.time()
+    experimentTag = dom.getElementsByTagName('experiment_xml')[0].firstChild
+    dom_instance = experiment.CreateFromDOM(experimentTag)
+    mt5 = time.time()
+    for e in dom_instance.EXPERIMENT:
+        print e.TITLE
+    print mt5 - mt4, 'seconds'
+    print
+
+    # analysis_xml tag
+
+    print 'parsing analysis_xml tag:'
+    mt6 = time.time()
+    analysisTag = dom.getElementsByTagName('analysis_xml')[0].firstChild
+    dom_instance = analysis.CreateFromDOM(analysisTag)
+    mt7 = time.time()
+    for e in dom_instance.ANALYSIS:
+        print e.TITLE
+    print mt7 - mt6, 'seconds'
+    print
+
+def main():
+    
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="file", default=None,
+                      help="specify file to validate")
+    (opts, args) = parser.parse_args(sys.argv)
+
+    parse(opts.file)
+
+if __name__ == "__main__":
+    main()
