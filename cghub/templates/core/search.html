@@ -17,8 +17,18 @@
     {% if num_results %}
     <div>Found {{num_results}} results</div>
     {% endif %}
-    {% include 'data_table.html' %}
+    <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
+        {% csrf_token %}
+        <div class="btn-group home-btn-group">
+            <button class="btn" type="submit">Add to cart</button>
+        </div>
+        {% include 'data_table.html' %}
+        <div class="btn-group home-btn-group">
+            <button class="btn" type="submit">Add to cart</button>
+        </div>
+    </form>
 {% endblock %}
 {% block extra_body_js %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cart/add-files-form.js"></script>
 {% endblock %}

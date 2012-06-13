@@ -1,5 +1,3 @@
-
-
 def get_or_create_cart(request):
     """ return cart and creates it if it does not exist """
     try:
@@ -8,18 +6,20 @@ def get_or_create_cart(request):
         request.session["cart"] = []
     return request.session["cart"]
 
-def add_file_to_cart(request, f):
-    """ adds file f to cart """
+def add_file_to_cart(request, file_dict):
+    """ adds file file_dict to cart """
     cart = get_or_create_cart(request)
-    if f not in cart:
-        cart.append(f)
+    if file_dict not in cart:
+        cart.append(file_dict)
     request.session.modified = True
 
-def remove_file_from_cart(request, f):
-    """ removes file f from cart """
+def remove_file_from_cart(request, legacy_sample_id):
+    """ removes file with legacy_sample_id from cart """
     cart = get_or_create_cart(request)
-    if f in cart:
-        cart.remove(f)
+    for i, file_dict in enumerate(cart):
+        if file_dict['legacy_sample_id'] == legacy_sample_id:
+            del(cart[i])
+            break
     request.session.modified = True
 
 def get_cart_stats(request):
