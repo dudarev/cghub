@@ -12,7 +12,7 @@
             <small>You can manage contents of your cart</small>
         </h1>
     </div>
-    <div><span>Files in your cart: {{ stats.count }} (? Mb)</span></div>
+    <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
     <div><span>Temporary note: You may drag lines between columns to show more/less content.</span></div>
     
     <form action="{% url cart_add_remove_files action='remove' %}" method="POST">
