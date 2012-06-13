@@ -24,4 +24,8 @@ def remove_file_from_cart(request, legacy_sample_id):
 
 def get_cart_stats(request):
     cart = get_or_create_cart(request)
-    return {'count': len(cart)}
+    stats = {'count': len(cart), 'size': 0}
+    for f in cart:
+        if 'filesize' in f and int == type(f['filesize']):
+            stats['size'] += int(f['filesize'] / 1024.0 / 1024.0)
+    return stats
