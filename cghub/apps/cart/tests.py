@@ -23,12 +23,11 @@ class CartTests(TestCase):
         for f in selected_files:
             self.assertEqual(f in response.content, True)
 
-
     def test_card_add_duplicate_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file1', 'file1']
         response = self.client.post(url, {'selected_files': selected_files,
-            'attributes': '{"file1":{"legacy_sample_id":"file1"},"file1":{"legacy_sample_id":"file1"},"file1":{"legacy_sample_id":"file1"}}'
+            'attributes': '{"file1":{"legacy_sample_id":"file1"}, "file1":{"legacy_sample_id":"file1"}, "file1":{"legacy_sample_id":"file1"}}'
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -43,7 +42,6 @@ class CartTests(TestCase):
         response = self.client.post(url, {'selected_files': selected_files,
             'attributes': '{"file1":{"legacy_sample_id":"file1"},"file2":{"legacy_sample_id":"file2"},"file3":{"legacy_sample_id":"file3"}}'
         })
-
         # remove files
         rm_selected_files = ['file1', 'file3']
         url = reverse('cart_add_remove_files', args=['remove'])
