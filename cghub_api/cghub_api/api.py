@@ -7,7 +7,7 @@ cghub_api.api
 Functions for external use.
 
 """
-import urllib, urllib2
+import urllib2
 from lxml import objectify
 
 from exceptions import QueryRequired
@@ -35,10 +35,9 @@ def request(query=None, file_name=None):
         results = objectify.fromstring(open(file_name, 'r').read())
     elif query:
         uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
-        query_tuple = tuple(query.split('='))
-        if len(query_tuple) != 2:
-            raise ValueError("Invalid field=value pair in query: %s" % query)
-        url = server + uri + "?" + urllib.urlencode( [query_tuple] )
+        if not '=' in query:
+            raise ValueError("Query seems to be invalid (no '='): %s" % query)
+        url = server + uri + '?' + query
         req = urllib2.Request(url)
         response = urllib2.urlopen(req).read()
         results = objectify.fromstring(response)
