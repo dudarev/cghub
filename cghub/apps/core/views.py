@@ -16,7 +16,11 @@ class SearchView(TemplateView):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
         filter_str = ''
-        allowed_attributes = ['center_name', 'last_modified']
+        allowed_attributes = [
+                'center_name',
+                'last_modified',
+                'analyte_code',
+                ]
         for attr in allowed_attributes:
             if self.request.GET.get(attr):
                 filter_str += '&%s=%s' % (
