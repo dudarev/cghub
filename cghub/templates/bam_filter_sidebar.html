@@ -1,3 +1,4 @@
+{% load filter_link %}
 <div class="well sidebar">
     <ul class="nav nav-list">
         <li class="nav-header">Search</li>
@@ -8,14 +9,14 @@
         </li>
         <li class="nav-header">Filter</li>
         <li class="nav-header">By Center</li>
-        <li><a href="#">All</a></li>
-        <li><a href="#">Baylor</a></li>
-        <li><a href="#">Broad</a></li>
-        <li><a href="#">Harvard</a></li>
-        <li><a href="#">UNC-LCCC</a></li>
-        <li><a href="#">USC/Sidney K. B.</a></li>
-        <li><a href="#">VancouverGSC</a></li>
-        <li><a href="#">Washington U.</a></li>
+        <li><a href="{% filter_link request 'center_name' '' %}">All</a></li>
+        <li><a href="{% filter_link request 'center_name' 'BCM' %}">Baylor</a></li>
+        <li><a href="{% filter_link request 'center_name' 'BCCAGSC' %}">BCCAGSC</a></li>
+        <li><a href="{% filter_link request 'center_name' 'BI' %}">Broad Institute</a></li>
+        <li><a href="{% filter_link request 'center_name' 'HMS-RK' %}">Harvard</a></li>
+        <li><a href="{% filter_link request 'center_name' 'UNC-LCCC' %}">UNC-LCCC</a></li>
+        <li><a href="{% filter_link request 'center_name' 'USC-JHU' %}">USC/Sidney K. B.</a></li>
+        <li><a href="{% filter_link request 'center_name' 'WUGSC' %}">Washington U.</a></li>
         <li class="nav-header">By Date Uploaded</li>
         <li><a href="#">Any date</a></li>
         <li><a href="#">Today</a></li>
