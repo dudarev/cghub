@@ -18,11 +18,11 @@
         <li><a href="{% filter_link request 'center_name' 'USC-JHU' %}">USC/Sidney K. B.</a></li>
         <li><a href="{% filter_link request 'center_name' 'WUGSC' %}">Washington U.</a></li>
         <li class="nav-header">By Date Uploaded</li>
-        <li><a href="#">Any date</a></li>
-        <li><a href="#">Today</a></li>
-        <li><a href="#">Past 7 days</a></li>
-        <li><a href="#">This month</a></li>
-        <li><a href="#">This year</a></li>
+        <li><a href="{% filter_link request 'last_modified' '' %}">Any date</a></li>
+        <li><a href="{% filter_link request 'last_modified' '[NOW-1DAY TO NOW]' %}">Today</a></li>
+        <li><a href="{% filter_link request 'last_modified' '[NOW-7DAY TO NOW]' %}">Past 7 days</a></li>
+        <li><a href="{% filter_link request 'last_modified' '[NOW-1MONTH TO NOW]' %}">This month</a></li>
+        <li><a href="{% filter_link request 'last_modified' '[NOW-1YEAR TO NOW]' %}">This year</a></li>
         <li class="nav-header">By Experiment Type</li>
         <li><a href="#">All</a></li>
         <li><a href="#">DNA</a></li>

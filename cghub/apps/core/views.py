@@ -1,3 +1,5 @@
+import urllib
+
 from django.views.generic.base import TemplateView
 
 from cghub.cghub_api.api import request as api_request
@@ -14,13 +16,17 @@ class SearchView(TemplateView):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
         filter_str = ''
-        allowed_attributes = ['center_name']
+        allowed_attributes = ['center_name', 'last_modified']
         for attr in allowed_attributes:
             if self.request.GET.get(attr):
-                filter_str += '&%s=%s' % (attr, self.request.GET.get(attr))
+                filter_str += '&%s=%s' % (
+                        attr, 
+                        urllib.quote(self.request.GET.get(attr))
+                        )
         if q:
             query = "xml_text=%s" % q
             query += filter_str
+            print query
             results = api_request(query=query)
             if hasattr(results, 'Result'):
                 context['num_results'] = len(results.Result)
