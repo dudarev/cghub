@@ -10,6 +10,7 @@
                 <th class="data-table-data-cell">Date Uploaded</th>
                 <th class="data-table-data-cell">Disease</th>
                 <th class="data-table-data-cell">Sample Type</th>
+                <th class="data-table-data-cell">Experiment Type</th>
                 <th class="data-table-data-cell">Run Type</th>
                 <th class="data-table-data-cell">Center</th>
             </tr>
@@ -17,7 +18,7 @@
         <tbody>
         {% for r in results %}
             <tr>
-                <td class="data-table-checkbox-cell"><input type="checkbox" name="selected_files" id="id_selected_files" value="{{ r.legacy_sample_id }}" data-legacy_sample_id="{{ r.legacy_sample_id }}" data-analysis_id="{{ r.analysis_id }}" data-sample_accession="{{ r.sample_accession }}" data-filesize="{{ r.files.file.0.filesize }}" data-upload_date="{{ r.upload_date }}" data-disease_abbr="{{ r.disease_abbr }}" data-sample_type="{{ r.sample_type }}" data-analyte_code="{{ r.analyte_code }}" data-center_name="{{ r.center_name }}"></td>
+                <td class="data-table-checkbox-cell"><input type="checkbox" name="selected_files" id="id_selected_files" value="{{ r.legacy_sample_id }}" data-legacy_sample_id="{{ r.legacy_sample_id }}" data-analysis_id="{{ r.analysis_id }}" data-sample_accession="{{ r.sample_accession }}" data-filesize="{{ r.files.file.0.filesize }}" data-upload_date="{{ r.upload_date }}" data-disease_abbr="{{ r.disease_abbr }}" data-sample_type="{{ r.sample_type }}" data-analyte_code="{{ r.analyte_code }}" data-library_strategy="{{ r.library_strategy }}" data-center_name="{{ r.center_name }}"></td>
                 <td class="data-table-data-cell">{{ r.legacy_sample_id }}</td>
                 <td class="data-table-data-cell">{{ r.analysis_id }}</td>
                 <td class="data-table-data-cell">{{ r.sample_accession }}</td>
@@ -32,6 +33,7 @@
                 <td class="data-table-data-cell">{{ r.disease_abbr }}</td>
                 <td class="data-table-data-cell">{{ r.sample_type }}</td>
                 <td class="data-table-data-cell">{{ r.analyte_code }}</td>
+                <td class="data-table-data-cell">{{ r.library_strategy }}</td>
                 <td class="data-table-data-cell">{{ r.center_name }}</td>
             </tr>
         {% endfor %}

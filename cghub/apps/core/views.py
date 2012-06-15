@@ -21,6 +21,8 @@ class SearchView(TemplateView):
                 'last_modified',
                 'analyte_code',
                 'sample_type',
+                'library_strategy',
+                'disease_abbr',
                 ]
         for attr in allowed_attributes:
             if self.request.GET.get(attr):
