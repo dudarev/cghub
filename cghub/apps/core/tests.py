@@ -1,4 +1,6 @@
 from django.test.testcases import TestCase
+from django.template import Template, Context
+from django.http import HttpRequest
 
 
 class CoreTests(TestCase):
@@ -15,3 +17,42 @@ class CoreTests(TestCase):
         response = self.client.get('/search/?q=6d7*')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Found' in response.content)
+
+class TestTemplateTags(TestCase):
+    def test_sort_link_tag(self):
+        test_request = HttpRequest()
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+            ).render(Context({
+                    'request': test_request
+                }))
+                
+        self.assertEqual(out, 
+            '<a href="?sort_by=last_modified">Date Uploaded</a>')
+            
+        # make sure that other request.GET variables are preserved
+        test_request.GET.update({'q': 'sample_query'})
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+            ).render(Context({
+                    'request': test_request
+                }))
+                
+        self.assertEqual(out, 
+            '<a href="?q=sample_query&sort_by=last_modified">Date Uploaded</a>')
+            
+            
+        # make sure that direction label is rendered if it is active sort filter
+        del(test_request.GET['q'])
+        test_request.GET.update({'sort_by': 'last_modified'})
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+            ).render(Context({
+                    'request': test_request
+                }))
+                
+        self.assertEqual(out, 
+            '<a href="?sort_by=-last_modified">Date Uploaded DESC</a>')

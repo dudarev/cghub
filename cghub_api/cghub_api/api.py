@@ -41,5 +41,4 @@ def request(query=None, file_name=None):
         req = urllib2.Request(url)
         response = urllib2.urlopen(req).read()
         results = objectify.fromstring(response)
-
     return results
