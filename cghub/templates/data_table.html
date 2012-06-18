@@ -27,7 +27,7 @@
                     {% if r.filesize %}
                         {{ r.filesize }}
                     {% else %}
-                        {{ r.files.file.0.filesize }}
+                        {{ r.files.file.filesize }}
                     {% endif %}
                 </td>
                 <td class="data-table-data-cell">{{ r.upload_date }}</td>
