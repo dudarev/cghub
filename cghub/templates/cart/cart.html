@@ -14,16 +14,18 @@
     </div>
     <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
     <div><span>Temporary note: You may drag lines between columns to show more/less content.</span></div>
-    
+
     <form action="{% url cart_add_remove_files action='remove' %}" method="POST">
         {% csrf_token %}
         <div class="btn-group cart-btn-group">
             <button class="btn" type="submit">Remove from cart</button>
+            <button class="btn">Download Manifest</button>
             <button class="btn">Download XML</button>
         </div>
         {% include 'data_table.html' %}
         <div class="btn-group cart-btn-group">
             <button class="btn" type="submit">Remove from cart</button>
+            <button class="btn">Download Manifest</button>
             <button class="btn">Download XML</button>
         </div>
     </form>
