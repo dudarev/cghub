@@ -15,6 +15,9 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
+        sort_by = self.request.GET.get('sort_by', None)
+        if sort_by:
+            sort_by = urllib.quote(sort_by)
         filter_str = ''
         allowed_attributes = [
                 'center_name',
@@ -34,9 +37,9 @@ class SearchView(TemplateView):
             query = "xml_text=%s" % q
             query += filter_str
             print query
-            results = api_request(query=query)
+            results = api_request(query=query, sort_by=sort_by)
             if hasattr(results, 'Result'):
-                context['num_results'] = len(results.Result)
+                context['num_results'] = results.Hits
                 context['results'] = results.Result
             else:
                 context['message'] = 'No results found.'
