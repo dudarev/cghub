@@ -36,13 +36,11 @@ class SearchView(TemplateView):
         if q:
             query = "xml_text=%s" % q
             query += filter_str
-            #print query
+            print query
             results = api_request(query=query, sort_by=sort_by)
-            #if hasattr(results, 'Result'):
-                #context['num_results'] = len(results.Result)
-                #context['results'] = results.Result
-            #else:
-                #context['message'] = 'No results found.'
-            context['num_results'] = len(results)
-            context['results'] = results
+            if hasattr(results, 'Result'):
+                context['num_results'] = results.Hits
+                context['results'] = results.Result
+            else:
+                context['message'] = 'No results found.'
         return context
