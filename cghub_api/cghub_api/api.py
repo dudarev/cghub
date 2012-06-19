@@ -73,4 +73,3 @@ def request(query=None, file_name=None, sort_by=None):
         results.Result = sort_results(results.Result, sort_by)
         
     return results
-    
