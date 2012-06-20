@@ -1,9 +1,11 @@
+from StringIO import StringIO
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson as json
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
+from django.core.servers import basehttp
 
 
 class CartView(TemplateView):
@@ -35,14 +37,26 @@ class CartAddRemoveFilesView(View):
 
 class CartDownloadFilesView(View):
     def post(self, request, action):
-        if 'manifest' == action:
-            self.manifest()
-        elif 'xml' == action:
-            self.xml()
-        return HttpResponseRedirect(reverse('cart_page'))
+        selected_files = request.POST.getlist('selected_files')
+        if hasattr(self, action):
+            download = getattr(self, action)
+            return download(selected_files)
+        else:
+            return HttpResponseRedirect(reverse('cart_page'))
 
-    def manifest(self):
-        pass
+    def manifest(self, selected_files):
+        mfio = StringIO()
+        mfio.write('<root>TEST MANIFES FILE</root>')
+        mfio.seek(0)
+        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+        response['Content-Disposition'] = 'attachment; filename=manifest.xml'
+        return response
 
-    def xml(self):
-        pass
+
+    def xml(self, selected_files):
+        mfio = StringIO()
+        mfio.write('<root>TEST XML FILE</root>')
+        mfio.seek(0)
+        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+        response['Content-Disposition'] = 'attachment; filename=xml.xml'
+        return response
