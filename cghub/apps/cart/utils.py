@@ -1,3 +1,7 @@
+from django.conf import settings
+import os
+from lxml import  etree
+
 def get_or_create_cart(request):
     """ return cart and creates it if it does not exist """
     try:
@@ -6,12 +10,14 @@ def get_or_create_cart(request):
         request.session["cart"] = []
     return request.session["cart"]
 
+
 def add_file_to_cart(request, file_dict):
     """ adds file file_dict to cart """
     cart = get_or_create_cart(request)
     if file_dict not in cart:
         cart.append(file_dict)
     request.session.modified = True
+
 
 def remove_file_from_cart(request, legacy_sample_id):
     """ removes file with legacy_sample_id from cart """
@@ -22,6 +28,7 @@ def remove_file_from_cart(request, legacy_sample_id):
             break
     request.session.modified = True
 
+
 def get_cart_stats(request):
     cart = get_or_create_cart(request)
     stats = {'count': len(cart), 'size': 0}
@@ -29,3 +36,10 @@ def get_cart_stats(request):
         if 'filesize' in f and int == type(f['filesize']):
             stats['size'] += int(f['filesize'] / 1024.0 / 1024.0)
     return stats
+
+
+def cache_results(results):
+    for result in results.Result:
+        filename = os.path.join(settings.API_RESULTS_CACHE_FOLDER, result.analysis_id.text)
+        with open(filename, 'w') as f:
+            f.write(etree.tostring(result))
