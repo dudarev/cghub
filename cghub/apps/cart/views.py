@@ -1,4 +1,5 @@
 from StringIO import StringIO
+from lxml import etree
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
@@ -6,7 +7,7 @@ from django.utils import simplejson as json
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from django.core.servers import basehttp
-
+from cghub.cghub_api.api import request as api_request
 
 class CartView(TemplateView):
     """ Lists files in cart """
@@ -37,23 +38,35 @@ class CartAddRemoveFilesView(View):
 
 class CartDownloadFilesView(View):
     def post(self, request, action):
-        selected_files = request.POST.getlist('selected_files')
-        if hasattr(self, action):
+        cart = request.session.get('cart')
+        if cart and hasattr(self, action):
             download = getattr(self, action)
-            return download(selected_files)
+            return download(cart)
         else:
             return HttpResponseRedirect(reverse('cart_page'))
 
-    def manifest(self, selected_files):
+    def manifest(self, cart):
         mfio = StringIO()
-        mfio.write('<root>TEST MANIFES FILE</root>')
+        results = None
+        results_counter = 0
+        for file in cart:
+            result = api_request(query='analysis_id={0}'.format(file.get('analysis_id')), attributes=False)
+            results_counter += 1
+            if not results:
+                results = result
+                results.Query.clear()
+                results.Hits.clear()
+            else:
+                result.Result.set('id', u'{0}'.format(results_counter))
+            results.insert(results_counter + 1, result.Result)
+        mfio.write(etree.tostring(results))
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=manifest.xml'
         return response
 
 
-    def xml(self, selected_files):
+    def xml(self, cart):
         mfio = StringIO()
         mfio.write('<root>TEST XML FILE</root>')
         mfio.seek(0)
