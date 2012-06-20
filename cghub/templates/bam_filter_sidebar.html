@@ -3,9 +3,10 @@
     <ul class="nav nav-list">
         <li class="nav-header">Search</li>
         <li>
-        <form class="form-search" action="{% url search %}">
-                <input class="search-query" type="text" id="bam-filter-sidebar-search-field" placeholder="Search" name="q">
-        </form>
+            <form class="form-search" action="{% url search %}">
+                <input class="search-query" type="text" id="bam-filter-sidebar-search-field"
+                       placeholder="Search" name="q">
+            </form>
         </li>
         <li class="nav-header">Filter</li>
         <li class="nav-header">By Center</li>
@@ -36,7 +37,11 @@
         <li><a href="{% filter_link request 'sample_type' '' %}">All</a></li>
         <li><a href="{% filter_link request 'sample_type' '01' %}">Primary solid Tumor</a></li>
         <li><a href="{% filter_link request 'sample_type' '02' %}">Recurrent Solid Tumor</a></li>
-        <li><a href="{% filter_link request 'sample_type' '03' %}">Primary Blood Derived Cancer - Peripheral Blood</a></li>
+        <li>
+            <a href="{% filter_link request 'sample_type' '03' %}">
+                Primary Blood Derived Cancer - Peripheral Blood
+            </a>
+        </li>
         <li><a href="{% filter_link request 'sample_type' '04' %}">Recurrent Blood Derived Cancer - Bone Marrow</a></li>
         <li><a href="{% filter_link request 'sample_type' '05' %}">Additional - New Primary</a></li>
         <li><a href="{% filter_link request 'sample_type' '06' %}">Metastatic</a></li>
@@ -49,7 +54,11 @@
         <li><a href="{% filter_link request 'sample_type' '13' %}">EBV Immortalized Normal</a></li>
         <li><a href="{% filter_link request 'sample_type' '14' %}">Bone Marrow Normal</a></li>
         <li><a href="{% filter_link request 'sample_type' '20' %}">Control Analyte</a></li>
-        <li><a href="{% filter_link request 'sample_type' '40' %}">Recurrent Blood Derived Cancer - Peripheral Blood</a></li>
+        <li>
+            <a href="{% filter_link request 'sample_type' '40' %}">
+                Recurrent Blood Derived Cancer - Peripheral Blood
+            </a>
+        </li>
         <li><a href="{% filter_link request 'sample_type' '50' %}">Cell Lines</a></li>
         <li><a href="{% filter_link request 'sample_type' '60' %}">Primary Xenograft Tissue</a></li>
         <li><a href="{% filter_link request 'sample_type' '61' %}">Cell Line Derived Xenograft Tissue</a></li>
@@ -66,7 +75,11 @@
         <li><a href="{% filter_link request 'library_strategy' 'FINISHING' %}">FINISHING</a></li>
         <li><a href="{% filter_link request 'library_strategy' 'ChIP-Seq' %}">ChIP-Seq</a></li>
         <li><a href="{% filter_link request 'library_strategy' 'MNase-Seq' %}">MNase-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'DNase-Hypersensitivity' %}">DNase-Hypersensitivity</a></li>
+        <li>
+            <a href="{% filter_link request 'library_strategy' 'DNase-Hypersensitivity' %}">
+                DNase-Hypersensitivity
+            </a>
+        </li>
         <li><a href="{% filter_link request 'library_strategy' 'Bisulfite-Seq' %}">Bisulfite-Seq</a></li>
         <li><a href="{% filter_link request 'library_strategy' 'EST' %}">EST</a></li>
         <li><a href="{% filter_link request 'library_strategy' 'FL-cDNA' %}">FL-cDNA</a></li>
@@ -81,7 +94,11 @@
         <li><a href="{% filter_link request 'disease_abbr' 'BLCA' %}">Bladder Urothelial Carcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'LGG' %}">Brain Lower Grade Glioma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'BRCA' %}">Breast invasive carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'CESC' %}">Cervical squamous cell carcinoma and endocervical adenocarcinoma</a></li>
+        <li>
+            <a href="{% filter_link request 'disease_abbr' 'CESC' %}">
+                Cervical squamous cell carcinoma and endocervical adenocarcinoma
+            </a>
+        </li>
         <li><a href="{% filter_link request 'disease_abbr' 'LCLL' %}">Chronic Lymphocytic Leukemia</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'COAD' %}">Colon adenocarcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'CNTL' %}">Controls</a></li>
@@ -94,7 +111,11 @@
         <li><a href="{% filter_link request 'disease_abbr' 'LIHC' %}">Liver hepatocellular carcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'LUAD' %}">Lung adenocarcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'LUSC' %}">Lung squamous cell carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'DLBC' %}">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</a></li>
+        <li>
+            <a href="{% filter_link request 'disease_abbr' 'DLBC' %}">
+                Lymphoid Neoplasm Diffuse Large B-cell Lymphoma
+            </a>
+        </li>
         <li><a href="{% filter_link request 'disease_abbr' 'OV' %}">Ovarian serous cystadenocarcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'PAAD' %}">Pancreatic adenocarcinoma</a></li>
         <li><a href="{% filter_link request 'disease_abbr' 'PRAD' %}">Prostate adenocarcinoma</a></li>
