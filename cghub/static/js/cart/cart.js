@@ -49,17 +49,17 @@ jQuery(function ($) {
         removeFromCart:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace('action', 'remove'));
+            form.attr('action', form.attr('action').replace(/(action|xml|manifest)/, 'remove'));
         },
         downloadManifest:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace('action', 'manifest'));
+            form.attr('action', form.attr('action').replace(/(action|xml|remove)/, 'manifest'));
         },
         downloadXml:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace('action', 'xml'));
+            form.attr('action', form.attr('action').replace(/(action|manifest|remove)/, 'xml'));
         }
     };
     cghub.cart.init();
