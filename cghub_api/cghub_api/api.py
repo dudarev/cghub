@@ -57,7 +57,7 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     if query == None and file_name:
         results = objectify.fromstring(open(file_name, 'r').read())
     elif query:
-        if attributes:
+        if get_attributes:
             uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
         else:
             uri = CGHUB_ANALYSIS_OBJECT_URI
