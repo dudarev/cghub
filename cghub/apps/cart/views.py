@@ -45,32 +45,38 @@ class CartDownloadFilesView(View):
         else:
             return HttpResponseRedirect(reverse('cart_page'))
 
-    def manifest(self, cart):
-        mfio = StringIO()
+    @staticmethod
+    def get_results(cart, get_attributes):
         results = None
-        results_counter = 0
+        results_counter = 1
         for file in cart:
             result = api_request(query='analysis_id={0}'.format(
                 file.get('analysis_id')),
-                get_attributes=False)
-            results_counter += 1
+                get_attributes=get_attributes)
             if not results:
                 results = result
                 results.Query.clear()
                 results.Hits.clear()
             else:
                 result.Result.set('id', u'{0}'.format(results_counter))
-            results.insert(results_counter + 1, result.Result)
+                # '+ 1' because the first two elements (0th and 1st) are Query and Hits
+                results.insert(results_counter + 1, result.Result)
+            results_counter += 1
+        return results
+
+    def manifest(self, cart):
+        mfio = StringIO()
+        results = self.get_results(cart, get_attributes=False)
         mfio.write(etree.tostring(results))
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=manifest.xml'
         return response
 
-
     def xml(self, cart):
         mfio = StringIO()
-        mfio.write('<root>TEST XML FILE</root>')
+        results = self.get_results(cart, get_attributes=True)
+        mfio.write(etree.tostring(results))
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=xml.xml'
