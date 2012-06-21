@@ -12,7 +12,7 @@ from cghub.cghub_api.api import request as api_request
 class CartView(TemplateView):
     """ Lists files in cart """
     template_name = 'cart/cart.html'
-
+    
     def get_context_data(self, **kwargs):
         return {'results': get_or_create_cart(self.request),
                 'stats': get_cart_stats(self.request)
@@ -50,7 +50,9 @@ class CartDownloadFilesView(View):
         results = None
         results_counter = 0
         for file in cart:
-            result = api_request(query='analysis_id={0}'.format(file.get('analysis_id')), attributes=False)
+            result = api_request(query='analysis_id={0}'.format(
+                file.get('analysis_id')),
+                get_attributes=False)
             results_counter += 1
             if not results:
                 results = result
