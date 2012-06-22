@@ -53,10 +53,14 @@ class CartDownloadFilesView(View):
         results = None
         results_counter = 1
         for file in cart:
-            result = api_request(query='analysis_id={0}'.format(
-                file.get('analysis_id')),
-                get_attributes=get_attributes)
-            if not results:
+            analysis_id = file.get('analysis_id')
+            filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
+            try:
+                with open(os.path.join(settings.API_RESULTS_CACHE_FOLDER, filename)) as f:
+                    result = objectify.fromstring(f.read())
+            except IOError:
+                result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
+            if results is None:
                 results = result
                 results.Query.clear()
                 results.Hits.clear()
