@@ -1,7 +1,6 @@
 import urllib
 
 from django.views.generic.base import TemplateView
-from cghub.apps.cart.utils import cache_results
 from cghub.cghub_api.api import request as api_request
 
 
@@ -41,7 +40,6 @@ class SearchView(TemplateView):
             if hasattr(results, 'Result'):
                 context['num_results'] = results.Hits
                 context['results'] = results.Result
-                cache_results(results)
             else:
                 context['message'] = 'No results found.'
         return context
