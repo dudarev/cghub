@@ -41,8 +41,7 @@ def sort_results(results, sort_by):
         sorted_list.reverse()
     return sorted_list
 
-
-def request(query=None, file_name=None, sort_by=None):
+def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed Response object.
@@ -58,7 +57,10 @@ def request(query=None, file_name=None, sort_by=None):
     if query == None and file_name:
         results = objectify.fromstring(open(file_name, 'r').read())
     elif query:
-        uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
+        if get_attributes:
+            uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
+        else:
+            uri = CGHUB_ANALYSIS_OBJECT_URI
         if not '=' in query:
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
         url = server + uri + '?' + query
