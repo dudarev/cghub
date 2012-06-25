@@ -12,3 +12,9 @@ TEST_APP= core
 
 MANAGE= PYTHONPATH=$(PYTHONPATH) python manage.py
 
+PIDS_DIR=pids
+LOGS_DIR=logs
+
+CELERYD_PID=$(CURDIR)/$(PIDS_DIR)/celeryd.pid
+CELERYD_LOG=$(CURDIR)/$(LOGS_DIR)/celeryd.log
+
