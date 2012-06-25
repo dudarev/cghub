@@ -13,6 +13,8 @@ def cache_results_task(file_dict):
         "{0}_with_attributes".format(analysis_id))
     filename_without_attributes = os.path.join(settings.API_RESULTS_CACHE_FOLDER,
         "{0}_without_attributes".format(analysis_id))
+    if os.path.isfile(filename_with_attributes) and os.path.isfile(filename_without_attributes):
+        return
     result = api_request(query='analysis_id={0}'.format(analysis_id))
     with open(filename_with_attributes, 'w') as f:
         f.write(etree.tostring(result))
