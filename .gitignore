@@ -12,6 +12,8 @@ Vagrantfile
 tests/coverage/modules/*
 Makefile.def
 cghub/settings/local.py
+pids/*
+logs/*
 
 #
 # Added to this project
