@@ -24,18 +24,18 @@ def sort_results(results, sort_by):
     from operator import itemgetter
 
     reverse_order = False
-
+    
     # figure out order
     if sort_by.startswith("-"):
         reverse_order = True
         sort_by = sort_by[1:]
-
+    
     try:
         sorted_list = sorted(results, key=itemgetter(sort_by))
     except AttributeError:
         # no such child, return original unsorted result
         return results
-
+    
     # reverse order if needed
     if reverse_order:
         sorted_list.reverse()
