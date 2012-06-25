@@ -10,6 +10,7 @@ from template import *
 from apps import *
 from cache import *
 from debug_toolbar_settings import *
+from celery import *
 from logging import *
 from tests import *
 

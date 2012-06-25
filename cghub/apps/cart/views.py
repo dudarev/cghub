@@ -1,10 +1,12 @@
 from StringIO import StringIO
-from lxml import etree
+from django.conf import settings
+import os
+from lxml import etree, objectify
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson as json
-from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart
+from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from django.core.servers import basehttp
 from cghub.cghub_api.api import request as api_request
@@ -12,7 +14,7 @@ from cghub.cghub_api.api import request as api_request
 class CartView(TemplateView):
     """ Lists files in cart """
     template_name = 'cart/cart.html'
-    
+
     def get_context_data(self, **kwargs):
         return {'results': get_or_create_cart(self.request),
                 'stats': get_cart_stats(self.request)
@@ -28,6 +30,7 @@ class CartAddRemoveFilesView(View):
             attributes = json.loads(request.POST['attributes'])
             for f in request.POST.getlist('selected_files'):
                 add_file_to_cart(request, attributes[f])
+                cache_results(attributes[f])
             return HttpResponse(json.dumps({"redirect": reverse('cart_page')}), mimetype="application/json")
         if 'remove' == action:
             for f in request.POST.getlist('selected_files'):
@@ -50,10 +53,14 @@ class CartDownloadFilesView(View):
         results = None
         results_counter = 1
         for file in cart:
-            result = api_request(query='analysis_id={0}'.format(
-                file.get('analysis_id')),
-                get_attributes=get_attributes)
-            if not results:
+            analysis_id = file.get('analysis_id')
+            filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
+            try:
+                with open(os.path.join(settings.API_RESULTS_CACHE_FOLDER, filename)) as f:
+                    result = objectify.fromstring(f.read())
+            except IOError:
+                result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
+            if results is None:
                 results = result
                 results.Query.clear()
                 results.Hits.clear()

@@ -82,6 +82,13 @@ else
 	@echo Done
 endif
 
+celeryd:
+	-@kill -9 `cat $(CELERYD_PID)`
+	$(MANAGE) celeryd -Q celery --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)
+
+celeryd_stop:
+	-@kill -9 `cat $(CELERYD_PID)`
+
 #
 # end targets
 

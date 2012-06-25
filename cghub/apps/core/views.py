@@ -1,7 +1,6 @@
 import urllib
 
 from django.views.generic.base import TemplateView
-
 from cghub.cghub_api.api import request as api_request
 
 
@@ -20,19 +19,19 @@ class SearchView(TemplateView):
             sort_by = urllib.quote(sort_by)
         filter_str = ''
         allowed_attributes = [
-                'center_name',
-                'last_modified',
-                'analyte_code',
-                'sample_type',
-                'library_strategy',
-                'disease_abbr',
-                ]
+            'center_name',
+            'last_modified',
+            'analyte_code',
+            'sample_type',
+            'library_strategy',
+            'disease_abbr',
+            ]
         for attr in allowed_attributes:
             if self.request.GET.get(attr):
                 filter_str += '&%s=%s' % (
-                        attr, 
-                        urllib.quote(self.request.GET.get(attr))
-                        )
+                    attr,
+                    urllib.quote(self.request.GET.get(attr))
+                    )
         if q:
             query = "xml_text=%s" % q
             query += filter_str
