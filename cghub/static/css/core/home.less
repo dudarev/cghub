@@ -1,7 +1,70 @@
 @import "../base.less";
-@import "../data-table.less";
-@import "../bam-filter-sidebar.less";
 
-div.home-btn-group {
-    padding: 15px 0;
+body {
+    background-image: url(../../img/grid-18px-masked.png);
+    background-repeat: repeat-x;
+    background-position: 0 40px;
+}
+
+.jumbotron {
+    position: relative;
+    h1 {
+        margin-bottom: 9px;
+        font-size: 48px;
+        font-weight: bold;
+        letter-spacing: -1px;
+        line-height: 1;
+    }
+    p {
+        margin-bottom: 18px;
+        font-weight: 300;
+    }
+    .input-large {
+        font-size: 20px;
+        font-weight: normal;
+        padding: 14px 24px;
+        margin-right: 10px;
+        width: 30%;
+    }
+}
+
+.masthead {
+    padding-top: 80px;
+    margin-bottom: 72px;
+    h1 {
+        margin-bottom: 18px;
+    }
+    p {
+        margin-left: 5%;
+        margin-right: 5%;
+        font-size: 30px;
+        line-height: 36px;
+    }
+    h1, p, form {
+        text-align: center;
+    }
+    form {
+        margin: 75px 0;
+    }
+}
+
+.bs-links {
+    margin: 36px 0;
+}
+
+.quick-links {
+    min-height: 30px;
+    margin: 0;
+    padding: 5px 20px;
+    list-style: none;
+    text-align: center;
+    overflow: hidden;
+    :first-child {
+        min-height: 0;
+    }
+    li {
+        display: inline;
+        margin: 0 8px;
+        color: #999;
+    }
 }

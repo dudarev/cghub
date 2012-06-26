@@ -24,16 +24,16 @@
             <a class="brand" href="/">UC SANTA CRUZ</a>
             <ul class="nav">
                 <li><a href="{% url home_page %}">Home</a></li>
-                <li><a href="#">Browser</a></li>
-                <li><a href="#">Help</a></li>
+                <li><a href="{% url search_page %}">Search</a></li>
                 <li><a href="{% url cart_page %}">Cart ({{ request.session.cart|length }})</a></li>
+                <li><a href="{% url help_page %}">Help</a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
-                    <p class="navbar-text pull-right">Cancer Genomics Hub *Beta*</p>
+                    <p class="navbar-text pull-right">CGHub Browser *Beta*</p>
                 </li>
             </ul>
-            <form class="navbar-search pull-right" action="{% url search %}">
+            <form class="navbar-search pull-right" action="{% url search_page %}">
                 <input type="text" class="search-query span2" placeholder="Search" name="q">
             </form>
         </div>
@@ -41,12 +41,14 @@
 </div>
 <div class="container-fluid base-container">
     <div class="row row-fluid">
-        <div class="span3 base-sidebar">
-            {% block extra_sidebar %} {% endblock %}
-        </div>
-        <div class="span9 base-content">
-            {% block extra_content %} {% endblock %}
-        </div>
+        {% block main_content %}
+            <div class="span3 base-sidebar">
+                {% block extra_sidebar %} {% endblock %}
+            </div>
+            <div class="span9 base-content">
+                {% block extra_content %} {% endblock %}
+            </div>
+        {% endblock %}
     </div>
     <hr>
     <footer></footer>

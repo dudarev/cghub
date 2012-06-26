@@ -12,13 +12,8 @@ jQuery(function ($) {
             cghub.home.bindEvents();
         },
         cacheElements:function () {
-            cghub.home.$homeTable = $('table.data-table');
-            cghub.home.$homeTable.colResizable({
-                liveDrag:true
-            });
         },
         bindEvents:function () {
-
         }
     };
     cghub.home.init();

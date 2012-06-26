@@ -2,24 +2,27 @@
 {% block extra_header_css %}
     <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/home.less" media="all">
 {% endblock %}
-{% block extra_sidebar %}
-    {% include 'bam_filter_sidebar.html' %}
-{% endblock %}
-{% block extra_content %}
-    <div class="page-header">
-        <h1>
-            Select BAM Files to change
-            <small>You can add any BAM into your cart</small>
-        </h1>
-    </div>
-    <span>Temporary note: You may drag lines between columns to show more/less content.</span>
-    <div class="btn-group home-btn-group">
-        <button class="btn">Add to cart</button>
-    </div>
-    {% include 'data_table.html' %}
-    <div class="btn-group home-btn-group">
-        <button class="btn">Add to cart</button>
-    </div>
+{% block main_content %}
+    <header class="jumbotron masthead">
+        <div class="inner">
+            <h1>Cancer Genomics Hub Browser</h1>
+
+            <p>A sentence about CGHub.</p>
+
+            <form class="form-search" action="{% url search_page %}">
+                <input class="search-query input-large" type="text"
+                       name="q">
+            </form>
+        </div>
+        <div class="bs-links">
+            <ul class="quick-links">
+                <li><a href="{% url home_page %}">Home</a></li>
+                <li><a href="{% url search_page %}">Search</a></li>
+                <li><a href="{% url cart_page %}">Cart</a></li>
+                <li><a href="{% url help_page %}">Help</a></li>
+            </ul>
+        </div>
+    </header>
 {% endblock %}
 {% block extra_body_js %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>

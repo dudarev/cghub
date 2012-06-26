@@ -41,5 +41,10 @@ class SearchView(TemplateView):
                 context['num_results'] = results.Hits
                 context['results'] = results.Result
             else:
+                context['num_results'] = 0
                 context['message'] = 'No results found.'
         return context
+
+
+class HelpView(TemplateView):
+    template_name = 'core/help.html'
