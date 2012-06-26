@@ -1,34 +1,49 @@
 {% extends 'base.html' %}
 {% block extra_header_css %}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/home.less" media="all">
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/search.less" media="all">
 {% endblock %}
 {% block extra_sidebar %}
     {% include 'bam_filter_sidebar.html' %}
 {% endblock %}
 {% block extra_content %}
     <div class="page-header">
-        <h1>
-            Select BAM Files to change
-            <small>You can add any BAM into your cart</small>
-        </h1>
+        {% if num_results == None %}
+            <h1>
+                Search BAM Files
+                <small>You can search BAM by different parameters</small>
+            </h1>
+        {% else %}
+            <h1>
+                Select BAM Files to change
+                <small>You can add any BAM into your cart</small>
+            </h1>
+        {% endif %}
     </div>
     <span>Temporary note: You may drag lines between columns to show more/less content.</span>
-    {% if message %}<div>{{ message }}</div>{% endif %}
     {% if num_results %}
-    <div>Found {{num_results}} results</div>
+        <div>Found {{ num_results }} results</div>
     {% endif %}
-    <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
-        {% csrf_token %}
-        <div class="btn-group home-btn-group">
-            <button class="btn" type="submit">Add to cart</button>
-        </div>
-        {% include 'data_table.html' %}
-        <div class="btn-group home-btn-group">
-            <button class="btn" type="submit">Add to cart</button>
-        </div>
-    </form>
+    {% if num_results > 0 %}
+        <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
+            {% csrf_token %}
+            <div class="btn-group search-btn-group">
+                <button class="btn" type="submit">Add to cart</button>
+            </div>
+            {% include 'data_table.html' %}
+            <div class="btn-group search-btn-group">
+                <button class="btn" type="submit">Add to cart</button>
+            </div>
+        </form>
+    {% elif num_results == None %}
+        <form class="search-form form-search" action="{% url search_page %}">
+            <input class="search-query" type="text" name="q">
+        </form>
+    {% else %}
+        {% if message %}
+            <div>{{ message }}</div>
+        {% endif %}
+    {% endif %}
 {% endblock %}
 {% block extra_body_js %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.js"></script>
 {% endblock %}
