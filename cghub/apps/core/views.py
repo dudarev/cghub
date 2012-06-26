@@ -43,3 +43,7 @@ class SearchView(TemplateView):
             else:
                 context['message'] = 'No results found.'
         return context
+
+
+class HelpView(TemplateView):
+    template_name = 'core/help.html'
