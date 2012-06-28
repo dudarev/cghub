@@ -62,7 +62,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"legacy_sample_id":"file1"},"file2":{"legacy_sample_id":"file2"},"file3":{"legacy_sample_id":"file3"}}'
+                                          'attributes': '{"file1":{"analysis_id":"file1"},'
+                                                        '"file2":{"analysis_id":"file2"},'
+                                                        '"file3":{"analysis_id":"file3"}}'
         })
         # remove files
         rm_selected_files = ['file1', 'file3']
