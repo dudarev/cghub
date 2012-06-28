@@ -9,8 +9,9 @@ def get_or_create_cart(request):
 def add_file_to_cart(request, file_dict):
     """ adds file file_dict to cart """
     cart = get_or_create_cart(request)
-    if file_dict not in cart:
-        cart.append(file_dict)
+    analysis_id = file_dict.get('analysis_id')
+    if analysis_id not in cart:
+        cart[analysis_id] = file_dict
     request.session.modified = True
 
 
