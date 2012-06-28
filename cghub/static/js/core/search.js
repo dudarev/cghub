@@ -47,8 +47,10 @@ jQuery(function ($) {
                 var acc = $(accordions[i]),
                     clickable = acc.children('.filter-accordion-header');
                 clickable.bind('click', function() {
-                    var content = $(this).parent().children('.filter-accordion-content');
+                    var content = $(this).parent().children('.filter-accordion-content'),
+                        icon = $(this).children('.filter-accordion-icon');
                     content.slideToggle();
+                    icon.toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s')
                 })
             }
 
