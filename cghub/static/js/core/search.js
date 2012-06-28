@@ -10,6 +10,7 @@ jQuery(function ($) {
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
+            cghub.search.initFilterAccordions();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -39,6 +40,18 @@ jQuery(function ($) {
                 }
             });
             return false;
+        },
+        initFilterAccordions:function() {
+            var accordions = $.find('.filter-accordion');
+            for (var i=0; i<accordions.length; i++) {
+                var acc = $(accordions[i]),
+                    clickable = acc.children('.filter-accordion-header');
+                clickable.bind('click', function() {
+                    var content = $(this).parent().children('.filter-accordion-content');
+                    content.slideToggle();
+                })
+            }
+
         }
     };
     cghub.search.init();

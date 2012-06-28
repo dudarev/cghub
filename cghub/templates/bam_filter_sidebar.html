@@ -8,101 +8,137 @@
             </form>
         </li>
         <li class="nav-header">Filter</li>
-        <li class="nav-header">By Center</li>
-        <li><a href="{% filter_link request 'center_name' '' %}">All</a></li>
-        <li><a href="{% filter_link request 'center_name' 'BCM' %}">Baylor</a></li>
-        <li><a href="{% filter_link request 'center_name' 'BCCAGSC' %}">BCCAGSC</a></li>
-        <li><a href="{% filter_link request 'center_name' 'BI' %}">Broad Institute</a></li>
-        <li><a href="{% filter_link request 'center_name' 'HMS-RK' %}">Harvard</a></li>
-        <li><a href="{% filter_link request 'center_name' 'UNC-LCCC' %}">UNC-LCCC</a></li>
-        <li><a href="{% filter_link request 'center_name' 'USC-JHU' %}">USC/Sidney K. B.</a></li>
-        <li><a href="{% filter_link request 'center_name' 'WUGSC' %}">Washington U.</a></li>
-        <li class="nav-header">By Date Uploaded</li>
-        <li><a href="{% filter_link request 'last_modified' '' %}">Any date</a></li>
-        <li><a href="{% filter_link request 'last_modified' '[NOW-1DAY TO NOW]' %}">Today</a></li>
-        <li><a href="{% filter_link request 'last_modified' '[NOW-7DAY TO NOW]' %}">Past 7 days</a></li>
-        <li><a href="{% filter_link request 'last_modified' '[NOW-1MONTH TO NOW]' %}">This month</a></li>
-        <li><a href="{% filter_link request 'last_modified' '[NOW-1YEAR TO NOW]' %}">This year</a></li>
-        <li class="nav-header">By Experiment Type</li>
-        <li><a href="{% filter_link request 'analyte_code' '' %}">All</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'D' %}">DNA</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'G' %}">GenomePlex</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'H' %}">mirVana RNA</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'R' %}">RNA</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'T' %}">Total RNA</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'W' %}">WGA</a></li>
-        <li><a href="{% filter_link request 'analyte_code' 'X' %}">WGA X</a></li>
-        <li class="nav-header">By Sample Type</li>
-        <li><a href="{% filter_link request 'sample_type' '' %}">All</a></li>
-        <li><a href="{% filter_link request 'sample_type' '01' %}">Primary solid Tumor</a></li>
-        <li><a href="{% filter_link request 'sample_type' '02' %}">Recurrent Solid Tumor</a></li>
-        <li><a href="{% filter_link request 'sample_type' '03' %}">Primary Blood Derived Cancer - Peripheral Blood</a></li>
-        <li><a href="{% filter_link request 'sample_type' '04' %}">Recurrent Blood Derived Cancer - Bone Marrow</a></li>
-        <li><a href="{% filter_link request 'sample_type' '05' %}">Additional - New Primary</a></li>
-        <li><a href="{% filter_link request 'sample_type' '06' %}">Metastatic</a></li>
-        <li><a href="{% filter_link request 'sample_type' '07' %}">Additional Metastatic</a></li>
-        <li><a href="{% filter_link request 'sample_type' '08' %}">Human Tumor Original Cells</a></li>
-        <li><a href="{% filter_link request 'sample_type' '09' %}">Primary Blood Derived Cancer - Bone Marrow</a></li>
-        <li><a href="{% filter_link request 'sample_type' '10' %}">Blood Derived Normal</a></li>
-        <li><a href="{% filter_link request 'sample_type' '11' %}">Solid Tissue Normal</a></li>
-        <li><a href="{% filter_link request 'sample_type' '12' %}">Buccal Cell Normal</a></li>
-        <li><a href="{% filter_link request 'sample_type' '13' %}">EBV Immortalized Normal</a></li>
-        <li><a href="{% filter_link request 'sample_type' '14' %}">Bone Marrow Normal</a></li>
-        <li><a href="{% filter_link request 'sample_type' '20' %}">Control Analyte</a></li>
-        <li><a href="{% filter_link request 'sample_type' '40' %}">Recurrent Blood Derived Cancer - Peripheral Blood</a></li>
-        <li><a href="{% filter_link request 'sample_type' '50' %}">Cell Lines</a></li>
-        <li><a href="{% filter_link request 'sample_type' '60' %}">Primary Xenograft Tissue</a></li>
-        <li><a href="{% filter_link request 'sample_type' '61' %}">Cell Line Derived Xenograft Tissue</a></li>
-        <li class="nav-header">By Run Type</li>
-        <li><a href="{% filter_link request 'library_strategy' '' %}">All</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'WGS' %}">WGS</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'WXS' %}">WXS</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'RNA-Seq' %}">RNA-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'WCS' %}">WCS</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'CLONE' %}">CLONE</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'POOLCLONE' %}">POOLCLONE</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'AMPLICON' %}">AMPLICON</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'CLONEEND' %}">CLONEEND</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'FINISHING' %}">FINISHING</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'ChIP-Seq' %}">ChIP-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'MNase-Seq' %}">MNase-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'DNase-Hypersensitivity' %}">DNase-Hypersensitivity</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'Bisulfite-Seq' %}">Bisulfite-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'EST' %}">EST</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'FL-cDNA' %}">FL-cDNA</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'CTS' %}">CTS</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'MRE-Seq' %}">MRE-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'MeDIP-Seq' %}">MeDIP-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'MDB-Seq' %}">MDB-Seq</a></li>
-        <li><a href="{% filter_link request 'library_strategy' 'OTHER' %}">OTHER</a></li>
-        <li class="nav-header">By Disease</li>
-        <li><a href="{% filter_link request 'disease_abbr' '' %}">All</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LAML' %}">Acute Myeloid Leukemia</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'BLCA' %}">Bladder Urothelial Carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LGG' %}">Brain Lower Grade Glioma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'BRCA' %}">Breast invasive carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'CESC' %}">Cervical squamous cell carcinoma and endocervical adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LCLL' %}">Chronic Lymphocytic Leukemia</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'COAD' %}">Colon adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'CNTL' %}">Controls</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'ESCA' %}">Esophageal carcinoma </a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'GBM' %}">Glioblastoma multiforme</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'HNSC' %}">Head and Neck squamous cell carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'KICH' %}">Kidney Chromophobe</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'KIRC' %}">Kidney renal clear cell carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'KIRP' %}">Kidney renal papillary cell carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LIHC' %}">Liver hepatocellular carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LUAD' %}">Lung adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'LUSC' %}">Lung squamous cell carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'DLBC' %}">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'OV' %}">Ovarian serous cystadenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'PAAD' %}">Pancreatic adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'PRAD' %}">Prostate adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'READ' %}">Rectum adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'SARC' %}">Sarcoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'SKCM' %}">Skin Cutaneous Melanoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'STAD' %}">Stomach adenocarcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'THCA' %}">Thyroid carcinoma</a></li>
-        <li><a href="{% filter_link request 'disease_abbr' 'UCEC' %}">Uterine Corpus Endometrioid Carcinoma</a></li>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Center</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'center_name' '' %}">All</a></li>
+                <li><a href="{% filter_link request 'center_name' 'BCM' %}">Baylor</a></li>
+                <li><a href="{% filter_link request 'center_name' 'BCCAGSC' %}">BCCAGSC</a></li>
+                <li><a href="{% filter_link request 'center_name' 'BI' %}">Broad Institute</a></li>
+                <li><a href="{% filter_link request 'center_name' 'HMS-RK' %}">Harvard</a></li>
+                <li><a href="{% filter_link request 'center_name' 'UNC-LCCC' %}">UNC-LCCC</a></li>
+                <li><a href="{% filter_link request 'center_name' 'USC-JHU' %}">USC/Sidney K. B.</a></li>
+                <li><a href="{% filter_link request 'center_name' 'WUGSC' %}">Washington U.</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Date Uploaded</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'last_modified' '' %}">Any date</a></li>
+                <li><a href="{% filter_link request 'last_modified' '[NOW-1DAY TO NOW]' %}">Today</a></li>
+                <li><a href="{% filter_link request 'last_modified' '[NOW-7DAY TO NOW]' %}">Past 7 days</a></li>
+                <li><a href="{% filter_link request 'last_modified' '[NOW-1MONTH TO NOW]' %}">This month</a></li>
+                <li><a href="{% filter_link request 'last_modified' '[NOW-1YEAR TO NOW]' %}">This year</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Experiment Type</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'analyte_code' '' %}">All</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'D' %}">DNA</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'G' %}">GenomePlex</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'H' %}">mirVana RNA</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'R' %}">RNA</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'T' %}">Total RNA</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'W' %}">WGA</a></li>
+                <li><a href="{% filter_link request 'analyte_code' 'X' %}">WGA X</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Sample Type</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'sample_type' '' %}">All</a></li>
+                <li><a href="{% filter_link request 'sample_type' '01' %}">Primary solid Tumor</a></li>
+                <li><a href="{% filter_link request 'sample_type' '02' %}">Recurrent Solid Tumor</a></li>
+                <li><a href="{% filter_link request 'sample_type' '03' %}">Primary Blood Derived Cancer - Peripheral Blood</a></li>
+                <li><a href="{% filter_link request 'sample_type' '04' %}">Recurrent Blood Derived Cancer - Bone Marrow</a></li>
+                <li><a href="{% filter_link request 'sample_type' '05' %}">Additional - New Primary</a></li>
+                <li><a href="{% filter_link request 'sample_type' '06' %}">Metastatic</a></li>
+                <li><a href="{% filter_link request 'sample_type' '07' %}">Additional Metastatic</a></li>
+                <li><a href="{% filter_link request 'sample_type' '08' %}">Human Tumor Original Cells</a></li>
+                <li><a href="{% filter_link request 'sample_type' '09' %}">Primary Blood Derived Cancer - Bone Marrow</a></li>
+                <li><a href="{% filter_link request 'sample_type' '10' %}">Blood Derived Normal</a></li>
+                <li><a href="{% filter_link request 'sample_type' '11' %}">Solid Tissue Normal</a></li>
+                <li><a href="{% filter_link request 'sample_type' '12' %}">Buccal Cell Normal</a></li>
+                <li><a href="{% filter_link request 'sample_type' '13' %}">EBV Immortalized Normal</a></li>
+                <li><a href="{% filter_link request 'sample_type' '14' %}">Bone Marrow Normal</a></li>
+                <li><a href="{% filter_link request 'sample_type' '20' %}">Control Analyte</a></li>
+                <li><a href="{% filter_link request 'sample_type' '40' %}">Recurrent Blood Derived Cancer - Peripheral Blood</a></li>
+                <li><a href="{% filter_link request 'sample_type' '50' %}">Cell Lines</a></li>
+                <li><a href="{% filter_link request 'sample_type' '60' %}">Primary Xenograft Tissue</a></li>
+                <li><a href="{% filter_link request 'sample_type' '61' %}">Cell Line Derived Xenograft Tissue</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Run Type</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'library_strategy' '' %}">All</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'WGS' %}">WGS</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'WXS' %}">WXS</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'RNA-Seq' %}">RNA-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'WCS' %}">WCS</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'CLONE' %}">CLONE</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'POOLCLONE' %}">POOLCLONE</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'AMPLICON' %}">AMPLICON</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'CLONEEND' %}">CLONEEND</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'FINISHING' %}">FINISHING</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'ChIP-Seq' %}">ChIP-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'MNase-Seq' %}">MNase-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'DNase-Hypersensitivity' %}">DNase-Hypersensitivity</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'Bisulfite-Seq' %}">Bisulfite-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'EST' %}">EST</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'FL-cDNA' %}">FL-cDNA</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'CTS' %}">CTS</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'MRE-Seq' %}">MRE-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'MeDIP-Seq' %}">MeDIP-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'MDB-Seq' %}">MDB-Seq</a></li>
+                <li><a href="{% filter_link request 'library_strategy' 'OTHER' %}">OTHER</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="filter-accordion">
+          <li class="filter-accordion-header nav-header">By Disease</li>
+          <div class="filter-accordion-content">
+            <ul class="nav">
+                <li><a href="{% filter_link request 'disease_abbr' '' %}">All</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LAML' %}">Acute Myeloid Leukemia</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'BLCA' %}">Bladder Urothelial Carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LGG' %}">Brain Lower Grade Glioma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'BRCA' %}">Breast invasive carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'CESC' %}">Cervical squamous cell carcinoma and endocervical adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LCLL' %}">Chronic Lymphocytic Leukemia</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'COAD' %}">Colon adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'CNTL' %}">Controls</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'ESCA' %}">Esophageal carcinoma </a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'GBM' %}">Glioblastoma multiforme</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'HNSC' %}">Head and Neck squamous cell carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'KICH' %}">Kidney Chromophobe</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'KIRC' %}">Kidney renal clear cell carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'KIRP' %}">Kidney renal papillary cell carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LIHC' %}">Liver hepatocellular carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LUAD' %}">Lung adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'LUSC' %}">Lung squamous cell carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'DLBC' %}">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'OV' %}">Ovarian serous cystadenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'PAAD' %}">Pancreatic adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'PRAD' %}">Prostate adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'READ' %}">Rectum adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'SARC' %}">Sarcoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'SKCM' %}">Skin Cutaneous Melanoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'STAD' %}">Stomach adenocarcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'THCA' %}">Thyroid carcinoma</a></li>
+                <li><a href="{% filter_link request 'disease_abbr' 'UCEC' %}">Uterine Corpus Endometrioid Carcinoma</a></li>
+            </ul>
+          </div>
+        </div>
     </ul>
 </div>
