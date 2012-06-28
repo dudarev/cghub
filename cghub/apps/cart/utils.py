@@ -2,10 +2,7 @@ from cghub.apps.cart.tasks import cache_results_task
 
 def get_or_create_cart(request):
     """ return cart and creates it if it does not exist """
-    try:
-        request.session["cart"]
-    except KeyError:
-        request.session["cart"] = []
+    request.session["cart"] = request.session.get('cart', {})
     return request.session["cart"]
 
 
