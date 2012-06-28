@@ -24,22 +24,23 @@ def sort_results(results, sort_by):
     from operator import itemgetter
 
     reverse_order = False
-    
+
     # figure out order
     if sort_by.startswith("-"):
         reverse_order = True
         sort_by = sort_by[1:]
-    
+
     try:
         sorted_list = sorted(results, key=itemgetter(sort_by))
     except AttributeError:
         # no such child, return original unsorted result
         return results
-    
+
     # reverse order if needed
     if reverse_order:
         sorted_list.reverse()
     return sorted_list
+
 
 def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     """
@@ -63,7 +64,7 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
             uri = CGHUB_ANALYSIS_OBJECT_URI
         if not '=' in query:
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
-        url = server + uri + '?' + query
+        url = u'{0}{1}?{2}'.format(server, uri, query)
         req = urllib2.Request(url)
         response = urllib2.urlopen(req).read()
         results = objectify.fromstring(response)
