@@ -26,7 +26,7 @@ def remove_file_from_cart(request, analysis_id):
 def get_cart_stats(request):
     cart = get_or_create_cart(request)
     stats = {'count': len(cart), 'size': 0}
-    for f in cart:
+    for analysis_id, f in cart.iteritems():
         if 'filesize' in f and int == type(f['filesize']):
             stats['size'] += int(f['filesize'] / 1024.0 / 1024.0)
     return stats
