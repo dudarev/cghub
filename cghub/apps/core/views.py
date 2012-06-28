@@ -1,4 +1,5 @@
 import urllib
+from django.utils.http import urlquote
 
 from django.views.generic.base import TemplateView
 from cghub.cghub_api.api import request as api_request
@@ -33,7 +34,7 @@ class SearchView(TemplateView):
                     urllib.quote(self.request.GET.get(attr))
                     )
         if q:
-            query = "xml_text=%s" % q
+            query = u"xml_text={0}".format(urlquote(q))
             query += filter_str
             print query
             results = api_request(query=query, sort_by=sort_by)
