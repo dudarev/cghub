@@ -16,7 +16,7 @@ class CartView(TemplateView):
     template_name = 'cart/cart.html'
 
     def get_context_data(self, **kwargs):
-        return {'results': get_or_create_cart(self.request),
+        return {'results': get_or_create_cart(self.request).values(),
                 'stats': get_cart_stats(self.request)
         }
 
