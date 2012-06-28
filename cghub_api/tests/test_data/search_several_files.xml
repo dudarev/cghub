@@ -18,6 +18,11 @@
 				<filesize>8407199477</filesize>
 				<checksum type="MD5">6d764489d311382b2dd500dd44894936</checksum>
 			</file>
+			<file>
+				<filename>C662.TCGA-50-5931-01A-11D-1753-08.4.bam</filename>
+				<filesize>10497249326</filesize>
+				<checksum type="MD5">6d790aa67878febc1e8eb69c24538c91</checksum>
+			</file>
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/13dd13ef-60af-4f05-be7c-514caaa4d875</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/13dd13ef-60af-4f05-be7c-514caaa4d875</analysis_data_uri>
@@ -217,6 +222,16 @@
 				<filename>d4296c4478eea63b97588e29fdbf0db2.bam</filename>
 				<filesize>0</filesize>
 				<checksum type="MD5">d4296c4478eea63b97588e29fdbf0db2</checksum>
+			</file>
+			<file>
+				<filename>UNCID_1067355.c7372404-46b6-415c-8084-2dac0e7f3cee.sorted_genome_alignments.bam</filename>
+				<filesize>8407199477</filesize>
+				<checksum type="MD5">6d764489d311382b2dd500dd44894936</checksum>
+			</file>
+			<file>
+				<filename>C662.TCGA-50-5931-01A-11D-1753-08.4.bam</filename>
+				<filesize>10497249326</filesize>
+				<checksum type="MD5">6d790aa67878febc1e8eb69c24538c91</checksum>
 			</file>
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/8c0a17d3-4f39-4904-9f85-546346eb9e3e</analysis_attribute_uri>
