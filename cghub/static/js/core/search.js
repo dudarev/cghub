@@ -28,7 +28,7 @@ jQuery(function ($) {
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
             selected_files.each(function (i, f) {
                 var file_data = $(f).data();
-                data[file_data.legacy_sample_id] = file_data;
+                data[file_data.analysis_id] = file_data;
             });
             $.ajax({
                 data:$(this).serialize() + "&attributes=" + JSON.stringify(data),
