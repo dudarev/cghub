@@ -52,8 +52,7 @@ class CartDownloadFilesView(View):
     def get_results(cart, get_attributes):
         results = None
         results_counter = 1
-        for file in cart:
-            analysis_id = file.get('analysis_id')
+        for analysis_id in cart:
             filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
             try:
                 with open(os.path.join(settings.API_RESULTS_CACHE_FOLDER, filename)) as f:
