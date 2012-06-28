@@ -141,8 +141,7 @@ class CacheTestCase(TestCase):
             })
         xml = None
         results_counter = 1
-        for file in self.client.session.get('cart'):
-            analysis_id = file.get('analysis_id')
+        for analysis_id in self.client.session.get('cart'):
             filename = "{0}_with_attributes".format(analysis_id)
             with open(os.path.join(api_results_cache_dir, filename)) as f:
                 result = objectify.fromstring(f.read())
