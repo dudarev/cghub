@@ -17,6 +17,26 @@ CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
 CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
 
 
+class Results(object):
+    '''
+    Wrapper class for results obtained with lxml.
+    '''
+    def __init__(self, lxml_results):
+        self._lxml_results = lxml_results
+
+    def __getattr__(self, attr):
+        if attr in self.__dict__:
+            return getattr(self, attr)
+        return getattr(self._lxml_results, attr)
+
+    def calculate_files_size(self):
+        for r in self.Result:
+            files_size = 0
+            for f in r.files.file:
+                files_size += int(f.filesize)
+            r.files_size = files_size
+
+
 def sort_results(results, sort_by):
     """
     Sorts results list by sort_by attribute
@@ -77,4 +97,4 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     if hasattr(results, 'Result') and sort_by:
         results.Result = sort_results(results.Result, sort_by)
 
-    return results
+    return Results(results)
