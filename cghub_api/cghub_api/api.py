@@ -44,6 +44,8 @@ class Results(object):
         """
         if self.is_files_size_calculated:
             return
+        if not hasattr(self, 'Result'):
+            return
         for r in self.Result:
             files_size = 0
             for f in r.files.file:
