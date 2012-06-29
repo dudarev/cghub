@@ -18,7 +18,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"legacy_sample_id":"file1", "filesize": 1048576},"file2":{"legacy_sample_id":"file2", "filesize": 1048576},"file3":{"legacy_sample_id":"file3", "filesize": 1048576}}'
+                                          'attributes': '{"file1":{"analysis_id":"file1", "filesize": 1048576},'
+                                                        '"file2":{"analysis_id":"file2", "filesize": 1048576},'
+                                                        '"file3":{"analysis_id":"file3", "filesize": 1048576}}'
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -40,7 +42,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file1', 'file1']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"legacy_sample_id":"file1"}, "file1":{"legacy_sample_id":"file1"}, "file1":{"legacy_sample_id":"file1"}}'
+                                          'attributes': '{"file1":{"analysis_id":"file1"}, '
+                                                        '"file1":{"analysis_id":"file1"}, '
+                                                        '"file1":{"analysis_id":"file1"}}'
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -58,7 +62,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"legacy_sample_id":"file1"},"file2":{"legacy_sample_id":"file2"},"file3":{"legacy_sample_id":"file3"}}'
+                                          'attributes': '{"file1":{"analysis_id":"file1"},'
+                                                        '"file2":{"analysis_id":"file2"},'
+                                                        '"file3":{"analysis_id":"file3"}}'
         })
         # remove files
         rm_selected_files = ['file1', 'file3']
@@ -97,8 +103,7 @@ class CacheTestCase(TestCase):
             })
         manifest = None
         results_counter = 1
-        for file in self.client.session.get('cart'):
-            analysis_id = file.get('analysis_id')
+        for analysis_id in self.client.session.get('cart'):
             filename = "{0}_without_attributes".format(analysis_id)
             with open(os.path.join(api_results_cache_dir, filename)) as f:
                 result = objectify.fromstring(f.read())
@@ -136,8 +141,7 @@ class CacheTestCase(TestCase):
             })
         xml = None
         results_counter = 1
-        for file in self.client.session.get('cart'):
-            analysis_id = file.get('analysis_id')
+        for analysis_id in self.client.session.get('cart'):
             filename = "{0}_with_attributes".format(analysis_id)
             with open(os.path.join(api_results_cache_dir, filename)) as f:
                 result = objectify.fromstring(f.read())

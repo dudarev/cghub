@@ -10,6 +10,7 @@ jQuery(function ($) {
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
+            cghub.search.initFilterAccordions();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -27,7 +28,7 @@ jQuery(function ($) {
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
             selected_files.each(function (i, f) {
                 var file_data = $(f).data();
-                data[file_data.legacy_sample_id] = file_data;
+                data[file_data.analysis_id] = file_data;
             });
             $.ajax({
                 data:$(this).serialize() + "&attributes=" + JSON.stringify(data),
@@ -39,6 +40,20 @@ jQuery(function ($) {
                 }
             });
             return false;
+        },
+        initFilterAccordions:function() {
+            var accordions = $.find('.filter-accordion');
+            for (var i=0; i<accordions.length; i++) {
+                var acc = $(accordions[i]),
+                    clickable = acc.children('.filter-accordion-header');
+                clickable.bind('click', function() {
+                    var content = $(this).parent().children('.filter-accordion-content'),
+                        icon = $(this).children('.filter-accordion-icon');
+                    content.slideToggle();
+                    icon.toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s')
+                })
+            }
+
         }
     };
     cghub.search.init();

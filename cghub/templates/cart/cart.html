@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 {% block extra_header_css %}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
+<link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
 {% endblock %}
-{% block extra_sidebar %}
-    {% include 'bam_filter_sidebar.html' %}
-{% endblock %}
-{% block extra_content %}
+{% block main_content %}
+<div class="cart-content">
     <div class="page-header">
         <h1>
             In your cart
@@ -29,7 +27,8 @@
             <button class="btn cart-form-download-xml">Download XML</button>
         </div>
     </form>
+</div>
 {% endblock %}
 {% block extra_body_js %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
 {% endblock %}

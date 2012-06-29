@@ -16,7 +16,7 @@ class CartView(TemplateView):
     template_name = 'cart/cart.html'
 
     def get_context_data(self, **kwargs):
-        return {'results': get_or_create_cart(self.request),
+        return {'results': get_or_create_cart(self.request).values(),
                 'stats': get_cart_stats(self.request)
         }
 
@@ -52,8 +52,7 @@ class CartDownloadFilesView(View):
     def get_results(cart, get_attributes):
         results = None
         results_counter = 1
-        for file in cart:
-            analysis_id = file.get('analysis_id')
+        for analysis_id in cart:
             filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
             try:
                 with open(os.path.join(settings.API_RESULTS_CACHE_FOLDER, filename)) as f:
