@@ -1,3 +1,4 @@
+import glob
 from celery.task import task
 import os
 from django.conf import settings
@@ -36,3 +37,10 @@ def cache_results_task(file_dict):
         analysis_attribute_uri.text = api.CGHUB_SERVER + api.CGHUB_ANALYSIS_ATTRIBUTES_URI + '/' + analysis_id
         result.Result.append(analysis_attribute_uri)
         f.write(etree.tostring(result))
+
+
+@task(ignore_result=True)
+def cache_clear_task():
+    files = glob.glob(os.path.join(settings.API_RESULTS_CACHE_FOLDER, '*'))
+    for file in files:
+        os.remove(file)
