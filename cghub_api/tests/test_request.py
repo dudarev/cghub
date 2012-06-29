@@ -38,7 +38,7 @@ class RequestTest(unittest.TestCase):
         """
         Test number of items in one response.
         """
-        self.assertEqual(len(request(file_name='tests/test_data/aliquot_id.xml')), 1)
+        self.assertEqual(len(request(file_name='tests/test_data/aliquot_id.xml').Result), 1)
 
     def test_item_has_experiment_instance(self):
         """
