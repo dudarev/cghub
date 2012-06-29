@@ -23,6 +23,7 @@ class Results(object):
     '''
     def __init__(self, lxml_results):
         self._lxml_results = lxml_results
+        self.is_files_size_calculated = False
 
     def __getattr__(self, attr):
         if attr in self.__dict__:
@@ -30,11 +31,48 @@ class Results(object):
         return getattr(self._lxml_results, attr)
 
     def calculate_files_size(self):
+        """
+        Files size is stored in structures
+            <files>
+                <file>
+                    ...
+                    <filesize></filesize>
+                </file>
+            </files>
+        In real results we see only one file.
+        This function takes care of a situation if there will be several <file>
+        """
+        if self.is_files_size_calculated:
+            return
         for r in self.Result:
             files_size = 0
             for f in r.files.file:
                 files_size += int(f.filesize)
             r.files_size = files_size
+        self.is_files_size_calculated = True
+
+    def sort(self, sort_by):
+        """
+        If sort_by starts with "-" the order is descending.
+        """
+        from operator import itemgetter
+
+        # figure out order
+        reverse_order = False
+        if sort_by.startswith("-"):
+            reverse_order = True
+            sort_by = sort_by[1:]
+        
+        if sort_by == 'files_size':
+            self.calculate_files_size()
+
+        self.Result = [x for x in self.Result]
+
+        try:
+            self.Result.sort(key=itemgetter(sort_by), reverse=reverse_order)
+        except AttributeError:
+            # no such child, return original unsorted result
+            return
 
 
 def sort_results(results, sort_by):
