@@ -1,6 +1,6 @@
 import urllib
 from django import template
-from django.utils.http import  urlencode
+from django.utils.http import urlencode
 
 
 register = template.Library()
@@ -37,7 +37,7 @@ def sort_link(request, attribute, link_anchor):
     data = {}
     for k in request.GET:
         data[k] = request.GET[k]
-
+    
     if data.has_key('sort_by') and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
@@ -50,7 +50,7 @@ def sort_link(request, attribute, link_anchor):
         # for all other use default order (ASC)
         data['sort_by'] = attribute
         direction_label = ''
-
+    
     href = request.path + '?' + urllib.urlencode(data)
     return '<a href="%(href)s">%(link_anchor)s%(direction_label)s</a>' % {
         'link_anchor': link_anchor,
