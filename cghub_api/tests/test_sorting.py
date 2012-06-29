@@ -27,5 +27,15 @@ class SortingTest(unittest.TestCase):
                 results.Result[i+1].files_size,
                 msg='Files size is not sorted for elements: {0}, {1}'.format(i,i+1))
 
+    def test_sort_by_upload_date(self):
+        results = request(file_name='tests/test_data/search_several_files.xml')
+        results.sort(sort_by='upload_date')
+        for i in range(len(results.Result)-1):
+            self.assertLessEqual(
+                results.Result[i].upload_date,
+                results.Result[i+1].upload_date,
+                msg='Upload date is not sorted for elements: {0}, {1}'.format(i,i+1))
+
+
 if __name__ == '__main__':
     unittest.main()
