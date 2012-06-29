@@ -1,34 +1,38 @@
 {% extends 'base.html' %}
 {% block extra_header_css %}
-<link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
 {% endblock %}
 {% block main_content %}
-<div class="cart-content">
-    <div class="page-header">
-        <h1>
-            In your cart
-            <small>You can manage contents of your cart</small>
-        </h1>
-    </div>
-    <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
-    <div><span>Temporary note: You may drag lines between columns to show more/less content.</span></div>
+    <div class="cart-content">
+        <div class="page-header">
+            <h1>
+                In your cart
+                <small>You can manage contents of your cart</small>
+            </h1>
+        </div>
+        <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
+        <div><span>Temporary note: You may drag lines between columns to show more/less content.</span></div>
 
-    <form action="{% url cart_page %}action/" method="POST">
-        {% csrf_token %}
-        <div class="btn-group cart-btn-group">
-            <button class="btn cart-form-remove" type="submit">Remove from cart</button>
-            <button class="btn cart-form-download-manifest">Download Manifest</button>
-            <button class="btn cart-form-download-xml">Download XML</button>
-        </div>
-        {% include 'data_table.html' %}
-        <div class="btn-group cart-btn-group">
-            <button class="btn cart-form-remove" type="submit">Remove from cart</button>
-            <button class="btn cart-form-download-manifest">Download Manifest</button>
-            <button class="btn cart-form-download-xml">Download XML</button>
-        </div>
-    </form>
-</div>
+        <form action="{% url cart_page %}action/" method="POST">
+            {% csrf_token %}
+            {% if results %}
+                <div class="btn-group cart-btn-group">
+                    <button class="btn cart-form-remove" type="submit">Remove from cart</button>
+                    <button class="btn cart-form-download-manifest">Download Manifest</button>
+                    <button class="btn cart-form-download-xml">Download XML</button>
+                </div>
+                {% include 'data_table.html' %}
+                <div class="btn-group cart-btn-group">
+                    <button class="btn cart-form-remove" type="submit">Remove from cart</button>
+                    <button class="btn cart-form-download-manifest">Download Manifest</button>
+                    <button class="btn cart-form-download-xml">Download XML</button>
+                </div>
+            {% else %}
+                <p>Your cart is empty!</p>
+            {% endif %}
+        </form>
+    </div>
 {% endblock %}
 {% block extra_body_js %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
 {% endblock %}
