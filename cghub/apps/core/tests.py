@@ -55,4 +55,4 @@ class TestTemplateTags(TestCase):
                 }))
                 
         self.assertEqual(out, 
-            '<a href="?sort_by=-last_modified">Date Uploaded DESC</a>')
+            '<a href="?sort_by=-last_modified">Date Uploaded ASC</a>')
