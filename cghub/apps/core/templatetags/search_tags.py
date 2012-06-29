@@ -42,10 +42,10 @@ def sort_link(request, attribute, link_anchor):
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
             data['sort_by'] = data['sort_by'][1:]
-            direction_label = ' ASC'
+            direction_label = ' DESC'
         else:
             data['sort_by'] = '-' + data['sort_by']
-            direction_label = ' DESC'
+            direction_label = ' ASC'
     else:
         # for all other use default order (ASC)
         data['sort_by'] = attribute
