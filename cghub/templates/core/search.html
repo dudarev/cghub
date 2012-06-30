@@ -23,7 +23,7 @@
     <span>Temporary note: You may drag lines between columns to show more/less content.</span>
     {% if num_results %}
         <div>Found {{ num_results }} results</div>
-        <div>Filtered by {% applied_filters request %}</div>
+        <div>{% applied_filters request %}</div>
     {% endif %}
     {% if num_results > 0 %}
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
