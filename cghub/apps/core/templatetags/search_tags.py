@@ -36,7 +36,7 @@ def applied_filters(request):
                'library_strategy': request.GET.get('library_strategy'),
                'disease_abbr': request.GET.get('disease_abbr'),
                }
-    return {'filters': filters}
+    return {'filters': filters, 'is_any_applied': any(filters.values())}
 
 
 @register.simple_tag
