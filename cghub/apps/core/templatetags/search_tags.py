@@ -27,6 +27,18 @@ def filter_link(request, attribute, value):
     return request.path + u'?' + urlencode(data)
 
 
+@register.inclusion_tag('applied_filters.html')
+def applied_filters(request):
+    filters = {'center_name': request.GET.get('center_name'),
+               'last_modified': request.GET.get('last_modified'),
+               'analyte_code': request.GET.get('analyte_code'),
+               'sample_type': request.GET.get('sample_type'),
+               'library_strategy': request.GET.get('library_strategy'),
+               'disease_abbr': request.GET.get('disease_abbr'),
+               }
+    return {'filters': filters}
+
+
 @register.simple_tag
 def sort_link(request, attribute, link_anchor):
     """
@@ -37,7 +49,7 @@ def sort_link(request, attribute, link_anchor):
     data = {}
     for k in request.GET:
         data[k] = request.GET[k]
-    
+
     if data.has_key('sort_by') and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
@@ -50,7 +62,7 @@ def sort_link(request, attribute, link_anchor):
         # for all other use default order (ASC)
         data['sort_by'] = attribute
         direction_label = ''
-    
+
     href = request.path + '?' + urllib.urlencode(data)
     return '<a href="%(href)s">%(link_anchor)s%(direction_label)s</a>' % {
         'link_anchor': link_anchor,

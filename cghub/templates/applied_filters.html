@@ -1,0 +1,25 @@
+<span>
+    {% if filters.center_name %}
+        center: {{ filters.center_name }}
+    {% endif %}
+    {% if filters.last_modified %}
+        {% if filters.center_name %}, {% endif %}
+        date: {{ filters.last_modified }}
+    {% endif %}
+    {% if filters.analyte_code %}
+        {% if filters.center_name or filters.last_modified %}, {% endif %}
+        experiment type: {{ filters.analyte_code }}
+    {% endif %}
+    {% if filters.sample_type %}
+        {% if filters.analyte_code or filters.center_name or filters.last_modified %}, {% endif %}
+        sample type: {{ filters.sample_type }}
+    {% endif %}
+    {% if filters.library_strategy %}
+        {% if filters.sample_type or filters.analyte_code or filters.center_name or filters.last_modified %}, {% endif %}
+        run type: {{ filters.library_strategy }}
+    {% endif %}
+    {% if filters.disease_abbr %}
+        {% if filters.library_strategy or filters.sample_type or filters.analyte_code or filters.center_name or filters.last_modified %} , {% endif %}
+        disease: {{ filters.disease_abbr }}
+    {% endif %}
+</span>
