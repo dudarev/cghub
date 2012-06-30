@@ -14,6 +14,7 @@ Makefile.def
 cghub/settings/local.py
 pids/*
 logs/*
+celerybeat-schedule
 
 #
 # Added to this project
