@@ -28,6 +28,33 @@ def filter_link(request, attribute, value):
 
 
 @register.simple_tag
+def applied_filters(request):
+    filters = {'center_name': request.GET.get('center_name'),
+               'last_modified': request.GET.get('last_modified'),
+               'analyte_code': request.GET.get('analyte_code'),
+               'sample_type': request.GET.get('sample_type'),
+               'library_strategy': request.GET.get('library_strategy'),
+               'disease_abbr': request.GET.get('disease_abbr'),
+               }
+    filters_human = {'center_name': 'center',
+               'last_modified': 'date',
+               'analyte_code': 'experiment type',
+               'sample_type': 'sample type',
+               'library_strategy': 'run type',
+               'disease_abbr': 'desease',
+               }
+    if any(filters.values()):
+        filtered_by_str = "Filtered by "
+        for f in filters:
+            if filters[f]:
+                filtered_by_str += "{0}: {1}, ".format(filters_human[f], filters[f])
+    else:
+        return 'Filtered by nothing.'
+    # replace the last comma with a period.
+    return filtered_by_str[:-2] + '.'
+
+
+@register.simple_tag
 def sort_link(request, attribute, link_anchor):
     """
     Generates a link based on request.path and `order` direction for `attribute`

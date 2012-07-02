@@ -1,4 +1,5 @@
 from StringIO import StringIO
+from operator import itemgetter
 from django.conf import settings
 import os
 from lxml import etree, objectify
@@ -11,14 +12,22 @@ from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from django.core.servers import basehttp
 from cghub.cghub_api.api import request as api_request
 
+
 class CartView(TemplateView):
     """ Lists files in cart """
     template_name = 'cart/cart.html'
 
     def get_context_data(self, **kwargs):
-        return {'results': get_or_create_cart(self.request).values(),
-                'stats': get_cart_stats(self.request)
-        }
+        sort_by = self.request.GET.get('sort_by')
+        cart = get_or_create_cart(self.request).values()
+        if sort_by:
+            item = sort_by[1:] if sort_by[0] == '-' else sort_by
+            if item == 'files_size':
+                item = 'filesize'
+            elif item == 'last_modified':
+                item = 'upload_date'
+            cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
+        return {'results': cart, 'stats': get_cart_stats(self.request)}
 
 
 class CartAddRemoveFilesView(View):
