@@ -27,7 +27,7 @@ def filter_link(request, attribute, value):
     return request.path + u'?' + urlencode(data)
 
 
-@register.inclusion_tag('applied_filters.html')
+@register.simple_tag
 def applied_filters(request):
     filters = {'center_name': request.GET.get('center_name'),
                'last_modified': request.GET.get('last_modified'),
@@ -36,7 +36,22 @@ def applied_filters(request):
                'library_strategy': request.GET.get('library_strategy'),
                'disease_abbr': request.GET.get('disease_abbr'),
                }
-    return {'filters': filters, 'is_any_applied': any(filters.values())}
+    filters_human = {'center_name': 'center',
+               'last_modified': 'date',
+               'analyte_code': 'experiment type',
+               'sample_type': 'sample type',
+               'library_strategy': 'run type',
+               'disease_abbr': 'desease',
+               }
+    if any(filters.values()):
+        filtered_by_str = "Filtered by "
+        for f in filters:
+            if filters[f]:
+                filtered_by_str += "{0}: {1}, ".format(filters_human[f], filters[f])
+    else:
+        return 'Filtered by nothing.'
+    # replace the last comma with a period.
+    return filtered_by_str[:-2] + '.'
 
 
 @register.simple_tag
