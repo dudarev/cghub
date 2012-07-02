@@ -1,6 +1,6 @@
-from celery.schedules import crontab
 import djcelery
 
+from media import TIME_CHECK_CACHE_INTERVAL
 
 djcelery.setup_loader()
 
@@ -11,6 +11,6 @@ CELERY_IMPORTS = (
 CELERYBEAT_SCHEDULE = {
     "every-daily-midnight": {
         "task": "cghub.apps.cart.tasks.cache_clear_task",
-        "schedule": crontab(minute=0, hour=0),
+        "schedule": TIME_CHECK_CACHE_INTERVAL,
         },
     }
