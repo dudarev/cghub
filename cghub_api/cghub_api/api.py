@@ -18,9 +18,9 @@ CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
 
 
 class Results(object):
-    '''
+    """
     Wrapper class for results obtained with lxml.
-    '''
+    """
     def __init__(self, lxml_results):
         self._lxml_results = lxml_results
         self.is_files_size_calculated = False
