@@ -3,8 +3,6 @@ import datetime
 from celery.task import task
 import os
 from django.conf import settings
-from lxml import etree
-from cghub.cghub_api import api
 from cghub.cghub_api.api import request as api_request
 
 
@@ -19,7 +17,8 @@ def cache_results_task(file_dict):
         return
     result = api_request(query='analysis_id={0}'.format(analysis_id))
     with open(filename_with_attributes, 'w') as f:
-        f.write(etree.tostring(result))
+        f.write(result.tostring())
+        """
     with open(filename_without_attributes, 'w') as f:
         result.Result.remove(result.Result.find('sample_accession'))
         result.Result.remove(result.Result.find('legacy_sample_id'))
@@ -35,9 +34,10 @@ def cache_results_task(file_dict):
         result.Result.remove(result.Result.find('run_xml'))
         result.Result.remove(result.Result.find('experiment_xml'))
         analysis_attribute_uri = etree.Element('analysis_attribute_uri')
-        analysis_attribute_uri.text = api.CGHUB_SERVER + api.CGHUB_ANALYSIS_ATTRIBUTES_URI + '/' + analysis_id
+        # analysis_attribute_uri.text = api.CGHUB_SERVER + api.CGHUB_ANALYSIS_ATTRIBUTES_URI + '/' + analysis_id
         result.Result.append(analysis_attribute_uri)
-        f.write(etree.tostring(result))
+        f.write(result.tostring())
+        """
 
 
 @task(ignore_result=True)

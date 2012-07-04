@@ -8,7 +8,7 @@ Functions for external use.
 
 """
 import urllib2
-from lxml import objectify
+from lxml import objectify, etree
 from exceptions import QueryRequired
 
 
@@ -75,7 +75,9 @@ class Results(object):
         except AttributeError:
             # no such child, return original unsorted result
             return
-
+    
+    def tostring(self):
+        return etree.tostring(self._lxml_results)
 
 def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     """
