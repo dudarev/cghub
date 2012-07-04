@@ -79,6 +79,23 @@ class Results(object):
     def tostring(self):
         return etree.tostring(self._lxml_results)
 
+    def remove_attributes(self):
+        """
+        Removes some attributes from results to make them shorter.
+        """
+        attributes_to_remove = ['sample_accession', 'legacy_sample_id', 
+                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
+                'analyte_code', 'sample_type', 'library_strategy',
+                'platform', 'analysis_xml', 'run_xml', 'experiment_xml',]
+        for r in self.Result:
+            for a in attributes_to_remove:
+                r.remove(r.find(a))
+            r.analysis_attribute_uri = \
+                CGHUB_SERVER + CGHUB_ANALYSIS_ATTRIBUTES_URI + '/' + r.analysis_id
+            objectify.deannotate(r.analysis_attribute_uri)
+            etree.cleanup_namespaces(r)
+
+
 def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     """
     Makes a request to CGHub web service or gets data from a file.

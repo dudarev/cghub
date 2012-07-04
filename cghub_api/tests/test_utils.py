@@ -25,16 +25,19 @@ class SortingTest(unittest.TestCase):
         """
         Tests that attributes are removed with `remove_attributes`.
         """
-        results = request(file_name='tests/test_data/search.xml')
+        results = request(file_name='tests/test_data/aliquot_id.xml')
         results.remove_attributes()
-        removed_attributes = ['sample_accession', 'legacy_sample_id', 
+        attributes_to_remove = ['sample_accession', 'legacy_sample_id', 
                 'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
                 'analyte_code', 'sample_type', 'library_strategy',
                 'platform', 'analysis_xml', 'run_xml', 'experiment_xml',]
-        for a in removed_attributes:
-            self.assertRaises(AttributeError, getattr(results, a))
+        for a in attributes_to_remove:
+            self.assertRaises(AttributeError, getattr, results.Result, a)
         # new attribute that must be there
-        self.assertTrue(results.analysis_attribute_uri)
+        self.assertEqual(
+                results.Result.analysis_attribute_uri,
+                "https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/e29aa109-d508-4621-9a92-9f7ff7e0018f"
+                )
 
 
 if __name__ == '__main__':
