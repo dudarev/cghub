@@ -4,3 +4,9 @@ Version @VERSION@
 Installation:  python setup.py install
 
 Documentation: doc/html
+
+When version changes:
+
+{{{
+./setup.py update_versionrunning update_version
+}}}
