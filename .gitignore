@@ -21,6 +21,7 @@ celerybeat-schedule
 #
 
 docs
+tags
 utils/*
 db.sqlite3
 cghub_api/build
