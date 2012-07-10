@@ -153,13 +153,16 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     # sort if needed
     if hasattr(results, 'Result'):
-        result_all = results.findall('Result')
-        idx_from = results.index(result_all[0])
-        for r in result_all:
-            results.remove(r)
-        cslice = result_all[offset:limit]
-        for i, c in enumerate(cslice):
-            results.insert(i + idx_from, c)
+        if offset or limit:
+            offset = offset or 0
+            limit = limit or 0
+            result_all = results.findall('Result')
+            idx_from = results.index(result_all[0])
+            for r in result_all:
+                results.remove(r)
+            cslice = result_all[offset:offset + limit]
+            for i, c in enumerate(cslice):
+                results.insert(i + idx_from, c)
         if sort_by:
             results.sort(sort_by=sort_by)
 
