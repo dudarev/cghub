@@ -19,10 +19,10 @@ class CacheTest(unittest.TestCase):
         # >>> m = hashlib.md5()
         # >>> m.update('xml_text=6d5*')
         # >>> m.hexdigest()
-        # '51132f0c270ef77be56d54cabae862aa'
+        # '10f911319953a88d95231b4d63e29434'
 
         cache_files = [
-                '51132f0c270ef77be56d54cabae862aa.xml'
+                '10f911319953a88d95231b4d63e29434.xml'
                 ]
         CACHE_DIR = '/tmp/cghub_api/'
         TEST_DATA_DIR = 'tests/test_data/'
@@ -34,14 +34,13 @@ class CacheTest(unittest.TestCase):
                     os.path.join(CACHE_DIR, f)
                     )
 
-    def test_data_if_from_cache(self):
+    def test_data_is_from_cache(self):
         """
         Tests that data is obtained from cache directory if it exists there.
         """
         results = request(query='xml_text=6d5*')
         # reason was modified in the test file by hand to 'a very good reason'
         first_result_reason = results.Result[0].reason
-        print 'first_result_reason:', first_result_reason
         self.assertEqual(first_result_reason, 'a very good reason')
 
 
