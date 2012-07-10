@@ -37,7 +37,7 @@ class Results(object):
         return getattr(self._lxml_results, attr)
 
     def __getitem__(self, item):
-        return self.Result[item]
+        return self[item]
 
     def calculate_files_size(self):
         """
