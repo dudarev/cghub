@@ -38,7 +38,11 @@ class CacheTest(unittest.TestCase):
         """
         Tests that data is obtained from cache directory if it exists there.
         """
-        pass
+        results = request(query='xml_text=6d5*')
+        # reason was modified in the test file by hand to 'a very good reason'
+        first_result_reason = results.Result[0].reason
+        print 'first_result_reason:', first_result_reason
+        self.assertEqual(first_result_reason, 'a very good reason')
 
 
 if __name__ == '__main__':
