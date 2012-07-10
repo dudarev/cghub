@@ -87,7 +87,7 @@ class CartTests(TestCase):
 class CacheTestCase(TestCase):
     def test_cache_generate_manifest(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
-        api_results_cache_dir = settings.API_RESULTS_CACHE_FOLDER
+        api_results_cache_dir = settings.CART_CACHE_FOLDER
         files = glob.glob(os.path.join(api_results_cache_dir, '*'))
         for file in files:
             os.remove(file)
@@ -125,7 +125,7 @@ class CacheTestCase(TestCase):
 
     def test_cache_generate_xml(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
-        api_results_cache_dir = settings.API_RESULTS_CACHE_FOLDER
+        api_results_cache_dir = settings.CART_CACHE_FOLDER
         files = glob.glob(os.path.join(api_results_cache_dir, '*'))
         for file in files:
             os.remove(file)

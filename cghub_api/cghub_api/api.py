@@ -14,13 +14,11 @@ import hashlib
 from lxml import objectify, etree
 
 from exceptions import QueryRequired
-
+from settings import CACHE_DIR
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
 CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
 CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
-
-CACHE_DIR = '/tmp/cghub_api/'
 
 
 class Results(object):
@@ -146,6 +144,12 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     # wrap result with extra methods
     results = Results(results)
+
+    # save results to cache if it was a query and cache did not exists
+    if query and not os.path.exists(cache_file_name):
+        f = open(cache_file_name, 'w')
+        f.write(results.tostring())
+        f.close()
 
     # sort if needed
     if hasattr(results, 'Result'):
