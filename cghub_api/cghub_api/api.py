@@ -109,12 +109,13 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     """
 
     # see if cache file exists
-    m = hashlib.md5()
-    m.update(query)
-    cache_file_name = u'{0}.xml'.format(m.hexdigest())
-    cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
+    if query:
+        m = hashlib.md5()
+        m.update(query)
+        cache_file_name = u'{0}.xml'.format(m.hexdigest())
+        cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
 
-    if os.path.exists(cache_file_name):
+    if query and os.path.exists(cache_file_name):
         results = objectify.fromstring(open(cache_file_name, 'r').read())
 
     else:
