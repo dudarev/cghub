@@ -1,0 +1,16 @@
+0.0.3 (in progress)
+
+- `settings.py`
+
+0.0.2
+
+- Introduced `Results` object which is now returned by `request()`.
+- So far it has methods:
+    - `calculate_files_size`
+    - `sort`
+    - `tostring`
+    - `remove_attributes`
+
+0.0.1
+
+- Initial `request()` function in `api.py`.

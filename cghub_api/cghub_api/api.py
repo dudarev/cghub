@@ -7,14 +7,20 @@ cghub_api.api
 Functions for external use.
 
 """
+import os
 import urllib2
+import hashlib
+
 from lxml import objectify, etree
+
 from exceptions import QueryRequired
 
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
 CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
 CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
+
+CACHE_DIR = '/tmp/cghub_api/'
 
 
 class Results(object):
@@ -101,27 +107,39 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed Response object.
     """
+
+    # see if cache file exists
+    if query:
+        m = hashlib.md5()
+        m.update(query)
+        cache_file_name = u'{0}.xml'.format(m.hexdigest())
+        cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
+
+    if query and os.path.exists(cache_file_name):
+        results = objectify.fromstring(open(cache_file_name, 'r').read())
+
+    else:
     
-    server = CGHUB_SERVER
+        server = CGHUB_SERVER
 
-    if query == None and file_name == None:
-        raise QueryRequired
+        if query == None and file_name == None:
+            raise QueryRequired
 
-    results = []
+        results = []
 
-    if query == None and file_name:
-        results = objectify.fromstring(open(file_name, 'r').read())
-    elif query:
-        if get_attributes:
-            uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
-        else:
-            uri = CGHUB_ANALYSIS_OBJECT_URI
-        if not '=' in query:
-            raise ValueError("Query seems to be invalid (no '='): %s" % query)
-        url = u'{0}{1}?{2}'.format(server, uri, query)
-        req = urllib2.Request(url)
-        response = urllib2.urlopen(req).read()
-        results = objectify.fromstring(response)
+        if query == None and file_name:
+            results = objectify.fromstring(open(file_name, 'r').read())
+        elif query:
+            if get_attributes:
+                uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
+            else:
+                uri = CGHUB_ANALYSIS_OBJECT_URI
+            if not '=' in query:
+                raise ValueError("Query seems to be invalid (no '='): %s" % query)
+            url = u'{0}{1}?{2}'.format(server, uri, query)
+            req = urllib2.Request(url)
+            response = urllib2.urlopen(req).read()
+            results = objectify.fromstring(response)
 
     # wrap result with extra methods
     results = Results(results)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # The current version of the system.  Format is #.#.#[-DEV].
-version = '0.0.1'
+version = '0.0.2'
 
 import distutils.sysconfig
 
@@ -67,7 +67,7 @@ setup(name='cghub_api',
       long_description='''
 ''',
       provides=[ 'cghub' ],
-      requires=[ 'pyxb (1.1.3)'],
+      requires=[ 'lxml (>=2.3.4)' ],
       packages=packages,
       package_data=package_data,
       cmdclass = { 'update_version' : update_version },
