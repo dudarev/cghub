@@ -26,7 +26,7 @@ class RequestTest(unittest.TestCase):
         """
         Test that exception is raised when file does not exist.
         """
-        self.assertRaises(IOError, request, None, "no_such_file.xml")
+        self.assertRaises(IOError, request, None, file_name="no_such_file.xml")
 
     def test_no_exeption_for_existing_file(self):
         """

@@ -96,7 +96,7 @@ class Results(object):
             etree.cleanup_namespaces(r)
 
 
-def request(query=None, file_name=None, sort_by=None, get_attributes=True):
+def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed Response object.
