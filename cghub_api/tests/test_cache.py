@@ -7,6 +7,7 @@ import datetime, time
 
 from cghub_api.api import request
 from cghub_api.utils import clear_cache
+from cghub_api.settings import CACHE_DIR
 
 
 class CacheTest(unittest.TestCase):
@@ -27,7 +28,6 @@ class CacheTest(unittest.TestCase):
         # >>> m.hexdigest()
         # '10f911319953a88d95231b4d63e29434'
 
-        CACHE_DIR = '/tmp/cghub_api/'
         TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
@@ -50,7 +50,6 @@ class CacheTest(unittest.TestCase):
         """
         Test that `clear_cache` function removes old files.
         """
-        CACHE_DIR = '/tmp/cghub_api/'
         TEN_DAYS_AGO = datetime.datetime.now() - datetime.timedelta(days=10)
         TEN_DAYS_AGO= time.mktime(TEN_DAYS_AGO.timetuple())
 

@@ -14,7 +14,7 @@ import hashlib
 from lxml import objectify, etree
 
 from exceptions import QueryRequired
-
+from settings import CACHE_DIR
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
 CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
