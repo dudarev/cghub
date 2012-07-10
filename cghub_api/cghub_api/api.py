@@ -20,8 +20,6 @@ CGHUB_SERVER = 'https://cghub.ucsc.edu'
 CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
 CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
 
-CACHE_DIR = '/tmp/cghub_api/'
-
 
 class Results(object):
     """

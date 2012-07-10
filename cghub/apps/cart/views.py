@@ -64,7 +64,7 @@ class CartDownloadFilesView(View):
         for analysis_id in cart:
             filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
             try:
-                with open(os.path.join(settings.API_RESULTS_CACHE_FOLDER, filename)) as f:
+                with open(os.path.join(settings.CART_CACHE_FOLDER, filename)) as f:
                     result = objectify.fromstring(f.read())
             except IOError:
                 result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
