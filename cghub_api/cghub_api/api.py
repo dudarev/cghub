@@ -151,4 +151,6 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     if hasattr(results, 'Result') and sort_by:
         results.sort(sort_by=sort_by)
 
-    return results[offset:limit]
+    results.Result = results[offset:limit]
+
+    return results
