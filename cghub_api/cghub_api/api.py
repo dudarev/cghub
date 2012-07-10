@@ -148,9 +148,16 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     results = Results(results)
 
     # sort if needed
-    if hasattr(results, 'Result') and sort_by:
-        results.sort(sort_by=sort_by)
+    if hasattr(results, 'Result'):
+        result_all = results.findall('Result')
+        idx_from = results.index(result_all[0])
+        for r in result_all:
+            results.remove(r)
+        cslice = result_all[offset:limit]
+        for i, c in enumerate(cslice):
+            results.insert(i + idx_from, c)
+        if sort_by:
+            results.sort(sort_by=sort_by)
 
-    results.Result = results[offset:limit]
 
     return results
