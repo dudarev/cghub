@@ -34,6 +34,9 @@ class Results(object):
             return getattr(self, attr)
         return getattr(self._lxml_results, attr)
 
+    def __getitem__(self, item):
+        return self[item]
+
     def calculate_files_size(self):
         """
         Files size is stored in structures
@@ -100,7 +103,7 @@ class Results(object):
             etree.cleanup_namespaces(r)
 
 
-def request(query=None, file_name=None, sort_by=None, get_attributes=True):
+def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed Response object.
@@ -148,8 +151,20 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
         f.write(results.tostring())
         f.close()
 
-    # sort if needed
-    if hasattr(results, 'Result') and sort_by:
-        results.sort(sort_by=sort_by)
+    # sort and slice if needed
+    if hasattr(results, 'Result'):
+        if sort_by:
+            results.sort(sort_by=sort_by)
+        if offset or limit:
+            offset = offset or 0
+            limit = limit or 0
+            result_all = results.findall('Result')
+            idx_from = results.index(result_all[0])
+            for r in result_all:
+                results.remove(r)
+            cslice = result_all[offset:offset + limit]
+            for i, c in enumerate(cslice):
+                results.insert(i + idx_from, c)
+
 
     return results
