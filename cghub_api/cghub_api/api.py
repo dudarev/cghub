@@ -147,6 +147,8 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     # save results to cache if it was a query and cache did not exists
     if query and not os.path.exists(cache_file_name):
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
         f = open(cache_file_name, 'w')
         f.write(results.tostring())
         f.close()
