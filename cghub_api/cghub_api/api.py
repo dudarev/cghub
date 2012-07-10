@@ -151,8 +151,10 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         f.write(results.tostring())
         f.close()
 
-    # sort if needed
+    # sort and slice if needed
     if hasattr(results, 'Result'):
+        if sort_by:
+            results.sort(sort_by=sort_by)
         if offset or limit:
             offset = offset or 0
             limit = limit or 0
@@ -163,8 +165,6 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
             cslice = result_all[offset:offset + limit]
             for i, c in enumerate(cslice):
                 results.insert(i + idx_from, c)
-        if sort_by:
-            results.sort(sort_by=sort_by)
 
 
     return results
