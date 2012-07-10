@@ -144,6 +144,12 @@ def request(query=None, file_name=None, sort_by=None, get_attributes=True):
     # wrap result with extra methods
     results = Results(results)
 
+    # save results to cache if it was a query and cache did not exists
+    if query and not os.path.exists(cache_file_name):
+        f = open(cache_file_name, 'w')
+        f.write(results.tostring())
+        f.close()
+
     # sort if needed
     if hasattr(results, 'Result') and sort_by:
         results.sort(sort_by=sort_by)
