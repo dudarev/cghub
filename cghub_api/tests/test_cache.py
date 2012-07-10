@@ -14,6 +14,13 @@ class CacheTest(unittest.TestCase):
         """
         Copy cached files to default cache directory.
         """
+
+        # cache filenames are generated as following:
+        # >>> m = hashlib.md5()
+        # >>> m.update('xml_text=6d5*')
+        # >>> m.hexdigest()
+        # '51132f0c270ef77be56d54cabae862aa'
+
         cache_files = [
                 '51132f0c270ef77be56d54cabae862aa.xml'
                 ]
