@@ -64,6 +64,5 @@ class CacheTest(unittest.TestCase):
             self.failIf(os.path.exists(os.path.join(CACHE_DIR, f)))
 
 
-
 if __name__ == '__main__':
     unittest.main()
