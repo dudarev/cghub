@@ -48,18 +48,17 @@ class CacheTest(unittest.TestCase):
 
     def test_clear_cache(self):
         """
-        Test that `clear_cache()` function removes old files.
+        Test that `clear_cache` function removes old files.
         """
         CACHE_DIR = '/tmp/cghub_api/'
-        TEN_HOURS_AGO = datetime.datetime.now() - datetime.timedelta(hours=10)
-        print TEN_HOURS_AGO
-        TEN_HOURS_AGO = time.mktime(TEN_HOURS_AGO.timetuple())
-        print TEN_HOURS_AGO
+        TEN_DAYS_AGO = datetime.datetime.now() - datetime.timedelta(days=10)
+        TEN_DAYS_AGO= time.mktime(TEN_DAYS_AGO.timetuple())
 
         for f in self.cache_files:
-            os.utime(os.path.join(CACHE_DIR, f), (TEN_HOURS_AGO, TEN_HOURS_AGO))
+            os.utime(os.path.join(CACHE_DIR, f), (TEN_DAYS_AGO, TEN_DAYS_AGO))
 
-        clear_cache()
+        # clear cache older than a day
+        clear_cache(datetime.datetime.now() - datetime.timedelta(days=1))
 
         for f in self.cache_files:
             self.failIf(os.path.exists(os.path.join(CACHE_DIR, f)))
