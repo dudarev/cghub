@@ -17,7 +17,8 @@ def filter_link(request, attribute, value):
     """
     data = {}
     for k in request.GET:
-        data[k] = request.GET[k]
+        if k not in ('offset', 'limit'):
+            data[k] = request.GET[k]
     if value:
         data[attribute] = value
     elif data.has_key(attribute):
@@ -63,7 +64,8 @@ def sort_link(request, attribute, link_anchor):
     """
     data = {}
     for k in request.GET:
-        data[k] = request.GET[k]
+        if k not in ('offset', 'limit'):
+            data[k] = request.GET[k]
     
     if data.has_key('sort_by') and attribute in data['sort_by']:
         # for current sort change NEXT possible order
