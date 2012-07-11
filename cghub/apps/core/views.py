@@ -15,7 +15,11 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
-        sort_by = self.request.GET.get('sort_by', None)
+        sort_by = self.request.GET.get('sort_by')
+        offset = self.request.GET.get('offset')
+        offset = offset.isdigit() and int(offset) or None
+        limit = self.request.GET.get('limit')
+        limit = limit.isdigit() and int(limit) or None
         if sort_by:
             sort_by = urllib.quote(sort_by)
         filter_str = ''
@@ -37,7 +41,7 @@ class SearchView(TemplateView):
             query = u"xml_text={0}".format(urlquote(q))
             query += filter_str
             print query
-            results = api_request(query=query, sort_by=sort_by)
+            results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
             # this function calculates files_size attribute
             results.calculate_files_size()
             if hasattr(results, 'Result'):
