@@ -71,7 +71,7 @@ class Results(object):
         if sort_by.startswith("-"):
             reverse_order = True
             sort_by = sort_by[1:]
-        
+
         if sort_by == 'files_size':
             self.calculate_files_size()
 
@@ -82,7 +82,7 @@ class Results(object):
         except AttributeError:
             # no such child, return original unsorted result
             return
-    
+
     def tostring(self):
         return etree.tostring(self._lxml_results)
 
@@ -90,7 +90,7 @@ class Results(object):
         """
         Removes some attributes from results to make them shorter.
         """
-        attributes_to_remove = ['sample_accession', 'legacy_sample_id', 
+        attributes_to_remove = ['sample_accession', 'legacy_sample_id',
                 'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
                 'analyte_code', 'sample_type', 'library_strategy',
                 'platform', 'analysis_xml', 'run_xml', 'experiment_xml',]
@@ -120,7 +120,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         results = objectify.fromstring(open(cache_file_name, 'r').read())
 
     else:
-    
+
         server = CGHUB_SERVER
 
         if query == None and file_name == None:
@@ -160,13 +160,16 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         if offset or limit:
             offset = offset or 0
             limit = limit or 0
-            result_all = results.findall('Result')
-            idx_from = results.index(result_all[0])
-            for r in result_all:
-                results.remove(r)
-            cslice = result_all[offset:offset + limit]
-            for i, c in enumerate(cslice):
-                results.insert(i + idx_from, c)
+            if isinstance(results.Result, (list,tuple)):
+                results.Result = results.Result[offset:offset + limit]
+            else:
+                result_all = results.findall('Result')
+                idx_from = results.index(result_all[0])
+                for r in result_all:
+                    results.remove(r)
+                cslice = result_all[offset:offset + limit]
+                for i, c in enumerate(cslice):
+                    results.insert(i + idx_from, c)
 
 
     return results
