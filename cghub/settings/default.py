@@ -34,3 +34,5 @@ ROOT_URLCONF = 'cghub.urls'
 
 WSGI_APPLICATION = 'cghub.wsgi.application'
 
+DEFAULT_PAGINATOR_LIMIT = 10
+

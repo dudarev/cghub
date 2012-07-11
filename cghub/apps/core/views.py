@@ -1,4 +1,5 @@
 import urllib
+from django.conf import settings
 from django.utils.http import urlquote
 
 from django.views.generic.base import TemplateView
@@ -15,7 +16,11 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
-        sort_by = self.request.GET.get('sort_by', None)
+        sort_by = self.request.GET.get('sort_by')
+        offset = self.request.GET.get('offset')
+        offset = offset and offset.isdigit() and int(offset) or 0
+        limit = self.request.GET.get('limit')
+        limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
         if sort_by:
             sort_by = urllib.quote(sort_by)
         filter_str = ''
@@ -37,11 +42,11 @@ class SearchView(TemplateView):
             query = u"xml_text={0}".format(urlquote(q))
             query += filter_str
             print query
-            results = api_request(query=query, sort_by=sort_by)
+            results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
             # this function calculates files_size attribute
             results.calculate_files_size()
             if hasattr(results, 'Result'):
-                context['num_results'] = results.Hits
+                context['num_results'] = int(results.Hits.text)
                 context['results'] = results.Result
             else:
                 context['num_results'] = 0

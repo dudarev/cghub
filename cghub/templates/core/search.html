@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load search_tags %}
+{% load pagination_tags %}
 {% block extra_header_css %}
     <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/search.less" media="all">
 {% endblock %}
@@ -32,6 +33,7 @@
                 <button class="btn" type="submit">Add to cart</button>
             </div>
             {% include 'data_table.html' %}
+            {% pagination %}
             <div class="btn-group search-btn-group">
                 <button class="btn" type="submit">Add to cart</button>
             </div>
