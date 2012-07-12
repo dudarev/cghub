@@ -15,6 +15,7 @@ cghub/settings/local.py
 pids/*
 logs/*
 celerybeat-schedule
+node_modules
 
 #
 # Added to this project
