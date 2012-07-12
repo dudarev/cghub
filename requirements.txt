@@ -12,4 +12,4 @@ nose==1.1.2
 lxml==2.3.4
 celery==2.5.5
 django-celery==2.5.5
-PyXB
+-e git://pyxb.git.sourceforge.net/gitroot/pyxb/pyxb#egg=pyxb
