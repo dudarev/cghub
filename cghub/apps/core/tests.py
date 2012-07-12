@@ -1,6 +1,11 @@
+from django.core.urlresolvers import reverse
+from lxml import objectify
+import os
+import shutil
 from django.test.testcases import TestCase
 from django.template import Template, Context
 from django.http import HttpRequest
+from cghub_api.settings import CACHE_DIR
 
 
 class CoreTests(TestCase):
@@ -25,34 +30,92 @@ class TestTemplateTags(TestCase):
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"
-            ).render(Context({
-                    'request': test_request
-                }))
-                
-        self.assertEqual(out, 
+        ).render(Context({
+            'request': test_request
+        }))
+
+        self.assertEqual(out,
             '<a href="?sort_by=last_modified">Date Uploaded</a>')
-            
+
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"
-            ).render(Context({
-                    'request': test_request
-                }))
-                
-        self.assertEqual(out, 
+        ).render(Context({
+            'request': test_request
+        }))
+
+        self.assertEqual(out,
             '<a href="?q=sample_query&sort_by=last_modified">Date Uploaded</a>')
-            
+
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
         test_request.GET.update({'sort_by': 'last_modified'})
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"
-            ).render(Context({
-                    'request': test_request
-                }))
-                
-        self.assertEqual(out, 
+        ).render(Context({
+            'request': test_request
+        }))
+
+        self.assertEqual(out,
             '<a href="?sort_by=-last_modified">Date Uploaded ASC</a>')
+
+
+class SearchViewPaginationTestCase(TestCase):
+    cache_files = [
+        '10f911319953a88d95231b4d63e29434.xml'
+    ]
+    query = "6d5*"
+
+    def setUp(self):
+        """
+        Copy cached files to default cache directory.
+        """
+
+        # cache filenames are generated as following:
+        # >>> m = hashlib.md5()
+        # >>> m.update('xml_text=6d5*')
+        # >>> m.hexdigest()
+        # '10f911319953a88d95231b4d63e29434'
+
+        TEST_DATA_DIR = 'cghub/test_data/'
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        for f in self.cache_files:
+            shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(CACHE_DIR, f)
+            )
+        self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+        self.default_results_count = len(self.default_results.findall('Result'))
+
+    def test_pagination_default_pagination(self):
+        response = self.client.get(reverse('search_page') +
+                                   '?q={query}&offset={offset}&limit={limit}'.format(
+                                       query=self.query, offset=None, limit=None))
+        self.assertContains(response, '1')
+        self.assertContains(response, '2')
+        self.assertContains(response, 'Prev')
+        self.assertContains(response, 'Next')
+
+    def test_pagination_one_page_limit_pagination(self):
+        response = self.client.get(reverse('search_page') +
+                                   '?q={query}&offset={offset}&limit={limit}'.format(
+                                       query=self.query, offset=0, limit=self.default_results_count))
+        self.assertContains(response, '1')
+        self.assertContains(response, 'active')
+        self.assertContains(response, 'disable', 2)
+        self.assertContains(response, 'Prev')
+        self.assertContains(response, 'Next')
+
+    def test_pagination_one_per_page_limit_pagination(self):
+        response = self.client.get(reverse('search_page') +
+                                   '?q={query}&offset={offset}&limit={limit}'.format(
+                                       query=self.query, offset=0, limit=1))
+        for i in xrange(self.default_results_count):
+            self.assertContains(response, '{0}'.format(i))
+        self.assertContains(response, 'active')
+        self.assertContains(response, 'Prev')
+        self.assertContains(response, 'Next')

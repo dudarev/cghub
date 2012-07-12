@@ -27,3 +27,38 @@ make celeryd
 # in another terminal from `cghub` directory
 make run
 ```
+Less is used to maintain stylesheets.
+Client side less compilator is used in developement environment.
+
+Some requirements should be satisfied to compile static files from less
+to css and javascript minification for production environment.
+
+Install both nodejs and npm either via packages
+
+https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+
+or directly from
+
+http://nodejs.org http://npm.org
+
+```bash
+curl http://npmjs.org/install.sh | sh)
+```
+Install grunt:
+```bash
+sudo npm install -g grunt
+```
+Install grunt-less:
+```bash
+sudo npm install -g grunt-less
+```
+
+To compile from less to css use `less` target:
+```bash
+make less
+```
+
+To minify js use `minjs` target:
+```bash
+make minjs
+```

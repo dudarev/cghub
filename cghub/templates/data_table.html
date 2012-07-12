@@ -8,7 +8,7 @@
             <th class="data-table-data-cell">{% sort_link request 'analysis_id' 'UUID' %}</th>
             <th class="data-table-data-cell">{% sort_link request 'sample_accession' 'Accession' %}</th>
             <th class="data-table-data-cell">{% sort_link request 'files_size' 'Files Size' %}</th>
-            <th class="data-table-data-cell">{% sort_link request 'last_modified' 'Date Uploaded' %}</th>
+            <th class="data-table-data-cell">{% sort_link request 'last_modified' 'Last modified' %}</th>
             <th class="data-table-data-cell">{% sort_link request 'disease_abbr' 'Disease' %}</th>
             <th class="data-table-data-cell">{% sort_link request 'sample_type' 'Sample Type' %}</th>
             <th class="data-table-data-cell">{% sort_link request 'analyte_code' 'Experiment Type' %}</th>
@@ -24,8 +24,8 @@
                                                             data-legacy_sample_id="{{ r.legacy_sample_id }}"
                                                             data-analysis_id="{{ r.analysis_id }}"
                                                             data-sample_accession="{{ r.sample_accession }}"
-                                                            data-filesize="{{ r.files_size }}"
-                                                            data-upload_date="{{ r.upload_date }}"
+                                                            data-files_size="{{ r.files_size }}"
+                                                            data-last_modified ="{{ r.last_modified }}"
                                                             data-disease_abbr="{{ r.disease_abbr }}"
                                                             data-sample_type="{{ r.sample_type }}"
                                                             data-analyte_code="{{ r.analyte_code }}"
@@ -35,13 +35,13 @@
                 <td class="data-table-data-cell">{{ r.analysis_id }}</td>
                 <td class="data-table-data-cell">{{ r.sample_accession }}</td>
                 <td class="data-table-data-cell">
-                    {% if r.filesize %}
-                        {{ r.filesize }}
+                    {% if r.files_size %}
+                        {{ r.files_size }}
                     {% else %}
                         {{ r.files.file.0.filesize }}
                     {% endif %}
                 </td>
-                <td class="data-table-data-cell">{{ r.upload_date }}</td>
+                <td class="data-table-data-cell">{{ r.last_modified }}</td>
                 <td class="data-table-data-cell">{{ r.disease_abbr }}</td>
                 <td class="data-table-data-cell">{{ r.sample_type }}</td>
                 <td class="data-table-data-cell">{{ r.analyte_code }}</td>

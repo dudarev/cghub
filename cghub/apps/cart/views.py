@@ -22,10 +22,6 @@ class CartView(TemplateView):
         cart = get_or_create_cart(self.request).values()
         if sort_by:
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
-            if item == 'files_size':
-                item = 'filesize'
-            elif item == 'last_modified':
-                item = 'upload_date'
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
         return {'results': cart, 'stats': get_cart_stats(self.request)}
 
