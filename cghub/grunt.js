@@ -57,11 +57,11 @@ module.exports = function (grunt) {
             },
             core_home:{
                 src:[jsStaticFolder + 'core/home.js'],
-                dest:jsStaticFolder + 'cart/home.min.js'
+                dest:jsStaticFolder + 'core/home.min.js'
             },
             core_search:{
                 src:[jsStaticFolder + 'core/search.js'],
-                dest:jsStaticFolder + 'cart/search.min.js'
+                dest:jsStaticFolder + 'core/search.min.js'
             }
         }
     });
