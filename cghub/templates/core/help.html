@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block extra_header_css %}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
 {% endblock %}
 {% block main_content %}
     <h1> Help </h1>
