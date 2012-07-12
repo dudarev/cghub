@@ -93,6 +93,8 @@ celeryd_stop:
 less:
 	-@grunt --config cghub/grunt.js less
 
+minjs:
+	-@grunt --config cghub/grunt.js min
 #
 # end targets
 
