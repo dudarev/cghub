@@ -7,6 +7,8 @@ Other things tried
 PyXB
 -----
 
+Usage of PyXB for validation is also described in the :doc:`Validation section <validation>` of this documentation.
+
 PyXB (“pixbee”) is a pure Python package that generates Python source code for classes that correspond to data structures defined by XMLSchema. The generated classes support bi-directional conversion between XML documents and Python objects.
 
 http://pyxb.sourceforge.net/
@@ -36,9 +38,8 @@ XSD files are downloaded and saved. Analysis, experiment, and run schemas requir
 
 For more details see http://pyxb.sourceforge.net/userref_pyxbgen.html?highlight=common#sharing-namespace-bindings
 
-=============
 Problem
-=============
+----------
 
 Problem was that generated bindings work well with real data for experiment, but generate exceptions for analysis and run schemas.
 
@@ -50,9 +51,8 @@ http://cutter.rexx.com/~dkuhlman/generateDS.html
 
 generateDS.py generates Python data structures (for example, class definitions) from an XML Schema document. These data structures represent the elements in an XML document described by the XML Schema. It also generates parsers that load an XML document into those data structures. In addition, a separate file containing subclasses (stubs) is optionally generated. The user can add methods to the subclasses in order to process the contents of an XML document.
 
-====================
 Problem
-====================
+--------------------
 
 The error that was generated:
 
