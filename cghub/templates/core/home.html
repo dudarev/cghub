@@ -29,5 +29,9 @@
     </header>
 {% endblock %}
 {% block extra_body_js %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
+    {% if debug %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.min.js"></script>
+    {% endif %}
 {% endblock %}
