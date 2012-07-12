@@ -25,10 +25,4 @@ Contents:
 
     validation.rst
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
+    future.rst
