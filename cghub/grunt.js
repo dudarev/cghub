@@ -41,6 +41,28 @@ module.exports = function (grunt) {
                     compress:true
                 }
             }
+        },
+        min:{
+            base:{
+                src:[jsStaticFolder + 'base.js'],
+                dest:jsStaticFolder + 'base.min.js'
+            },
+            bootstrap:{
+                src:[jsStaticFolder + 'libs/bootstrap/dev/*.js'],
+                dest:jsStaticFolder + 'libs/bootstrap/bootstrap.min.js'
+            },
+            cart:{
+                src:[jsStaticFolder + 'cart/cart.js'],
+                dest:jsStaticFolder + 'cart/cart.min.js'
+            },
+            core_home:{
+                src:[jsStaticFolder + 'core/home.js'],
+                dest:jsStaticFolder + 'cart/home.min.js'
+            },
+            core_search:{
+                src:[jsStaticFolder + 'core/search.js'],
+                dest:jsStaticFolder + 'cart/search.min.js'
+            }
         }
     });
 };
