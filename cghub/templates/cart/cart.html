@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block extra_header_css %}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cart/cart.css" media="all">
+    {% endif %}
 {% endblock %}
 {% block main_content %}
     <div class="cart-content">
@@ -34,5 +38,9 @@
     </div>
 {% endblock %}
 {% block extra_body_js %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
+    {% if debug %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.min.js"></script>
+    {% endif %}
 {% endblock %}
