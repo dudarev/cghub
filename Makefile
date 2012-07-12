@@ -90,6 +90,9 @@ celeryd:
 celeryd_stop:
 	-@kill -9 `cat $(CELERYD_PID)`
 
+less:
+	-@grunt --config cghub/grunt.js less
+
 #
 # end targets
 
