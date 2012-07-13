@@ -50,17 +50,21 @@ class Results(object):
                     )
 
     def calculate_files_size(self):
-        """
-        Files size is stored in structures
+        """Files size is stored in structures
+
+        .. code-block :: xml
+
             <files>
                 <file>
                     ...
                     <filesize></filesize>
                 </file>
             </files>
+
         In real results we see only one file.
-        This function takes care of a situation if there will be several <file>
+        This function takes care of a situation if there will be several ``<file>`` elements.
         """
+
         if self.is_files_size_calculated:
             return
         if not hasattr(self, 'Result'):
