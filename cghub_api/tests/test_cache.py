@@ -5,9 +5,12 @@ import os, shutil
 import unittest
 import datetime, time
 
-from cghub_api.api import request
+from cghub_api.api import request, Results
 from cghub_api.utils import clear_cache
 from cghub_api.settings import CACHE_DIR
+
+
+TEST_DATA_DIR = 'tests/test_data/'
 
 
 class CacheTest(unittest.TestCase):
@@ -28,7 +31,6 @@ class CacheTest(unittest.TestCase):
         # >>> m.hexdigest()
         # '10f911319953a88d95231b4d63e29434'
 
-        TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
         for f in self.cache_files:
@@ -36,6 +38,11 @@ class CacheTest(unittest.TestCase):
                     os.path.join(TEST_DATA_DIR, f),
                     os.path.join(CACHE_DIR, f)
                     )
+
+    def test_from_file_method(self):
+        for f in self.cache_files:
+            results = Results.from_file(os.path.join(TEST_DATA_DIR, f))
+            self.assertFalse(results.Result[0].reason == None)
 
     def test_data_is_from_cache(self):
         """
