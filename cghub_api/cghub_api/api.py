@@ -37,6 +37,18 @@ class Results(object):
     def __getitem__(self, item):
         return self[item]
 
+    @classmethod
+    def from_file(cls, file_name):
+        """
+        Initialize results from a file.
+        """
+        with open(file_name) as f:
+            return cls(
+                    objectify.fromstring(
+                        f.read()
+                        )
+                    )
+
     def calculate_files_size(self):
         """
         Files size is stored in structures
@@ -114,6 +126,8 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         m = hashlib.md5()
         m.update(query)
         cache_file_name = u'{0}.xml'.format(m.hexdigest())
+        if not get_attributes:
+            cache_file_name = cache_file_name + '-no-attr'
         cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
 
     if query and os.path.exists(cache_file_name):
