@@ -2,7 +2,6 @@ from StringIO import StringIO
 from operator import itemgetter
 from django.conf import settings
 import os
-from lxml import etree, objectify
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
@@ -11,6 +10,7 @@ from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from django.core.servers import basehttp
 from cghub.cghub_api.api import request as api_request
+from cghub.cghub_api.api import Results
 
 
 class CartView(TemplateView):
@@ -60,12 +60,12 @@ class CartDownloadFilesView(View):
         for analysis_id in cart:
             filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
             try:
-                with open(os.path.join(settings.CART_CACHE_FOLDER, filename)) as f:
-                    result = objectify.fromstring(f.read())
+                result = Results.from_file(os.path.join(settings.CART_CACHE_FOLDER, filename))
             except IOError:
                 result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
             if results is None:
                 results = result
+                print results.tostring()
                 results.Query.clear()
                 results.Hits.clear()
             else:
@@ -78,7 +78,7 @@ class CartDownloadFilesView(View):
     def manifest(self, cart):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=False)
-        mfio.write(etree.tostring(results))
+        mfio.write(results.tostring())
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=manifest.xml'
@@ -87,7 +87,7 @@ class CartDownloadFilesView(View):
     def xml(self, cart):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=True)
-        mfio.write(etree.tostring(results))
+        mfio.write(results.tostring())
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=xml.xml'
