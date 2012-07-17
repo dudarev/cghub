@@ -13,11 +13,11 @@ Contents:
 
     installation.rst
 
+    dependencies.rst
+
     usage.rst
 
     cghub_api.rst
-
-    dependencies.rst
 
     testing.rst
 
