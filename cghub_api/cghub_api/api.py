@@ -23,9 +23,16 @@ CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
 
 class Results(object):
     """
-    Wrapper class for results obtained with lxml.
+    Wrapper class for results obtained with lxml. This object is returned by :func:`request`.
     """
     def __init__(self, lxml_results):
+        """
+        :param lxml_results: needs to be converted with lxml.objectify
+
+        .. code-block :: python
+
+            results = objectify.fromstring(open(cache_file_name, 'r').read())
+        """
         self._lxml_results = lxml_results
         self.is_files_size_calculated = False
 
@@ -40,7 +47,7 @@ class Results(object):
     @classmethod
     def from_file(cls, file_name):
         """
-        Initialize results from a file.
+        Initialize :class:`Results <Results>` from a file.
         """
         with open(file_name) as f:
             return cls(
@@ -78,7 +85,9 @@ class Results(object):
 
     def sort(self, sort_by):
         """
-        If sort_by starts with "-" the order is descending.
+        Sorts results by attribute ``sort_by``.
+        If ``sort_by`` starts with ``-`` the order is descending.
+        If ``sort_by`` is ``files_size`` it is calculated. See :py:meth:`calculate_files_size` for details.
         """
         from operator import itemgetter
 
@@ -100,6 +109,9 @@ class Results(object):
             return
 
     def tostring(self):
+        """
+        Converts object to a string.
+        """
         return etree.tostring(self._lxml_results)
 
     def remove_attributes(self):
@@ -122,7 +134,14 @@ class Results(object):
 def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None):
     """
     Makes a request to CGHub web service or gets data from a file.
-    Returns parsed Response object.
+    Returns parsed :class:`Results` object.
+
+    :param query: a string with query to send to the server
+    :param offset: offset for results (for paging)
+    :param limit: limit (also for paging)
+    :param sort_by: sort by this attribute (specify it as ``-date_modified`` to reverse sorting order)
+    :param get_attributes: boolean to get results with attributes or not (``True`` by default), see :ref:`wsi-api` for details
+    :param file_name: only this parameter maybe specified, in this case results are obtained from a file
     """
 
     # see if cache file exists
