@@ -15,7 +15,9 @@ TODO: more details about WSI, in particular, getting results with attributes.
 Using Python API
 ---------------------
 
-Based on current tests:
+For more details see :ref:`API documentation <api>`.
+
+Example:
 
 .. code-block:: python
 
@@ -36,3 +38,30 @@ Based on current tests:
 
     first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
     refname = first_run_experiment_ref.attrib['refname']
+
+Caching
+~~~~~~~
+
+All requests to the external server are cached. They are saved in the form of files in ``CACHE_DIR`` which is defined in :ref:`settings`. 
+It is a good idea to clean cache once in a while with :func:`cghub_api.utils.clear_cache`. 
+Here is an example of using it with periodic Celery task:
+
+.. code-block:: python
+
+    import datetime
+    from datetime import timedelta
+
+    from celery.task import task
+
+    from cghub_api.utils import clear_cache
+
+    TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
+
+    @task(ignore_result=True)
+    def api_cache_clear_task():
+        """
+        Task to clear API cache which is by default is stored in
+        ``/tmp/cghub_api/``.
+        """
+        now = datetime.datetime.now()
+        clear_cache(now - TIME_DELETE_API_CACHE_FILES_OLDER)

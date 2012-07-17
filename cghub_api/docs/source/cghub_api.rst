@@ -22,7 +22,7 @@ cghub_api.api
 
     .. automethod:: cghub_api.api.Results.__init__
 
-.. _configuration
+.. _settings:
 
 Settings
 --------------
