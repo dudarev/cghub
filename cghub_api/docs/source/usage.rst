@@ -3,6 +3,18 @@
 Usage
 ============================================
 
+.. _wsi-api:
+
+WSI-API
+-----------
+
+A short description of WSI-API.
+
+TODO: more details about WSI, in particular, getting results with attributes.
+
+Using Python API
+---------------------
+
 Based on current tests:
 
 .. code-block:: python
