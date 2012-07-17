@@ -24,8 +24,10 @@ cghub_api.api
 
 .. _configuration
 
-Configurations
+Settings
 --------------
+
+At the moment the only setting is location of the directory where request files are cached.
 
 .. automodule:: cghub_api.settings
     :members:
