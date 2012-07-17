@@ -5,12 +5,23 @@ Usage
 
 .. _wsi-api:
 
-WSI-API
+WSI API
 -----------
 
-A short description of WSI-API.
+Web service interface (WSI) to CGHub data is described in `CGHub documentation <https://cghub.ucsc.edu/help.html>`__
+(look for `User's Guide`).
+The Python API described in this documentation provides Python interface to it.
 
-TODO: more details about WSI, in particular, getting results with attributes.
+At the moment WSI API provides two resources ``analysisObject`` and ``analysisAttributes``, e.g.
+
+https://cghub.ucsc.edu/cghub/metadata/analysisObject?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+
+https://cghub.ucsc.edu/cghub/metadata/analysisAttributes?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+
+The later returns more details for each query, while the former returns just enough information that could be used
+by the download program.
+
+Some ideas how WSI API may be extended are described in :doc:`future` section.
 
 Using Python API
 ---------------------
@@ -44,7 +55,7 @@ Caching
 
 All requests to the external server are cached. They are saved in the form of files in ``CACHE_DIR`` which is defined in :ref:`settings`. 
 It is a good idea to clean cache once in a while with :func:`cghub_api.utils.clear_cache`. 
-Here is an example of using it with periodic Celery task:
+Here is an example of using it with a periodic Celery task:
 
 .. code-block:: python
 
