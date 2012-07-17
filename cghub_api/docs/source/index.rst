@@ -19,6 +19,8 @@ Contents:
 
     dependencies.rst
 
+    testing.rst
+
     cgquery.rst
 
     tried.rst
