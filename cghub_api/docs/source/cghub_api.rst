@@ -43,8 +43,10 @@ Exceptions
     :show-inheritance:
 
 
-:mod:`utils` 
+Utility functions
 -------------------
+
+Only one utility function at the moment to clean cache.
 
 .. automodule:: cghub_api.utils
     :members:
