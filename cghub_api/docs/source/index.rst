@@ -15,7 +15,7 @@ Contents:
 
     usage.rst
 
-    docs.rst
+    cghub_api.rst
 
     dependencies.rst
 
@@ -27,6 +27,7 @@ Contents:
 
     future.rst
 
+    docs.rst
 
 Indices and tables
 ==================
