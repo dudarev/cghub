@@ -22,20 +22,20 @@ def perform_profiling(queries_count):
     for file in files:
         os.remove(file)
 
-    two_pos_queries = ('xml_text={0:02x}*'.format(random.randrange(0, 0xff)) for d in xrange(queries_count))
-    three_pos_queries = ('xml_text={0:03x}*'.format(random.randrange(0, 0xfff)) for d in xrange(queries_count))
-
-    print("Perform 2 pos queries without cache:")
-    perform_queries_for(two_pos_queries, 'two_pos_queries_without_cache.stats')
+    three_pos_queries = ('xml_text={0:3x}*'.format(random.randrange(0, 0xfff)) for d in xrange(queries_count))
+    four_pos_queries = ('xml_text={0:4x}*'.format(random.randrange(0, 0xffff)) for d in xrange(queries_count))
 
     print("Perform 3 pos queries without cache:")
     perform_queries_for(three_pos_queries, 'three_pos_queries_without_cache.stats')
 
-    print("Perform 2 pos queries with cache:")
-    perform_queries_for(two_pos_queries, 'two_pos_queries_with_cache.stats')
+    print("Perform 4 pos queries without cache:")
+    perform_queries_for(four_pos_queries, 'four_pos_queries_without_cache.stats')
 
     print("Perform 3 pos queries with cache:")
     perform_queries_for(three_pos_queries, 'three_pos_queries_with_cache.stats')
+
+    print("Perform 4 pos queries with cache:")
+    perform_queries_for(four_pos_queries, 'four_pos_queries_with_cache.stats')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
