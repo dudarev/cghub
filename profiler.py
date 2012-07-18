@@ -13,7 +13,9 @@ class Profiler(object):
     def __call__(self, *args, **kwargs):
         if self.skip:
             return self.fn(*args, **kwargs)
-        return self.profiler.runcall(self.fn, *args, **kwargs)
+        result = self.profiler.runcall(self.fn, *args, **kwargs)
+        self.dump_stats()
+        return result
 
     def dump_stats(self):
         if self.filename and not self.skip:
