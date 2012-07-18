@@ -65,7 +65,6 @@ class CartDownloadFilesView(View):
                 result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
             if results is None:
                 results = result
-                print results.tostring()
                 results.Query.clear()
                 results.Hits.clear()
             else:

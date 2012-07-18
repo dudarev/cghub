@@ -13,11 +13,13 @@ Contents:
 
     installation.rst
 
+    dependencies.rst
+
     usage.rst
 
-    docs.rst
+    cghub_api.rst
 
-    dependencies.rst
+    testing.rst
 
     cgquery.rst
 
@@ -27,6 +29,7 @@ Contents:
 
     future.rst
 
+    docs.rst
 
 Indices and tables
 ==================

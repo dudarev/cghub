@@ -114,8 +114,6 @@ class SearchViewPaginationTestCase(TestCase):
         response = self.client.get(reverse('search_page') +
                                    '?q={query}&offset={offset}&limit={limit}'.format(
                                        query=self.query, offset=0, limit=1))
-        for i in xrange(self.default_results_count):
-            self.assertContains(response, '{0}'.format(i))
         self.assertContains(response, 'active')
         self.assertContains(response, 'Prev')
         self.assertContains(response, 'Next')

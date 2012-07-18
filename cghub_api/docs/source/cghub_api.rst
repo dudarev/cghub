@@ -1,43 +1,54 @@
-cghub_api Package
+:tocdepth: 2
+
+API Documentation
 =================
 
-:mod:`cghub_api` Package
-------------------------
+.. _api:
 
-.. automodule:: cghub_api.__init__
+Main Interface
+--------------
+
+All functionality is implemented in function :func:`cghub_api.api.request`. It returns object of class :class:`cghub_api.api.Results`.
+
+cghub_api.api
+~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: cghub_api.api.request
+
+.. autoclass:: cghub_api.api.Results
     :members:
     :undoc-members:
-    :show-inheritance:
+    :member-order: bysource
 
-:mod:`api` Module
------------------
+    .. automethod:: cghub_api.api.Results.__init__
 
-.. automodule:: cghub_api.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. _settings:
 
-:mod:`exceptions` Module
-------------------------
+Settings
+--------------
 
-.. automodule:: cghub_api.exceptions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`settings` Module
-----------------------
+At the moment the only setting is location of the directory where request files are cached.
 
 .. automodule:: cghub_api.settings
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`utils` Module
+Exceptions
+-------------
+
+.. automodule:: cghub_api.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Utility functions
 -------------------
+
+Only one utility function at the moment to clean cache.
 
 .. automodule:: cghub_api.utils
     :members:
     :undoc-members:
     :show-inheritance:
-
