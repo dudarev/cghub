@@ -22,8 +22,8 @@ def perform_profiling(queries_count):
     for file in files:
         os.remove(file)
 
-    three_pos_queries = ('xml_text={0:3x}*'.format(random.randrange(0, 0xfff)) for d in xrange(queries_count))
-    four_pos_queries = ('xml_text={0:4x}*'.format(random.randrange(0, 0xffff)) for d in xrange(queries_count))
+    three_pos_queries = ('xml_text={0:03x}*'.format(random.randrange(0, 0xfff)) for d in xrange(queries_count))
+    four_pos_queries = ('xml_text={0:04x}*'.format(random.randrange(0, 0xffff)) for d in xrange(queries_count))
 
     print("Perform 3 pos queries without cache:")
     perform_queries_for(three_pos_queries, 'three_pos_queries_without_cache.stats')
