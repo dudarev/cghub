@@ -95,6 +95,10 @@ less:
 
 minjs:
 	-@grunt --config cghub/grunt.js min
+
+profile_api:
+	$(PYTHON) cghub_api/utils/profile/profile_api.py $(QUERIES_COUNT)
+
 #
 # end targets
 
