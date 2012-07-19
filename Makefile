@@ -100,10 +100,10 @@ profile_api:
 	$(PYTHON) $(PROFILE_DIR)/profile_api.py $(QUERIES_COUNT)
 
 profile_api_call_graph:
-	@gprof2dot -f pstats $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_with_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_with_cache.png
-	@gprof2dot -f pstats $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_without_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(THREE_POS_FILENAME_PREFIX)_with_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(THREE_POS_FILENAME_PREFIX)_with_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(THREE_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(THREE_POS_FILENAME_PREFIX)_without_cache_cg.png
 	@gprof2dot -f pstats $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_with_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_with_cache.png
-	@gprof2dot -f pstats $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache_cg.png
 	@echo 'Call graphs are generated for profilers stats.'
 
 #
