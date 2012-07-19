@@ -77,8 +77,12 @@ def perform_profiling(queries_count):
 
     # three_pos_queries = ['xml_text={0:03x}*'.format(random.randrange(0, 0xfff)) for d in xrange(queries_count)]
     # four_pos_queries = ['xml_text={0:04x}*'.format(random.randrange(0, 0xffff)) for d in xrange(queries_count)]
-    three_pos_queries = [random.choice(good_three_pos_queries) for i in xrange(queries_count)]
-    four_pos_queries = [random.choice(good_four_pos_queries) for i in xrange(queries_count)]
+    three_pos_queries = set()
+    while len(three_pos_queries) < queries_count:
+        three_pos_queries.add(random.choice(good_three_pos_queries))
+    four_pos_queries = set()
+    while len(four_pos_queries) < queries_count:
+        four_pos_queries.add(random.choice(good_four_pos_queries))
 
     print("Perform 3 pos queries without cache:")
     perform_queries_for(three_pos_queries, 'three_pos_queries_without_cache')
