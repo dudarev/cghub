@@ -37,3 +37,5 @@ cghub/media/api_results_cache
 !.gitignore
 !cghub_api/docs
 cghub_api/docs/build
+!cghub/docs
+cghub/docs/build
