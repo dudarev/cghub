@@ -1,8 +1,10 @@
+import csv
 import glob
 import random
 import os
 import sys
 from profiler import profile
+import time
 from cghub_api.api import request as api_request
 from cghub_api.settings import CACHE_DIR
 
@@ -49,11 +51,20 @@ good_four_pos_queries = (
     )
 
 
-def perform_queries_for(queries, stats_filename):
-    api_request_in_profiler = profile(api_request, os.path.join(STATS_DIR, stats_filename))
-    for q in queries:
-        print("\t{0}".format(q))
-        api_request_in_profiler(q)
+def perform_queries_for(queries, filename):
+    path_to_file = os.path.join(STATS_DIR, filename)
+    api_request_in_profiler = profile(api_request, path_to_file + '.stats')
+    with open(path_to_file + '.csv', 'wb') as f:
+        statistics = csv.writer(f)
+        statistics.writerow(['query', 'results count', 'time'])
+        for q in queries:
+            print("\t{0}".format(q))
+            start_time = time.time()
+            results = api_request_in_profiler(q)
+            end_time = time.time()
+            query_time = end_time - start_time
+            results_count = len(results.Result) if hasattr(results, 'Result') else 0
+            statistics.writerow([q, results_count, query_time])
 
 
 def perform_profiling(queries_count):
@@ -70,16 +81,16 @@ def perform_profiling(queries_count):
     four_pos_queries = [random.choice(good_four_pos_queries) for i in xrange(queries_count)]
 
     print("Perform 3 pos queries without cache:")
-    perform_queries_for(three_pos_queries, 'three_pos_queries_without_cache.stats')
+    perform_queries_for(three_pos_queries, 'three_pos_queries_without_cache')
 
     print("Perform 4 pos queries without cache:")
-    perform_queries_for(four_pos_queries, 'four_pos_queries_without_cache.stats')
+    perform_queries_for(four_pos_queries, 'four_pos_queries_without_cache')
 
     print("Perform 3 pos queries with cache:")
-    perform_queries_for(three_pos_queries, 'three_pos_queries_with_cache.stats')
+    perform_queries_for(three_pos_queries, 'three_pos_queries_with_cache')
 
     print("Perform 4 pos queries with cache:")
-    perform_queries_for(four_pos_queries, 'four_pos_queries_with_cache.stats')
+    perform_queries_for(four_pos_queries, 'four_pos_queries_with_cache')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
