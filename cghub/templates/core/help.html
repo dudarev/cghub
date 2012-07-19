@@ -7,5 +7,45 @@
     {% endif %}
 {% endblock %}
 {% block main_content %}
-    <h1> Help </h1>
+    <div class="span6 help-content">
+        <h1> Help </h1>
+    
+        <h2>Search</h2>
+
+        <p>
+        Search for any query by entering it into the search box.
+        For example, <a href="/search/?q=6d7*">6d7*</a>.
+        </p>
+        <p>
+        To see more content in any column adjust its width by dragging lines between columns.
+        </p>
+        <p>
+        Results may be filtered and sorted. To filter open the category for filtering in the sidebar and click the attribute. 
+        If filters is used one may see a message what filters are used. It is possible to use several filters.
+        </p>
+        <p>
+        To sort by values in a column click on its header. To change the sorting from ascending to descending click the header again.
+        It is only possible to sort by values in one column.
+        </p>
+        
+        <h2>Cart</h2>
+        <p>
+        In search results, click checkboxes of the results you would like to download 
+        and use "Add to cart" button to add them to the cart to download later.
+        </p>
+        <p>
+        To download XMLs of added results visit the <a href="/cart">cart page</a>.
+        There you may see the number and size of files you could download with GeneTorrent manifest from the cart.
+        </p>
+        <p>
+        Manifest XML has abbreviated version of the selected results, 
+        while 'Download XML' button allows to download XML with all the attributes of the results.
+        </p>
+        <p>
+        Content of the cart may be adjusted by selecting unwanted results and clicking 'Remove from cart' button.
+        </p>
+        <p>
+        Content of the cart is saved in the session and is preserved once the browser is closed if cookies are allowed.
+        </p>
+    </div>
 {% endblock %}
