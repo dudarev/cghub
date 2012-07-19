@@ -83,21 +83,28 @@ else
 endif
 
 celeryd:
-	-@kill -9 `cat $(CELERYD_PID)`
+	@kill -9 `cat $(CELERYD_PID)`
 	# -B option is for celerybeat with one worker (scheduling)
 	$(MANAGE) celeryd -Q celery -B --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)
 
 celeryd_stop:
-	-@kill -9 `cat $(CELERYD_PID)`
+	@kill -9 `cat $(CELERYD_PID)`
 
 less:
-	-@grunt-less --config cghub/grunt.js less
+	@grunt-less --config cghub/grunt.js less
 
 minjs:
-	-@grunt --config cghub/grunt.js min
+	@grunt --config cghub/grunt.js min
 
 profile_api:
-	$(PYTHON) cghub_api/utils/profile/profile_api.py $(QUERIES_COUNT)
+	$(PYTHON) $(PROFILE_DIR)/profile_api.py $(QUERIES_COUNT)
+
+profile_api_call_graph:
+	@gprof2dot -f pstats $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_with_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_with_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(TREE_POS_FILENAME_PREFIX)_without_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_with_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_with_cache.png
+	@gprof2dot -f pstats $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache.stats -n0.1 -e0.1 | dot -Tpng -o $(STATS_DIR)/$(FOUR_POS_FILENAME_PREFIX)_without_cache.png
+	@echo 'Call graphs are generated for profilers stats.'
 
 #
 # end targets
