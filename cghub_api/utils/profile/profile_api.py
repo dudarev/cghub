@@ -1,3 +1,14 @@
+"""
+Profile several queries. To get multiple results queries in the following forms are used:
+
+    xml_text=aaa*
+    xml_text=aaaa*
+
+Results of profiler are saved in Python Profile format. For each query the following CSV
+row is also saved:
+
+    query, results count, time
+"""
 import csv
 import glob
 import random
