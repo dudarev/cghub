@@ -5,25 +5,13 @@ There are two projects here
 
 API is used by the cghub the Django app.
 
-To run the app:
+Documentation for each project in Sphinx format may be found in
 
-```bash
-# pay attention to comments
+`cghub/docs`
+`cghub_api/docs`
 
-git clone git@github.com:dudarev/cghub.git cghub
-cd cghub
-cp Makefile.def.default Makefile.def
-cp cghub/settings/local.py.default cghub/settings/local.py
-mkdir {pids,logs}
+In each case it can be built with `make html` command. Another target was added:
+`make serve` so that the documentation is rebuilt and served at 
 
-# either
-mkvirtualenv -r requirements.txt cghub
-# or (if not using virtualenvwrapper)
-pip install -r requirements
-
-make syncdb
-make celeryd
-
-# in another terminal from `cghub` directory
-make run
-```
+http://localhost:8002
+http://localhost:8001
