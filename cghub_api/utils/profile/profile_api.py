@@ -85,7 +85,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         if sys.argv[1].isdigit():
             queries_count = int(sys.argv[1])
-            perform_profiling(queries_count)
+            if 0 < queries_count <= 100:
+                perform_profiling(queries_count)
+            else:
+                print("Queries count should be in range from 1 to 100!")
         else:
             print("Queries count is not a number!")
     else:
