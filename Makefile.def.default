@@ -19,10 +19,3 @@ LOGS_DIR=logs
 
 CELERYD_PID=$(CURDIR)/$(PIDS_DIR)/celeryd.pid
 CELERYD_LOG=$(CURDIR)/$(LOGS_DIR)/celeryd.log
-
-PROFILE_DIR=$(PROJECT_API)/utils/profile
-STATS_DIR=$(PROFILE_DIR)/stats
-QUERIES_COUNT=100
-
-THREE_POS_FILENAME_PREFIX=three_pos_queries
-FOUR_POS_FILENAME_PREFIX=four_pos_queries
