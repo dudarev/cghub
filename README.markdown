@@ -7,18 +7,22 @@ API is used by the cghub the Django app.
 
 ## Makefile targets
 
+### Testing
+
 - `make test` - test both projects
 - `make test_api` - only API
 - `make test_web` - test Django app
+
+### Running
 
 - `make run` - run Django app
 - `make celeryd` - launch Celery daemon to control caches cleaning
 - `make celeryd_stop` - stop Celery daemon
 
+### Compiling statics
+
 - `make less` - create static CSS from LESS files
 - `make minjs` - minify JavaScript
-
-- `make profile_api` - launch the script that profiles API
 
 ## Documentation
 

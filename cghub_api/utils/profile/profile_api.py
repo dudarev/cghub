@@ -20,7 +20,7 @@ from cghub_api.api import request as api_request
 from cghub_api.settings import CACHE_DIR
 
 
-STATS_DIR = 'cghub_api/utils/profile/stats'
+STATS_DIR = 'stats'
 
 good_three_pos_queries = (
     'xml_text=e79*', 'xml_text=bab*', 'xml_text=34d*', 'xml_text=afb*', 'xml_text=01f*', 'xml_text=4a7*',

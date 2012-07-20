@@ -21,6 +21,8 @@ Contents:
 
     testing.rst
 
+    performance.rst
+
     cgquery.rst
 
     tried.rst

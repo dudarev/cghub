@@ -29,6 +29,7 @@ cghub_api/build
 cghub_api/dist
 cghub_api/MANIFEST
 cghub_api/cghub_api/tags
+cghub_api/utils/profile/imgs
 cghub/media/api_results_cache
 
 #
