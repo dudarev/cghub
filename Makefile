@@ -33,7 +33,7 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
-	cd cghub_api && nosetests
+	cd cghub_api && nosetests -s
 
 test_web:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
