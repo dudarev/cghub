@@ -21,7 +21,7 @@ class CacheTest(unittest.TestCase):
     ]
 
     bad_cache_file = [
-        '9a47690bef15473baaab6613ccb0edaf.xml',
+        '9a47690bef15473baaab6613ccb0edaf.xml', # query='xml_text=6d7*'
     ]
 
     def setUp(self):
