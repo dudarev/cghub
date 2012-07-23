@@ -153,17 +153,19 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
             cache_file_name = cache_file_name + '-no-attr'
         cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
 
+    results = []
+    xml_syntax_error_raised = False
     if query and os.path.exists(cache_file_name):
-        results = objectify.fromstring(open(cache_file_name, 'r').read())
+        try:
+            results = objectify.fromstring(open(cache_file_name, 'r').read())
+        except etree.XMLSyntaxError:
+            xml_syntax_error_raised = True
 
-    else:
-
+    if not results:
         server = CGHUB_SERVER
 
         if query == None and file_name == None:
             raise QueryRequired
-
-        results = []
 
         if query == None and file_name:
             results = objectify.fromstring(open(file_name, 'r').read())
@@ -183,7 +185,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     results = Results(results)
 
     # save results to cache if it was a query and cache did not exists
-    if query and not os.path.exists(cache_file_name):
+    if query and (xml_syntax_error_raised or not os.path.exists(cache_file_name)):
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
         f = open(cache_file_name, 'w')
