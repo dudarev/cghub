@@ -13,15 +13,51 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Center
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'center_name' '' %}">All</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'BCM' %}">Baylor</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'BCCAGSC' %}">BCCAGSC</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'BI' %}">Broad Institute</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'HMS-RK' %}">Harvard</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'UNC-LCCC' %}">UNC-LCCC</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'USC-JHU' %}">USC/Sidney K. B.</a></li>
-                    <li><a href="{% filter_link request 'center_name' 'WUGSC' %}">Washington U.</a></li>
+                <ul class="nav" data-filter="center_name">
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="BCM" checked="checked">
+                        Baylor
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="BCCAGSC" checked="checked">
+                        BCCAGSC
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="BI" checked="checked">
+                        Broad Institute
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="HMS-RK" checked="checked">
+                        Harvard
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="UNC-LCCC" checked="checked">
+                        UNC-LCCC
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="USC-JHU" checked="checked">
+                        USC/Sidney K. B.
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="WUGSC" checked="checked">
+                        Washington U.
+                    </label>
+                    </li>
+                    <li><a href="#">Select all</a></li>
+                    <li><a href="#">Deselect all</a></li>
                 </ul>
             </div>
         </div>
@@ -152,5 +188,10 @@
                 </ul>
             </div>
         </div>
+
+        <div class="btn-group search-btn-group">
+            <button class="btn" type="submit">Apply filters</button>
+        </div>
+
     </ul>
 </div>
