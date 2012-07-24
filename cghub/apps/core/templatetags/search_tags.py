@@ -1,6 +1,7 @@
 import urllib
 from django import template
 from django.utils.http import urlencode
+from django.core.urlresolvers import reverse
 
 
 register = template.Library()
@@ -80,7 +81,7 @@ def sort_link(request, attribute, link_anchor):
         data['sort_by'] = attribute
         direction_label = ''
     
-    href = request.path + '?' + urllib.urlencode(data)
+    href = reverse('search_page') + '?' + urllib.urlencode(data)
     return '<a href="%(href)s">%(link_anchor)s%(direction_label)s</a>' % {
         'link_anchor': link_anchor,
         'direction_label': direction_label,
