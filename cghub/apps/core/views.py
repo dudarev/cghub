@@ -15,7 +15,9 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        results = api_request(query=self.default_query, sort_by='-last_modified')
+        limit = settings.DEFAULT_PAGINATOR_LIMIT
+        results = api_request(query=self.default_query, sort_by='-last_modified',
+            limit=limit)
         results.calculate_files_size()
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
@@ -63,6 +65,7 @@ class SearchView(TemplateView):
         if q:
             query = u"xml_text={0}".format(urlquote(q))
         query += filter_str
+        print sort_by
         results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
         # this function calculates files_size attribute
         results.calculate_files_size()
