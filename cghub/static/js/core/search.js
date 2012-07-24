@@ -18,9 +18,12 @@ jQuery(function ($) {
                 liveDrag:true
             });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
+            cghub.search.$addFiltersForm = $('form#id_add_filters');
+            console.log(cghub.search.$addFiltersForm);
         },
         bindEvents:function () {
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
+            cghub.search.$addFiltersForm.on('submit', cghub.search.addFitersFormSubmit);
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
@@ -40,6 +43,8 @@ jQuery(function ($) {
                 }
             });
             return false;
+        },
+        addFitersFormSubmit:function () {
         },
         initFilterAccordions:function() {
             var accordions = $.find('.filter-accordion');
