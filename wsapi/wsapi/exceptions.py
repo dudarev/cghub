@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-cghub_api.exceptions
+wsapi.exceptions
 ~~~~~~~~~~~~~~~~~~~~
 
-This module contains the set of cghub_api's exceptions.
+This module contains the set of wsapi's exceptions.
 
 """
 

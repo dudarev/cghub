@@ -16,8 +16,8 @@ import os
 import sys
 from profiler import profile
 import time
-from cghub_api.api import request as api_request
-from cghub_api.settings import CACHE_DIR
+from wsapi.api import request as api_request
+from wsapi.settings import CACHE_DIR
 
 
 STATS_DIR = 'stats'

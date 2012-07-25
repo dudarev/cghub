@@ -25,18 +25,18 @@ docs
 tags
 utils/*
 db.sqlite3
-cghub_api/build
-cghub_api/dist
-cghub_api/MANIFEST
-cghub_api/cghub_api/tags
-cghub_api/utils/profile/imgs
+wsapi/build
+wsapi/dist
+wsapi/MANIFEST
+wsapi/wsapi/tags
+wsapi/utils/profile/imgs
 cghub/media/api_results_cache
 
 #
 # Included objects
 #
 !.gitignore
-!cghub_api/docs
-cghub_api/docs/build
+!wsapi/docs
+wsapi/docs/build
 !cghub/docs
 cghub/docs/build

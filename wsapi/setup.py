@@ -8,7 +8,7 @@ import distutils.sysconfig
 # Require Python 2.6 or higher, but not 3.x
 py_ver = distutils.sysconfig.get_python_version()
 if (py_ver < '2.6') or (py_ver >= '3.0'):
-    raise ValueError('cghub_api requires Python version 2.x where x >= 6 (you have %s)' % (py_ver,))
+    raise ValueError('wsapi requires Python version 2.x where x >= 6 (you have %s)' % (py_ver,))
 
 import os
 import datetime
@@ -57,7 +57,7 @@ package_data = {}
 setup_path = os.path.dirname(__file__)
 possible_bundles = []
 
-setup(name='cghub_api',
+setup(name='wsapi',
       description = '',
       author='Artem Dudarev',
       author_email='dudarev@gmail.com',

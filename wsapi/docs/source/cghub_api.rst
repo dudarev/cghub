@@ -8,19 +8,19 @@ API Documentation
 Main Interface
 --------------
 
-All functionality is implemented in function :func:`cghub_api.api.request`. It returns object of class :class:`cghub_api.api.Results`.
+All functionality is implemented in function :func:`wsapi.api.request`. It returns object of class :class:`wsapi.api.Results`.
 
-cghub_api.api
+wsapi.api
 ~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: cghub_api.api.request
+.. autofunction:: wsapi.api.request
 
-.. autoclass:: cghub_api.api.Results
+.. autoclass:: wsapi.api.Results
     :members:
     :undoc-members:
     :member-order: bysource
 
-    .. automethod:: cghub_api.api.Results.__init__
+    .. automethod:: wsapi.api.Results.__init__
 
 .. _settings:
 
@@ -29,7 +29,7 @@ Settings
 
 At the moment the only setting is location of the directory where request files are cached.
 
-.. automodule:: cghub_api.settings
+.. automodule:: wsapi.settings
     :members:
     :undoc-members:
     :show-inheritance:
@@ -37,7 +37,7 @@ At the moment the only setting is location of the directory where request files 
 Exceptions
 -------------
 
-.. automodule:: cghub_api.exceptions
+.. automodule:: wsapi.exceptions
     :members:
     :undoc-members:
     :show-inheritance:
@@ -48,7 +48,7 @@ Utility functions
 
 Only one utility function at the moment to clean cache.
 
-.. automodule:: cghub_api.utils
+.. automodule:: wsapi.utils
     :members:
     :undoc-members:
     :show-inheritance:

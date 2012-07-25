@@ -33,13 +33,13 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
-	cd cghub_api && nosetests
+	cd wsapi && nosetests
 
 test_web:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
 
 test_api:
-	cd cghub_api && nosetests
+	cd wsapi && nosetests
 
 clean:
 	@echo Cleaning up...

@@ -2,8 +2,8 @@ from lxml import objectify
 import shutil
 import os
 from django.utils import unittest
-from cghub_api.api import request
-from cghub_api.settings import CACHE_DIR
+from wsapi.api import request
+from wsapi.settings import CACHE_DIR
 
 
 class PaginationTestCase(unittest.TestCase):
