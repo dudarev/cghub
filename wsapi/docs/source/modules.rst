@@ -1,7 +1,7 @@
-cghub_api
+wsapi
 =========
 
 .. toctree::
    :maxdepth: 4
 
-   cghub_api
+   wsapi

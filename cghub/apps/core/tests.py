@@ -5,7 +5,7 @@ import shutil
 from django.test.testcases import TestCase
 from django.template import Template, Context
 from django.http import HttpRequest
-from cghub_api.settings import CACHE_DIR
+from wsapi.settings import CACHE_DIR
 
 
 class CoreTests(TestCase):

@@ -17,7 +17,7 @@ Contents:
 
     usage.rst
 
-    cghub_api.rst
+    wsapi.rst
 
     testing.rst
 

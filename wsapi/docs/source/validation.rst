@@ -24,12 +24,12 @@ Change to corresponding directories and run the relevant scripts:
 
 .. code-block:: bash
 
-    cd cghub/cghub_api/utils/try_lxml_validate/
+    cd cghub/wsapi/utils/try_lxml_validate/
     python validate.py
 
 .. code-block:: bash
 
-    cd cghub/cghub_api/utils/try_pyxb/
+    cd cghub/wsapi/utils/try_pyxb/
     python parse.py
 
 PyXB does not generate good error messages, so you might want to run

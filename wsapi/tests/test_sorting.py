@@ -3,7 +3,7 @@
 
 import unittest
 
-from cghub_api.api import request
+from wsapi.api import request
 
 
 class SortingTest(unittest.TestCase):

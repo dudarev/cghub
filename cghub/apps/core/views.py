@@ -5,7 +5,7 @@ from django.http import QueryDict
 from django.utils.http import urlquote
 
 from django.views.generic.base import TemplateView
-from cghub.cghub_api.api import request as api_request
+from cghub.wsapi.api import request as api_request
 
 
 class HomeView(TemplateView):

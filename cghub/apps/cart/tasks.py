@@ -4,7 +4,7 @@ import os
 
 from django.conf import settings
 from celery.task import task
-from cghub.cghub_api.api import request as api_request
+from cghub.wsapi.api import request as api_request
 
 
 @task(ignore_result=True)
