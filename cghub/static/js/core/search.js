@@ -18,12 +18,12 @@ jQuery(function ($) {
                 liveDrag:true
             });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
-            cghub.search.$addFiltersForm = $('form#id_add_filters');
+            cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             console.log(cghub.search.$addFiltersForm);
         },
         bindEvents:function () {
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
-            cghub.search.$addFiltersForm.on('submit', cghub.search.addFitersFormSubmit);
+            cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
@@ -44,7 +44,16 @@ jQuery(function ($) {
             });
             return false;
         },
-        addFitersFormSubmit:function () {
+        applyFilters:function () {
+            var categories = $('.filter-category');
+            categories.each(function (i,f) {
+                console.log(($(this).attr('data-filter')));
+                var values = $(this).find(':checkbox');
+                console.log(values);
+                values.each(function (ii,ff) {
+                    console.log($(this).attr('checked'));
+                });
+            });
         },
         initFilterAccordions:function() {
             var accordions = $.find('.filter-accordion');

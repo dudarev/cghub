@@ -13,7 +13,7 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Center
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav" data-filter="center_name">
+                <ul class="nav filter-category" data-filter="center_name">
                     <li>
                     <label class="checkbox">
                         <input type="checkbox" data="BCM" checked="checked">
@@ -189,12 +189,9 @@
             </div>
         </div>
 
-        <form action="{% url search_page %}" method="POST" id="id_add_filters">
-            <input class="search-query" type="text" name="q">
-            <div class="btn-group search-btn-group">
-                <button class="btn" type="submit">Apply filters</button>
-            </div>
-        </form>
+        <div class="btn-group search-btn-group">
+            <button class="btn" id="id_apply_filters" type="submit">Apply filters</button>
+        </div>
 
     </ul>
 </div>
