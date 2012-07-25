@@ -36,7 +36,7 @@ API does not clean cache automatically. Celery task to do so is scheduled to run
     TIME_CHECK_API_CACHE_INTERVAL = timedelta(hours=1)
 
 They control how often the task is ran (1 hour above) and how old files are kept (2 hours). 
-The directory where the cache is kept is defined in the API settings (``/tmp/cghub_api/`` by default).
+The directory where the cache is kept is defined in the API settings (``/tmp/wsapi/`` by default).
 
 Cart cache
 ~~~~~~~~~~~~~~~

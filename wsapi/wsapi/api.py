@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-cghub_api.api
+wsapi.api
 ~~~~~~~~~~~~~~~~~~~~
 
 Functions for external use.

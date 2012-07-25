@@ -1,7 +1,7 @@
 There are two projects here 
 
 `cghub` - web interface to CGHub data written with Django
-`cghub_api` - Python API to this data
+`wsapi` - Python API to this data
 
 API is used by the `cghub` the Django app.
 
@@ -29,7 +29,7 @@ API is used by the `cghub` the Django app.
 Documentation for each project in Sphinx format may be found in
 
 `cghub/docs` and
-`cghub_api/docs`
+`wsapi/docs`
 
 In each case it can be built with `make html` command from those directories. 
 One more target was added to Makefile:

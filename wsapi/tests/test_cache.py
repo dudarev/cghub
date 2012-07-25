@@ -5,9 +5,9 @@ import os, shutil
 import unittest
 import datetime, time
 
-from cghub_api.api import request, Results
-from cghub_api.utils import clear_cache
-from cghub_api.settings import CACHE_DIR
+from wsapi.api import request, Results
+from wsapi.utils import clear_cache
+from wsapi.settings import CACHE_DIR
 
 
 TEST_DATA_DIR = 'tests/test_data/'

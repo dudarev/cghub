@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-cghub_api.utils
+wsapi.utils
 ~~~~~~~~~~~~~~~~~~~~
 
 Utility functions.

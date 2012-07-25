@@ -5,7 +5,7 @@ import shutil
 from django.test.testcases import TestCase
 from django.template import Template, Context
 from django.http import HttpRequest
-from cghub_api.settings import CACHE_DIR
+from wsapi.settings import CACHE_DIR
 
 
 class CoreTests(TestCase):
@@ -35,7 +35,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="?sort_by=last_modified">Date Uploaded</a>')
+            '<a href="/search/?sort_by=last_modified">Date Uploaded</a>')
 
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
@@ -47,7 +47,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="?q=sample_query&sort_by=last_modified">Date Uploaded</a>')
+            '<a href="/search/?q=sample_query&sort_by=last_modified">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
@@ -60,7 +60,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="?sort_by=-last_modified">Date Uploaded ASC</a>')
+            '<a href="/search/?sort_by=-last_modified">Date Uploaded ASC</a>')
 
 
 class SearchViewPaginationTestCase(TestCase):

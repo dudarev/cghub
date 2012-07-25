@@ -31,7 +31,6 @@
             <a class="brand" href="/">UC SANTA CRUZ</a>
             <ul class="nav">
                 <li><a href="{% url home_page %}">Home</a></li>
-                <li><a href="{% url search_page %}">Search</a></li>
                 <li><a href="{% url cart_page %}">Cart ({{ request.session.cart|length }})</a></li>
                 <li><a href="{% url help_page %}">Help</a></li>
             </ul>

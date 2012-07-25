@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-cghub_api
+wsapi
 ~~~~~~~~~
 
 :copyright: (c) 2012 CGHub UCSC
@@ -9,7 +9,7 @@ cghub_api
 
 """
 
-__title__ = 'cghub_api'
+__title__ = 'wsapi'
 __version__ = '0.0.3'
 __author__ = 'Artem Dudarev'
 __license__ = 'New BSD'

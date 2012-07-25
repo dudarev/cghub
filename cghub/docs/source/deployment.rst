@@ -23,7 +23,7 @@ and ``celeryd`` process is started.
     PYTHONPATH="${config_path}:${rev_path}" django-admin.py syncdb --noinput --settings settings_deploy
 
     # make documentation
-    cd ${rev_path}/cghub_api/docs/ && make html
+    cd ${rev_path}/wsapi/docs/ && make html
 
     # start celeryd process
     cd ${rev_path} && make celeryd &

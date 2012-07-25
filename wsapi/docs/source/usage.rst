@@ -32,8 +32,8 @@ Example:
 
 .. code-block:: python
 
-    from cghub_api.exceptions import QueryRequired
-    from cghub_api.api import request
+    from wsapi.exceptions import QueryRequired
+    from wsapi.api import request
 
     try:
         request()
@@ -54,7 +54,7 @@ Caching
 ~~~~~~~
 
 All requests to the external server are cached. They are saved in the form of files in ``CACHE_DIR`` which is defined in :ref:`settings`. 
-It is a good idea to clean cache once in a while with :func:`cghub_api.utils.clear_cache`. 
+It is a good idea to clean cache once in a while with :func:`wsapi.utils.clear_cache`. 
 Here is an example of using it with a periodic Celery task:
 
 .. code-block:: python
@@ -64,7 +64,7 @@ Here is an example of using it with a periodic Celery task:
 
     from celery.task import task
 
-    from cghub_api.utils import clear_cache
+    from wsapi.utils import clear_cache
 
     TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
 
@@ -72,7 +72,7 @@ Here is an example of using it with a periodic Celery task:
     def api_cache_clear_task():
         """
         Task to clear API cache which is by default is stored in
-        ``/tmp/cghub_api/``.
+        ``/tmp/wsapi/``.
         """
         now = datetime.datetime.now()
         clear_cache(now - TIME_DELETE_API_CACHE_FILES_OLDER)

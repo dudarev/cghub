@@ -9,8 +9,8 @@ from django.utils import simplejson as json
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from django.core.servers import basehttp
-from cghub.cghub_api.api import request as api_request
-from cghub.cghub_api.api import Results
+from cghub.wsapi.api import request as api_request
+from cghub.wsapi.api import Results
 
 
 class CartView(TemplateView):
