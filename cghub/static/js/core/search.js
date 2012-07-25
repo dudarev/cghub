@@ -47,12 +47,28 @@ jQuery(function ($) {
         applyFilters:function () {
             var categories = $('.filter-category');
             categories.each(function (i,f) {
-                console.log(($(this).attr('data-filter')));
+                var filter = $(this).attr('data-filter');
                 var values = $(this).find(':checkbox');
                 console.log(values);
+                var are_all_checked = true;
+                var query = '';
                 values.each(function (ii,ff) {
-                    console.log($(this).attr('checked'));
+                    if ($(this).attr('checked') == 'checked'){
+                        console.log($(this).attr('checked'));
+                        if (query == ''){
+                            query = $(this).attr('data');
+                        } else {
+                            query += ' OR ' + $(this).attr('data');
+                        };
+                    } else {
+                        are_all_checked = false;
+                    };
                 });
+                if (!are_all_checked && query != ''){
+                    query = filter + '=' + encodeURIComponent('(' + query + ')');
+                }
+                console.log(are_all_checked);
+                console.log(query);
             });
         },
         initFilterAccordions:function() {
