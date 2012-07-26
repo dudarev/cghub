@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 wsapi.cache
 ~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +26,15 @@ def _dummy_save_to_cache(**kwargs):
     """Does nothing, imitates reading from the cache"""
     pass
 
+def get_cache_file_name(query, get_attributes):
+    md5 = hashlib.md5(query)
+    cache_file_name = u'{0}.xml'.format(md5.hexdigest())
+    if not get_attributes:
+        cache_file_name = cache_file_name + '-no-attr'
+    cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
+
+    return cache_file_name
+
 def _get_from_simple_cache(query=None, get_attributes=True):
     """Reads from the cache file, which name is calculating from query"""
     results = []
@@ -35,12 +43,7 @@ def _get_from_simple_cache(query=None, get_attributes=True):
     if not query:
         raise QueryRequired
 
-    # geting cache file's name
-    md5 = hashlib.md5(query)
-    cache_file_name = u'{0}.xml'.format(md5.hexdigest())
-    if not get_attributes:
-        cache_file_name = cache_file_name + '-no-attr'
-    cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
+    cache_file_name = get_cache_file_name(query=query, get_attributes=get_attributes)
 
     # getting results from cache file
     if os.path.exists(cache_file_name):
@@ -51,13 +54,12 @@ def _get_from_simple_cache(query=None, get_attributes=True):
 
     return (results, tuple(errors))
 
-def _save_to_simple_cache(query=None, data=None):
+def _save_to_simple_cache(query=None, get_attributes=True, data=None):
     """Writes related to the query data into the cache file, which creates if necessary"""
     if not query:
         return
 
-    md5 = hashlib.md5(query)
-    cache_file_name = u'{0}.xml'.format(md5.hexdigest())
+    cache_file_name = get_cache_file_name(query=query, get_attributes=get_attributes)
 
     if not os.path.exists(CACHE_DIR):
         os.makedirs(CACHE_DIR)
