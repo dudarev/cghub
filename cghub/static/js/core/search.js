@@ -19,7 +19,6 @@ jQuery(function ($) {
             });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
-            console.log(cghub.search.$addFiltersForm);
         },
         bindEvents:function () {
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
@@ -46,15 +45,15 @@ jQuery(function ($) {
         },
         applyFilters:function () {
             var categories = $('.filter-category');
+            // loop by categories: center_name, experiment_type etc.
             categories.each(function (i,f) {
                 var filter = $(this).attr('data-filter');
                 var values = $(this).find(':checkbox');
-                console.log(values);
                 var are_all_checked = true;
                 var query = '';
+                // loop by values in category
                 values.each(function (ii,ff) {
                     if ($(this).attr('checked') == 'checked'){
-                        console.log($(this).attr('checked'));
                         if (query == ''){
                             query = $(this).attr('data');
                         } else {
@@ -65,8 +64,13 @@ jQuery(function ($) {
                     };
                 });
                 if (!are_all_checked && query != ''){
-                    query = filter + '=' + encodeURIComponent('(' + query + ')');
+                    query = '(' + query + ')';
+                    var new_param = [];
+                    new_param[filter] = query;
+                    var href = URI(location.href).search(new_param);
+                    window.location.href = href;
                 }
+                console.log(location.pathname);
                 console.log(are_all_checked);
                 console.log(query);
             });
