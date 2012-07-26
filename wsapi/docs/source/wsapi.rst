@@ -40,6 +40,16 @@ CACHE_BACKEND - string, name of the cache backend that will be used by app.
     :undoc-members:
     :show-inheritance:
 
+
+Cache
+--------
+
+.. automodule:: wsapi.cache
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Exceptions
 -------------
 
