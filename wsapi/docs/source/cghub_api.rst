@@ -27,7 +27,13 @@ wsapi.api
 Settings
 --------------
 
-At the moment the only setting is location of the directory where request files are cached.
+Available settings:
+
+CACHE_DIR - cache files are kept here
+USE_CACHE - boolean, enabling or disabling caching
+CACHE_BACKEND - string, name of the cache backend that will be used by app.
+    For now only 'simple' backend is available(stores cache in files in the CACHE_DIR)
+
 
 .. automodule:: wsapi.settings
     :members:
