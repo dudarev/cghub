@@ -1,8 +1,10 @@
 import urllib
 
 from django.conf import settings
-from django.http import QueryDict
+from django.http import QueryDict, HttpResponseRedirect
 from django.utils.http import urlquote
+from django.core.urlresolvers import reverse
+
 
 from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
@@ -11,6 +13,12 @@ from cghub.wsapi.api import request as api_request
 class HomeView(TemplateView):
     template_name = 'core/search.html'
     default_query = 'last_modified=[NOW-7DAY%20TO%20NOW]'
+
+    def dispatch(self, request, *args, **kwargs):
+        # if there are any GET parameters - redirect to search page
+        if request.GET:
+            return HttpResponseRedirect(reverse('search_page') + '?' + request.GET.urlencode())
+        return super(HomeView,self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
@@ -75,6 +83,18 @@ class SearchView(TemplateView):
             context['num_results'] = 0
             context['message'] = 'No results found.'
         return context
+
+    def dispatch(self, request, *args, **kwargs):
+        # if there are no any `q` query parameters 
+        # and now `last_modified` is specified
+        # redirect to search page with last 7 days results
+        q = request.GET.get('q')
+        last_modified = request.GET.get('last_modified')
+        if not q and not last_modified:
+            GET_parameters = request.GET.copy()
+            GET_parameters['last_modified'] = '[NOW-7DAY TO NOW]'
+            return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
+        return super(SearchView, self).dispatch(request, *args, **kwargs)
 
 
 class HelpView(TemplateView):
