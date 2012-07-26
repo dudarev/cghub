@@ -7,14 +7,11 @@ wsapi.api
 Functions for external use.
 
 """
-import os
 import urllib2
-import hashlib
 
 from lxml import objectify, etree
 
 from exceptions import QueryRequired
-from settings import CACHE_DIR
 from cache import get_from_cache, save_to_cache
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
