@@ -11,6 +11,7 @@ jQuery(function ($) {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFilterAccordions();
+            cghub.search.updateCheckboxes();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -42,6 +43,28 @@ jQuery(function ($) {
                 }
             });
             return false;
+        },
+        updateCheckboxes:function () {
+            var categories = $('.filter-category');
+            // loop by categories: center_name, experiment_type etc.
+            var filters = URI.parseQuery(window.location.search);
+            categories.each(function (i,f) {
+                var filter = $(this).attr('data-filter');
+                if (filter in filters){
+                    var selection = filters[filter];
+                    selection = selection.replace(/[)(]/g,'');
+                    selection = selection.split(' OR ');
+                    var values = $(this).find(':checkbox');
+                    // loop by values in categories
+                    values.each(function (ii,ff) {
+                        if ($.inArray($(this).attr('data'), selection) < 0){
+                            $(this).attr('checked', false);
+                        } else {
+                            $(this).attr('checked', 'checked');
+                        };
+                    });
+                }
+            });
         },
         applyFilters:function () {
             var categories = $('.filter-category');
@@ -87,7 +110,6 @@ jQuery(function ($) {
                     icon.toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s')
                 })
             }
-
         }
     };
     cghub.search.init();
