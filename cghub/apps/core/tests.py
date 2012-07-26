@@ -117,3 +117,24 @@ class SearchViewPaginationTestCase(TestCase):
         self.assertContains(response, 'active')
         self.assertContains(response, 'Prev')
         self.assertContains(response, 'Next')
+
+    def test_redirect_from_home_page(self):
+        """
+        Test redirect from home page if any GET parameters are specified.
+        """
+        response = self.client.get(
+                reverse('home_page')+'?q={query}'.format(query=self.query),
+                follow=True)
+        self.assertTrue('search' in response.redirect_chain[0][0])
+
+    def test_last_modified_if_no_q(self):
+        """
+        Test that if there is not q query, last_modified is substituted.
+        Search with last 7 days.
+        """
+        response = self.client.get(
+                reverse('search_page')+
+                    '?center_name={center_name}'.format(center_name='%28BCM%29'),
+                follow=True)
+        self.assertTrue('last_modified' in response.redirect_chain[0][0])
+        self.assertTrue('7DAY' in response.redirect_chain[0][0])
