@@ -152,6 +152,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     """
 
     results = []
+    results_from_cache = True
 
     if query == None and file_name == None:
         raise QueryRequired
@@ -161,11 +162,12 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     # Getting results from the cache
     if not results and not ignore_cache:
-        results, cache_get_errors = get_from_cache(
+        results, cache_errors = get_from_cache(
             query=query, get_attributes=get_attributes)
 
     # Getting results from the server
     if not results:
+        results_from_cache = False
         server = CGHUB_SERVER
         if get_attributes:
             uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
@@ -182,7 +184,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     results = Results(results)
 
     # Saving results to the cache
-    if not ignore_cache:
+    if not ignore_cache and not results_from_cache:
         save_to_cache(query=query, data=results)
 
     # Sort and slice if needed

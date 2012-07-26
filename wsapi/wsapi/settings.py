@@ -13,7 +13,7 @@ Settings:
 
 """
 
-USE_CACHE = False
+USE_CACHE = True
 
 CACHE_BACKEND = 'simple'
 CACHE_DIR = '/tmp/wsapi/'

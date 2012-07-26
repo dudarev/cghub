@@ -1,3 +1,4 @@
+import os
 import hashlib
 
 from lxml import objectify, etree
@@ -38,6 +39,9 @@ def _get_from_simple_cache(query=None, get_attributes=True):
     return (results, tuple(errors))
 
 def _save_to_simple_cache(query=None, data=None):
+    if not query:
+        return
+
     md5 = hashlib.md5(query)
     cache_file_name = u'{0}.xml'.format(md5.hexdigest())
 
