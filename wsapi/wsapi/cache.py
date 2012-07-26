@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+
+"""
+wsapi.cache
+~~~~~~~~~~~~~~~~~~~~
+
+Module contains functions for work with cache.
+
+"""
+
 import os
 import hashlib
 
@@ -10,12 +20,15 @@ from settings import (USE_CACHE, CACHE_BACKEND, CACHE_DIR)
 _backends = ('simple', )
 
 def _dummy_get_from_cache(**kwargs):
+    """Does nothing, imitates reading from the cache"""
     return ([], ())
 
 def _dummy_save_to_cache(**kwargs):
+    """Does nothing, imitates reading from the cache"""
     pass
 
 def _get_from_simple_cache(query=None, get_attributes=True):
+    """Reads from the cache file, which name is calculating from query"""
     results = []
     errors = []
 
@@ -39,6 +52,7 @@ def _get_from_simple_cache(query=None, get_attributes=True):
     return (results, tuple(errors))
 
 def _save_to_simple_cache(query=None, data=None):
+    """Writes related to the query data into the cache file, which creates if necessary"""
     if not query:
         return
 
@@ -51,6 +65,11 @@ def _save_to_simple_cache(query=None, data=None):
     with open(cache_file_name, 'w') as f:
         f.write(data.tostring())
 
+
+# Determinating which functions to use depending on settings
+# Dummy functions are for defalt
+get_from_cache = _dummy_get_from_cache
+save_to_cache = _dummy_save_to_cache
 
 if not USE_CACHE or not CACHE_BACKEND in _backends:
     get_from_cache = _dummy_get_from_cache
