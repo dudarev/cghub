@@ -20,10 +20,14 @@ jQuery(function ($) {
             });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
+            cghub.search.$selectAllLink = $('.select-all');
+            cghub.search.$deselectAllLink = $('.deselect-all');
         },
         bindEvents:function () {
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
+            cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
+            cghub.search.$deselectAllLink.on('click', cghub.search.deselectAllFilterValues);
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
@@ -97,6 +101,20 @@ jQuery(function ($) {
                 console.log(are_all_checked);
                 console.log(query);
             });
+        },
+        selectAllFilterValues: function () {
+            var checkboxes = $(this).parent().parent().find(':checkbox');
+            checkboxes.each(function (i,f) {
+                $(this).attr('checked', 'checked');
+            })
+            return false;
+        },
+        deselectAllFilterValues: function () {
+            var checkboxes = $(this).parent().parent().find(':checkbox');
+            checkboxes.each(function (i,f) {
+                $(this).attr('checked', false);
+            })
+            return false;
         },
         initFilterAccordions:function() {
             var accordions = $.find('.filter-accordion');
