@@ -92,9 +92,9 @@ jQuery(function ($) {
                 });
                 if (!are_all_checked && query != ''){
                     query = '(' + query + ')';
-                    var new_param = [];
-                    new_param[filter] = query;
-                    var href = URI(location.href).search(new_param);
+                    var new_search = URI.parseQuery(window.location.search);
+                    new_search[filter] = query;
+                    var href = URI(location.href).search(new_search);
                     window.location.href = href;
                 }
                 console.log(location.pathname);
