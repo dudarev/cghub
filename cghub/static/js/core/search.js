@@ -122,9 +122,6 @@ jQuery(function ($) {
                     alert('Select some values.');
                     is_error = true;
                 };
-                console.log(location.pathname);
-                console.log(are_all_checked);
-                console.log(query);
             });
 
             // loop by dates
@@ -143,8 +140,6 @@ jQuery(function ($) {
 
             // redirect to the page with filtered results
             href = href.search(new_search);
-            console.log(date_values);
-            console.log(new_search);
 
             if (!is_error){
                 window.location.href = href;
