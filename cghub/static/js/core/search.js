@@ -96,7 +96,16 @@ jQuery(function ($) {
                     new_search[filter] = query;
                     var href = URI(location.href).search(new_search);
                     window.location.href = href;
-                }
+                };
+                if (are_all_checked){
+                    var new_search = URI.parseQuery(window.location.search);
+                    delete new_search[filter];
+                    var href = URI(location.href).search(new_search);
+                    window.location.href = href;
+                };
+                if (query == ''){
+                    alert('Select some values.');
+                };
                 console.log(location.pathname);
                 console.log(are_all_checked);
                 console.log(query);
