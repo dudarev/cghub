@@ -1,7 +1,7 @@
 import sys
 from optparse import OptionParser
 
-XML_FILE = "../../tests/test_data/aliquot_id.xml"
+XML_FILE = "../../wsapi/tests/test_data/aliquot_id.xml"
 
 FILE_SCHEMA_EXPERIMENT = "../data/schemas/SRA.experiment.xsd"
 FILE_SCHEMA_ANALYSIS = "../data/schemas/SRA.analysis.xsd"
