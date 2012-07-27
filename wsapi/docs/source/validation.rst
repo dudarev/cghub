@@ -4,7 +4,7 @@ Validating schemas
 ============================================
 
 To validate if data from the server corresponds to schema one may use a few validation scripts located at 
-``utils/try_lxml_validate`` and ``utils/try_pyxb``.
+``../devtools/try_lxml_validate`` and ``../devtools/try_pyxb``.
 
 To get the source clone it from Github:
 
@@ -24,12 +24,12 @@ Change to corresponding directories and run the relevant scripts:
 
 .. code-block:: bash
 
-    cd cghub/wsapi/utils/try_lxml_validate/
+    cd cghub/devtools/try_lxml_validate/
     python validate.py
 
 .. code-block:: bash
 
-    cd cghub/wsapi/utils/try_pyxb/
+    cd cghub/devtools/try_pyxb/
     python parse.py
 
 PyXB does not generate good error messages, so you might want to run

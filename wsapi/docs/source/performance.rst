@@ -6,7 +6,7 @@ Performance Test Suite
 Setting up dependencies
 -----------------------------
 
-All files to run profiling scripts are located in ``wsapi/utils/profile``, but some extra dependencies need to be installed.
+All files to run profiling scripts are located in ``devtools/profile``, but some extra dependencies need to be installed.
 
 Gprof2Dot_ utility converts profile files into dot format for visualization in a form of graphs. Get it with ``make get_gprof2dot`` command.
 

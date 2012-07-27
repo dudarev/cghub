@@ -7,7 +7,7 @@ import xml.dom.minidom
 import analysis
 import experiment 
 
-XML_FILE = "../../tests/test_data/aliquot_id.xml"
+XML_FILE = "../../wsapi/tests/test_data/aliquot_id.xml"
 
 def parse(xml_file):
 
