@@ -12,6 +12,7 @@ jQuery(function ($) {
             cghub.search.bindEvents();
             cghub.search.initFilterAccordions();
             cghub.search.updateCheckboxes();
+            cghub.search.updateDate();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -69,6 +70,22 @@ jQuery(function ($) {
                     });
                 }
             });
+        },
+        updateDate:function () {
+            var filters = URI.parseQuery(window.location.search);
+            var last_modified_filter = filters['last_modified'];
+            if (last_modified_filter.search('1DAY')){
+                $("#id_date_today").attr('checked', 'checked');
+            };
+            if (last_modified_filter.search('7DAY')){
+                $("#id_date_week").attr('checked', 'checked');
+            };
+            if (last_modified_filter.search('1MONTH')){
+                $("#id_date_month").attr('checked', 'checked');
+            };
+            if (last_modified_filter.search('1YEAR')){
+                $("#id_date_year").attr('checked', 'checked');
+            };
         },
         applyFilters:function () {
             var categories = $('.filter-category');

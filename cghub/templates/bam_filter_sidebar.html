@@ -66,12 +66,42 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Date Uploaded
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'last_modified' '' %}">Any date</a></li>
-                    <li><a href="{% filter_link request 'last_modified' '[NOW-1DAY TO NOW]' %}">Today</a></li>
-                    <li><a href="{% filter_link request 'last_modified' '[NOW-7DAY TO NOW]' %}">Past 7 days</a></li>
-                    <li><a href="{% filter_link request 'last_modified' '[NOW-1MONTH TO NOW]' %}">This month</a></li>
-                    <li><a href="{% filter_link request 'last_modified' '[NOW-1YEAR TO NOW]' %}">This year</a></li>
+                <ul class="nav filter-date" data="last_modified">
+                    <li>
+                    <label class="radio">
+                        <input type="radio" name="select-date" id="id_date_any" data='' checked="checked">
+                         Any date
+                        </input>
+                    </label>
+                    </li>
+                    <li>
+                    <label class="radio">
+                        <input type="radio" name="select-date" id="id_date_today" data='[NOW-1DAY TO NOW]'>
+                        Today
+                        </input>
+                    </label>
+                    </li>
+                    <li>
+                    <label class="radio">
+                        <input type="radio" name="select-date" id="id_date_week" data='[NOW-7DAY TO NOW]'>
+                        This week
+                        </input>
+                    </label>
+                    </li>
+                    <li>
+                    <label class="radio">
+                        <input type="radio" name="select-date" id="id_date_month" data='[NOW-1MONTH TO NOW]'>
+                        This month
+                        </input>
+                    </label>
+                    </li>
+                    <li>
+                    <label class="radio">
+                        <input type="radio" name="select-date" id="id_date_year" data='[NOW-1YEAR TO NOW]'>
+                        This year
+                        </input>
+                    </label>
+                    </li>
                 </ul>
             </div>
         </div>
