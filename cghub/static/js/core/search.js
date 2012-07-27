@@ -74,22 +74,26 @@ jQuery(function ($) {
         updateDate:function () {
             var filters = URI.parseQuery(window.location.search);
             var last_modified_filter = filters['last_modified'];
-            if (last_modified_filter.search('1DAY')){
+            if (last_modified_filter.search('1DAY') > 0){
                 $("#id_date_today").attr('checked', 'checked');
             };
-            if (last_modified_filter.search('7DAY')){
+            if (last_modified_filter.search('7DAY') > 0){
                 $("#id_date_week").attr('checked', 'checked');
             };
-            if (last_modified_filter.search('1MONTH')){
+            if (last_modified_filter.search('1MONTH') > 0){
                 $("#id_date_month").attr('checked', 'checked');
             };
-            if (last_modified_filter.search('1YEAR')){
+            if (last_modified_filter.search('1YEAR') > 0){
                 $("#id_date_year").attr('checked', 'checked');
             };
         },
         applyFilters:function () {
-            var categories = $('.filter-category');
+            var href = URI(location.href);
+            var new_search = URI.parseQuery(window.location.search);
+            var is_error = false;
+
             // loop by categories: center_name, experiment_type etc.
+            var categories = $('.filter-category');
             categories.each(function (i,f) {
                 var filter = $(this).attr('data-filter');
                 var values = $(this).find(':checkbox');
@@ -109,24 +113,42 @@ jQuery(function ($) {
                 });
                 if (!are_all_checked && query != ''){
                     query = '(' + query + ')';
-                    var new_search = URI.parseQuery(window.location.search);
                     new_search[filter] = query;
-                    var href = URI(location.href).search(new_search);
-                    window.location.href = href;
                 };
                 if (are_all_checked){
-                    var new_search = URI.parseQuery(window.location.search);
                     delete new_search[filter];
-                    var href = URI(location.href).search(new_search);
-                    window.location.href = href;
                 };
                 if (query == ''){
                     alert('Select some values.');
+                    is_error = true;
                 };
                 console.log(location.pathname);
                 console.log(are_all_checked);
                 console.log(query);
             });
+
+            // loop by dates
+            var date_values = $('.filter-date').find(':radio');
+            var query = '';
+            date_values.each(function (i,f) {
+                if ($(this).attr('checked') == 'checked'){
+                    query = $(this).attr('data');
+                };
+            });
+            if (query != ''){
+                new_search['last_modified'] = query;
+            } else {
+                delete new_search['last_modified'];
+            };
+
+            // redirect to the page with filtered results
+            href = href.search(new_search);
+            console.log(date_values);
+            console.log(new_search);
+
+            if (!is_error){
+                window.location.href = href;
+            };
         },
         selectAllFilterValues: function () {
             var checkboxes = $(this).parent().parent().find(':checkbox');
