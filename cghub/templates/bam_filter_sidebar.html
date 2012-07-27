@@ -110,15 +110,51 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Experiment Type
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'analyte_code' '' %}">All</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'D' %}">DNA</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'G' %}">GenomePlex</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'H' %}">mirVana RNA</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'R' %}">RNA</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'T' %}">Total RNA</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'W' %}">WGA</a></li>
-                    <li><a href="{% filter_link request 'analyte_code' 'X' %}">WGA X</a></li>
+                <ul class="nav filter-category" data-filter="analyte_code">
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="D" checked="checked">
+                        DNA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="G" checked="checked">
+                        GenomePlex
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="H" checked="checked">
+                        mirVana RNA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="R" checked="checked">
+                        RNA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="T" checked="checked">
+                        Total RNA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="W" checked="checked">
+                        WGA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="X" checked="checked">
+                        WGA X
+                    </label>
+                    </li>
+                    <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
+                    <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
                 </ul>
             </div>
         </div>
@@ -127,27 +163,123 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Sample Type
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'sample_type' '' %}">All</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '01' %}">Primary solid Tumor</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '02' %}">Recurrent Solid Tumor</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '03' %}">Primary Blood Derived Cancer - Peripheral Blood</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '04' %}">Recurrent Blood Derived Cancer - Bone Marrow</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '05' %}">Additional - New Primary</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '06' %}">Metastatic</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '07' %}">Additional Metastatic</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '08' %}">Human Tumor Original Cells</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '09' %}">Primary Blood Derived Cancer - Bone Marrow</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '10' %}">Blood Derived Normal</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '11' %}">Solid Tissue Normal</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '12' %}">Buccal Cell Normal</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '13' %}">EBV Immortalized Normal</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '14' %}">Bone Marrow Normal</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '20' %}">Control Analyte</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '40' %}">Recurrent Blood Derived Cancer - Peripheral Blood</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '50' %}">Cell Lines</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '60' %}">Primary Xenograft Tissue</a></li>
-                    <li><a href="{% filter_link request 'sample_type' '61' %}">Cell Line Derived Xenograft Tissue</a></li>
+                <ul class="nav filter-category" data-filter="sample_type">
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="01" checked="checked">
+                        Primary solid Tumor
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="02" checked="checked">
+                        Recurrent Solid Tumor
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="03" checked="checked">
+                        Primary Blood Derived Cancer - Peripheral Blood
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="04" checked="checked">
+                        Recurrent Blood Derived Cancer - Bone Marrow
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="05" checked="checked">
+                        Additional - New Primary
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="06" checked="checked">
+                        Metastatic
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="07" checked="checked">
+                        Additional Metastatic
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="08" checked="checked">
+                        Human Tumor Original Cells
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="09" checked="checked">
+                        Primary Blood Derived Cancer - Bone Marrow
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="10" checked="checked">
+                        Blood Derived Normal
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="11" checked="checked">
+                        Solid Tissue Normal
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="12" checked="checked">
+                        Buccal Cell Normal
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="13" checked="checked">
+                        EBV Immortalized Normal
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="14" checked="checked">
+                        Bone Marrow Normal
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="20" checked="checked">
+                        Control Analyte
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="40" checked="checked">
+                        Recurrent Blood Derived Cancer - Peripheral Blood
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="50" checked="checked">
+                        Cell Lines
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="60" checked="checked">
+                        Primary Xenograft Tissue
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="61" checked="checked">
+                        Cell Line Derived Xenograft Tissue
+                    </label>
+                    </li>
+                    <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
+                    <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
                 </ul>
             </div>
         </div>
@@ -156,28 +288,129 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Run Type
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'library_strategy' '' %}">All</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'WGS' %}">WGS</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'WXS' %}">WXS</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'RNA-Seq' %}">RNA-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'WCS' %}">WCS</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'CLONE' %}">CLONE</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'POOLCLONE' %}">POOLCLONE</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'AMPLICON' %}">AMPLICON</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'CLONEEND' %}">CLONEEND</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'FINISHING' %}">FINISHING</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'ChIP-Seq' %}">ChIP-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'MNase-Seq' %}">MNase-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'DNase-Hypersensitivity' %}">DNase-Hypersensitivity</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'Bisulfite-Seq' %}">Bisulfite-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'EST' %}">EST</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'FL-cDNA' %}">FL-cDNA</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'CTS' %}">CTS</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'MRE-Seq' %}">MRE-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'MeDIP-Seq' %}">MeDIP-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'MDB-Seq' %}">MDB-Seq</a></li>
-                    <li><a href="{% filter_link request 'library_strategy' 'OTHER' %}">OTHER</a></li>
+                <ul class="nav filter-category" data-filter="library_strategy">
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="WGS" checked="checked">
+                        WGS
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="WXS" checked="checked">
+                        WXS
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="RNA-Seq" checked="checked">
+                        RNA-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="WCS" checked="checked">
+                        WCS
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="CLONE" checked="checked">
+                        CLONE
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="POOLCLONE" checked="checked">
+                        POOLCLONE
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="AMPLICON" checked="checked">
+                        AMPLICON
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="CLONEEND" checked="checked">
+                        CLONEEND
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="FINISHING" checked="checked">
+                        FINISHING
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="ChIP-Seq" checked="checked">
+                        ChIP-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="MNase-Seq" checked="checked">
+                        MNase-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="DNase-Hypersensitivity" checked="checked">
+                        DNase-Hypersensitivity
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="Bisulfite-Seq" checked="checked">
+                        Bisulfite-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="EST" checked="checked">
+                        EST
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="FL-cDNA" checked="checked">
+                        FL-cDNA
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="CTS" checked="checked">
+                        CTS
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="MRE-Seq" checked="checked">
+                        MRE-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="MeDIP-Seq" checked="checked">
+                        MeDIP-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="MDB-Seq" checked="checked">
+                        MDB-Seq
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="OTHER" checked="checked">
+                        OTHER
+                    </label>
+                    </li>
+                    <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
+                    <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
                 </ul>
             </div>
         </div>
@@ -186,35 +419,171 @@
                 <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>By Disease
             </div>
             <div class="filter-accordion-content">
-                <ul class="nav">
-                    <li><a href="{% filter_link request 'disease_abbr' '' %}">All</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LAML' %}">Acute Myeloid Leukemia</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'BLCA' %}">Bladder Urothelial Carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LGG' %}">Brain Lower Grade Glioma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'BRCA' %}">Breast invasive carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'CESC' %}">Cervical squamous cell carcinoma and endocervical adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LCLL' %}">Chronic Lymphocytic Leukemia</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'COAD' %}">Colon adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'CNTL' %}">Controls</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'ESCA' %}">Esophageal carcinoma </a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'GBM' %}">Glioblastoma multiforme</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'HNSC' %}">Head and Neck squamous cell carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'KICH' %}">Kidney Chromophobe</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'KIRC' %}">Kidney renal clear cell carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'KIRP' %}">Kidney renal papillary cell carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LIHC' %}">Liver hepatocellular carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LUAD' %}">Lung adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'LUSC' %}">Lung squamous cell carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'DLBC' %}">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'OV' %}">Ovarian serous cystadenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'PAAD' %}">Pancreatic adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'PRAD' %}">Prostate adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'READ' %}">Rectum adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'SARC' %}">Sarcoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'SKCM' %}">Skin Cutaneous Melanoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'STAD' %}">Stomach adenocarcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'THCA' %}">Thyroid carcinoma</a></li>
-                    <li><a href="{% filter_link request 'disease_abbr' 'UCEC' %}">Uterine Corpus Endometrioid Carcinoma</a></li>
+                <ul class="nav filter-category" data-filter="disease_abbr">
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LAML" checked="checked">
+                        Acute Myeloid Leukemia
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="BLCA" checked="checked">
+                        Bladder Urothelial Carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LGG" checked="checked">
+                        Brain Lower Grade Glioma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="BRCA" checked="checked">
+                        Breast invasive carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="CESC" checked="checked">
+                        Cervical squamous cell carcinoma and endocervical adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LCLL" checked="checked">
+                        Chronic Lymphocytic Leukemia
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="COAD" checked="checked">
+                        Colon adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="CNTL" checked="checked">
+                        Controls
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="ESCA" checked="checked">
+                        Esophageal carcinoma 
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="GBM" checked="checked">
+                        Glioblastoma multiforme
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="HNSC" checked="checked">
+                        Head and Neck squamous cell carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="KICH" checked="checked">
+                        Kidney Chromophobe
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="KIRC" checked="checked">
+                        Kidney renal clear cell carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="KIRP" checked="checked">
+                        Kidney renal papillary cell carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LIHC" checked="checked">
+                        Liver hepatocellular carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LUAD" checked="checked">
+                        Lung adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="LUSC" checked="checked">
+                        Lung squamous cell carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="DLBC" checked="checked">
+                        Lymphoid Neoplasm Diffuse Large B-cell Lymphoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="OV" checked="checked">
+                        Ovarian serous cystadenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="PAAD" checked="checked">
+                        Pancreatic adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="PRAD" checked="checked">
+                        Prostate adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="READ" checked="checked">
+                        Rectum adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="SARC" checked="checked">
+                        Sarcoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="SKCM" checked="checked">
+                        Skin Cutaneous Melanoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="STAD" checked="checked">
+                        Stomach adenocarcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="THCA" checked="checked">
+                        Thyroid carcinoma
+                    </label>
+                    </li>
+                    <li>
+                    <label class="checkbox">
+                        <input type="checkbox" data="UCEC" checked="checked">
+                        Uterine Corpus Endometrioid Carcinoma
+                    </label>
+                    </li>
+                    <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
+                    <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
                 </ul>
             </div>
         </div>
