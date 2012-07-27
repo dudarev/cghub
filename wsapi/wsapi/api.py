@@ -7,14 +7,12 @@ wsapi.api
 Functions for external use.
 
 """
-import os
 import urllib2
-import hashlib
 
 from lxml import objectify, etree
 
 from exceptions import QueryRequired
-from settings import CACHE_DIR
+from cache import get_from_cache, save_to_cache
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
 CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
@@ -131,10 +129,16 @@ class Results(object):
             etree.cleanup_namespaces(r)
 
 
-def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None):
+def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None,
+    ignore_cache=False):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed :class:`Results` object.
+
+    If file_name specified reads results from file.
+    Else tries to get results from cache.
+    Else tries to get results from the server.
+    Then caches the results if needed and returns sorted results.
 
     :param query: a string with query to send to the server
     :param offset: offset for results (for paging)
@@ -144,55 +148,43 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     :param file_name: only this parameter maybe specified, in this case results are obtained from a file
     """
 
-    # see if cache file exists
-    if query:
-        m = hashlib.md5()
-        m.update(query)
-        cache_file_name = u'{0}.xml'.format(m.hexdigest())
-        if not get_attributes:
-            cache_file_name = cache_file_name + '-no-attr'
-        cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
-
     results = []
-    xml_syntax_error_raised = False
-    if query and os.path.exists(cache_file_name):
-        try:
-            results = objectify.fromstring(open(cache_file_name, 'r').read())
-        except etree.XMLSyntaxError:
-            xml_syntax_error_raised = True
+    results_from_cache = True
 
+    if query == None and file_name == None:
+        raise QueryRequired
+
+    if query == None and file_name:
+        results = objectify.fromstring(open(file_name, 'r').read())
+
+    # Getting results from the cache
+    if not results and not ignore_cache:
+        results, cache_errors = get_from_cache(
+            query=query, get_attributes=get_attributes)
+
+    # Getting results from the server
     if not results:
+        results_from_cache = False
         server = CGHUB_SERVER
-
-        if query == None and file_name == None:
-            raise QueryRequired
-
-        if query == None and file_name:
-            results = objectify.fromstring(open(file_name, 'r').read())
-        elif query:
-            if get_attributes:
-                uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
-            else:
-                uri = CGHUB_ANALYSIS_OBJECT_URI
-            if not '=' in query:
-                raise ValueError("Query seems to be invalid (no '='): %s" % query)
-            url = u'{0}{1}?{2}'.format(server, uri, query)
-            req = urllib2.Request(url)
-            response = urllib2.urlopen(req).read()
-            results = objectify.fromstring(response)
+        if get_attributes:
+            uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
+        else:
+            uri = CGHUB_ANALYSIS_OBJECT_URI
+        if not '=' in query:
+            raise ValueError("Query seems to be invalid (no '='): %s" % query)
+        url = u'{0}{1}?{2}'.format(server, uri, query)
+        req = urllib2.Request(url)
+        response = urllib2.urlopen(req).read()
+        results = objectify.fromstring(response)
 
     # wrap result with extra methods
     results = Results(results)
 
-    # save results to cache if it was a query and cache did not exists
-    if query and (xml_syntax_error_raised or not os.path.exists(cache_file_name)):
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        f = open(cache_file_name, 'w')
-        f.write(results.tostring())
-        f.close()
+    # Saving results to the cache
+    if not ignore_cache and not results_from_cache:
+        save_to_cache(query=query, data=results)
 
-    # sort and slice if needed
+    # Sort and slice if needed
     if hasattr(results, 'Result'):
         if sort_by:
             results.sort(sort_by=sort_by)
@@ -209,6 +201,5 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
                 cslice = result_all[offset:offset + limit]
                 for i, c in enumerate(cslice):
                     results.insert(i + idx_from, c)
-
 
     return results

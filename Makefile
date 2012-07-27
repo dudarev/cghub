@@ -39,7 +39,7 @@ test_web:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
 
 test_api:
-	cd wsapi && nosetests
+	cd wsapi && nosetests -s
 
 clean:
 	@echo Cleaning up...
