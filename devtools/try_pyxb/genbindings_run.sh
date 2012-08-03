@@ -1,4 +1,4 @@
-FILE='../data/schemas/SRA.run.xsd'
+FILE='../data/schemas/1.4/SRA.run.xsd'
 PREFIX='run'
 
 pyxbgen \

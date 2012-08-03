@@ -1,4 +1,4 @@
-FILE='../data/schemas/SRA.analysis.xsd'
+FILE='../data/schemas/1.4/SRA.analysis.xsd'
 PREFIX='analysis'
 
 pyxbgen \

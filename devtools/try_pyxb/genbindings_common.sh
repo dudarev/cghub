@@ -1,4 +1,4 @@
 pyxbgen \
-  -u ../data/schemas/SRA.common.xsd \
+  -u ../data/schemas/1.4/SRA.common.xsd \
   -m common \
   --archive-to-file common.wxs
