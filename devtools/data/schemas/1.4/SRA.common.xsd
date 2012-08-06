@@ -3,9 +3,9 @@
 <!-- $Id$ -->
 <xsd:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ann="SRA.annotation"
     xmlns:com="SRA.common" targetNamespace="SRA.common">
-    <xsd:import schemaLocation="http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-4/SRA.annotation.xsd?view=co"
-        namespace="SRA.annotation"/>
-    <!-- <xsd:import schemaLocation="SRA.annotation.xsd" namespace="SRA.annotation"/> -->
+    <!-- <xsd:import schemaLocation="http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-4/SRA.annotation.xsd?view=co"
+        namespace="SRA.annotation"/> -->
+    <xsd:import schemaLocation="SRA.annotation.xsd" namespace="SRA.annotation"/>
 
     <xsd:attributeGroup name="NameGroup">
         <xsd:attribute name="alias" type="xs:string" use="optional">
