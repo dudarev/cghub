@@ -62,7 +62,7 @@ jQuery(function ($) {
                     var values = $(this).find(':checkbox');
                     // loop by values in categories
                     values.each(function (ii,ff) {
-                        if ($.inArray($(this).attr('data'), selection) < 0){
+                        if ($.inArray($(this).attr('data-value'), selection) < 0){
                             $(this).attr('checked', false);
                         } else {
                             $(this).attr('checked', 'checked');
@@ -103,9 +103,9 @@ jQuery(function ($) {
                 values.each(function (ii,ff) {
                     if ($(this).attr('checked') == 'checked'){
                         if (query == ''){
-                            query = $(this).attr('data');
+                            query = $(this).attr('data-value');
                         } else {
-                            query += ' OR ' + $(this).attr('data');
+                            query += ' OR ' + $(this).attr('data-value');
                         };
                     } else {
                         are_all_checked = false;
@@ -129,7 +129,7 @@ jQuery(function ($) {
             var query = '';
             date_values.each(function (i,f) {
                 if ($(this).attr('checked') == 'checked'){
-                    query = $(this).attr('data');
+                    query = $(this).attr('data-value');
                 };
             });
             if (query != ''){
