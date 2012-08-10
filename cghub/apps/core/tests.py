@@ -47,7 +47,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="/search/?q=sample_query&sort_by=last_modified">Date Uploaded</a>')
+            '<a href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
