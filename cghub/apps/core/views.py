@@ -12,7 +12,7 @@ from cghub.wsapi.api import request as api_request
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-7DAY%20TO%20NOW]'
+    default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
