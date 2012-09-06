@@ -65,7 +65,7 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
-        '10f911319953a88d95231b4d63e29434.xml'
+        '24e93b68dff426925e6c0c65fc78958e.xml'
     ]
     query = "6d5*"
 
@@ -76,9 +76,10 @@ class SearchViewPaginationTestCase(TestCase):
 
         # cache filenames are generated as following:
         # >>> m = hashlib.md5()
-        # >>> m.update('xml_text=6d5*')
+        # >>> m.update('xml_text=6d5%2A')
+        # %2A - *
         # >>> m.hexdigest()
-        # '10f911319953a88d95231b4d63e29434'
+        # '24e93b68dff426925e6c0c65fc78958e'
 
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(CACHE_DIR):
@@ -106,7 +107,8 @@ class SearchViewPaginationTestCase(TestCase):
                                        query=self.query, offset=0, limit=self.default_results_count))
         self.assertContains(response, '1')
         self.assertContains(response, 'active')
-        self.assertContains(response, 'disable', 2)
+        # Prev and Next are both disabled
+        self.assertContains(response, 'disabled', 2)
         self.assertContains(response, 'Prev')
         self.assertContains(response, 'Next')
 
