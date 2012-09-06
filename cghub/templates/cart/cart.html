@@ -15,7 +15,6 @@
             </h1>
         </div>
         <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
-        <div><span>Temporary note: You may drag lines between columns to show more/less content.</span></div>
 
         <form action="{% url cart_page %}action/" method="POST">
             {% csrf_token %}

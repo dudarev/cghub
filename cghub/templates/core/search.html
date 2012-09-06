@@ -20,12 +20,11 @@
             </h1>
         {% else %}
             <h1>
-                Select BAM Files to change
-                <small>You can add any BAM into your cart</small>
+                Browse available data</br>
+                <small>Select and add to cart to download data or meta-data</small>
             </h1>
         {% endif %}
     </div>
-    <span>Temporary note: You may drag lines between columns to show more/less content.</span>
     {% if num_results %}
         <div>Found {{ num_results }} results</div>
         <div>{% applied_filters request %}</div>
