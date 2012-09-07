@@ -6,7 +6,8 @@ from django.utils.html import escape
 from django.template import Context
 from django.template.loader import select_template
 
-from cghub.apps.core.filters_storage import ALL_FILTERS
+from cghub.apps.core.filters_storage import (ALL_FILTERS,
+    DATE_FILTERS_HTML_IDS)
 
 register = template.Library()
 
@@ -14,7 +15,10 @@ register = template.Library()
 @register.simple_tag
 def render_filters():
     t = select_template(['filters.html', ])
-    content = t.render(Context({'all_filters': ALL_FILTERS}))
+    content = t.render(Context({
+        'all_filters': ALL_FILTERS,
+        'date_ids': DATE_FILTERS_HTML_IDS
+    }))
     return content
 
 @register.simple_tag
@@ -64,7 +68,7 @@ def applied_filters(request):
         # Date filters differ from other filters, they should be parsed slightly else
         if f == 'last_modified':
             filtered_by_str += '- Upoladed '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters][0].lower() + ';\n'
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + ';\n'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'

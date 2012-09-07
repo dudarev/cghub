@@ -13,7 +13,7 @@
         {% for filter_value, filter_name in filters.items %}
         <li>
           <label class="radio">
-          <input type="radio" name="select-date" id="{{ filter_value.1 }}" data-value="{{ filter_value.0 }}" {% if filter_value.0 == '' %}checked="checked"{% endif %}>{{ filter_name }}
+          <input type="radio" name="select-date" id="{{ date_ids.filter_value }}" data-value="{{ filter_value }}" {% if filter_value == '' %}checked="checked"{% endif %}>{{ filter_name }}
           </label>
         </li>
         {% endfor %}
