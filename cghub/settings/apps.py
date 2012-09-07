@@ -11,6 +11,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'cghub.apps.core',
     'cghub.apps.cart',
+    'cghub.apps.help',
     ]
 
 INSTALLED_APPS += [
