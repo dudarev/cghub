@@ -95,7 +95,3 @@ class SearchView(TemplateView):
             GET_parameters['last_modified'] = '[NOW-7DAY TO NOW]'
             return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
         return super(SearchView, self).dispatch(request, *args, **kwargs)
-
-
-class HelpView(TemplateView):
-    template_name = 'core/help.html'
