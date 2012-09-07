@@ -31,6 +31,7 @@ wsapi/MANIFEST
 wsapi/wsapi/tags
 wsapi/utils/profile/imgs
 cghub/media/api_results_cache
+progress.*
 
 #
 # Included objects
