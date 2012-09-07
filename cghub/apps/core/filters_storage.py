@@ -110,7 +110,7 @@ ALL_FILTERS = {
             "BLCA": "Bladder Urothelial Carcinoma",
             "LGG": "Brain Lower Grade Glioma",
             "BRCA": "Breast invasive carcinoma",
-            "CESC": "Cervical squamous cell carcinoma and endocervical adenocarcinomaCESC",
+            "CESC": "Cervical squamous cell carcinoma and endocervical adenocarcinoma",
             "LCLL": "Chronic Lymphocytic Leukemia",
             "COAD": "Colon adenocarcinoma",
             "CNTL": "Controls",
