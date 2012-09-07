@@ -56,7 +56,7 @@ def applied_filters(request):
     if not any(applied_filters.values()):
         return 'No applied filters'
 
-    filtered_by_str = 'Applied filter(s):'
+    filtered_by_str = 'Applied filter(s): <ul>'
     for f in applied_filters:
         if not applied_filters[f]:
             continue
@@ -65,8 +65,8 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed slightly else
         if f == 'last_modified':
-            filtered_by_str += '<p>- Upoladed '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + ';</p>'
+            filtered_by_str += '<li>Uploaded '
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + '</li>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'
@@ -76,8 +76,9 @@ def applied_filters(request):
         for value in filters:
             filters_str += ', ' + ALL_FILTERS[f]['filters'][value]
 
-        filtered_by_str += '<p>- %s: %s;</p>' % (title, filters_str[2:])
+        filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
 
+    filtered_by_str += '</ul>'
     return filtered_by_str
 
 
