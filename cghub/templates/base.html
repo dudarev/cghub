@@ -32,7 +32,7 @@
             <ul class="nav">
                 <li><a href="{% url home_page %}">Home</a></li>
                 <li><a href="{% url cart_page %}">Cart ({{ request.session.cart|length }})</a></li>
-                <li><a href="{% url help_page %}">Help</a></li>
+                <li><a href="{% url help_page %}?from={{ request.path }}">Help</a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
