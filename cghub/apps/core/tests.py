@@ -72,8 +72,8 @@ class TestTemplateTags(TestCase):
             })
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
-        self.assertEqual(result, 'Applied filter(s):<p>- Center: Harvard;</p><p>- Upoladed this week;\
-</p><p>- Disease: Controls, Sarcoma;</p><p>- Run Type: AMPLICON, CTS;</p>')
+        self.assertEqual(result, 'Applied filter(s): <ul><li>Center: Harvard</li><li>Uploaded this week\
+</li><li>Disease: Controls, Sarcoma</li><li>Run Type: AMPLICON, CTS</li></ul>')
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
