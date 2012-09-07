@@ -3,7 +3,7 @@ from lxml import objectify
 import os
 import shutil
 from django.test.testcases import TestCase
-from django.template import Template, Context
+from django.template import Template, Context, RequestContext
 from django.http import HttpRequest
 from wsapi.settings import CACHE_DIR
 
@@ -62,6 +62,18 @@ class TestTemplateTags(TestCase):
         self.assertEqual(out,
             '<a href="/search/?sort_by=-last_modified">Date Uploaded ASC</a>')
 
+    def test_apllied_filters_tag(self):
+        request = HttpRequest()
+        request.GET.update({
+            'center_name': '(HMS-RK)',
+            'library_strategy': '(AMPLICON OR CTS)',
+            'last_modified': '[NOW-7DAY TO NOW]',
+            'disease_abbr': '(CNTL OR SARC)',
+            })
+        template = Template("{% load search_tags %}{% applied_filters request %}")
+        result = template.render(RequestContext(request, {}))
+        self.assertEqual(result, 'Applied filter(s):<p>- Center: Harvard;</p><p>- Upoladed this week;\
+</p><p>- Disease: Controls, Sarcoma;</p><p>- Run Type: AMPLICON, CTS;</p>')
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [

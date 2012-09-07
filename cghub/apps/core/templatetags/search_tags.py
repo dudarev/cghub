@@ -53,34 +53,30 @@ def applied_filters(request):
                'disease_abbr': request.GET.get('disease_abbr'),
                }
 
-    filtered_by_str = 'Applied filter(s): \n'
-
     if not any(applied_filters.values()):
         return 'No applied filters'
 
+    filtered_by_str = 'Applied filter(s):'
     for f in applied_filters:
         if not applied_filters[f]:
             continue
 
-        filtered_by_str += '<p>'
         filters = applied_filters[f]
 
         # Date filters differ from other filters, they should be parsed slightly else
         if f == 'last_modified':
-            filtered_by_str += '- Upoladed '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + ';\n'
+            filtered_by_str += '<p>- Upoladed '
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + ';</p>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'
         title = ALL_FILTERS[f]['title'][3:]
-        filtered_by_str += '- ' + title + ': '
         filters = filters[1:-1].split(' OR ')
-        filtered_by_str += ALL_FILTERS[f]['filters'][filters[0]]
-        for value in filters[1:]:
-            filtered_by_str += ', '
-            filtered_by_str += ALL_FILTERS[f]['filters'][value]
-        filtered_by_str += ';\n'
-        filtered_by_str += '</p>'
+        filters_str = ''
+        for value in filters:
+            filters_str += ', ' + ALL_FILTERS[f]['filters'][value]
+
+        filtered_by_str += '<p>- %s: %s;</p>' % (title, filters_str[2:])
 
     return filtered_by_str
 

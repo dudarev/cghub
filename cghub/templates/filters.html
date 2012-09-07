@@ -1,3 +1,4 @@
+{% spaceless %}
 <li class="nav-content">
 {% for section, section_data in all_filters.items %}
   {% with filters=section_data.filters %}
@@ -38,3 +39,4 @@
   {% endwith %}
 {% endfor %}
 </li>
+{% endspaceless %}
