@@ -3,10 +3,23 @@ from django import template
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.html import escape
+from django.template import Context
+from django.template.loader import select_template
 
+from cghub.apps.core.filters_storage import (ALL_FILTERS,
+    DATE_FILTERS_HTML_IDS)
 
 register = template.Library()
 
+
+@register.simple_tag
+def render_filters():
+    t = select_template(['filters.html', ])
+    content = t.render(Context({
+        'all_filters': ALL_FILTERS,
+        'date_ids': DATE_FILTERS_HTML_IDS
+    }))
+    return content
 
 @register.simple_tag
 def filter_link(request, attribute, value):
@@ -32,29 +45,41 @@ def filter_link(request, attribute, value):
 
 @register.simple_tag
 def applied_filters(request):
-    filters = {'center_name': request.GET.get('center_name'),
+    applied_filters = {'center_name': request.GET.get('center_name'),
                'last_modified': request.GET.get('last_modified'),
                'analyte_code': request.GET.get('analyte_code'),
                'sample_type': request.GET.get('sample_type'),
                'library_strategy': request.GET.get('library_strategy'),
                'disease_abbr': request.GET.get('disease_abbr'),
                }
-    filters_human = {'center_name': 'center',
-               'last_modified': 'date',
-               'analyte_code': 'experiment type',
-               'sample_type': 'sample type',
-               'library_strategy': 'run type',
-               'disease_abbr': 'desease',
-               }
-    if any(filters.values()):
-        filtered_by_str = "Filtered by "
-        for f in filters:
-            if filters[f]:
-                filtered_by_str += "{0}: {1}, ".format(filters_human[f], filters[f])
-    else:
-        return 'Filtered by nothing.'
-    # replace the last comma with a period.
-    return filtered_by_str[:-2] + '.'
+
+    if not any(applied_filters.values()):
+        return 'No applied filters'
+
+    filtered_by_str = 'Applied filter(s): <ul>'
+    for f in applied_filters:
+        if not applied_filters[f]:
+            continue
+
+        filters = applied_filters[f]
+
+        # Date filters differ from other filters, they should be parsed slightly else
+        if f == 'last_modified':
+            filtered_by_str += '<li>Uploaded '
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + '</li>'
+            continue
+
+        # Parsing other applied filters, e.g. u'(SARC OR STAD)'
+        title = ALL_FILTERS[f]['title'][3:]
+        filters = filters[1:-1].split(' OR ')
+        filters_str = ''
+        for value in filters:
+            filters_str += ', ' + ALL_FILTERS[f]['filters'][value]
+
+        filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
+
+    filtered_by_str += '</ul>'
+    return filtered_by_str
 
 
 @register.simple_tag
