@@ -10,7 +10,7 @@ PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
 
 PYTHON= PYTHONPATH=$(PYTHONPATH) python
 
-TEST_APP= core cart
+TEST_APP= core cart help
 
 MANAGE= $(PYTHON) manage.py
 
