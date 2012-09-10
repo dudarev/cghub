@@ -31,22 +31,22 @@
                                                             data-analyte_code="{{ r.analyte_code }}"
                                                             data-library_strategy="{{ r.library_strategy }}"
                                                             data-center_name="{{ r.center_name }}"></td>
-                <td nowrap class="data-table-data-cell">{{ r.legacy_sample_id }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.analysis_id }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.sample_accession }}</td>
-                <td nowrap class="data-table-data-cell">
+                <td class="data-table-data-cell">{{ r.legacy_sample_id }}</td>
+                <td class="data-table-data-cell">{{ r.analysis_id }}</td>
+                <td class="data-table-data-cell">{{ r.sample_accession }}</td>
+                <td class="data-table-data-cell">
                     {% if r.files_size %}
                         {{ r.files_size }}
                     {% else %}
                         {{ r.files.file.0.filesize }}
                     {% endif %}
                 </td>
-                <td nowrap class="data-table-data-cell">{{ r.last_modified }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.disease_abbr }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.sample_type }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.analyte_code }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.library_strategy }}</td>
-                <td nowrap class="data-table-data-cell">{{ r.center_name }}</td>
+                <td class="data-table-data-cell">{{ r.last_modified }}</td>
+                <td class="data-table-data-cell">{{ r.disease_abbr }}</td>
+                <td class="data-table-data-cell">{{ r.sample_type }}</td>
+                <td class="data-table-data-cell">{{ r.analyte_code }}</td>
+                <td class="data-table-data-cell">{{ r.library_strategy }}</td>
+                <td class="data-table-data-cell">{{ r.center_name }}</td>
             </tr>
         {% endfor %}
         </tbody>
