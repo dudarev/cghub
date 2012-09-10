@@ -1,4 +1,10 @@
 table.data-table {
+    thead {
+        th {
+            white-space: normal;
+            vertical-align: middle;       
+        }
+    }
     white-space: nowrap;
     th, td {
         border-left: 1px solid #ddd;
@@ -12,6 +18,7 @@ table.data-table {
         width: 94px;
     }
     td.data-table-data-cell {
+        white-space: nowrap;
         text-overflow: ellipsis;
         padding-left: 3px!important;
         padding-right: 3px!important;

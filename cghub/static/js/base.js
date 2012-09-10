@@ -15,19 +15,29 @@ jQuery(function ($) {
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
             cghub.base.$navbarListItem = $('div.navbar ul li');
-            cghub.base.$selectAll = $('#select_all');
+            cghub.base.$selectAll = $('.select_all_items');
             cghub.base.$resultCheckboxes = $('.data-table-checkbox-cell input');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
-            cghub.base.$selectAll.on('click', cghub.base.changeCheckboxes);
+            cghub.base.$selectAll.each(function(i, e) {
+                $(e).on('click', cghub.base.changeCheckboxes);
+            });
         },
         changeCheckboxes:function () {
-            if (cghub.base.$selectAll.is(':checked')) {
+            var btn = $(this);
+            if (btn.html() == 'Select all') {
                 cghub.base.$resultCheckboxes.prop('checked', true);
-            } else {
+                cghub.base.$selectAll.each(function(i, e) {
+                    $(e).html('Unselect all');
+                });
+            } else if (btn.html() == 'Unselect all') {
                 cghub.base.$resultCheckboxes.prop('checked', false);
-            }
+                cghub.base.$selectAll.each(function(i, e) {
+                    $(e).html('Select all');
+                });
+            };
+            return false;
         },
         defineActiveLink:function () {
             cghub.base.$navbarAnchors.each(cghub.base.resetActiveLink);

@@ -33,11 +33,13 @@
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
             {% csrf_token %}
             <div class="btn-group search-btn-group">
+                <button class="btn select_all_items">Select all</button>
                 <button class="btn" type="submit">Add to cart</button>
             </div>
             {% include 'data_table.html' %}
             {% pagination %}
             <div class="btn-group search-btn-group">
+                <button class="btn select_all_items">Select all</button>
                 <button class="btn" type="submit">Add to cart</button>
             </div>
         </form>
