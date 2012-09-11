@@ -1,5 +1,6 @@
 .base-container{padding-top:50px;}
 .base-sidebar{padding-left:10px;}
+.base-content{overflow-x:hidden;}
 h1,h2{padding-bottom:0.5em;}
 ul.help-sections{margin-top:1em;}
 .help-content{padding-left:50px;padding-top:25px;}
