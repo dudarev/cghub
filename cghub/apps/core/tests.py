@@ -35,7 +35,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="/search/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?sort_by=last_modified">Date Uploaded</a>')
 
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
@@ -47,7 +47,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
@@ -60,7 +60,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a href="/search/?sort_by=-last_modified">Date Uploaded ASC</a>')
+            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded</a>&darr;')
 
     def test_apllied_filters_tag(self):
         request = HttpRequest()

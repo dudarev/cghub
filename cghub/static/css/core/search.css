@@ -1,7 +1,11 @@
 .base-container{padding-top:50px;}
 .base-sidebar{padding-left:10px;}
 .base-content{overflow-x:hidden;}
+<<<<<<< HEAD
 .pagination-results{margin-top:12px;}
+=======
+.sort-link{display:block;}
+>>>>>>> t76_sorting_arrows_in_the_table
 table.data-table{white-space:nowrap;}table.data-table thead th{white-space:normal;vertical-align:middle;}
 table.data-table th,table.data-table td{border-left:1px solid #ddd;text-align:center;}
 table.data-table th.data-table-checkbox-cell,table.data-table td.data-table-checkbox-cell{width:20px;border-left-style:none;}
