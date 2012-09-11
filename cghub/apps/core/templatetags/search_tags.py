@@ -108,8 +108,10 @@ def sort_link(request, attribute, link_anchor):
         direction_label = ''
 
     if direction_label:
-        sorting_arrow = "<div class='sort-arrow arrow-%s'></div>" % (
-            direction_label)
+        if direction_label == 'up':
+            sorting_arrow = "&uarr;"
+        if direction_label == 'down':
+            sorting_arrow = "&darr;"
     else:
         sorting_arrow = direction_label
     
