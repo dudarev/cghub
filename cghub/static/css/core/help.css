@@ -1,11 +1,8 @@
 .base-container{padding-top:50px;}
 .base-sidebar{padding-left:10px;}
 .base-content{overflow-x:hidden;}
-<<<<<<< HEAD
 .pagination-results{margin-top:12px;}
-=======
 .sort-link{display:block;}
->>>>>>> t76_sorting_arrows_in_the_table
 h1,h2{padding-bottom:0.5em;}
 ul.help-sections{margin-top:1em;}
 .help-content{padding-left:50px;padding-top:25px;}

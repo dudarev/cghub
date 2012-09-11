@@ -1,11 +1,8 @@
 .base-container{padding-top:50px;}
 .base-sidebar{padding-left:10px;}
 .base-content{overflow-x:hidden;}
-<<<<<<< HEAD
 .pagination-results{margin-top:12px;}
-=======
 .sort-link{display:block;}
->>>>>>> t76_sorting_arrows_in_the_table
 body{background-image:url(../../img/grid-18px-masked.png);background-repeat:repeat-x;background-position:0 40px;}
 .jumbotron{position:relative;}.jumbotron h1{margin-bottom:9px;font-size:48px;font-weight:bold;letter-spacing:-1px;line-height:1;}
 .jumbotron p{margin-bottom:18px;font-weight:300;}
