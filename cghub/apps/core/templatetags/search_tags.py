@@ -98,17 +98,23 @@ def sort_link(request, attribute, link_anchor):
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
             data['sort_by'] = data['sort_by'][1:]
-            direction_label = ' DESC'
+            direction_label = 'up'
         else:
             data['sort_by'] = '-' + data['sort_by']
-            direction_label = ' ASC'
+            direction_label = 'down'
     else:
         # for all other use default order (ASC)
         data['sort_by'] = attribute
         direction_label = ''
+
+    if direction_label:
+        sorting_arrow = "<div class='sort-arrow arrow-%s'></div>" % (
+            direction_label)
+    else:
+        sorting_arrow = direction_label
     
     href = escape(reverse('search_page') + '?' + urllib.urlencode(data))
-    return '<a href="%(href)s">%(link_anchor)s%(direction_label)s</a>' % {
+    return '<a class="sort-link" href="%(href)s">%(link_anchor)s</a>%(sorting_arrow)s' % {
         'link_anchor': link_anchor,
-        'direction_label': direction_label,
+        'sorting_arrow': sorting_arrow,
         'href': href}
