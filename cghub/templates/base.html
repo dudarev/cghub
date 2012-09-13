@@ -45,8 +45,7 @@
         </div>
     </div>
 </div>
-<div class="container-fluid base-container">
-    <div class="row row-fluid">
+<div class="base-container row">
         {% block main_content %}
             <div class="span3 base-sidebar">
                 {% block extra_sidebar %} {% endblock %}
@@ -55,9 +54,6 @@
                 {% block extra_content %} {% endblock %}
             </div>
         {% endblock %}
-    </div>
-    <hr>
-    <footer></footer>
 </div>
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
