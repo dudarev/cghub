@@ -1,28 +1,35 @@
 table.data-table {
+    margin-top: 20px;
+    white-space: nowrap;
+
     thead {
         th {
             white-space: normal;
             vertical-align: middle;       
         }
     }
-    white-space: nowrap;
+
     th, td {
         border-left: 1px solid #ddd;
         text-align: center;
     }
+
     th.data-table-checkbox-cell, td.data-table-checkbox-cell {
         width: 20px;
         border-left-style: none;
     }
+
     th.data-table-data-cell {
         width: 94px;
     }
+
     td.data-table-data-cell {
         white-space: nowrap;
         text-overflow: ellipsis;
         padding-left: 5px!important;
         padding-right: 5px!important;
     }
+
     td.data-filesize {
         text-align: right;
     }
