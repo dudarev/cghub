@@ -9,5 +9,7 @@ table.data-table th.data-table-checkbox-cell,table.data-table td.data-table-chec
 table.data-table th.data-table-data-cell{width:94px;}
 table.data-table td.data-table-data-cell{white-space:nowrap;text-overflow:ellipsis;padding-left:5px!important;padding-right:5px!important;}
 table.data-table td.data-filesize{text-align:right;}
+input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
+input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 div.cart-btn-group{padding:15px 0;}
 .cart-content{padding-left:50px;}
