@@ -1,6 +1,5 @@
-.base-container{padding-top:50px;}
+.base-container{padding-top:50px;width:100%;min-width:1280px;}
 .base-sidebar{padding-left:10px;}
-.base-content{overflow-x:hidden;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
 h1,h2{padding-bottom:0.5em;}

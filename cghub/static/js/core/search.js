@@ -8,6 +8,7 @@ jQuery(function ($) {
     }
     cghub.search = {
         init:function () {
+
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFilterAccordions();
@@ -15,9 +16,12 @@ jQuery(function ($) {
             cghub.search.updateDate();
         },
         cacheElements:function () {
+            cghub.search.$columnNumber = 0;
+            cghub.search.$nextColumn;
+            cghub.search.$nextColumnWidth = 0;
             cghub.search.$searchTable = $('table.data-table');
             cghub.search.$searchTable.colResizable({
-                liveDrag:true
+                onResize: cghub.search.adjustColumns
             });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
@@ -25,10 +29,31 @@ jQuery(function ($) {
             cghub.search.$deselectAllLink = $('.deselect-all');
         },
         bindEvents:function () {
+            var CRC = $('#id_add_files_form > div.CRC')
+            CRC.children().each(function (i, e) {
+                $(e).children().mousedown(function(e) {
+                    cghub.search.nextColumn = $($('table.data-table').find('thead > tr').children()[i + 1])
+                    cghub.search.nextColumnWidth = cghub.search.nextColumn.width();
+                });
+                $(e).children().mouseup(function(e) {
+                    cghub.search.columnNumber = i + 1;
+                });
+            });
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
             cghub.search.$deselectAllLink.on('click', cghub.search.deselectAllFilterValues);
+        },
+        adjustColumns: function () {
+            var columnNumber = cghub.search.columnNumber,
+                totalWidth = 0,
+                columns = $('table.data-table').find('thead > tr').children();
+
+            cghub.search.nextColumn.width(cghub.search.nextColumnWidth);
+            $('#id_add_files_form > div.CRC').children().each(function (i, e) {
+                totalWidth += $(columns[i]).width();
+                $(e).css('left', (totalWidth + 2) + 'px');
+            });
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
