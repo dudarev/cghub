@@ -114,6 +114,9 @@ def items_per_page(request, *limits):
     """
     links = ''
     for limit in limits:
+        # Checking for correct data have been passed
+        if not str(limit).isdigit():
+            raise Exception("Limits can be numbers or it's string representation")
         get = request.GET.copy()
         old_limit = get.get('limit', None)
 

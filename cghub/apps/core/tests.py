@@ -1,10 +1,13 @@
-from django.core.urlresolvers import reverse
-from lxml import objectify
 import os
 import shutil
+from lxml import objectify
+
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
-from django.http import HttpRequest
+from django.http import HttpRequest, QueryDict
+
 from wsapi.settings import CACHE_DIR
 
 
@@ -74,6 +77,32 @@ class TestTemplateTags(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(result, 'Applied filter(s): <ul><li>Center: Harvard</li><li>Uploaded this week\
 </li><li>Disease: Controls, Sarcoma</li><li>Run Type: AMPLICON, CTS</li></ul>')
+
+    def test_items_per_page_tag(self):
+        request = HttpRequest()
+        default_limit = settings.DEFAULT_PAGINATOR_LIMIT
+        default_limit_link = '<a href="?limit=%d">%d</a>' % (default_limit, default_limit)
+
+        request.GET = QueryDict('', mutable=False)
+        template = Template(
+            "{% load pagination_tags %}{% items_per_page request " + str(default_limit) + " 100 %}")
+        result = template.render(RequestContext(request, {}))
+        self.assertTrue('<a href="?limit=100">100</a>' in result)
+        self.assertTrue(not default_limit_link in result)
+        
+        request.GET = QueryDict('limit=100', mutable=False)
+        result = template.render(RequestContext(request, {}))
+        self.assertTrue(not '<a href="?limit=100">100</a>' in result)
+        self.assertTrue(default_limit_link in result)
+
+        template = Template("{% load pagination_tags %}{% items_per_page request 10 'incorrect_data' %}")
+        try:
+            result = template.render(RequestContext(request, {}))
+            assert 'No exception raised for incorrect data'
+        except Exception as e:
+            self.assertEqual(e.message,
+                "Limits can be numbers or it's string representation")
+
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
