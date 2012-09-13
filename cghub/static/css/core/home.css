@@ -1,5 +1,6 @@
 .base-container{padding-top:50px;width:100%;min-width:1280px;}
 .base-sidebar{padding-left:10px;}
+.base-content{width:78%;min-width:980px;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
 body{background-image:url(../../img/grid-18px-masked.png);background-repeat:repeat-x;background-position:0 40px;}
