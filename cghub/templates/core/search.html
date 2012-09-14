@@ -40,7 +40,9 @@
                     <button class="btn" type="submit">Add to cart</button>
                 </div>
             </div>
+            {% items_per_page request 10 25 50 100 %}
             {% include 'data_table.html' %}
+            {% items_per_page request 10 25 50 100 %}
             {% pagination %}
             <div class="btn-toolbar">
                 <div class="btn-group search-btn-group">

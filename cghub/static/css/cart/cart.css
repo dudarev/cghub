@@ -3,7 +3,7 @@
 .base-content{width:78%;min-width:980px;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
-table.data-table{white-space:nowrap;}table.data-table thead th{white-space:normal;vertical-align:middle;}
+table.data-table{margin-top:20px;white-space:nowrap;}table.data-table thead th{white-space:normal;vertical-align:middle;}
 table.data-table th,table.data-table td{border-left:1px solid #ddd;text-align:center;}
 table.data-table th.data-table-checkbox-cell,table.data-table td.data-table-checkbox-cell{width:20px;border-left-style:none;}
 table.data-table th.data-table-data-cell{width:94px;min-width:80px;}

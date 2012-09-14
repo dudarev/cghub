@@ -105,3 +105,28 @@ class Paginator(object):
 def pagination(context):
     context['paginator'] = Paginator(context)
     return context
+
+@register.simple_tag
+def items_per_page(request, *limits):
+    """
+    Output is something like this:
+    Items per page: 10 / 25 / 50 / 100
+    """
+    links = ''
+    for limit in limits:
+        # Checking for correct data have been passed
+        if not str(limit).isdigit():
+            raise Exception("Limits can be numbers or it's string representation")
+        get = request.GET.copy()
+        old_limit = get.get('limit', None)
+
+        if ((not old_limit and limit == settings.DEFAULT_PAGINATOR_LIMIT) or
+            old_limit == str(limit)):
+            link = '<b>%d</b>' % limit
+        else:
+            get['limit'] = str(limit)
+            path = request.path + '?' + get.urlencode()
+            link = '<a href="%s">%d</a>' % (path, limit)
+        links += '&nbsp;' + link + '&nbsp;|'
+
+    return '<span>Items per page:%s</span>' % links[:-1]

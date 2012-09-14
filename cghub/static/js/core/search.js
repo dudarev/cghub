@@ -20,9 +20,6 @@ jQuery(function ($) {
             cghub.search.$nextColumn;
             cghub.search.$nextColumnWidth = 0;
             cghub.search.$searchTable = $('table.data-table');
-            cghub.search.$searchTable.colResizable({
-                onResize: cghub.search.adjustColumns
-            });
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             cghub.search.$selectAllLink = $('.select-all');
