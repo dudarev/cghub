@@ -16,9 +16,6 @@ jQuery(function ($) {
             cghub.cart.$nextColumn;
             cghub.cart.$nextColumnWidth = 0;
             cghub.cart.$searchTable = $('table.data-table');
-            cghub.cart.$searchTable.colResizable({
-                onResize: cghub.cart.adjustColumns
-            });
             cghub.cart.$downloadManifestBtn = $('.btn.cart-form-download-manifest');
             cghub.cart.$downloadXmlBtn = $('.btn.cart-form-download-xml');
             cghub.cart.$removeBtn = $('.btn.cart-form-remove');
