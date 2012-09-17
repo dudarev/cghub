@@ -37,9 +37,7 @@ class CoreTests(TestCase):
             sample_type_index += 1
         for tr in c.cssselect('tr'):
             sample_type = tr[sample_type_index].text
-            print sample_type
             if sample_type:
-                print len(sample_type)
                 self.assertTrue(len(sample_type) == 2)
         self.assertTrue('Found' in response.content)
 
