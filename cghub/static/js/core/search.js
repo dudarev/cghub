@@ -40,6 +40,23 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
             cghub.search.$deselectAllLink.on('click', cghub.search.deselectAllFilterValues);
+            $(window).unload(cghub.search.storeOpenedFilters);
+            $(window).load(cghub.search.reStoreOpenedFilters);
+        },
+        storeOpenedFilters: function () {
+            var ss = sessionStorage;
+            $('.filter-accordion-content').each(function(i, e) {
+                // setting storage (key:value) pair
+                // (filters-section-name:display-attr)
+                ss.setItem($(e).children().attr('data-filter'), $(e).css('display'));
+            });
+        },
+        reStoreOpenedFilters: function () {
+            var ss = sessionStorage;
+            $('.filter-accordion-content').each(function(i, e) {
+                var display = ss.getItem($(e).children().attr('data-filter'));
+                if (display == 'block') {cghub.search.openFilterSection($(e).parent())}
+            });            
         },
         adjustColumns: function () {
             var columnNumber = cghub.search.columnNumber,
@@ -186,14 +203,15 @@ jQuery(function ($) {
             for (var i=0; i<accordions.length; i++) {
                 var acc = $(accordions[i]),
                     clickable = acc.children('.filter-accordion-header');
-                clickable.bind('click', function() {
-                    var content = $(this).parent().children('.filter-accordion-content'),
-                        icon = $(this).children('.filter-accordion-icon');
-                    content.slideToggle();
-                    icon.toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s')
-                })
+                clickable.bind('click', function() {cghub.search.openFilterSection($(this).parent())})
             }
-        }
+        },
+        openFilterSection: function(accordionDiv) {
+            accordionDiv.find('.filter-accordion-content').slideToggle();
+            accordionDiv.find('.filter-accordion-header')
+                        .children()
+                        .toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s');
+        },
     };
     cghub.search.init();
 });
