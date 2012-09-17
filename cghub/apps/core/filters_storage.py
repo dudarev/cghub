@@ -9,6 +9,21 @@ Storage file for filters
         }
     }
 }
+
+For dates it has special format:
+
+{
+    'section_name': {
+        'title': 'section_title',
+        'filters': {
+            'filter_value': {
+                'filter_name': 'filter_title',
+                'filter_id': 'filter_id'
+            }
+        }
+    }
+}
+
 """
 
 DATE_FILTERS_HTML_IDS = {
@@ -47,11 +62,21 @@ ALL_FILTERS = {
     "last_modified": {
         "title": "By Date Uploaded",
         "filters": {
-            "": "Any date",
-            "[NOW-1DAY TO NOW]": "Today",
-            "[NOW-7DAY TO NOW]": "This week",
-            "[NOW-1MONTH TO NOW]": "This month",
-            "[NOW-1YEAR TO NOW]": "This year",
+            "": {
+                'filter_name': "Any date",
+                'filter_id': "id_date_any"},
+            "[NOW-1DAY TO NOW]": {
+                "filter_name": "Today",
+                "filter_id": "id_date_today"},
+            "[NOW-7DAY TO NOW]": {
+                "filter_name": "This week",
+                "filter_id": "id_date_week"},
+            "[NOW-1MONTH TO NOW]": {
+                "filter_name": "This month",
+                "filter_id": "id_date_month"},
+            "[NOW-1YEAR TO NOW]": {
+                "filter_name": "This year",
+                "filter_id": "id_date_year"},
         },
     },
     "sample_type": {

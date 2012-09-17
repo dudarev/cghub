@@ -63,10 +63,10 @@ def applied_filters(request):
 
         filters = applied_filters[f]
 
-        # Date filters differ from other filters, they should be parsed slightly else
+        # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
             filtered_by_str += '<li>Uploaded '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters].lower() + '</li>'
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'
