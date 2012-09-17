@@ -21,6 +21,8 @@
       </ul>
     {% else %}
       <ul class="nav filter-category" data-filter="{{ section }}">
+          <li><a href="javascript:void(0)" class="select-all">Select all</a>&nbsp;|&nbsp;<a href="javascript:void(0)" class="clear-all">Clear all</a></li>
+
         {% for filter_value, filter_name in filters.items %}
           <li>
             <label class="checkbox">
@@ -29,12 +31,9 @@
             </label>
           </li>
         {% endfor %}
-          <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
-          <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
       </ul>
     {% endif %}
     </div>
-
   </div>
   {% endwith %}
 {% endfor %}

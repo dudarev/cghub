@@ -23,7 +23,7 @@ jQuery(function ($) {
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             cghub.search.$selectAllLink = $('.select-all');
-            cghub.search.$deselectAllLink = $('.deselect-all');
+            cghub.search.$deselectAllLink = $('.clear-all');
         },
         bindEvents:function () {
             var CRC = $('#id_add_files_form > div.CRC')
