@@ -24,6 +24,21 @@ class CoreTests(TestCase):
     def test_existent_search(self):
         response = self.client.get('/search/?q=6d7*')
         self.assertEqual(response.status_code, 200)
+
+    def test_double_digit_for_sample_type(self):
+        from lxml.html import fromstring
+        response = self.client.get('/search/?q=6d7*')
+        c = fromstring(response.content)
+        sample_type_index = 0
+        for th in c.cssselect('th'):
+            if th.cssselect('a'):
+                if 'Sample Type' in th.cssselect('a')[0].text:
+                    break
+            sample_type_index += 1
+        for tr in c.cssselect('tr'):
+            sample_type = tr[sample_type_index].text
+            if sample_type:
+                self.assertTrue(len(sample_type) == 2)
         self.assertTrue('Found' in response.content)
 
 
