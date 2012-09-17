@@ -16,3 +16,4 @@ form.search-form{margin:175px 0;text-align:center;}form.search-form input{font-s
 .filter-accordion-header{cursor:pointer;}
 .filter-accordion-content{display:none;padding-left:15px;}
 .filter-accordion-icon{float:left;}
+.nav>li>a{display:inline;}

@@ -11,16 +11,18 @@
     <div class="filter-accordion-content">
     {% if section == 'last_modified' %}
       <ul class="nav filter-date" data-filter="{{ section }}">
-        {% for filter_value, filter_name in filters.items %}
+        {% for filter_value, filter_name_and_id in filters.items %}
         <li>
           <label class="radio">
-          <input type="radio" name="select-date" id="{{ date_ids.filter_value }}" data-value="{{ filter_value }}" {% if filter_value == '' %}checked="checked"{% endif %}>{{ filter_name }}
+          <input type="radio" name="select-date" id="{{ filter_name_and_id.filter_id }}" data-value="{{ filter_value }}" {% if filter_value == '' %}checked="checked"{% endif %}>{{ filter_name_and_id.filter_name }}
           </label>
         </li>
         {% endfor %}
       </ul>
     {% else %}
       <ul class="nav filter-category" data-filter="{{ section }}">
+          <li><a href="javascript:void(0)" class="select-all">Select all</a>&nbsp;|&nbsp;<a href="javascript:void(0)" class="clear-all">Clear all</a></li>
+
         {% for filter_value, filter_name in filters.items %}
           <li>
             <label class="checkbox">
@@ -29,12 +31,9 @@
             </label>
           </li>
         {% endfor %}
-          <li><a href="javascript:void(0)" class="select-all">Select all</a></li>
-          <li><a href="javascript:void(0)" class="deselect-all">Deselect all</a></li>
       </ul>
     {% endif %}
     </div>
-
   </div>
   {% endwith %}
 {% endfor %}
