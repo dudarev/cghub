@@ -11,7 +11,6 @@
         <div class="page-header">
             <h1>
                 In your cart
-                <small>You can manage contents of your cart</small>
             </h1>
         </div>
         <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
@@ -26,7 +25,7 @@
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
                         <button class="btn cart-form-download-manifest">Download Manifest</button>
-                        <button class="btn cart-form-download-xml">Download XML</button>
+                        <button class="btn cart-form-download-xml">Download metadata</button>
                     </div>
                 </div>
                 {% include 'data_table.html' %}
@@ -37,7 +36,7 @@
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
                         <button class="btn cart-form-download-manifest">Download Manifest</button>
-                        <button class="btn cart-form-download-xml">Download XML</button>
+                        <button class="btn cart-form-download-xml">Download metadata</button>
                     </div>
                 </div>
             {% else %}
