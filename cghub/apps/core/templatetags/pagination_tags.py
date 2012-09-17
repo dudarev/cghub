@@ -110,7 +110,7 @@ def pagination(context):
 def items_per_page(request, *limits):
     """
     Output is something like this:
-    Items per page: 10 / 25 / 50 / 100
+    Items per page: 10 | 25 | 50 | 100
     """
     links = ''
     for limit in limits:
@@ -122,7 +122,7 @@ def items_per_page(request, *limits):
 
         if ((not old_limit and limit == settings.DEFAULT_PAGINATOR_LIMIT) or
             old_limit == str(limit)):
-            link = '<b>%d</b>' % limit
+            link = '%d' % limit
         else:
             get['limit'] = str(limit)
             path = request.path + '?' + get.urlencode()
