@@ -6,7 +6,8 @@ from cghub.apps.core.views import HomeView, SearchView
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', HomeView.as_view(), name='home_page'),
     url(r'^search/$', SearchView.as_view(), name='search_page'),
     url(r'^cart/', include('cghub.apps.cart.urls')),
