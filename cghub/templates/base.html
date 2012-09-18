@@ -12,12 +12,15 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/less/bootstrap.less"
               media="all">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.css" media="all">
     {% else %}
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap.css"
               media="all">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.min.css" media="all">
     {% endif %}
     <link rel="stylesheet" type="text/css"
           href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css" media="all">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.css" media="all">
     {% block extra_header_css %} {% endblock %}
     {% if debug %}
         <script type="text/javascript" src="{{ STATIC_URL }}js/libs/less-1.3.0.min.js"></script>
@@ -58,9 +61,9 @@
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/colResizable-1.3.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
 {% if debug %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-alert.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-button.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-carousel.js"></script>
@@ -74,6 +77,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
 {% else %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.min.js"></script>
 {% endif %}

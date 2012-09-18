@@ -26,16 +26,7 @@ jQuery(function ($) {
             cghub.search.$deselectAllLink = $('.clear-all');
         },
         bindEvents:function () {
-            var CRC = $('#id_add_files_form > div.CRC')
-            CRC.children().each(function (i, e) {
-                $(e).children().mousedown(function(e) {
-                    cghub.search.nextColumn = $($('table.data-table').find('thead > tr').children()[i + 1])
-                    cghub.search.nextColumnWidth = cghub.search.nextColumn.width();
-                });
-                $(e).children().mouseup(function(e) {
-                    cghub.search.columnNumber = i + 1;
-                });
-            });
+            cghub.search.$searchTable.flexigrid({height: 'auto'});
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
@@ -57,17 +48,6 @@ jQuery(function ($) {
                 var display = ss.getItem($(e).children().attr('data-filter'));
                 if (display == 'block') {cghub.search.openFilterSection($(e).parent())}
             });            
-        },
-        adjustColumns: function () {
-            var columnNumber = cghub.search.columnNumber,
-                totalWidth = 0,
-                columns = $('table.data-table').find('thead > tr').children();
-
-            cghub.search.nextColumn.width(cghub.search.nextColumnWidth);
-            $('#id_add_files_form > div.CRC').children().each(function (i, e) {
-                totalWidth += $(columns[i]).width();
-                $(e).css('left', (totalWidth + 2) + 'px');
-            });
         },
         addFilesFormSubmit:function () {
             // collect all data attributes

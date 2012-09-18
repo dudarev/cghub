@@ -78,7 +78,7 @@ class TestTemplateTags(TestCase):
         }))
 
         self.assertEqual(out,
-            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded</a>&darr;')
+            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded&nbsp;&darr;</a>')
 
     def test_apllied_filters_tag(self):
         request = HttpRequest()
