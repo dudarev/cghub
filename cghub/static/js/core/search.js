@@ -28,7 +28,7 @@ jQuery(function ($) {
         bindEvents:function () {
             $('table.data-table').flexigrid({
                 height: 'auto',
-                width: 'auto'
+                // width: 1300
             });
             // var CRC = $('#id_add_files_form > div.CRC')
             // CRC.children().each(function (i, e) {

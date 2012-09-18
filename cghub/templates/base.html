@@ -59,9 +59,9 @@
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.pack.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
 {% if debug %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-alert.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-button.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-carousel.js"></script>
@@ -75,6 +75,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
 {% else %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.pack.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.min.js"></script>
 {% endif %}
