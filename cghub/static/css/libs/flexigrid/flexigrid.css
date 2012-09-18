@@ -80,7 +80,7 @@
 
 .flexigrid div.nBtn {
 	position: absolute;
-	height: 24px;
+	height: 28px;
 	width: 14px;
 	z-index: 900;
 	background: #fafafa url(images/fhbg.gif) repeat-x bottom;
@@ -94,7 +94,7 @@
 }
 
 .flexigrid div.nBtn div {
-	height: 24px;
+	height: 28px;
 	width: 12px;
 	border-left: 1px solid #fff;
 	float: left;

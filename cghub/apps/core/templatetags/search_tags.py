@@ -109,14 +109,14 @@ def sort_link(request, attribute, link_anchor):
 
     if direction_label:
         if direction_label == 'up':
-            sorting_arrow = "&uarr;"
+            sorting_arrow = "&nbsp;&uarr;"
         if direction_label == 'down':
-            sorting_arrow = "&darr;"
+            sorting_arrow = "&nbsp;&darr;"
     else:
         sorting_arrow = direction_label
     
     href = escape(reverse('search_page') + '?' + urllib.urlencode(data))
-    return '<a class="sort-link" href="%(href)s">%(link_anchor)s</a>%(sorting_arrow)s' % {
+    return '<a class="sort-link" href="%(href)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
         'link_anchor': link_anchor,
         'sorting_arrow': sorting_arrow,
         'href': href}

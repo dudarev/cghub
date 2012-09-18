@@ -16,7 +16,6 @@ jQuery(function ($) {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
             cghub.base.$navbarListItem = $('div.navbar ul li');
             cghub.base.$selectAll = $('.select_all_items');
-            cghub.base.$resultCheckboxes = $('.data-table-checkbox-cell input');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
@@ -25,14 +24,15 @@ jQuery(function ($) {
             });
         },
         changeCheckboxes:function () {
-            var btn = $(this);
+            var btn = $(this),
+                resultCheckboxes = $('.data-table-checkbox');
             if (btn.html() == 'Select all') {
-                cghub.base.$resultCheckboxes.prop('checked', true);
+                resultCheckboxes.prop('checked', true);
                 cghub.base.$selectAll.each(function(i, e) {
                     $(e).html('Unselect all');
                 });
             } else if (btn.html() == 'Unselect all') {
-                cghub.base.$resultCheckboxes.prop('checked', false);
+                resultCheckboxes.prop('checked', false);
                 cghub.base.$selectAll.each(function(i, e) {
                     $(e).html('Select all');
                 });

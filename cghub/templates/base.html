@@ -12,9 +12,11 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/less/bootstrap.less"
               media="all">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.css" media="all">
     {% else %}
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap.css"
               media="all">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.min.css" media="all">
     {% endif %}
     <link rel="stylesheet" type="text/css"
           href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css" media="all">
@@ -75,7 +77,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
 {% else %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.pack.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.min.js"></script>
 {% endif %}

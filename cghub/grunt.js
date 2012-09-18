@@ -40,6 +40,13 @@ module.exports = function (grunt) {
                 options:{
                     compress:true
                 }
+            },
+            flexigrid:{
+                src:cssStaticFolder + 'libs/flexigrid/flexigrid.css',
+                dest:cssStaticFolder + 'libs/flexigrid/flexigrid.min.css',
+                options:{
+                    compress:true
+                }
             }
         },
         min:{
@@ -62,6 +69,10 @@ module.exports = function (grunt) {
             core_search:{
                 src:[jsStaticFolder + 'core/search.js'],
                 dest:jsStaticFolder + 'core/search.min.js'
+            },
+            flexigrid:{
+                src:[jsStaticFolder + 'libs/flexigrid.js'],
+                dest:jsStaticFolder + 'libs/flexigrid.min.js'
             }
         }
     });
