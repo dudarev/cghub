@@ -1408,7 +1408,7 @@
             // Hide already hidden columns
             var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
-                this.grid.toggleCol(hiddenColumns[i])
+                if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
             };
         });
     }; //end flexigrid
