@@ -258,7 +258,9 @@
                 }
                 $('body').css('cursor', 'default');
                 $('body').noSelect(false);
-                // Correct table width after resize
+                g.adjustTableWidth();
+            },
+            adjustTableWidth: function () {
                 var hDivBox = $('.hDivBox');
                 if (hDivBox.parent().width() > hDivBox.width()) {
                     $('.bDiv').children().width(hDivBox.width());
@@ -305,6 +307,7 @@
                 if (p.onToggleCol) {
                     p.onToggleCol(cid, visible);
                 }
+                g.adjustTableWidth();
                 return visible;
             },
             switchCol: function (cdrag, cdrop) { //switch columns
@@ -1322,12 +1325,10 @@
             $('td.ndcol2', g.nDiv).click(function () {
                 if ($('input:checked', g.nDiv).length <= p.minColToggle && $(this).prev().find('input')[0].checked) return false;
                 return g.toggleCol($(this).prev().find('input').val());
-                g.dragEnd();
             });
             $('input.togCol', g.nDiv).click(function () {
                 if ($('input:checked', g.nDiv).length < p.minColToggle && this.checked == false) return false;
                 $(this).parent().next().trigger('click');
-                g.dragEnd();
             });
             $(g.gDiv).prepend(g.nDiv);
             $(g.nBtn).addClass('nBtn')
