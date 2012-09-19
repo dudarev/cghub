@@ -1,3 +1,4 @@
+import sys
 import logging
 
 from default import *
@@ -12,7 +13,9 @@ from api_cache import *
 from debug_toolbar_settings import *
 from celery_settings import *
 from logging import *
-from tests import *
+
+if 'test' in sys.argv:
+    from tests import *
 
 try:
     from local import *

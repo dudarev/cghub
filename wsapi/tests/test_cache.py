@@ -10,7 +10,7 @@ from wsapi.utils import clear_cache
 from wsapi.settings import CACHE_DIR
 
 
-TEST_DATA_DIR = 'tests/test_data/'
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__) + '/test_data')
 
 
 class CacheTest(unittest.TestCase):

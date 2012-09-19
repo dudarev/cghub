@@ -22,5 +22,3 @@ INSTALLED_APPS += [
     "kombu.transport.django",
     ]
 
-# skip migrations while testing
-SOUTH_TESTS_MIGRATE = False

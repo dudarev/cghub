@@ -8,7 +8,7 @@ from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
-from wsapi.settings import CACHE_DIR
+from cghub.wsapi.settings import CACHE_DIR
 
 
 class CoreTests(TestCase):
