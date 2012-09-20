@@ -60,10 +60,15 @@ jQuery(function ($) {
         },
         ddclTextFormatFunction: function(options) {
             var countSelected = options.filter(":selected").size();
-            if (countSelected == 0) {
-                return 'Please select'
-            } else {
-                return 'selecting...'
+            switch (countSelected) {
+                case options.size(): {
+                    $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#333'})
+                    return 'All'
+                };
+                default: {
+                    $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'})
+                    return 'selecting...';
+                };
             }
         },
         ddclOnComplete: function(selector) {
@@ -77,7 +82,6 @@ jQuery(function ($) {
             if (countSelected == 0) {
                 countSelected = 1;
                 preview = 'Please select';
-                color = 'grey';
             }
             if (preview.indexOf('(all)') != -1) {
                 countSelected = 1;
@@ -162,58 +166,44 @@ jQuery(function ($) {
             var href = URI(location.href);
             var new_search = URI.parseQuery(window.location.search);
             var is_error = false;
+            var sections = $('select.filter-select[section != "last_modified"]');
 
-            // loop by categories: center_name, experiment_type etc.
-            var categories = $('.filter-category');
-            categories.each(function (i,f) {
-                var filter = $(this).attr('data-filter');
-                var values = $(this).find(':checkbox');
-                var are_all_checked = true;
-                var query = '';
-                // loop by values in category
-                values.each(function (ii,ff) {
-                    if ($(this).attr('checked') == 'checked'){
-                        if (query == ''){
-                            query = $(this).attr('data-value');
-                        } else {
-                            query += ' OR ' + $(this).attr('data-value');
-                        };
-                    } else {
-                        are_all_checked = false;
-                    };
-                });
-                if (!are_all_checked && query != ''){
-                    query = '(' + query + ')';
-                    new_search[filter] = query;
-                };
-                if (are_all_checked){
-                    delete new_search[filter];
-                };
-                if (query == ''){
-                    alert('Select some values.');
-                    is_error = true;
-                };
+            // loop by sections excluding date
+            sections.each(function (i, section) {
+                var dropContainer = $(section).next().next(),
+                    all_checked = Boolean(dropContainer.find('input[value = "(all)"]:checked').length),
+                    query = '',
+                    section_name = $(section).attr('section');
+                // Checked some boxes
+                if (!all_checked && dropContainer.find('input:checked').length != 0) {
+                    dropContainer.find('input:checked').each(function (j, checkbox) {
+                        query += $(checkbox).val() + ' OR ';
+                    });
+                    new_search[section_name] = '(' + query.slice(0,-4) + ')'
+                    return true;
+                }
+
+                if (all_checked) {
+                    delete new_search[section_name];
+                    return true;
+                }
+                // Nothing checked
+                alert('Select some values.');
+                is_error = true;
+                return false;
             });
 
-            // loop by dates
-            var date_values = $('.filter-date').find(':radio');
-            var query = '';
-            date_values.each(function (i,f) {
-                if ($(this).attr('checked') == 'checked'){
-                    query = $(this).attr('data-value');
-                };
-            });
-            if (query != ''){
-                new_search['last_modified'] = query;
+            // add date filter
+            var dateQuery = $('.sidebar-filters').find('input[type = "radio"]:checked').val();
+            if (dateQuery != ''){
+                new_search['last_modified'] = dateQuery;
             } else {
                 delete new_search['last_modified'];
             };
 
             // redirect to the page with filtered results
-            href = href.search(new_search);
-
             if (!is_error){
-                window.location.href = href;
+                window.location.href = href.search(new_search);
             };
         },
         // selectAllFilterValues: function () {
