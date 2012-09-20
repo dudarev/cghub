@@ -1,5 +1,5 @@
 {% spaceless %}
-<li class="nav-content">
+<!-- <li class="nav-content">
 {% for section, section_data in all_filters.items %}
   {% with filters=section_data.filters %}
   <div class="filter-accordion">
@@ -37,5 +37,24 @@
   </div>
   {% endwith %}
 {% endfor %}
-</li>
+</li> -->
+{% endspaceless %}
+{% spaceless %}
+{% for section, filters in all_filters.items %}
+  <h5>{{ filters.title }}:</h5>
+  {% if section == 'last_modified' %}
+    <select section="{{ section }}">
+      {% for filter_value, filter_name_and_id in filters.filters.items %}
+      <option value="{{ filter_value }}">{{ filter_name_and_id.filter_name }}</option>
+      {% endfor %}
+    </select>
+  {% else %}
+    <select section="{{ section }}" multiple>
+      <option>(all)</option>
+      {% for filter_value, filter_name in filters.filters.items %}
+      <option value="{{ filter_value }}">{{ filter_name }}</option>
+      {% endfor %}
+    </select>
+  {% endif %}
+{% endfor %}
 {% endspaceless %}

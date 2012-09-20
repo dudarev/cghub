@@ -21,6 +21,10 @@
     <link rel="stylesheet" type="text/css"
           href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css" media="all">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.css" media="all">
+    <link rel="stylesheet" type="text/css" 
+        href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.standalone.css" media="all">
+    <link rel="stylesheet" type="text/css" 
+        href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.themeroller.css" media="all">
     {% block extra_header_css %} {% endblock %}
     {% if debug %}
         <script type="text/javascript" src="{{ STATIC_URL }}js/libs/less-1.3.0.min.js"></script>
@@ -62,6 +66,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/libs/ui.dropdownchecklist-1.4-min.js"></script>
 {% if debug %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/dev/bootstrap-alert.js"></script>

@@ -26,6 +26,47 @@ jQuery(function ($) {
             cghub.search.$deselectAllLink = $('.clear-all');
         },
         bindEvents:function () {
+            $('select').each(function(i, e) {
+                if ($(e).attr('section') == 'last_modified') {
+                    $(e).dropdownchecklist({
+                        width: 138,
+                    })
+                } else {
+                    $(e).dropdownchecklist({
+                        firstItemChecksAll: true,
+                        // icon: {},
+                        width: 138,
+                        textFormatFunction: function(options) {
+                            var countSelected = options.filter(":selected").size();
+                            if (countSelected == 0) {
+                                return 'Please select'
+                            } else {
+                                return 'selecting...'
+                            }
+                        },
+                        onComplete: function(selector) {
+                            var preview = '',
+                                countSelected = 0;
+                            $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
+                                preview += $(el).find('label').html() + '<br>'
+                                countSelected++;
+                            })
+                            if (countSelected == 0) {return}
+                            if (preview.indexOf('(all)') != -1) {
+                                countSelected = 1;
+                                preview = 'All'                           
+                            }
+                            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px')
+                            $(selector).next().find('.ui-dropdownchecklist-text').html(preview)
+
+                        }
+                    });
+                    $(e).next().find('.ui-dropdownchecklist-selector').click(function() {
+                        $(this).css('height', '18px')
+                        $(this).find('.ui-dropdownchecklist-text').html('selecting...')                    
+                    })
+                }
+            });
             cghub.search.$searchTable.flexigrid({height: 'auto'});
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
