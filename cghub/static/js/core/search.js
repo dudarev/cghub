@@ -8,88 +8,99 @@ jQuery(function ($) {
     }
     cghub.search = {
         init:function () {
-
             cghub.search.cacheElements();
             cghub.search.bindEvents();
-            cghub.search.initFilterAccordions();
+            // cghub.search.initFilterAccordions();
+            cghub.search.initFlexigrid();
+            cghub.search.initDdcl();
             cghub.search.updateCheckboxes();
             cghub.search.updateDate();
         },
         cacheElements:function () {
-            cghub.search.$columnNumber = 0;
-            cghub.search.$nextColumn;
-            cghub.search.$nextColumnWidth = 0;
             cghub.search.$searchTable = $('table.data-table');
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             cghub.search.$selectAllLink = $('.select-all');
             cghub.search.$deselectAllLink = $('.clear-all');
+            cghub.search.$filterSelects = $('select.filter-select');
         },
         bindEvents:function () {
-            $('select').each(function(i, e) {
-                if ($(e).attr('section') == 'last_modified') {
-                    $(e).dropdownchecklist({
-                        width: 138,
-                    })
-                } else {
-                    $(e).dropdownchecklist({
-                        firstItemChecksAll: true,
-                        // icon: {},
-                        width: 138,
-                        textFormatFunction: function(options) {
-                            var countSelected = options.filter(":selected").size();
-                            if (countSelected == 0) {
-                                return 'Please select'
-                            } else {
-                                return 'selecting...'
-                            }
-                        },
-                        onComplete: function(selector) {
-                            var preview = '',
-                                countSelected = 0;
-                            $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                                preview += $(el).find('label').html() + '<br>'
-                                countSelected++;
-                            })
-                            if (countSelected == 0) {return}
-                            if (preview.indexOf('(all)') != -1) {
-                                countSelected = 1;
-                                preview = 'All'                           
-                            }
-                            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px')
-                            $(selector).next().find('.ui-dropdownchecklist-text').html(preview)
-
-                        }
-                    });
-                    $(e).next().find('.ui-dropdownchecklist-selector').click(function() {
-                        $(this).css('height', '18px')
-                        $(this).find('.ui-dropdownchecklist-text').html('selecting...')                    
-                    })
-                }
-            });
-            cghub.search.$searchTable.flexigrid({height: 'auto'});
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
-            cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
-            cghub.search.$deselectAllLink.on('click', cghub.search.deselectAllFilterValues);
-            $(window).unload(cghub.search.storeOpenedFilters);
-            $(window).load(cghub.search.reStoreOpenedFilters);
+            // cghub.search.$selectAllLink.on('click', cghub.search.selectAllFilterValues);
+            // cghub.search.$deselectAllLink.on('click', cghub.search.deselectAllFilterValues);
+            // $(window).unload(cghub.search.storeOpenedFilters);
+            // $(window).load(cghub.search.reStoreOpenedFilters);
         },
-        storeOpenedFilters: function () {
-            var ss = sessionStorage;
-            $('.filter-accordion-content').each(function(i, e) {
-                // setting storage (key:value) pair
-                // (filters-section-name:display-attr)
-                ss.setItem($(e).children().attr('data-filter'), $(e).css('display'));
-            });
+        initFlexigrid: function() {
+            cghub.search.$searchTable.flexigrid({height: 'auto'});
         },
-        reStoreOpenedFilters: function () {
-            var ss = sessionStorage;
-            $('.filter-accordion-content').each(function(i, e) {
-                var display = ss.getItem($(e).children().attr('data-filter'));
-                if (display == 'block') {cghub.search.openFilterSection($(e).parent())}
-            });            
+        initDdcl: function() {
+            for (var i = cghub.search.$filterSelects.length - 1; i >= 0; i--) {
+                var select = cghub.search.$filterSelects[i];
+                if ($(select).attr('section') == 'last_modified') {
+                    $(select).dropdownchecklist({
+                        width: 142,
+                    })
+                } else {
+                    $(select).dropdownchecklist({
+                        firstItemChecksAll: true,
+                        width: 142,
+                        textFormatFunction: cghub.search.ddclTextFormatFunction,
+                        onComplete: cghub.search.ddclOnComplete
+                    });
+                    $(select).next().find('.ui-dropdownchecklist-selector').click(function() {
+                        $(this).css('height', '18px')
+                        $(this).find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'})
+                    })
+                }
+                // After rendering ddcl show filters
+                if (i == cghub.search.$filterSelects.length - 1) {$('.sidebar-filters').show()}
+            }
         },
+        ddclTextFormatFunction: function(options) {
+            var countSelected = options.filter(":selected").size();
+            if (countSelected == 0) {
+                return 'Please select'
+            } else {
+                return 'selecting...'
+            }
+        },
+        ddclOnComplete: function(selector) {
+            var preview = '',
+                countSelected = 0,
+                color = '#333';
+            $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
+                preview += $(el).find('label').html() + '<br>'
+                countSelected++;
+            })
+            if (countSelected == 0) {
+                countSelected = 1;
+                preview = 'Please select';
+                color = 'grey';
+            }
+            if (preview.indexOf('(all)') != -1) {
+                countSelected = 1;
+                preview = 'All';                     
+            }
+            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px')
+            $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color})
+        },
+        // storeOpenedFilters: function () {
+        //     var ss = sessionStorage;
+        //     $('.filter-accordion-content').each(function(i, e) {
+        //         // setting storage (key:value) pair
+        //         // (filters-section-name:display-attr)
+        //         ss.setItem($(e).children().attr('data-filter'), $(e).css('display'));
+        //     });
+        // },
+        // reStoreOpenedFilters: function () {
+        //     var ss = sessionStorage;
+        //     $('.filter-accordion-content').each(function(i, e) {
+        //         var display = ss.getItem($(e).children().attr('data-filter'));
+        //         if (display == 'block') {cghub.search.openFilterSection($(e).parent())}
+        //     });            
+        // },
         addFilesFormSubmit:function () {
             // collect all data attributes
             var data = {};
@@ -205,34 +216,34 @@ jQuery(function ($) {
                 window.location.href = href;
             };
         },
-        selectAllFilterValues: function () {
-            var checkboxes = $(this).parent().parent().find(':checkbox');
-            checkboxes.each(function (i,f) {
-                $(this).attr('checked', 'checked');
-            })
-            return false;
-        },
-        deselectAllFilterValues: function () {
-            var checkboxes = $(this).parent().parent().find(':checkbox');
-            checkboxes.each(function (i,f) {
-                $(this).attr('checked', false);
-            })
-            return false;
-        },
-        initFilterAccordions:function() {
-            var accordions = $.find('.filter-accordion');
-            for (var i=0; i<accordions.length; i++) {
-                var acc = $(accordions[i]),
-                    clickable = acc.children('.filter-accordion-header');
-                clickable.bind('click', function() {cghub.search.openFilterSection($(this).parent())})
-            }
-        },
-        openFilterSection: function(accordionDiv) {
-            accordionDiv.find('.filter-accordion-content').slideToggle();
-            accordionDiv.find('.filter-accordion-header')
-                        .children()
-                        .toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s');
-        },
+        // selectAllFilterValues: function () {
+        //     var checkboxes = $(this).parent().parent().find(':checkbox');
+        //     checkboxes.each(function (i,f) {
+        //         $(this).attr('checked', 'checked');
+        //     })
+        //     return false;
+        // },
+        // deselectAllFilterValues: function () {
+        //     var checkboxes = $(this).parent().parent().find(':checkbox');
+        //     checkboxes.each(function (i,f) {
+        //         $(this).attr('checked', false);
+        //     })
+        //     return false;
+        // },
+        // initFilterAccordions:function() {
+        //     var accordions = $.find('.filter-accordion');
+        //     for (var i=0; i<accordions.length; i++) {
+        //         var acc = $(accordions[i]),
+        //             clickable = acc.children('.filter-accordion-header');
+        //         clickable.bind('click', function() {cghub.search.openFilterSection($(this).parent())})
+        //     }
+        // },
+        // openFilterSection: function(accordionDiv) {
+        //     accordionDiv.find('.filter-accordion-content').slideToggle();
+        //     accordionDiv.find('.filter-accordion-header')
+        //                 .children()
+        //                 .toggleClass('ui-icon-triangle-1-e ui-icon-triangle-1-s');
+        // },
     };
     cghub.search.init();
 });
