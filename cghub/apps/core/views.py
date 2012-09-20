@@ -18,14 +18,14 @@ class HomeView(TemplateView):
         # if there are any GET parameters - redirect to search page
         if request.GET:
             return HttpResponseRedirect(reverse('search_page') + '?' + request.GET.urlencode())
-        return super(HomeView,self).dispatch(request, *args, **kwargs)
+        return super(HomeView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
         results = api_request(query=self.default_query, sort_by='-last_modified',
-            limit=limit)
+                              limit=limit)
         results.calculate_files_size()
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
@@ -62,13 +62,13 @@ class SearchView(TemplateView):
             'sample_type',
             'library_strategy',
             'disease_abbr',
-            ]
+        ]
         for attr in allowed_attributes:
             if self.request.GET.get(attr):
                 filter_str += '&%s=%s' % (
                     attr,
                     urllib.quote(self.request.GET.get(attr))
-                    )
+                )
         query = u''
         if q:
             query = u"xml_text={0}".format(urlquote(q))
@@ -85,7 +85,7 @@ class SearchView(TemplateView):
         return context
 
     def dispatch(self, request, *args, **kwargs):
-        # if there are no any `q` query parameters 
+        # if there are no any `q` query parameters
         # and now `last_modified` is specified
         # redirect to search page with last 7 days results
         q = request.GET.get('q')
