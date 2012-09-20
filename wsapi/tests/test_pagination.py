@@ -6,12 +6,9 @@ from wsapi.api import request
 from wsapi.settings import CACHE_DIR
 
 
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__) + '/test_data')
-
-
 class PaginationTestCase(unittest.TestCase):
     cache_files = [
-        os.path.join(TEST_DATA_DIR, '10f911319953a88d95231b4d63e29434.xml')
+        '10f911319953a88d95231b4d63e29434.xml'
     ]
 
     def setUp(self):
@@ -25,13 +22,13 @@ class PaginationTestCase(unittest.TestCase):
         # >>> m.hexdigest()
         # '10f911319953a88d95231b4d63e29434'
 
+        TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
         for f in self.cache_files:
-            dir, file_name = os.path.split(f)
             shutil.copy(
-                f,
-                os.path.join(CACHE_DIR, file_name)
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(CACHE_DIR, f)
             )
         self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))

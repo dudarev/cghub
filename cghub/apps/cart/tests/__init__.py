@@ -1,4 +1,5 @@
-from tests import *
-from ui_tests import *
+from cghub.apps.cart.tests.tests import *
+from cghub.apps.cart.tests.ui_tests import *
 
-__all__ = {"tests": tests, "ui_tests": ui_tests}
+
+__test__ = {'tests': tests, 'ui_tests': ui_tests}

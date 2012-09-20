@@ -10,11 +10,5 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += (
-    'django_nose',
-)
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 # skip migrations while testing
 SOUTH_TESTS_MIGRATE = True

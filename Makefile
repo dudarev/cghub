@@ -32,14 +32,18 @@ testcoverage:
 	TESTING=1 $(MANAGE) test_coverage $(TEST_OPTIONS) $(TEST_APP)
 
 test:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS)
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_API)
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_UI)
+	cd wsapi && nosetests
 
 test_web:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS)
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
 
 test_api:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_API)
+	cd wsapi && nosetests -s
+
+test_ui:
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_UI)
 
 clean:
 	@echo Cleaning up...
