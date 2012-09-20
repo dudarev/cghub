@@ -33,7 +33,6 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_UI)
 	cd wsapi && nosetests
 
 test_web:
