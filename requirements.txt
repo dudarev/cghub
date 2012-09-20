@@ -13,3 +13,4 @@ lxml==2.3.4
 celery==2.5.5
 django-celery==2.5.5
 -e git://pyxb.git.sourceforge.net/gitroot/pyxb/pyxb#egg=pyxb
+selenium==2.25.0

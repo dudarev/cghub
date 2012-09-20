@@ -1,4 +1,3 @@
-import sys
 from utils import proj
 
 
@@ -15,9 +14,6 @@ DATABASES = {
         'PORT': '',
         }
 }
-
-if 'test' in sys.argv:
-    DATABASES['default']['NAME'] = ':memory:'
 
 SITE_ID = 1
 

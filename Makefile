@@ -41,6 +41,9 @@ test_web:
 test_api:
 	cd wsapi && nosetests -s
 
+test_ui:
+	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_UI)
+
 clean:
 	@echo Cleaning up...
 	find ./$(PROJECT_NAME) | grep '\.pyc$$' | xargs -I {} rm {}
