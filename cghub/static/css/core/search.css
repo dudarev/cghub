@@ -7,11 +7,7 @@ input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 div.search-btn-group{padding:15px 0;}
 form.search-form{margin:175px 0;text-align:center;}form.search-form input{font-size:20px;font-weight:normal;padding:14px 24px;margin-right:10px;width:30%;}
-.filter-accordion-header{cursor:pointer;}
-.filter-accordion-content{display:none;padding-left:15px;}
-.filter-accordion-icon{float:left;}
-.nav>li>a.select-all,.nav>li>a.clear-all{display:inline;}
-.sidebar-filters{display:none;}
+.filter-select{display:none;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
 span.ui-dropdownchecklist-text{padding-top:1px;}
 .ui-dropdownchecklist-selector-wrapper{margin-bottom:5px;}
