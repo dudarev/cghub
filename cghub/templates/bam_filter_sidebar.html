@@ -1,19 +1,11 @@
 {% load search_tags %}
 <div class="well sidebar">
-    <ul class="nav nav-list">
-        <li class="nav-header">Search</li>
-        <li>
-        <form class="form-search" action="{% url search_page %}">
-            <input class="search-query" type="text" id="bam-filter-sidebar-search-field" placeholder="Search" name="q">
-        </form>
-        </li>
-        <li class="nav-header">Filter</li>
-        {% render_filters %}
-        <li class="nav-button">
-            <div class="btn-group search-btn-group">
-                <button class="btn" id="id_apply_filters" type="submit">Apply filters</button>
-            </div>
-        </li>
-
-    </ul>
+    <form class="form-search" action="{% url search_page %}">
+        <input class="search-query" type="text" id="bam-filter-sidebar-search-field" placeholder="Search" name="q">
+    </form>
+    <h4>Filters</h4>
+    {% render_filters %}
+    <div class="btn-group search-btn-group">
+        <button class="btn" id="id_apply_filters" type="submit">Apply filters</button>
+    </div>
 </div>

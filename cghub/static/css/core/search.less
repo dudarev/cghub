@@ -18,23 +18,51 @@ form.search-form {
     }
 }
 
-.filter-accordion {
-    
+.filter-select {
+    display: none;
+}
+//*****************************
+// Fixes for dropdownchecklist
+.ui-dropdownchecklist-selector {
+    border: 1px solid #CCC;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
-.filter-accordion-header {
+span.ui-dropdownchecklist-text {
+    padding-top: 1px;
+}
+
+.ui-dropdownchecklist-selector-wrapper {
+    margin-bottom: 5px;
+}
+
+.ui-dropdownchecklist-item > input[type="checkbox"],
+.ui-dropdownchecklist-item > input[type="radio"] {
+    float: left;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+.ui-dropdownchecklist-item {
+    padding-top: 3px;
+}
+
+.ui-dropdownchecklist-dropcontainer {
+    height: auto !important;
+}
+
+.ui-dropdownchecklist-dropcontainer-wrapper {
+    margin-top: -5px;
+}
+
+.ui-state-hover, .ui-state-active {
+    background-color: white;
     cursor: pointer;
 }
 
-.filter-accordion-content {
-    display: none;
-    padding-left: 15px;
+.ui-dropdownchecklist-close {
+    text-align: center !important;
 }
-
-.filter-accordion-icon {
-    float: left;
-}
-
-.nav > li > a.select-all, .nav > li > a.clear-all {
-  display: inline;
-}
+//*****************************

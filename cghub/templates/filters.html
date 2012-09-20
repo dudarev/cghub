@@ -1,41 +1,19 @@
 {% spaceless %}
-<li class="nav-content">
-{% for section, section_data in all_filters.items %}
-  {% with filters=section_data.filters %}
-  <div class="filter-accordion">
-
-    <div class="filter-accordion-header nav-header">
-      <span class="filter-accordion-icon ui-icon ui-icon-triangle-1-e"></span>{{ section_data.title }}
-    </div>
-
-    <div class="filter-accordion-content">
-    {% if section == 'last_modified' %}
-      <ul class="nav filter-date" data-filter="{{ section }}">
-        {% for filter_value, filter_name_and_id in filters.items %}
-        <li>
-          <label class="radio">
-          <input type="radio" name="select-date" id="{{ filter_name_and_id.filter_id }}" data-value="{{ filter_value }}" {% if filter_value == '' %}checked="checked"{% endif %}>{{ filter_name_and_id.filter_name }}
-          </label>
-        </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <ul class="nav filter-category" data-filter="{{ section }}">
-          <li><a href="javascript:void(0)" class="select-all">Select all</a>&nbsp;|&nbsp;<a href="javascript:void(0)" class="clear-all">Clear all</a></li>
-
-        {% for filter_value, filter_name in filters.items %}
-          <li>
-            <label class="checkbox">
-            <input type="checkbox" data-value="{{ filter_value }}" checked="checked">
-              {{ filter_name }}
-            </label>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    </div>
-  </div>
-  {% endwith %}
+{% for section, filters in all_filters.items %}
+  <h5>{{ filters.title }}:</h5>
+  {% if section == 'last_modified' %}
+    <select class="filter-select" section="{{ section }}">
+      {% for filter_value, filter_name_and_id in filters.filters.items %}
+      <option value="{{ filter_value }}">{{ filter_name_and_id.filter_name }}</option>
+      {% endfor %}
+    </select>
+  {% else %}
+    <select class="filter-select" section="{{ section }}" multiple>
+      <option value="(all)">(all)</option>
+      {% for filter_value, filter_name in filters.filters.items %}
+      <option value="{{ filter_value }}">{{ filter_name }}</option>
+      {% endfor %}
+    </select>
+  {% endif %}
 {% endfor %}
-</li>
 {% endspaceless %}
