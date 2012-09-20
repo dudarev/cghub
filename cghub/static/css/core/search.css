@@ -16,3 +16,4 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .ui-dropdownchecklist-dropcontainer{height:auto !important;}
 .ui-dropdownchecklist-dropcontainer-wrapper{margin-top:-5px;}
 .ui-state-hover,.ui-state-active{background-color:white;cursor:pointer;}
+.ui-dropdownchecklist-close{text-align:center !important;}

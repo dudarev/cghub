@@ -59,13 +59,15 @@ jQuery(function ($) {
                 if ($(select).attr('section') == 'last_modified') {
                     $(select).dropdownchecklist({
                         width: 170,
+                        explicitClose: 'close'
                     })
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 170,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
-                        onComplete: cghub.search.ddclOnComplete
+                        onComplete: cghub.search.ddclOnComplete,
+                        explicitClose: 'close'
                     });
                     $(select).next().find('.ui-dropdownchecklist-selector').click(function() {
                         $(this).css('height', '18px')
