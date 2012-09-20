@@ -5,6 +5,8 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  *
+ * Modified by 42coffeecups for project's needs
+ *
  */
 (function ($) {
     $.addFlex = function (t, p) {
@@ -242,7 +244,6 @@
                         $(this.cdropleft).remove();
                         $(this.cdropright).remove();
                         this.rePosDrag();
-                        console.log('olol')
                         if (p.onDragCol) {
                             p.onDragCol(this.dcoln, this.dcolt);
                         }
@@ -257,7 +258,9 @@
                 }
                 $('body').css('cursor', 'default');
                 $('body').noSelect(false);
-                // Correct table width after resize
+                g.adjustTableWidth();
+            },
+            adjustTableWidth: function () {
                 var hDivBox = $('.hDivBox');
                 if (hDivBox.parent().width() > hDivBox.width()) {
                     $('.bDiv').children().width(hDivBox.width());
@@ -267,12 +270,21 @@
                 var ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];
                 var n = $('thead th', g.hDiv).index(ncol);
                 var cb = $('input[value=' + cid + ']', g.nDiv)[0];
+                var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
                 if (visible == null) {
                     visible = ncol.hidden;
                 }
                 if ($('input:checked', g.nDiv).length < p.minColToggle && !visible) {
                     return false;
                 }
+                // Saving hidden columns to sessionStorage
+                if (visible) {
+                    hiddenColumns.pop(hiddenColumns.indexOf(cid));
+                } else if (hiddenColumns.indexOf(cid) < 0) {
+                    hiddenColumns = hiddenColumns.concat(cid);
+                }
+                sessionStorage.setItem('hiddenColumns', hiddenColumns)
+
                 if (visible) {
                     ncol.hidden = false;
                     $(ncol).show();
@@ -295,6 +307,7 @@
                 if (p.onToggleCol) {
                     p.onToggleCol(cid, visible);
                 }
+                g.adjustTableWidth();
                 return visible;
             },
             switchCol: function (cdrag, cdrop) { //switch columns
@@ -1293,13 +1306,15 @@
                 top: gtop
             }).noSelect();
             var cn = 0;
-            $('th div', g.hDiv).each(function () {
+            $('th div', g.hDiv).each(function () {                
                 var kcol = $("th[axis='col" + cn + "']", g.hDiv)[0];
                 var chk = 'checked="checked"';
                 if (kcol.style.display == 'none') {
                     chk = '';
                 }
-                $('tbody', g.nDiv).append('<tr><td class="ndcol1"><input type="checkbox" ' + chk + ' class="togCol" value="' + cn + '" /></td><td class="ndcol2">' + this.innerHTML + '</td></tr>');
+                if (!$(this).parent().hasClass('data-table-checkbox-header')) {
+                    $('tbody', g.nDiv).append('<tr><td class="ndcol1"><input type="checkbox" ' + chk + ' class="togCol" value="' + cn + '" /></td><td class="ndcol2">' + this.innerHTML + '</td></tr>');
+                }
                 cn++;
             });
             if ($.browser.msie && $.browser.version < 7.0) $('tr', g.nDiv).hover(function () {
@@ -1390,6 +1405,11 @@
             } else {
                 $.addFlex(this, p);
             }
+            // Hide already hidden columns
+            var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
+            for (var i = hiddenColumns.length - 1; i >= 0; i--) {
+                if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
+            };
         });
     }; //end flexigrid
     $.fn.flexReload = function (p) { // function to reload grid
