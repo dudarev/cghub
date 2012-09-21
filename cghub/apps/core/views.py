@@ -4,10 +4,10 @@ from django.conf import settings
 from django.http import QueryDict, HttpResponseRedirect
 from django.utils.http import urlquote
 from django.core.urlresolvers import reverse
-from django.views.generic.base import TemplateView
 
+
+from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
-from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
 class HomeView(TemplateView):
@@ -33,8 +33,6 @@ class HomeView(TemplateView):
         else:
             context['num_results'] = 0
             context['message'] = 'No results found.'
-
-        context['all_filters'] = ALL_FILTERS
         return context
 
     def get(self, request, *args, **kwargs):
