@@ -118,6 +118,16 @@ class TestTemplateTags(TestCase):
             self.assertEqual(e.message,
                 "Limits can be numbers or it's string representation")
 
+    def test_get_name_by_code_tag(self):
+        from cghub.apps.core.templatetags.search_tags import get_name_by_code
+        from cghub.apps.core.filters_storage import ALL_FILTERS
+        for section, section_data in ALL_FILTERS.iteritems():
+            for code, name in section_data['filters'].iteritems():
+                assert (get_name_by_code(section, code) == name)
+
+        assert (get_name_by_code('unknown_section', 'unknown_code') == 
+                'unknown_code')
+
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
