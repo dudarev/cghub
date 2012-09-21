@@ -49,7 +49,7 @@ def _get_from_simple_cache(query=None, get_attributes=True):
         raise QueryRequired
 
     cache_file_name = get_cache_file_name(query=query, get_attributes=get_attributes)
-    print cache_file_name
+
     # getting results from cache file
     if os.path.exists(cache_file_name):
         try:
