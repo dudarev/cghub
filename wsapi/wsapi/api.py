@@ -158,12 +158,12 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         results = objectify.fromstring(open(file_name, 'r').read())
 
     # Getting results from the cache
-    if not results and not ignore_cache:
+    if not len(results) and not ignore_cache:
         results, cache_errors = get_from_cache(
             query=query, get_attributes=get_attributes)
 
     # Getting results from the server
-    if not results:
+    if not len(results):
         results_from_cache = False
         server = CGHUB_SERVER
         if get_attributes:

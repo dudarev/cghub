@@ -6,8 +6,7 @@ from django.utils.html import escape
 from django.template import Context
 from django.template.loader import select_template
 
-from cghub.apps.core.filters_storage import (ALL_FILTERS,
-    DATE_FILTERS_HTML_IDS)
+from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 
 register = template.Library()
 
@@ -20,6 +19,7 @@ def render_filters():
         'date_ids': DATE_FILTERS_HTML_IDS
     }))
     return content
+
 
 @register.simple_tag
 def filter_link(request, attribute, value):
@@ -36,7 +36,7 @@ def filter_link(request, attribute, value):
             data[k] = request.GET[k]
     if value:
         data[attribute] = value
-    elif data.has_key(attribute):
+    elif attribute in data:
         # in this case value is '' or False etc. and the key exists -
         # remove it
         del data[attribute]
@@ -45,23 +45,34 @@ def filter_link(request, attribute, value):
 
 @register.simple_tag
 def applied_filters(request):
-    applied_filters = {'center_name': request.GET.get('center_name'),
-               'last_modified': request.GET.get('last_modified'),
-               'analyte_code': request.GET.get('analyte_code'),
-               'sample_type': request.GET.get('sample_type'),
-               'library_strategy': request.GET.get('library_strategy'),
-               'disease_abbr': request.GET.get('disease_abbr'),
-               }
+    applied_filters = {
+        'center_name': request.GET.get('center_name'),
+        'last_modified': request.GET.get('last_modified'),
+        'analyte_code': request.GET.get('analyte_code'),
+        'sample_type': request.GET.get('sample_type'),
+        'library_strategy': request.GET.get('library_strategy'),
+        'disease_abbr': request.GET.get('disease_abbr'),
+        'q': request.GET.get('q'),
+    }
 
     if not any(applied_filters.values()):
         return 'No applied filters'
 
     filtered_by_str = 'Applied filter(s): <ul>'
+
+    # query is mentioned first
+    if applied_filters.get('q', None):
+        # Text query from search input
+        filtered_by_str += '<li>Text query: "' + applied_filters['q'] + '"</li>'
+
     for f in applied_filters:
         if not applied_filters[f]:
             continue
 
         filters = applied_filters[f]
+
+        if f == 'q':
+            continue
 
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
@@ -94,7 +105,7 @@ def sort_link(request, attribute, link_anchor):
         if k not in ('offset',):
             data[k] = request.GET[k]
     
-    if data.has_key('sort_by') and attribute in data['sort_by']:
+    if 'sort_by' in data and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
             data['sort_by'] = data['sort_by'][1:]

@@ -1,8 +1,5 @@
 {% load search_tags %}
 <div class="well sidebar">
-    <form class="form-search" action="{% url search_page %}">
-        <input class="search-query" type="text" id="bam-filter-sidebar-search-field" placeholder="Search" name="q">
-    </form>
     <h4>Filters</h4>
     {% render_filters %}
     <div class="btn-group search-btn-group">

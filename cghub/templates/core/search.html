@@ -58,8 +58,9 @@
             <input class="search-query" type="text" name="q">
         </form>
     {% else %}
+        <div>{% applied_filters request %}</div>
         {% if message %}
-            <div>{{ message }}</div>
+            <h4>{{ message }}<h4>
         {% endif %}
     {% endif %}
 {% endblock %}
