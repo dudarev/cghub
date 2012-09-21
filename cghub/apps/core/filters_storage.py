@@ -1,4 +1,7 @@
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from celery.utils.compat import OrderedDict
 """
 Storage file for filters
 
