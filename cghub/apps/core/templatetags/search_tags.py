@@ -61,7 +61,7 @@ def applied_filters(request):
     filtered_by_str = 'Applied filter(s): <ul>'
 
     # query is mentioned first
-    if 'q' in applied_filters:
+    if applied_filters.get('q', None):
         # Text query from search input
         filtered_by_str += '<li>Text query: "' + applied_filters['q'] + '"</li>'
 
