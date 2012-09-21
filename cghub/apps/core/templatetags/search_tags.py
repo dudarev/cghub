@@ -13,6 +13,10 @@ register = template.Library()
 
 
 @register.simple_tag
+def get_name_by_code(filter_section, code):
+    return ALL_FILTERS[filter_section]['filters'][code]
+
+@register.simple_tag
 def render_filters():
     t = select_template(['filters.html', ])
     content = t.render(Context({

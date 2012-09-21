@@ -52,7 +52,7 @@ ALL_FILTERS = {
         "filters": {
             "D": "DNA",
             "G": "GenomePlex",
-            "H": "mirVana RNAmirVana RNARNA",
+            "H": "mirVana RNA",
             "R": "RNA",
             "T": "Total RNA",
             "W": "WGA",
