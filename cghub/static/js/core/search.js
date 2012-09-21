@@ -33,9 +33,6 @@ jQuery(function ($) {
             return false
         },
         parseFiltersFromHref: function () {
-            if (window.location.search == '') {
-
-            }
             var filters = URI.parseQuery(window.location.search);
             // parsing for filters
             cghub.search.$filterSelects.each(function (i, el) {
