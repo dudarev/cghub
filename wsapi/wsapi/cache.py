@@ -9,6 +9,7 @@ Module contains functions for work with cache.
 
 import os
 import hashlib
+import urllib2
 
 from lxml import objectify, etree
 
@@ -27,6 +28,10 @@ def _dummy_save_to_cache(**kwargs):
     pass
 
 def get_cache_file_name(query, get_attributes):
+    # Prevent getting different file names because of 
+    # percent escaping
+    query = urllib2.unquote(query.encode("utf8"))
+    query = urllib2.quote(query)
     md5 = hashlib.md5(query)
     cache_file_name = u'{0}.xml'.format(md5.hexdigest())
     if not get_attributes:
@@ -44,7 +49,7 @@ def _get_from_simple_cache(query=None, get_attributes=True):
         raise QueryRequired
 
     cache_file_name = get_cache_file_name(query=query, get_attributes=get_attributes)
-
+    print cache_file_name
     # getting results from cache file
     if os.path.exists(cache_file_name):
         try:
