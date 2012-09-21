@@ -5,6 +5,7 @@ import unittest
 
 from wsapi.exceptions import QueryRequired
 from wsapi.api import request
+from wsapi.cache import get_cache_file_name
 
 
 class RequestTest(unittest.TestCase):
@@ -66,6 +67,16 @@ class RequestTest(unittest.TestCase):
         first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
         self.assertEqual(first_run_experiment_ref.attrib['refname'], 
                 '7290.WR24924.Catch-62054.B045FABXX110327.P')
+
+    def test_get_cache_file_name(self):
+        """
+        Test cache file name is determening correctly despite
+        the escaped query string
+        """
+        self.assertEqual(
+            get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True),
+            get_cache_file_name('last_modified%3D%5BNOW-1DAY%2520TO%2520NOW%5D', True)
+        )
 
 
 if __name__ == '__main__':
