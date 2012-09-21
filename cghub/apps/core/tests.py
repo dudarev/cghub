@@ -1,3 +1,4 @@
+import sys
 import os
 import shutil
 from lxml import objectify
@@ -117,6 +118,22 @@ class TestTemplateTags(TestCase):
         except Exception as e:
             self.assertEqual(e.message,
                 "Limits can be numbers or it's string representation")
+
+    def test_get_name_by_code_tag(self):
+        from cghub.apps.core.templatetags.search_tags import get_name_by_code
+        from cghub.apps.core.filters_storage import ALL_FILTERS
+        for section, section_data in ALL_FILTERS.iteritems():
+            for code, name in section_data['filters'].iteritems():
+                assert (get_name_by_code(section, code) == name)
+
+        sys.argv.remove('test')
+        try:
+            get_name_by_code('unknown_section', 'unknown_code')
+            assert False, '"get_name_by_code" tag should\'ve fallen'
+        except Exception as e:
+            self.assertEqual(e.message,
+                'Unknown section name "unknown_section" or filter code "unknown_code"')
+        sys.argv.append('test')
 
 
 class SearchViewPaginationTestCase(TestCase):

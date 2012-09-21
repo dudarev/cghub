@@ -1,4 +1,4 @@
-import urllib
+import urllib, sys
 from django import template
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
@@ -14,7 +14,13 @@ register = template.Library()
 
 @register.simple_tag
 def get_name_by_code(filter_section, code):
-    return ALL_FILTERS[filter_section]['filters'][code]
+    try:
+        return ALL_FILTERS[filter_section]['filters'][code]
+    except KeyError:
+        if 'test' in sys.argv:
+            return ''
+        else:
+            raise KeyError('Unknown section name "%s" or filter code "%s"' % (filter_section, code))
 
 @register.simple_tag
 def render_filters():
