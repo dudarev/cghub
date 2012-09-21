@@ -156,6 +156,10 @@ class SearchViewPaginationTestCase(TestCase):
         self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
+    def tearDown(self):
+        for f in self.cache_files:
+            os.remove(os.path.join(CACHE_DIR, f))
+
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
                                    '?q={query}&offset={offset}&limit={limit}'.format(

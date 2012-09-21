@@ -8,7 +8,7 @@ from wsapi.settings import CACHE_DIR
 
 class PaginationTestCase(unittest.TestCase):
     cache_files = [
-        '10f911319953a88d95231b4d63e29434.xml'
+        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
     ]
 
     def setUp(self):
@@ -17,10 +17,9 @@ class PaginationTestCase(unittest.TestCase):
         """
 
         # cache filenames are generated as following:
-        # >>> m = hashlib.md5()
-        # >>> m.update('xml_text=6d5*')
-        # >>> m.hexdigest()
-        # '10f911319953a88d95231b4d63e29434'
+        # >>> from wsapi.cache import get_cache_file_name
+        # >>> get_cache_file_name('xml_text=6d5%2A', True)
+        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
@@ -33,6 +32,9 @@ class PaginationTestCase(unittest.TestCase):
         self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
+    def tearDown(self):
+        for f in self.cache_files:
+            os.remove(os.path.join(CACHE_DIR, f))
 
     def test_pagination_offset_and_limit_are_none(self):
         results = request(query='xml_text=6d5*')
