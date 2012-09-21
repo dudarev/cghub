@@ -75,7 +75,7 @@ class RequestTest(unittest.TestCase):
         """
         self.assertEqual(
             get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True),
-            get_cache_file_name('last_modified%3D%5BNOW-1DAY%2520TO%2520NOW%5D', True)
+            get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D', True)
         )
 
 
