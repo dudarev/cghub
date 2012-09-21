@@ -59,21 +59,25 @@ def applied_filters(request):
         return 'No applied filters'
 
     filtered_by_str = 'Applied filter(s): <ul>'
+
+    # query is mentioned first
+    if 'q' in applied_filters:
+        # Text query from search input
+        filtered_by_str += '<li>Text query: "' + applied_filters['q']+ '"</li>'
+
     for f in applied_filters:
         if not applied_filters[f]:
             continue
 
         filters = applied_filters[f]
 
+        if f == 'q':
+            continue
+
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
             filtered_by_str += '<li>Uploaded '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
-            continue
-
-        # Text query from search input
-        if f == 'q':
-            filtered_by_str += '<li>Text query: "' + applied_filters[f]+ '"</li>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'
