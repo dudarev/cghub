@@ -1,9 +1,14 @@
+import os
 import djcelery
+from distutils.util import strtobool
 
 from cart_cache import TIME_CHECK_CART_CACHE_INTERVAL
 from api_cache import TIME_CHECK_API_CACHE_INTERVAL
 
 djcelery.setup_loader()
+# if strtobool(os.environ.get("TESTING", "no")):
+#     CELERY_ALWAYS_EAGER = True
+#     CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 BROKER_URL = "django://"
 CELERY_IMPORTS = (
