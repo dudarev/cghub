@@ -3,6 +3,7 @@
 .base-content{width:78%;min-width:980px;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
+.search-query{color:#333 !important;}
 input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 div.search-btn-group{padding:15px 0;}

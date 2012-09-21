@@ -45,13 +45,15 @@ def filter_link(request, attribute, value):
 
 @register.simple_tag
 def applied_filters(request):
-    applied_filters = {'center_name': request.GET.get('center_name'),
-               'last_modified': request.GET.get('last_modified'),
-               'analyte_code': request.GET.get('analyte_code'),
-               'sample_type': request.GET.get('sample_type'),
-               'library_strategy': request.GET.get('library_strategy'),
-               'disease_abbr': request.GET.get('disease_abbr'),
-               }
+    applied_filters = {
+        'center_name': request.GET.get('center_name'),
+        'last_modified': request.GET.get('last_modified'),
+        'analyte_code': request.GET.get('analyte_code'),
+        'sample_type': request.GET.get('sample_type'),
+        'library_strategy': request.GET.get('library_strategy'),
+        'disease_abbr': request.GET.get('disease_abbr'),
+        'q': request.GET.get('q'),
+    }
 
     if not any(applied_filters.values()):
         return 'No applied filters'
@@ -67,6 +69,11 @@ def applied_filters(request):
         if f == 'last_modified':
             filtered_by_str += '<li>Uploaded '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
+            continue
+
+        # Text query from search input
+        if f == 'q':
+            filtered_by_str += '<li>Text query: "' + applied_filters[f]+ '"</li>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'

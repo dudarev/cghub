@@ -21,13 +21,23 @@ jQuery(function ($) {
             cghub.search.$selectAllLink = $('.select-all');
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
+            cghub.search.$navbarSearchForm = $('form.navbar-search')
         },
         bindEvents:function () {
+            cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
         },
+        onNavbarSearchFormSubmit: function () {
+            cghub.search.applyFilters();
+            return false
+        },
         parseFiltersFromHref: function () {
+            if (window.location.search == '') {
+
+            }
             var filters = URI.parseQuery(window.location.search);
+            // parsing for filters
             cghub.search.$filterSelects.each(function (i, el) {
                 var select = $(el),
                     section = select.attr('section');
@@ -43,12 +53,20 @@ jQuery(function ($) {
                     }
                 } else {
                     if (section == 'last_modified') {
-                        select.find('option[value = "[NOW-1DAY TO NOW]"]').attr('selected', 'selected')
+                        if (window.location.search == '') {
+                            select.find('option[value = "[NOW-1DAY TO NOW]"]').attr('selected', 'selected')
+                        } else {
+                            select.find('option[value = ""]').attr('selected', 'selected')
+                        }
                     } else {
                         select.find('option[value = "(all)"]').attr('selected', 'selected')
                     }
                 }
             })
+            // checking for search query
+            if ('q' in filters) {
+                $('input.search-query').val(filters['q'])
+            }
         },
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto'});
@@ -127,6 +145,7 @@ jQuery(function ($) {
             var new_search = URI.parseQuery(window.location.search);
             var is_error = false;
             var sections = $('select.filter-select[section != "last_modified"]');
+            var searchQuery = $('input.search-query').val();
 
             // loop by sections excluding date
             sections.each(function (i, section) {
@@ -152,15 +171,22 @@ jQuery(function ($) {
                 is_error = true;
                 return false;
             });
-
             // add date filter
-            var dateQuery = $('.sidebar-filters').find('input[type = "radio"]:checked').val();
-            if (dateQuery != ''){
-                new_search['last_modified'] = dateQuery;
+            if (searchQuery == '' || window.location.search != '') {
+                var dateQuery = $('.date-filters').next().next().find('input[type = "radio"]:checked').val();
+                if (dateQuery != ''){
+                    new_search['last_modified'] = dateQuery;
+                } else {
+                    delete new_search['last_modified'];
+                };
+            }
+            // check search input
+            if (searchQuery != '') {
+                new_search['q'] = searchQuery
             } else {
-                delete new_search['last_modified'];
-            };
-
+                delete new_search['q']
+            }
+            console.log(new_search)
             // redirect to the page with filtered results
             if (!is_error){
                 window.location.href = href.search(new_search);
