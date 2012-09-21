@@ -21,7 +21,7 @@ jQuery(function ($) {
             cghub.search.$selectAllLink = $('.select-all');
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
-            cghub.search.$navbarSearchForm = $('form.navbar-search')
+            cghub.search.$navbarSearchForm = $('form.navbar-search');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -30,7 +30,7 @@ jQuery(function ($) {
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
-            return false
+            return false;
         },
         parseFiltersFromHref: function () {
             var filters = URI.parseQuery(window.location.search);
@@ -45,24 +45,24 @@ jQuery(function ($) {
                     } else {
                         var values = filters[section].slice(1, -1).split(' OR ');
                         for (var i = values.length - 1; i >= 0; i--) {
-                            select.find('option[value = "' + values[i] + '"]').attr('selected', 'selected')
-                        };
+                            select.find('option[value = "' + values[i] + '"]').attr('selected', 'selected');
+                        }
                     }
                 } else {
                     if (section == 'last_modified') {
-                        if (window.location.search == '') {
-                            select.find('option[value = "[NOW-1DAY TO NOW]"]').attr('selected', 'selected')
+                        if (window.location.search === '') {
+                            select.find('option[value = "[NOW-1DAY TO NOW]"]').attr('selected', 'selected');
                         } else {
-                            select.find('option[value = ""]').attr('selected', 'selected')
+                            select.find('option[value = ""]').attr('selected', 'selected');
                         }
                     } else {
-                        select.find('option[value = "(all)"]').attr('selected', 'selected')
+                        select.find('option[value = "(all)"]').attr('selected', 'selected');
                     }
                 }
-            })
+            });
             // checking for search query
             if ('q' in filters) {
-                $('input.search-query').val(filters['q'])
+                $('input.search-query').val(filters['q']);
             }
         },
         initFlexigrid: function() {
@@ -75,7 +75,7 @@ jQuery(function ($) {
                     $(select).dropdownchecklist({
                         width: 170,
                         explicitClose: 'close'
-                    })
+                    });
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
@@ -85,18 +85,18 @@ jQuery(function ($) {
                         explicitClose: 'close'
                     });
                     $(select).next().find('.ui-dropdownchecklist-selector').click(function() {
-                        $(this).css('height', '18px')
-                        $(this).find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'})
-                    })
+                        $(this).css('height', '18px');
+                        $(this).find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
+                    });
                     // Fixing width bug
                     var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 20)
-                    cghub.search.ddclOnComplete(select)
+                    $(select).next().next().width(width + 20);
+                    cghub.search.ddclOnComplete(select);
                 }
             }
         },
         ddclTextFormatFunction: function(options) {
-            $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'})
+            $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
             return 'selecting...';
         },
         ddclOnComplete: function(selector) {
@@ -104,9 +104,9 @@ jQuery(function ($) {
                 countSelected = 0,
                 color = '#333';
             $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                preview += $(el).find('label').html() + '<br>'
+                preview += $(el).find('label').html() + '<br>';
                 countSelected++;
-            })
+            });
             if (countSelected == 0) {
                 countSelected = 1;
                 preview = 'Please select';
@@ -115,8 +115,8 @@ jQuery(function ($) {
                 countSelected = 1;
                 preview = 'All';
             }
-            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px')
-            $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color})
+            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px');
+            $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
@@ -155,7 +155,7 @@ jQuery(function ($) {
                     dropContainer.find('input:checked').each(function (j, checkbox) {
                         query += $(checkbox).val() + ' OR ';
                     });
-                    new_search[section_name] = '(' + query.slice(0,-4) + ')'
+                    new_search[section_name] = '(' + query.slice(0,-4) + ')';
                     return true;
                 }
 
@@ -175,20 +175,20 @@ jQuery(function ($) {
                     new_search['last_modified'] = dateQuery;
                 } else {
                     delete new_search['last_modified'];
-                };
+                }
             }
             // check search input
-            if (searchQuery != '') {
-                new_search['q'] = searchQuery
+            if (searchQuery !== '') {
+                new_search['q'] = searchQuery;
             } else {
-                delete new_search['q']
+                delete new_search['q'];
             }
-            console.log(new_search)
+            console.log(new_search);
             // redirect to the page with filtered results
             if (!is_error){
                 window.location.href = href.search(new_search);
-            };
-        },
+            }
+        }
     };
     cghub.search.init();
 });
