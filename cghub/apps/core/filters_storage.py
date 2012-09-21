@@ -1,3 +1,4 @@
+from collections import OrderedDict
 """
 Storage file for filters
 
@@ -26,13 +27,13 @@ For dates it has special format:
 
 """
 
-DATE_FILTERS_HTML_IDS = {
-    "": "id_date_any",
-    "[NOW-1DAY TO NOW]": "id_date_today",
-    "[NOW-7DAY TO NOW]": "id_date_week",
-    "[NOW-1MONTH TO NOW]": "id_date_month",
-    "[NOW-1YEAR TO NOW]": "id_date_year",
-}
+DATE_FILTERS_HTML_IDS = OrderedDict([
+    ("", "id_date_any"),
+    ("[NOW-1DAY TO NOW]", "id_date_today"),
+    ("[NOW-7DAY TO NOW]", "id_date_week"),
+    ("[NOW-1MONTH TO NOW]", "id_date_month"),
+    ("[NOW-1YEAR TO NOW]", "id_date_year"),
+])
 
 ALL_FILTERS = {
     "center_name": {
@@ -61,23 +62,23 @@ ALL_FILTERS = {
     },
     "last_modified": {
         "title": "By Date Uploaded",
-        "filters": {
-            "": {
+        "filters": OrderedDict([
+            ("", {
                 'filter_name': "Any date",
-                'filter_id': "id_date_any"},
-            "[NOW-1DAY TO NOW]": {
+                'filter_id': "id_date_any"}),
+            ("[NOW-1DAY TO NOW]", {
                 "filter_name": "Today",
-                "filter_id": "id_date_today"},
-            "[NOW-7DAY TO NOW]": {
+                "filter_id": "id_date_today"}),
+            ("[NOW-7DAY TO NOW]", {
                 "filter_name": "This week",
-                "filter_id": "id_date_week"},
-            "[NOW-1MONTH TO NOW]": {
+                "filter_id": "id_date_week"}),
+            ("[NOW-1MONTH TO NOW]", {
                 "filter_name": "This month",
-                "filter_id": "id_date_month"},
-            "[NOW-1YEAR TO NOW]": {
+                "filter_id": "id_date_month"}),
+            ("[NOW-1YEAR TO NOW]", {
                 "filter_name": "This year",
-                "filter_id": "id_date_year"},
-        },
+                "filter_id": "id_date_year"}),
+        ]),
     },
     "sample_type": {
         "title": "By Sample Type",

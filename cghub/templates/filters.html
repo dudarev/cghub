@@ -2,7 +2,7 @@
 {% for section, filters in all_filters.items %}
   <h5>{{ filters.title }}:</h5>
   {% if section == 'last_modified' %}
-    <select class="filter-select" section="{{ section }}">
+    <select class="filter-select date-filters" section="{{ section }}">
       {% for filter_value, filter_name_and_id in filters.filters.items %}
       <option value="{{ filter_value }}">{{ filter_name_and_id.filter_name }}</option>
       {% endfor %}
