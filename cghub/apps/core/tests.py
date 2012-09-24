@@ -9,6 +9,7 @@ from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
 from wsapi.settings import CACHE_DIR
+from apps.core.templatetags.pagination_tags import Paginator
 
 
 class CoreTests(TestCase):
@@ -217,3 +218,21 @@ class SearchViewPaginationTestCase(TestCase):
             follow=True)
         self.assertTrue('last_modified' in response.redirect_chain[0][0])
         self.assertTrue('7DAY' in response.redirect_chain[0][0])
+
+
+class PaginatgorUnitTestCase(TestCase):
+    def test_get_first_method(self):
+        request = HttpRequest()
+        paginator = Paginator({'num_results': 100, 'request': request})
+        self.assertEqual(
+            paginator.get_first(),
+            {'url': '?&offset=0&limit=10', 'page_number': 0}
+        )
+
+    def test_get_last_method(self):
+        request = HttpRequest()
+        paginator = Paginator({'num_results': 100, 'request': request})
+        self.assertEqual(
+            paginator.get_last(),
+            {'url': '?&offset=90&limit=10', 'page_number': 9}
+        )
