@@ -12,6 +12,7 @@ API is used by the `cghub` the Django app.
 - `make test` - test both projects
 - `make test_api` - only API
 - `make test_web` - test Django app
+- `make test_ui` - test UI with Selenium, this is not ran as part of `make test`!
 
 ### Running
 
