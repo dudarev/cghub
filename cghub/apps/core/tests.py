@@ -11,6 +11,7 @@ from django.http import HttpRequest, QueryDict
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
+
 class CoreTests(TestCase):
     def test_index(self):
         response = self.client.get('/')
