@@ -36,7 +36,9 @@ class CartAddRemoveFilesView(View):
             for f in request.POST.getlist('selected_files'):
                 add_file_to_cart(request, attributes[f])
                 cache_results(attributes[f])
-            return HttpResponse(json.dumps({"redirect": reverse('cart_page')}), mimetype="application/json")
+            return HttpResponse(
+                json.dumps({"redirect": reverse('cart_page')}),
+                mimetype="application/json")
         if 'remove' == action:
             for f in request.POST.getlist('selected_files'):
                 # remove file from cart by sample id
@@ -58,11 +60,15 @@ class CartDownloadFilesView(View):
         results = None
         results_counter = 1
         for analysis_id in cart:
-            filename = "{0}_with{1}_attributes".format(analysis_id, '' if get_attributes else 'out')
+            filename = "{0}_with{1}_attributes".format(
+                analysis_id,
+                '' if get_attributes else 'out')
             try:
                 result = Results.from_file(os.path.join(settings.CART_CACHE_FOLDER, filename))
             except IOError:
-                result = api_request(query='analysis_id={0}'.format(analysis_id), get_attributes=get_attributes)
+                result = api_request(
+                    query='analysis_id={0}'.format(analysis_id),
+                    get_attributes=get_attributes)
             if results is None:
                 results = result
                 results.Query.clear()
