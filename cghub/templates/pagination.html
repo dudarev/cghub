@@ -15,7 +15,7 @@
                     {% endif %}
                     {% for page in pages %}
                         {% with pn=page.page_number %}
-                            {% if pn > cpn|add:-3 and pn < cpn|add:3 or cpn < 3 and pn < 6 or cpn > tpc|add:-3 and pn > tpc|add:-6 %}
+                            {% if pn > cpn|add:-3 and pn < cpn|add:3 %}
                                 <li class="{% if page.page_number == cpn %}active{% endif %}">
                                     <a href="{{ page.url }}">{{ page.page_number|add:1 }}</a>
                                 </li>
