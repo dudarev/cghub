@@ -17,11 +17,11 @@ class CacheTest(unittest.TestCase):
     """Test functions that do sorting."""
 
     cache_files = [
-        '10f911319953a88d95231b4d63e29434.xml',
+        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
     ]
 
     bad_cache_file = [
-        '9a47690bef15473baaab6613ccb0edaf.xml', # query='xml_text=6d7*'
+        'ff6acb9fa21f1284d9655a29b0063ba4.xml', # query='xml_text=6d7*'
     ]
 
     def setUp(self):
@@ -30,10 +30,10 @@ class CacheTest(unittest.TestCase):
         """
 
         # cache filenames are generated as following:
-        # >>> m = hashlib.md5()
-        # >>> m.update('xml_text=6d5*')
-        # >>> m.hexdigest()
-        # '10f911319953a88d95231b4d63e29434'
+        # >>> from wsapi.cache import get_cache_file_name
+        # >>> get_cache_file_name('xml_text=6d5*', True)
+        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
+
 
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
@@ -42,6 +42,13 @@ class CacheTest(unittest.TestCase):
                     os.path.join(TEST_DATA_DIR, f),
                     os.path.join(CACHE_DIR, f)
                     )
+
+    def tearDown(self):
+        for f in self.cache_files + self.bad_cache_file:
+            try:
+                os.remove(os.path.join(CACHE_DIR, f))
+            except OSError:
+                pass
 
     def test_from_file_method(self):
         for f in self.cache_files:

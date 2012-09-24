@@ -69,10 +69,13 @@ class SearchView(TemplateView):
                     attr,
                     urllib.quote(self.request.GET.get(attr))
                 )
-        query = u''
+
         if q:
             query = u"xml_text={0}".format(urlquote(q))
-        query += filter_str
+            query += filter_str
+        else:
+            query = filter_str[1:] # remove front ampersand
+
         results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
         # this function calculates files_size attribute
         results.calculate_files_size()

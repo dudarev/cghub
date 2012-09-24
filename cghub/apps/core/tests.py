@@ -131,7 +131,7 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
-        '24e93b68dff426925e6c0c65fc78958e.xml'
+        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
     ]
     query = "6d5*"
 
@@ -141,11 +141,9 @@ class SearchViewPaginationTestCase(TestCase):
         """
 
         # cache filenames are generated as following:
-        # >>> m = hashlib.md5()
-        # >>> m.update('xml_text=6d5%2A')
-        # %2A - *
-        # >>> m.hexdigest()
-        # '24e93b68dff426925e6c0c65fc78958e'
+        # >>> from wsapi.cache import get_cache_file_name
+        # >>> get_cache_file_name('xml_text=6d5%2A', True)
+        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(CACHE_DIR):
@@ -157,6 +155,10 @@ class SearchViewPaginationTestCase(TestCase):
             )
         self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
+
+    def tearDown(self):
+        for f in self.cache_files:
+            os.remove(os.path.join(CACHE_DIR, f))
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
