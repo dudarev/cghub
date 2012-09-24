@@ -74,7 +74,7 @@ class SearchView(TemplateView):
             query = u"xml_text={0}".format(urlquote(q))
             query += filter_str
         else:
-            query = filter_str[1:] # remove front ampersand
+            query = filter_str[1:]  # remove front ampersand
 
         results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
         # this function calculates files_size attribute
