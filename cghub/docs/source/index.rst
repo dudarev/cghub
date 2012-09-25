@@ -16,3 +16,4 @@ Contents:
     settings.rst
     static.rst
     docs.rst
+    future.rst
