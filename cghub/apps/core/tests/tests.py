@@ -130,7 +130,11 @@ class TestTemplateTags(TestCase):
         from cghub.apps.core.templatetags.search_tags import get_name_by_code
         from cghub.apps.core.filters_storage import ALL_FILTERS
         for section, section_data in ALL_FILTERS.iteritems():
-            for code, name in section_data['filters'].iteritems():
+            key = 'filters'
+            if section == "sample_type":
+                key = 'shortcuts'
+
+            for code, name in section_data[key].iteritems():
                 assert (get_name_by_code(section, code) == name)
 
         assert (get_name_by_code('unknown_section', 'unknown_code') ==
@@ -220,7 +224,7 @@ class SearchViewPaginationTestCase(TestCase):
         self.assertTrue('7DAY' in response.redirect_chain[0][0])
 
 
-class PaginatgorUnitTestCase(TestCase):
+class PaginatorUnitTestCase(TestCase):
     def test_get_first_method(self):
         request = HttpRequest()
         paginator = Paginator({'num_results': 100, 'request': request})

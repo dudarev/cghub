@@ -10,10 +10,12 @@ PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
 
 PYTHON= PYTHONPATH=$(PYTHONPATH) python
 
-TEST_APP=core \
+TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
+	 core.TestTemplateTags core.PaginatorUnitTestCase \
          cart.CartTests cart.CacheTestCase \
          help
-TEST_UI=cart.LinksNavigationsTests
+TEST_UI=cart.LinksNavigationsTests \
+        core.SearchTests
 
 MANAGE= $(PYTHON) manage.py
 

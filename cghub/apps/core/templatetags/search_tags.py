@@ -17,7 +17,10 @@ def get_name_by_code(filter_section, code):
     If name for such code does not exist return the code.
     """
     try:
-        return ALL_FILTERS[filter_section]['filters'][code]
+        if filter_section == "sample_type":
+            return ALL_FILTERS[filter_section]['shortcuts'][code]
+        else:
+            return ALL_FILTERS[filter_section]['filters'][code]
     except KeyError:
         return code
 

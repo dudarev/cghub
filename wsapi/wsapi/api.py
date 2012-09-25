@@ -191,7 +191,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
         if offset or limit:
             offset = offset or 0
             limit = limit or 0
-            if isinstance(results.Result, (list,tuple)):
+            if isinstance(results.Result, (list, tuple)):
                 results.Result = results.Result[offset:offset + limit]
             else:
                 result_all = results.findall('Result')

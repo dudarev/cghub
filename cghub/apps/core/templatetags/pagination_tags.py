@@ -123,10 +123,12 @@ class Paginator(object):
             'page_number': self.pages_count - 1
         }
 
+
 @register.inclusion_tag('pagination.html', takes_context=True)
 def pagination(context):
     context['paginator'] = Paginator(context)
     return context
+
 
 @register.simple_tag
 def items_per_page(request, *limits):
