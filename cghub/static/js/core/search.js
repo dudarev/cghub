@@ -183,7 +183,9 @@ jQuery(function ($) {
             } else {
                 delete new_search['q'];
             }
-            console.log(new_search);
+            
+            delete new_search['limit']
+            delete new_search['offset']
             // redirect to the page with filtered results
             if (!is_error){
                 window.location.href = href.search(new_search);
