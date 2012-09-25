@@ -180,6 +180,16 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     # wrap result with extra methods
     results = Results(results)
 
+    # For some UUID's you cannot get results from the server with query containing:
+    # "xml_text=uuid"
+    # In those cases query must be changed into more strict one:
+    # "analysis_id=uuid"
+    if not hasattr(results, 'Result') and ("xml_text" in query and not "analysis_id" in query):
+        i = query.index("xml_text")
+        new_query = query[:i] + 'analysis_id' + query[i + 8:]
+        results = request(new_query, offset, limit, sort_by,
+            get_attributes, file_name, ignore_cache)   
+
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
         save_to_cache(query=query, data=results)
