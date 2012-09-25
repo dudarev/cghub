@@ -3,7 +3,8 @@ PROJECT_API= wsapi
 
 PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
 
-TEST_APP=core.SearchViewPaginationTestCase core.TestTemplateTags core.CoreTests \
+TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
+	 core.TestTemplateTags core.PaginatorUnitTestCase \
          cart.CartTests cart.CacheTestCase \
          help
 TEST_UI=cart.LinksNavigationsTests \
