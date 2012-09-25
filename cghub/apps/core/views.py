@@ -10,6 +10,19 @@ from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
 
 
+def api_request_analysis_id(query, sort_by=None, offset=None, limit=None):
+    """
+    Takes query in the form "xml_text=..." and replaces `xml_text` with "analysis_id".
+
+    Explanation:
+    For some UUID's you cannot get results from the server with query containing
+    "xml_text=uuid". In those cases query must be changed into more strict one:
+    "analysis_id=uuid"
+    """
+    new_query = query.replace('xml_text', 'analysis_id', 1)
+    return api_request(query=new_query, sort_by=sort_by, offset=offset, limit=limit)
+
+
 class HomeView(TemplateView):
     template_name = 'core/search.html'
     default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]'
@@ -77,8 +90,20 @@ class SearchView(TemplateView):
             query = filter_str[1:]  # remove front ampersand
 
         results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
+
+        # if no results, make extra query substituting xml_text with analysis_id
+        # see detailed explanation in api_request_analysis_id()
+        if hasattr(results, 'Hits'):
+            num_results = int(results.Hits.text)
+        else:
+            num_results = 0
+        if num_results == 0:
+            results = api_request_analysis_id(
+                query=query, sort_by=sort_by, offset=offset, limit=limit)
+
         # this function calculates files_size attribute
         results.calculate_files_size()
+
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
             context['results'] = results.Result
