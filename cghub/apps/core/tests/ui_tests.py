@@ -52,7 +52,7 @@ class SearchTests(LiveServerTestCase):
         element = self.selenium.find_element_by_name("q")
         element.send_keys("6d7*")
         element.submit()
-        time.sleep(2000)
+        time.sleep(10)
         assert "/search/?q=6d7%2A" in self.selenium.current_url
 
     def test_search_result(self):
@@ -80,19 +80,16 @@ class SearchTests(LiveServerTestCase):
         element = self.selenium.find_element_by_name("q")
         element.send_keys("6d7*")
         element.submit()
-        elements = self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr")
-        assert len(elements) == 10
+        assert 10 == len(self.selenium.find_elements_by_xpath(
+            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys("6d*")
         element.submit()
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
-        elements = self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr")
-        assert len(elements) == 10
+        assert 10 == len(self.selenium.find_elements_by_xpath(
+            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
         self.selenium.find_element_by_link_text("2").click()
-        elements = self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr")
-        assert len(elements) == 10
+        assert 10 == len(self.selenium.find_elements_by_xpath(
+            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
