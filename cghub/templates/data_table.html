@@ -37,7 +37,7 @@
                 <td>{% if r.files_size %}{{ r.files_size }}{% else %}{{ r.files.file.0.filesize }}{% endif %}</td>
                 <td>{{ r.last_modified }}</td>
                 <td>{{ r.disease_abbr }}</td>
-                <td>{{ r.sample_type.text }}</td>
+                <td>{% get_name_by_code 'sample_type' r.sample_type.text %}</td>
                 <td>{% get_name_by_code 'analyte_code' r.analyte_code %}</td>
                 <td>{{ r.library_strategy }}</td>
                 <td>{{ r.center_name }}</td>
