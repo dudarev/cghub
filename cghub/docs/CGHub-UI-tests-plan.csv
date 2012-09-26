@@ -1,0 +1,26 @@
+Test case ID,Description,Expected outcome
+Links navigations,,
+LINKS-1,"Links (Home, Cart, Help) lead to correct pages.",Expected pages are open when links are clicked.
+Sidebar navigation,,
+SIDEBAR-1,Clicking (all) checkbox selects or deselects all in that category.,
+SIDEBAR-2,Only one category can be selected for “By date uploaded” category,Radio buttons allow to select only one category for this special category.
+SIDEBAR-3,Correct link is created when only some values are selected,When a user clicks “Apply filters” correct page is displayed. Try applying selections in several categories.
+Search,,
+SEARCH-1,Entering a search term and hitting enter leads to correct page,"When a user enters a search term, for instace, '6d7*' (without quotes) it goes to correct page: '/search/?q=6d7*' in that case."
+SEARCH-2,No search results when nothing is found,A message is displayed when no results are found: “No results found.”
+SEARCH-3,Results are paginated if more than 10,"If more than 10 results are returned, they are grouped in groups of 10."
+SEARCH-4,Total number of results is shown,A page with results has a message “Found 18 results”
+SEARCH-5,Filtering is shown,On search results page a message about used filters is shown. For example: “Filtered by center: (BCM OR BI).”
+SEARCH-6,Page navigation links work,"Links “Prev”, “Next”, 1, 2, etc. lead to correct search results pages."
+SEARCH-7,First and last pages are shown as links in paging navigation.,These links may be followed and correct pages are reached.
+SEARCH-8,Sorting is done by clicking table headlines,"When a user clicks table headers sorting is made and sorting order is displayed. When the link is clicked again, the order is reversed and new order is displayed."
+Cart,,
+CART-1,Items from search results may be added to cart by selecting checkboxes,"When “Add to cart” button is clicked, items for which checkboxes were selected are added to cart. User is directed to the cart page."
+CART-2,Select all checkbox selects all items,"The checkbox in the header of the table when checked checks all other checkboxes on the page. When one unchecks it, every other checkbox becomes unchecked. When it is checked and one of other checkboxes is unchecked it also becomes unchecked."
+CART-3,Cart statistics on cart page,There is information on cart page: number of files there and total size of the files.
+CART-4,Number of files in the cart is shown in Cart navigation link,"For instance, “Cart (3)”"
+CART-5,Items may be removed from the cart,"When checkboxes are checked on the cart page and “Remove from cart” button is clicked, the corresponding items are removed from the cart."
+CART-6,Select all checkbox works the same way as in search results,see CART-2
+CART-7,Headers may sort cart content,When clicking cart table headers the table content  is sorted correspondingly See SEARCH-7
+CART-8,Manifest may be downloaded,"When button “Download Manifest” is clicked, manifest for all items in the cart is downloaded."
+CART-9,XML may be downloaded,"Similar to CART-8, but full XML information is downloaded, when button “Download XML” is clicked."
