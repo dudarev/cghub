@@ -7,6 +7,39 @@ from wsapi.settings import CACHE_DIR
 from lxml import objectify
 
 
+class SidebarTests(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(SidebarTests, self).setUpClass()
+
+    def test_(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
+
+        # by center has 7 centers, i0 - deselect all, i1-i7 - selections
+        driver.find_element_by_id("ddcl-6-i0").click()
+        for i in range(1, 8):
+            print i
+            cb = driver.find_element_by_id("ddcl-6-i%d" % i)
+            self.assertFalse(cb.is_selected())
+
+        # click again - select all
+        driver.find_element_by_id("ddcl-6-i0").click()
+        for i in range(1, 8):
+            print i
+            cb = driver.find_element_by_id("ddcl-6-i%d" % i)
+            self.assertTrue(cb.is_selected())
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(SidebarTests, self).tearDownClass()
+
+
 class SearchTests(LiveServerTestCase):
     cache_files = [
         '427dcd2c78d4be27efe3d0cde008b1f9.xml'
