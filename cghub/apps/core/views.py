@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import multilpe_request as api_multiple_request
+from cghub.wsapi.api import multiple_request as api_multiple_request
 
 
 class HomeView(TemplateView):

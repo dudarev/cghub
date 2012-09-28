@@ -245,8 +245,12 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     return results
 
-def multilpe_request(queries_list=None, offset=None, limit=None, sort_by=None,
+def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     get_attributes=True, file_name=None, ignore_cache=False):
+    """
+    The only difference from wsapi.api.request is that the first argument can be 
+    iterable(tuple or list) with many queries. The result will be one merged response.
+    """
     
     if isinstance(queries_list, str):
         return request(queries_list, offset, limit, sort_by,

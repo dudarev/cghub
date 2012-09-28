@@ -40,14 +40,24 @@ class SortingTest(unittest.TestCase):
                 )
 
 class XMLMergeTestCase(unittest.TestCase):
+    """
+    Tests for wsapi.api.merge_results utility
+    """
     def test_merge_results(self):
         res1 = request(file_name='tests/test_data/unmerged_1.xml')
         res2 = request(file_name='tests/test_data/unmerged_2.xml')
-        res = merge_results([res1, res2])
-        xml = res._lxml_results
+        xml = merge_results([res1, res2])
         self.assertEqual(5, xml.Hits)
         self.assertEqual(8, xml.countchildren()) # 8 for 5 result, 2 query and 1 hits tags
         self.assertEqual(xml.xpath('/ResultSet/Query'), ['xml_text:6d5*', 'xml_text:6d7*'])
+
+    def test_errors(self):
+        try:
+            merge_results({})
+            assert 'No exception raised when merge_results takes wrong arguments'
+        except Exception as e:
+            self.assertEqual(e.message, 'xml_results must be tuple or list')
+
 
 if __name__ == '__main__':
     unittest.main()

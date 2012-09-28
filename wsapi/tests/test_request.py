@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import os
 import unittest
+import shutil
+
+from lxml import objectify
 
 from wsapi.exceptions import QueryRequired
 from wsapi.api import request, multiple_request
 from wsapi.cache import get_cache_file_name
+from wsapi.settings import CACHE_DIR
 
 
 class RequestTest(unittest.TestCase):
@@ -84,6 +88,7 @@ class MultipleRequestTestCase(unittest.TestCase):
         '427dcd2c78d4be27efe3d0cde008b1f9.xml',
         '9f3c2c0b252739d9bc689d8a26f961d6.xml'
     ]
+    extra_cache_file = '5db34dad5dd47469af56179a7d83ebfc.xml'
 
     def setUp(self):
         """
@@ -109,11 +114,12 @@ class MultipleRequestTestCase(unittest.TestCase):
     def tearDown(self):
         for f in self.cache_files:
             os.remove(os.path.join(CACHE_DIR, f))
+        os.remove(os.path.join(CACHE_DIR, self.extra_cache_file))
 
     def test_multiple_request(self):
         queries_list = ['xml_text=6d5%2A', 'xml_text=6d8%2A']
         results = multiple_request(queries_list)
-        self.assertEqual(17, len(results.Results))
+        self.assertEqual(17, len(results.Result))
 
 
 if __name__ == '__main__':
