@@ -258,7 +258,7 @@ class SearchTests(LiveServerTestCase):
             "#ddcl-6 > span:first-child > span:first-child"))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
 
-    def test_links(self):
+    def test_pagination_links(self):
         self.selenium.get(self.live_server_url)
         self.search("6fd*")
 
@@ -277,7 +277,7 @@ class SearchTests(LiveServerTestCase):
             self.__link_is_active(first)
 
             # check page by page
-            for page_num in range(2, page_count+1):
+            for page_num in range(2, page_count + 1):
                 self.selenium.find_element_by_link_text(str(page_num)).click()
                 a = self.selenium.find_element_by_link_text(str(page_num))
                 self.__link_is_active(a)
@@ -288,7 +288,7 @@ class SearchTests(LiveServerTestCase):
 
             # if now click on 'Prev', page_num-1 will be loaded
             self.selenium.find_element_by_link_text('Prev').click()
-            current = self.selenium.find_element_by_link_text(str(page_num-1))
+            current = self.selenium.find_element_by_link_text(str(page_num - 1))
             self.__link_is_active(current)
 
             # if now click on 'Next', page_num will be loaded
@@ -307,7 +307,6 @@ class SearchTests(LiveServerTestCase):
     def __link_is_active(self, link):
         self.__parent_has_class(link, 'active')
 
-
     def test_sorting_order(self):
         columns = ['Barcode', 'UUID', 'Accession', 'Files Size',
                    'Last modified', 'Disease', 'Sample Type',
@@ -315,7 +314,7 @@ class SearchTests(LiveServerTestCase):
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
-            # aftre first click element element is asc sorted
+            # after first click element element is asc sorted
             self.selenium.find_element_by_partial_link_text(column).click()
 
             # getting first element in column
@@ -326,4 +325,3 @@ class SearchTests(LiveServerTestCase):
             self.selenium.find_element_by_partial_link_text(column).click()
             second = self.selenium.find_element_by_css_selector(selector).text
             self.assertLessEqual(first, second)
-
