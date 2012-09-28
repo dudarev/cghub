@@ -7,6 +7,7 @@ Test some utility methods such as:
 """
 
 import unittest
+from lxml import objectify, etree
 
 from wsapi.api import request, merge_results
 
@@ -58,6 +59,20 @@ class XMLMergeTestCase(unittest.TestCase):
         except Exception as e:
             self.assertEqual(e.message, 'xml_results must be tuple or list')
 
+        try:
+            merge_results([])
+            assert 'No exception raised when merge_results takes wrong arguments'
+        except Exception as e:
+            self.assertEqual(e.message, 'Nothing to merge!')
+
+    def test_merging_empty_results(self):
+        res1 = objectify.fromstring('<ResultSet><Query>query1</Query><Hits>0</Hits></ResultSet>')
+        res2 = objectify.fromstring('<ResultSet><Query>query2</Query><Hits>0</Hits></ResultSet>')
+        result = merge_results([res1, res2])
+
+        date = result.get('date')
+        self.assertEqual(etree.tostring(result),
+            '<ResultSet date="%s"><Hits>0</Hits><Query>query2</Query><Query>query1</Query></ResultSet>' % date)
 
 if __name__ == '__main__':
     unittest.main()

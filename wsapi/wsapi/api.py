@@ -144,6 +144,9 @@ def merge_results(xml_results):
     if not isinstance(xml_results, tuple) and not isinstance(xml_results, list):
         raise Exception('xml_results must be tuple or list')
 
+    if not xml_results:
+        raise Exception('Nothing to merge!')
+
     result = objectify.XML('<ResultSet></ResultSet>')
     # list of already merged id
     merged_ids = []
@@ -156,16 +159,22 @@ def merge_results(xml_results):
         else:
             xml = xml_result
 
-        for r in xml.Result:
-            if not r.analysis_id in merged_ids:
-                r.set('id', str(counter))
-                counter += 1
-                result.append(r)
+        if hasattr(xml, 'Result'):
+            for r in xml.Result:
+                if not r.analysis_id in merged_ids:
+                    r.set('id', str(counter))
+                    counter += 1
+                    result.append(r)
         result.insert(0, xml.Query)
         # renew list of merged ids
-        merged_ids = r.xpath('/ResultSet/Result/analysis_id')
-    
-    result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % len(result.Result)))
+        merged_ids = result.xpath('/ResultSet/Result/analysis_id')
+
+    hits = 0
+    try:
+        hits = len(result.Result)
+    except AttributeError:
+        pass
+    result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % hits))
     result.set('date', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     return result
@@ -251,7 +260,7 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     The only difference from wsapi.api.request is that the first argument can be 
     iterable(tuple or list) with many queries. The result will be one merged response.
     """
-    
+
     if isinstance(queries_list, str):
         return request(queries_list, offset, limit, sort_by,
             get_attributes, file_name, ignore_cache)
