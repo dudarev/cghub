@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2012-07-09 14:27:34">
+    <Query>xml_text:6d8*</Query>
+    <Hits>1</Hits>
+    <Result id="1">
+        <analysis_id>88855f77-41ba-447a-a7b5-694bf74a9dd9</analysis_id>
+        <state>live</state>
+        <reason>rgergre</reason>
+        <last_modified>2011-06-10T07:00:00Z</last_modified>
+        <upload_date>2011-06-07T07:00:00Z</upload_date>
+        <published_date>2011-06-10T07:00:00Z</published_date>
+        <center_name>WUGSC</center_name>
+        <study>phs000178</study>
+        <aliquot_id>42ae8faa-3a1c-4068-a71e-612c411bf102</aliquot_id>
+        <files>
+            <file>
+                <filename>TCGA-BH-A0BO-10A-01D-A12B-09_IlluminaGA-DNASeq_exome.bam</filename>
+                <filesize>20150512092</filesize>
+                <checksum type="MD5">6d51fe0515c9eea2fbb15d804d19b742</checksum>
+            </file>
+        </files>
+        <sample_accession>SRS201296</sample_accession>
+        <legacy_sample_id>TCGA-BH-A0BO-10A-01D-A12B-09</legacy_sample_id>
+        <disease_abbr>BRCA</disease_abbr>
+        <tss_id>BH</tss_id>
+        <participant_id>26573441-eedb-4364-966c-e7f803deef19</participant_id>
+        <sample_id>936b2b1a-b5fb-4abd-91e3-fa3db741454a</sample_id>
+        <analyte_code>D</analyte_code>
+        <sample_type>10</sample_type>
+        <library_strategy>WGS</library_strategy>
+        <platform>ILLUMINA</platform>
+        <analysis_xml><ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-BH-A0BO-10A-01D-A12B-09_IlluminaGA-DNASeq_exome" center_name="WUGSC" accession="SRZ011121">
+                    <TITLE>TCGA reference alignment of sample TCGA-BH-A0BO-10A-01D-A12B-09</TITLE>
+                    <STUDY_REF accession="SRP000677"/>
+                    <DESCRIPTION>The Cancer Genome Atlas (TCGA) GRCh37-lite reference alignment of sample TCGA-BH-A0BO-10A-01D-A12B-09</DESCRIPTION>
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="GRCh37-lite"/>
+                            </ASSEMBLY>
+                            <RUN_LABELS>
+                                <RUN accession="SRR247944" refcenter="WUGSC" refname="81RHGABXX.5" read_group_label="2874992709"/>
+                            </RUN_LABELS>
+                            <SEQ_LABELS>
+                                <SEQUENCE accession="CM000663.1" seq_label="1"/>
+                                <SEQUENCE accession="CM000664.1" seq_label="2"/>
+                                <SEQUENCE accession="CM000665.1" seq_label="3"/>
+                                <SEQUENCE accession="CM000666.1" seq_label="4"/>
+                                <SEQUENCE accession="CM000667.1" seq_label="5"/>
+                                <SEQUENCE accession="CM000668.1" seq_label="6"/>
+                                <SEQUENCE accession="CM000669.1" seq_label="7"/>
+                                <SEQUENCE accession="CM000670.1" seq_label="8"/>
+                                <SEQUENCE accession="CM000671.1" seq_label="9"/>
+                                <SEQUENCE accession="CM000672.1" seq_label="10"/>
+                                <SEQUENCE accession="CM000673.1" seq_label="11"/>
+                                <SEQUENCE accession="CM000674.1" seq_label="12"/>
+                                <SEQUENCE accession="CM000675.1" seq_label="13"/>
+                                <SEQUENCE accession="CM000676.1" seq_label="14"/>
+                                <SEQUENCE accession="CM000677.1" seq_label="15"/>
+                                <SEQUENCE accession="CM000678.1" seq_label="16"/>
+                                <SEQUENCE accession="CM000679.1" seq_label="17"/>
+                                <SEQUENCE accession="CM000680.1" seq_label="18"/>
+                                <SEQUENCE accession="CM000681.1" seq_label="19"/>
+                                <SEQUENCE accession="CM000682.1" seq_label="20"/>
+                                <SEQUENCE accession="CM000683.1" seq_label="21"/>
+                                <SEQUENCE accession="CM000684.1" seq_label="22"/>
+                                <SEQUENCE accession="CM000685.1" seq_label="X"/>
+                                <SEQUENCE accession="CM000686.1" seq_label="Y"/>
+                                <SEQUENCE accession="J01415.2" seq_label="MT"/>
+                                <SEQUENCE accession="GL000207.1" seq_label="GL000207.1"/>
+                                <SEQUENCE accession="GL000226.1" seq_label="GL000226.1"/>
+                                <SEQUENCE accession="GL000229.1" seq_label="GL000229.1"/>
+                                <SEQUENCE accession="GL000231.1" seq_label="GL000231.1"/>
+                                <SEQUENCE accession="GL000210.1" seq_label="GL000210.1"/>
+                                <SEQUENCE accession="GL000239.1" seq_label="GL000239.1"/>
+                                <SEQUENCE accession="GL000235.1" seq_label="GL000235.1"/>
+                                <SEQUENCE accession="GL000201.1" seq_label="GL000201.1"/>
+                                <SEQUENCE accession="GL000247.1" seq_label="GL000247.1"/>
+                                <SEQUENCE accession="GL000245.1" seq_label="GL000245.1"/>
+                                <SEQUENCE accession="GL000197.1" seq_label="GL000197.1"/>
+                                <SEQUENCE accession="GL000203.1" seq_label="GL000203.1"/>
+                                <SEQUENCE accession="GL000246.1" seq_label="GL000246.1"/>
+                                <SEQUENCE accession="GL000249.1" seq_label="GL000249.1"/>
+                                <SEQUENCE accession="GL000196.1" seq_label="GL000196.1"/>
+                                <SEQUENCE accession="GL000248.1" seq_label="GL000248.1"/>
+                                <SEQUENCE accession="GL000244.1" seq_label="GL000244.1"/>
+                                <SEQUENCE accession="GL000238.1" seq_label="GL000238.1"/>
+                                <SEQUENCE accession="GL000202.1" seq_label="GL000202.1"/>
+                                <SEQUENCE accession="GL000234.1" seq_label="GL000234.1"/>
+                                <SEQUENCE accession="GL000232.1" seq_label="GL000232.1"/>
+                                <SEQUENCE accession="GL000206.1" seq_label="GL000206.1"/>
+                                <SEQUENCE accession="GL000240.1" seq_label="GL000240.1"/>
+                                <SEQUENCE accession="GL000236.1" seq_label="GL000236.1"/>
+                                <SEQUENCE accession="GL000241.1" seq_label="GL000241.1"/>
+                                <SEQUENCE accession="GL000243.1" seq_label="GL000243.1"/>
+                                <SEQUENCE accession="GL000242.1" seq_label="GL000242.1"/>
+                                <SEQUENCE accession="GL000230.1" seq_label="GL000230.1"/>
+                                <SEQUENCE accession="GL000237.1" seq_label="GL000237.1"/>
+                                <SEQUENCE accession="GL000233.1" seq_label="GL000233.1"/>
+                                <SEQUENCE accession="GL000204.1" seq_label="GL000204.1"/>
+                                <SEQUENCE accession="GL000198.1" seq_label="GL000198.1"/>
+                                <SEQUENCE accession="GL000208.1" seq_label="GL000208.1"/>
+                                <SEQUENCE accession="GL000191.1" seq_label="GL000191.1"/>
+                                <SEQUENCE accession="GL000227.1" seq_label="GL000227.1"/>
+                                <SEQUENCE accession="GL000228.1" seq_label="GL000228.1"/>
+                                <SEQUENCE accession="GL000214.1" seq_label="GL000214.1"/>
+                                <SEQUENCE accession="GL000221.1" seq_label="GL000221.1"/>
+                                <SEQUENCE accession="GL000209.1" seq_label="GL000209.1"/>
+                                <SEQUENCE accession="GL000218.1" seq_label="GL000218.1"/>
+                                <SEQUENCE accession="GL000220.1" seq_label="GL000220.1"/>
+                                <SEQUENCE accession="GL000213.1" seq_label="GL000213.1"/>
+                                <SEQUENCE accession="GL000211.1" seq_label="GL000211.1"/>
+                                <SEQUENCE accession="GL000199.1" seq_label="GL000199.1"/>
+                                <SEQUENCE accession="GL000217.1" seq_label="GL000217.1"/>
+                                <SEQUENCE accession="GL000216.1" seq_label="GL000216.1"/>
+                                <SEQUENCE accession="GL000215.1" seq_label="GL000215.1"/>
+                                <SEQUENCE accession="GL000205.1" seq_label="GL000205.1"/>
+                                <SEQUENCE accession="GL000219.1" seq_label="GL000219.1"/>
+                                <SEQUENCE accession="GL000224.1" seq_label="GL000224.1"/>
+                                <SEQUENCE accession="GL000223.1" seq_label="GL000223.1"/>
+                                <SEQUENCE accession="GL000195.1" seq_label="GL000195.1"/>
+                                <SEQUENCE accession="GL000212.1" seq_label="GL000212.1"/>
+                                <SEQUENCE accession="GL000222.1" seq_label="GL000222.1"/>
+                                <SEQUENCE accession="GL000200.1" seq_label="GL000200.1"/>
+                                <SEQUENCE accession="GL000193.1" seq_label="GL000193.1"/>
+                                <SEQUENCE accession="GL000194.1" seq_label="GL000194.1"/>
+                                <SEQUENCE accession="GL000225.1" seq_label="GL000225.1"/>
+                                <SEQUENCE accession="GL000192.1" seq_label="GL000192.1"/>
+                            </SEQ_LABELS>
+                            <PROCESSING>
+                                <PIPELINE>
+                                    <PIPE_SECTION>
+                                        <STEP_INDEX>2874992709</STEP_INDEX>
+                                        <PREV_STEP_INDEX>NULL</PREV_STEP_INDEX>
+                                        <PROGRAM>bwa</PROGRAM>
+                                        <VERSION>0.5.9</VERSION>
+                                        <NOTES>bwa aln -t4 -q 5; bwa sampe  -a 483 </NOTES>
+                                    </PIPE_SECTION>
+                                    <PIPE_SECTION>
+                                        <STEP_INDEX>2874992709</STEP_INDEX>
+                                        <PREV_STEP_INDEX>NULL</PREV_STEP_INDEX>
+                                        <PROGRAM>bwa</PROGRAM>
+                                        <VERSION>0.5.9</VERSION>
+                                        <NOTES>bwa aln -t4 -q 5; bwa sampe  -a 483 </NOTES>
+                                    </PIPE_SECTION>
+                                </PIPELINE>
+                                <DIRECTIVES>
+                                    <alignment_includes_unaligned_reads>true</alignment_includes_unaligned_reads>
+                                    <alignment_marks_duplicate_reads>true</alignment_marks_duplicate_reads>
+                                    <alignment_includes_failed_reads>true</alignment_includes_failed_reads>
+                                </DIRECTIVES>
+                            </PROCESSING>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                    <TARGETS>
+                        <TARGET sra_object_type="SAMPLE" accession="SRS201296"/>
+                    </TARGETS>
+                    <DATA_BLOCK>
+                        <FILES>
+                            <FILE filename="TCGA-BH-A0BO-10A-01D-A12B-09_IlluminaGA-DNASeq_exome.bam" filetype="bam" checksum_method="MD5" checksum="6d51fe0515c9eea2fbb15d804d19b742"/>
+                        </FILES>
+                    </DATA_BLOCK>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
+        <run_xml><RUN_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <RUN alias="81RHGABXX.5" instrument_name="HWI-ST489" run_date="2011-05-15T00:45:46Z" run_center="WUGSC" center_name="WUGSC" accession="SRR247944">
+                    <EXPERIMENT_REF accession="SRX072454" refname="104822" refcenter="WUGSC"/>
+                    <DATA_BLOCK name="81RHGABXX" sector="5">
+                        <FILES>
+                            <FILE filename="TCGA-BH-A0BO-10A-01D-A12B-09_IlluminaGA-DNASeq_exome.bam" filetype="bam" checksum="6d51fe0515c9eea2fbb15d804d19b742" checksum_method="MD5"/>
+                        </FILES>
+                    </DATA_BLOCK>
+                </RUN>
+            </RUN_SET>
+        </run_xml>
+        <experiment_xml><EXPERIMENT_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <EXPERIMENT alias="104822" center_name="WUGSC" accession="SRX072454">
+                    <TITLE/>
+                    <STUDY_REF refcenter="WUGSC" accession="SRP000677"/>
+                    <DESIGN>
+                        <DESIGN_DESCRIPTION>Illumina sequencing of The Cancer Genome Atlas Project at NCI/NHGRI 2870094524 paired end RANDOM library</DESIGN_DESCRIPTION>
+                        <SAMPLE_DESCRIPTOR refname="TCGA-BH-A0BO-10A-01D-A12B-09" refcenter="TCGA" accession="SRS201296"/>
+                        <LIBRARY_DESCRIPTOR>
+                            <LIBRARY_NAME>2872622499</LIBRARY_NAME>
+                            <LIBRARY_STRATEGY>WGS</LIBRARY_STRATEGY>
+                            <LIBRARY_SOURCE>GENOMIC</LIBRARY_SOURCE>
+                            <LIBRARY_SELECTION>RANDOM</LIBRARY_SELECTION>
+                            <LIBRARY_LAYOUT>
+                                <PAIRED ORIENTATION="5'-3'Forward, 5'-3'Reverse" NOMINAL_LENGTH="400" NOMINAL_SDEV="0.0E0"/>
+                            </LIBRARY_LAYOUT>
+                        </LIBRARY_DESCRIPTOR>
+                        <SPOT_DESCRIPTOR>
+                            <SPOT_DECODE_SPEC>
+                                <READ_SPEC>
+                                    <READ_INDEX>0</READ_INDEX>
+                                    <READ_CLASS>Application Read</READ_CLASS>
+                                    <READ_TYPE>Forward</READ_TYPE>
+                                    <BASE_COORD>1</BASE_COORD>
+                                </READ_SPEC>
+                                <READ_SPEC>
+                                    <READ_INDEX>1</READ_INDEX>
+                                    <READ_CLASS>Application Read</READ_CLASS>
+                                    <READ_TYPE>Reverse</READ_TYPE>
+                                    <BASE_COORD>101</BASE_COORD>
+                                </READ_SPEC>
+                            </SPOT_DECODE_SPEC>
+                        </SPOT_DESCRIPTOR>
+                    </DESIGN>
+                    <PLATFORM>
+                        <ILLUMINA>
+                            <INSTRUMENT_MODEL>Illumina HiSeq 2000</INSTRUMENT_MODEL>
+                            <CYCLE_COUNT>200</CYCLE_COUNT>
+                            <SEQUENCE_LENGTH>200</SEQUENCE_LENGTH>
+                        </ILLUMINA>
+                    </PLATFORM>
+                    <PROCESSING>
+                        <BASE_CALLS>
+                            <SEQUENCE_SPACE>Base Space</SEQUENCE_SPACE>
+                            <BASE_CALLER>OLB-1.9.0</BASE_CALLER>
+                        </BASE_CALLS>
+                        <QUALITY_SCORES>
+                            <QUALITY_SCORER>OLB-1.9.0</QUALITY_SCORER>
+                            <NUMBER_OF_LEVELS>80</NUMBER_OF_LEVELS>
+                            <MULTIPLIER>1</MULTIPLIER>
+                        </QUALITY_SCORES>
+                    </PROCESSING>
+                </EXPERIMENT>
+            </EXPERIMENT_SET>
+        </experiment_xml>
+        <analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/8d255f77-41ba-447a-a7b5-694bf74a9dd9</analysis_data_uri>
+    </Result>
+</ResultSet>

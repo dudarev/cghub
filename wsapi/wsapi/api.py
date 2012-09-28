@@ -10,6 +10,7 @@ Functions for external use.
 import urllib2
 
 from lxml import objectify, etree
+from datetime import datetime
 
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
@@ -128,6 +129,55 @@ class Results(object):
             objectify.deannotate(r.analysis_attribute_uri)
             etree.cleanup_namespaces(r)
 
+def merge_results(xml_results):
+    """
+    Merges lxml.objectify.ObjectifiedElement into one.
+
+    Function recieves one argument(tuple or list) which may contain 
+    lxml.objectify.ObjectifiedElement or wsapi.api.Results instances or
+    both at the same time.
+
+    Merging excludes duplicates. Timestamp is added after merging.
+
+    Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
+    """
+    if not isinstance(xml_results, tuple) and not isinstance(xml_results, list):
+        raise Exception('xml_results must be tuple or list')
+
+    if not xml_results:
+        raise Exception('Nothing to merge!')
+
+    result = objectify.XML('<ResultSet></ResultSet>')
+    # list of already merged id
+    merged_ids = []
+    counter = 1
+
+    for xml_result in xml_results:
+        # In case of element is instance of wsapi.api.Results class
+        if hasattr(xml_result, '_lxml_results'):
+            xml = xml_result._lxml_results
+        else:
+            xml = xml_result
+
+        if hasattr(xml, 'Result'):
+            for r in xml.Result:
+                if not r.analysis_id in merged_ids:
+                    r.set('id', str(counter))
+                    counter += 1
+                    result.append(r)
+        result.insert(0, xml.Query)
+        # renew list of merged ids
+        merged_ids = result.xpath('/ResultSet/Result/analysis_id')
+
+    hits = 0
+    try:
+        hits = len(result.Result)
+    except AttributeError:
+        pass
+    result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % hits))
+    result.set('date', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    return result
 
 def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None,
     ignore_cache=False):
@@ -183,6 +233,68 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
         save_to_cache(query=query, data=results)
+
+    # Sort and slice if needed
+    if hasattr(results, 'Result'):
+        if sort_by:
+            results.sort(sort_by=sort_by)
+        if offset or limit:
+            offset = offset or 0
+            limit = limit or 0
+            if isinstance(results.Result, (list, tuple)):
+                results.Result = results.Result[offset:offset + limit]
+            else:
+                result_all = results.findall('Result')
+                idx_from = results.index(result_all[0])
+                for r in result_all:
+                    results.remove(r)
+                cslice = result_all[offset:offset + limit]
+                for i, c in enumerate(cslice):
+                    results.insert(i + idx_from, c)
+
+    return results
+
+def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
+    get_attributes=True, file_name=None, ignore_cache=False):
+    """
+    The only difference from wsapi.api.request is that the first argument can be 
+    iterable(tuple or list) with many queries. The result will be one merged response.
+    """
+
+    if isinstance(queries_list, str):
+        return request(queries_list, offset, limit, sort_by,
+            get_attributes, file_name, ignore_cache)
+
+    if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
+        raise Exception('The first argument must be tuple or list')
+
+    results = []
+    results_from_cache = True
+
+    if not queries_list and file_name == None:
+        raise QueryRequired
+
+    if not queries_list and file_name:
+        results = objectify.fromstring(open(file_name, 'r').read())
+
+    # Getting results from the cache
+    if not len(results) and not ignore_cache:
+        results, cache_errors = get_from_cache(
+            query=str(list(queries_list)), get_attributes=get_attributes)
+
+    if not len(results):
+        results_from_cache = False
+        results_list = []
+        for query in queries_list:
+            results_list.append(request(query=query, offset=None, limit=None, sort_by=None,
+                get_attributes=get_attributes, file_name=file_name, ignore_cache=ignore_cache))
+        results = merge_results(results_list)
+
+    results = Results(results)
+
+    # Saving results to the cache
+    if not ignore_cache and not results_from_cache:
+        save_to_cache(query=str(list(queries_list)), data=results)
 
     # Sort and slice if needed
     if hasattr(results, 'Result'):

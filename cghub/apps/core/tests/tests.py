@@ -143,9 +143,9 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml'
     ]
-    query = "6d5*"
+    query = "6d54*"
 
     def setUp(self):
         """
