@@ -138,7 +138,7 @@ def merge_results(xml_results):
 
     Merging excludes duplicates.
 
-    Returns wsapi.api.Results instance containing merged xml data.
+    Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
     """
     if not isinstance(xml_results, tuple) and not isinstance(xml_results, list):
         raise Exception('xml_results must be tuple or list')
@@ -166,7 +166,7 @@ def merge_results(xml_results):
     
     result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % len(result.Result)))
 
-    return Results(result)
+    return result
 
 def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None,
     ignore_cache=False):

@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import multiple_request as api_multiple_request
+from cghub.wsapi.api import multilpe_request as api_multiple_request
 
 def api_request_analysis_id(query, sort_by=None, offset=None, limit=None):
     """
@@ -89,17 +89,12 @@ class SearchView(TemplateView):
         else:
             query = filter_str[1:]  # remove front ampersand
 
-        results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
-
-        # if no results, make extra query substituting xml_text with analysis_id
-        # see detailed explanation in api_request_analysis_id()
-        if hasattr(results, 'Hits'):
-            num_results = int(results.Hits.text)
+        if 'xml_text' in query:
+            queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
+            results = api_multiple_request(queries_list=queries_list, sort_by=sort_by,
+                offset=offset, limit=limit)
         else:
-            num_results = 0
-        if num_results == 0:
-            results = api_request_analysis_id(
-                query=query, sort_by=sort_by, offset=offset, limit=limit)
+            results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
 
         # this function calculates files_size attribute
         results.calculate_files_size()
