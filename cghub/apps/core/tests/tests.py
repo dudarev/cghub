@@ -143,9 +143,9 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml'
     ]
-    query = "6d5*"
+    query = "6d54*"
 
     def setUp(self):
         """
@@ -183,10 +183,11 @@ class SearchViewPaginationTestCase(TestCase):
         self.assertContains(response, 'Next')
 
     def test_pagination_one_page_limit_pagination(self):
+        query = '6d54*'
         response = self.client.get(
             reverse('search_page') +
             '?q={query}&offset={offset}&limit={limit}'.format(
-                query=self.query, offset=0, limit=self.default_results_count))
+                query=query, offset=0, limit=self.default_results_count))
         self.assertContains(response, '1')
         self.assertContains(response, 'active')
         # Prev and Next are both disabled
