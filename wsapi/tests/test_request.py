@@ -4,7 +4,7 @@
 import unittest
 
 from wsapi.exceptions import QueryRequired
-from wsapi.api import request
+from wsapi.api import request, multiple_request
 from wsapi.cache import get_cache_file_name
 
 
@@ -77,6 +77,43 @@ class RequestTest(unittest.TestCase):
             get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True),
             get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D', True)
         )
+
+
+class MultipleRequestTestCase(unittest.TestCase):
+    cache_files = [
+        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
+        '9f3c2c0b252739d9bc689d8a26f961d6.xml'
+    ]
+
+    def setUp(self):
+        """
+        Copy cached files to default cache directory.
+        """
+
+        # cache filenames are generated as following:
+        # >>> from wsapi.cache import get_cache_file_name
+        # >>> get_cache_file_name('xml_text=6d5%2A', True)
+        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
+
+        TEST_DATA_DIR = 'tests/test_data/'
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        for f in self.cache_files:
+            shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(CACHE_DIR, f)
+            )
+        self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+        self.default_results_count = len(self.default_results.findall('Result'))
+
+    def tearDown(self):
+        for f in self.cache_files:
+            os.remove(os.path.join(CACHE_DIR, f))
+
+    def test_multiple_request(self):
+        queries_list = ['xml_text=6d5%2A', 'xml_text=6d8%2A']
+        results = multiple_request(queries_list)
+        self.assertEqual(17, len(results.Results))
 
 
 if __name__ == '__main__':

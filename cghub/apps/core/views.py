@@ -10,18 +10,6 @@ from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multilpe_request as api_multiple_request
 
-def api_request_analysis_id(query, sort_by=None, offset=None, limit=None):
-    """
-    Takes query in the form "xml_text=..." and replaces `xml_text` with "analysis_id".
-
-    Explanation:
-    For some UUID's you cannot get results from the server with query containing
-    "xml_text=uuid". In those cases query must be changed into more strict one:
-    "analysis_id=uuid"
-    """
-    new_query = query.replace('xml_text', 'analysis_id', 1)
-    return api_request(query=new_query, sort_by=sort_by, offset=offset, limit=limit)
-
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'

@@ -10,6 +10,7 @@ Functions for external use.
 import urllib2
 
 from lxml import objectify, etree
+from datetime import datetime
 
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
@@ -136,7 +137,7 @@ def merge_results(xml_results):
     lxml.objectify.ObjectifiedElement or wsapi.api.Results instances or
     both at the same time.
 
-    Merging excludes duplicates.
+    Merging excludes duplicates. Timestamp is added after merging.
 
     Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
     """
@@ -165,6 +166,7 @@ def merge_results(xml_results):
         merged_ids = r.xpath('/ResultSet/Result/analysis_id')
     
     result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % len(result.Result)))
+    result.set('date', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     return result
 
