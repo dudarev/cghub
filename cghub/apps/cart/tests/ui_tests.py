@@ -7,6 +7,7 @@ class LinksNavigationsTests(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(5)
         super(LinksNavigationsTests, cls).setUpClass()
 
     @classmethod
