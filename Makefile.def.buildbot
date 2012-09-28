@@ -8,7 +8,8 @@ TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
          cart.CartTests cart.CacheTestCase \
          help
 TEST_UI=cart.LinksNavigationsTests \
-        core.SearchTests
+        core.SearchTests \
+	core.SidebarTests
 
 MANAGE= PYTHONPATH=$(PYTHONPATH) python manage.py
 
