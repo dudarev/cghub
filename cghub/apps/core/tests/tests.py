@@ -183,11 +183,10 @@ class SearchViewPaginationTestCase(TestCase):
         self.assertContains(response, 'Next')
 
     def test_pagination_one_page_limit_pagination(self):
-        query = '6d54*'
         response = self.client.get(
             reverse('search_page') +
             '?q={query}&offset={offset}&limit={limit}'.format(
-                query=query, offset=0, limit=self.default_results_count))
+                query=self.query, offset=0, limit=self.default_results_count))
         self.assertContains(response, '1')
         self.assertContains(response, 'active')
         # Prev and Next are both disabled
