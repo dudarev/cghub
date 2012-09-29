@@ -15,6 +15,10 @@ wsapi.api
 
 .. autofunction:: wsapi.api.request
 
+.. autofunction:: wsapi.api.multiple_request
+
+.. autofunction:: wsapi.api.merge_results
+
 .. autoclass:: wsapi.api.Results
     :members:
     :undoc-members:

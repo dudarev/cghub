@@ -131,13 +131,17 @@ class Results(object):
 
 def merge_results(xml_results):
     """
-    Merges lxml.objectify.ObjectifiedElement into one.
+    Merges search results into one object.
 
-    Function recieves one argument(tuple or list) which may contain 
-    lxml.objectify.ObjectifiedElement or wsapi.api.Results instances or
-    both at the same time.
+    Iterable may contain instances of(even at the same time):
+
+    :class:`lxml.objectify.ObjectifiedElement`
+        Make sure it has Query, Hits attributes(may not contain Result attribute)
+    :class:`wsapi.api.Results`
+        Its attribute _lxml_results must meet requirements above
 
     Merging excludes duplicates. Timestamp is added after merging.
+    Queties are aggregating.
 
     Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
     """
@@ -258,7 +262,11 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     get_attributes=True, file_name=None, ignore_cache=False):
     """
     The only difference from wsapi.api.request is that the first argument can be 
-    iterable(tuple or list) with many queries. The result will be one merged response.
+    iterable(tuple or list) with many queries.
+
+    If takes string as first argument acts like request().
+
+    Returns :class:`wsapi.api.Results` instance
     """
 
     if isinstance(queries_list, str):
