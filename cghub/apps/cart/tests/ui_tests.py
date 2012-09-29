@@ -2,8 +2,10 @@ import os
 import shutil
 
 from wsapi.settings import CACHE_DIR
+from wsapi.api import request as api_request
 
 from django.test import LiveServerTestCase
+from django.conf import settings
 
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.common.exceptions import NoSuchElementException
@@ -37,9 +39,7 @@ class LinksNavigationsTests(LiveServerTestCase):
 
 
 class CartTestCase(LiveServerTestCase):
-    cache_files = [
-        '0aab3523a4352c73abf8940e7c9ae7a5.xml'
-    ]
+    cache_file = '0aab3523a4352c73abf8940e7c9ae7a5.xml'
     selected = [
         'a15b7a89-0085-4879-9715-a37a460ff26d',
         'd1cc01ad-951b-424a-9860-2f400d3e0282'
@@ -57,24 +57,44 @@ class CartTestCase(LiveServerTestCase):
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
-        for f in self.cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
-            )
+        shutil.copy(
+            os.path.join(TEST_DATA_DIR, self.cache_file),
+            os.path.join(CACHE_DIR, self.cache_file)
+        )
+        # Calculate uuid for items on the first page
+        results = api_request(file_name=CACHE_DIR + self.cache_file)
+        uuids = results._lxml_results.xpath('/ResultSet/Result/analysis_id')
+        self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(CartTestCase, self).tearDownClass()
-        for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
+        os.remove(os.path.join(CACHE_DIR, self.cache_file))
 
     def test_cart(self):
         # Testing proper item adding
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
+        # Test Select all link
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert not checkbox.is_selected()
+
+        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn.click()
+
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert checkbox.is_selected()
+
+        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn.click()
+
+        # Select two items for adding to cart
         for uuid in self.selected:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % uuid)
