@@ -149,7 +149,7 @@ class SidebarTests(LiveServerTestCase):
 
 class SearchTests(LiveServerTestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        '0aab3523a4352c73abf8940e7c9ae7a5.xml'
     ]
     query = "6d5*"
 

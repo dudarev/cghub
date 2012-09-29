@@ -29,12 +29,6 @@ class CacheTest(unittest.TestCase):
         Copy cached files to default cache directory.
         """
 
-        # cache filenames are generated as following:
-        # >>> from wsapi.cache import get_cache_file_name
-        # >>> get_cache_file_name('xml_text=6d5*', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
-
-
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
         for f in self.cache_files + self.bad_cache_file:

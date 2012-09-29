@@ -8,18 +8,13 @@ from wsapi.settings import CACHE_DIR
 
 class PaginationTestCase(unittest.TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        '0aab3523a4352c73abf8940e7c9ae7a5.xml'
     ]
 
     def setUp(self):
         """
         Copy cached files to default cache directory.
         """
-
-        # cache filenames are generated as following:
-        # >>> from wsapi.cache import get_cache_file_name
-        # >>> get_cache_file_name('xml_text=6d5%2A', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
