@@ -53,7 +53,7 @@ Example:
 .. code-block:: python
 
     >>> from wsapi.api import multiple_request
-    >>> mr = multiple_request(['xml_text=5c4da*', 'analysis_id=5c4da*'])
+    >>> mr = multiple_request(queries_list=['xml_text=5c4da*', 'analysis_id=5c4da*'])
     >>> mr
     <wsapi.api.Results object at 0xa7c430c>
     >>> xml = mr._lxml_results
