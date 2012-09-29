@@ -264,7 +264,7 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     if isinstance(queries_list, str):
         return request(queries_list, offset, limit, sort_by,
             get_attributes, file_name, ignore_cache)
-    print str(list(queries_list))
+
     if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
         raise Exception('The first argument must be tuple or list')
 

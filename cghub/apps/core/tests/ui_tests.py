@@ -148,9 +148,6 @@ class SidebarTests(LiveServerTestCase):
 
 
 class SearchTests(LiveServerTestCase):
-    cache_files = [
-        '0aab3523a4352c73abf8940e7c9ae7a5.xml'
-    ]
     query = "6d5*"
 
     @classmethod
@@ -158,25 +155,11 @@ class SearchTests(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SearchTests, self).setUpClass()
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        for f in self.cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
-            )
-        self.default_results = objectify.fromstring(
-            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(
-            self.default_results.findall('Result'))
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(SearchTests, self).tearDownClass()
-        for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
 
     def search(self, text="6d*"):
         element = self.selenium.find_element_by_name("q")
