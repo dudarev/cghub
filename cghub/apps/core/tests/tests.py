@@ -49,6 +49,19 @@ class CoreTests(TestCase):
 class TestTemplateTags(TestCase):
     def test_sort_link_tag(self):
         test_request = HttpRequest()
+        test_request.path = '/any_path/'
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+        ).render(Context({
+            'request': test_request
+        }))
+
+        self.assertEqual(
+            out,
+            '<a class="sort-link" href="/any_path/?sort_by=last_modified">Date Uploaded</a>')
+
+        test_request.path = ''
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"

@@ -7,8 +7,8 @@ from wsapi.api import request as api_request
 from django.test import LiveServerTestCase
 from django.conf import settings
 
-from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.common.exceptions import NoSuchElementException
+from selenium import webdriver
 
 from cghub.apps.core.templatetags.search_tags import get_name_by_code
 
@@ -17,7 +17,7 @@ class LinksNavigationsTests(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.selenium = WebDriver()
+        cls.selenium = webdriver.Firefox()
         cls.selenium.implicitly_wait(5)
         super(LinksNavigationsTests, cls).setUpClass()
 
@@ -53,7 +53,14 @@ class CartTestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
-        self.selenium = WebDriver()
+        # Presetup Firefox for file downloads
+        fp = webdriver.FirefoxProfile()
+        fp.set_preference("browser.download.folderList", 2)
+        fp.set_preference("browser.download.manager.showWhenStarting", False)
+        fp.set_preference("browser.download.dir", CACHE_DIR)
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
+
+        self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(CartTestCase, self).setUpClass()
         TEST_DATA_DIR = 'cghub/test_data/'
@@ -139,9 +146,30 @@ class CartTestCase(LiveServerTestCase):
                 'input[value="%s"]' % uuid)
             assert checkbox.is_selected()
 
-        # btn = driver.find_element_by_class_name('cart-form-download-manifest')
-        # btn.click()
+        # Checking file downloading
+        # Check there are no pre-existed files in /tmp/wsapi/
+        try:
+            os.remove(CACHE_DIR + 'manifest.xml')
+            os.remove(CACHE_DIR + 'xml.xml')
+        except OSError:
+            pass
+        # Download Manifest file
+        btn = driver.find_element_by_class_name('cart-form-download-manifest')
+        btn.click()
+        driver.implicitly_wait(5)
+        try:
+            os.remove(CACHE_DIR + 'manifest.xml')
+        except OSError:
+            assert False, "File manifest.xml wasn't downloaded"
 
+        # Download Metadata file
+        btn = driver.find_element_by_class_name('cart-form-download-xml')
+        btn.click()
+        driver.implicitly_wait(5)
+        try:
+            os.remove(CACHE_DIR + 'xml.xml')
+        except OSError:
+            assert False, "File xml.xml wasn't downloaded"
 
         # Remove selected from cart
         btn = driver.find_element_by_class_name('cart-form-remove')
