@@ -11,6 +11,9 @@ from django.http import HttpRequest, QueryDict
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
+from cghub.apps.core.templatetags.search_tags import get_name_by_code
+from cghub.apps.core.filters_storage import ALL_FILTERS
+
 
 class CoreTests(TestCase):
     def test_index(self):
@@ -127,8 +130,6 @@ class TestTemplateTags(TestCase):
                 "Limits can be numbers or it's string representation")
 
     def test_get_name_by_code_tag(self):
-        from cghub.apps.core.templatetags.search_tags import get_name_by_code
-        from cghub.apps.core.filters_storage import ALL_FILTERS
         for section, section_data in ALL_FILTERS.iteritems():
             key = 'filters'
             if section == "sample_type":

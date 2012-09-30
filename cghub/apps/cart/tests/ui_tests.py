@@ -10,6 +10,8 @@ from django.conf import settings
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.common.exceptions import NoSuchElementException
 
+from cghub.apps.core.templatetags.search_tags import get_name_by_code
+
 
 class LinksNavigationsTests(LiveServerTestCase):
 
@@ -62,8 +64,8 @@ class CartTestCase(LiveServerTestCase):
             os.path.join(CACHE_DIR, self.cache_file)
         )
         # Calculate uuid for items on the first page
-        results = api_request(file_name=CACHE_DIR + self.cache_file)
-        uuids = results._lxml_results.xpath('/ResultSet/Result/analysis_id')
+        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        uuids = lxml.xpath('/ResultSet/Result/analysis_id')
         self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
@@ -137,6 +139,10 @@ class CartTestCase(LiveServerTestCase):
                 'input[value="%s"]' % uuid)
             assert checkbox.is_selected()
 
+        # btn = driver.find_element_by_class_name('cart-form-download-manifest')
+        # btn.click()
+
+
         # Remove selected from cart
         btn = driver.find_element_by_class_name('cart-form-remove')
         btn.click()
@@ -149,3 +155,72 @@ class CartTestCase(LiveServerTestCase):
 
         message = driver.find_element_by_xpath('//form[@action="/cart/action/"]//p')
         assert message.text == 'Your cart is empty!'
+
+
+class SortWithinCartTestCase(LiveServerTestCase):
+    cache_file = '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
+    query = "6d53*"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(SortWithinCartTestCase, self).setUpClass()
+        TEST_DATA_DIR = 'cghub/test_data/'
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        shutil.copy(
+            os.path.join(TEST_DATA_DIR, self.cache_file),
+            os.path.join(CACHE_DIR, self.cache_file)
+        )
+        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        self.items_count = lxml.Hits
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(SortWithinCartTestCase, self).tearDownClass()
+        os.remove(os.path.join(CACHE_DIR, self.cache_file))
+
+    def test_sort_within_cart(self):
+        # Adding first 10 items to cart for sorting
+        driver = self.selenium
+        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn.click()
+        btn = driver.find_element_by_css_selector('button.add-to-cart-btn') 
+        btn.click()
+        driver.implicitly_wait(1)
+
+        attrs = ['legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
+            'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
+            'library_strategy', 'center_name']
+
+        for i, attr in enumerate(attrs):
+            sort_link = driver.find_element_by_xpath(
+                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
+            sort_link.click()
+            # Getting list with sorted attributes
+            results = api_request(file_name=CACHE_DIR + self.cache_file, sort_by=attr).Result
+            sorted_attr = [getattr(r, attr) for r in results]
+
+            for j in range(self.items_count):
+                text = driver.find_element_by_xpath(
+                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+                if attr in ['sample_type', 'analyte_code']:
+                    assert text == get_name_by_code(attr, sorted_attr[j])
+                else:
+                    assert text.strip() == str(sorted_attr[j])
+            # Reverse sorting
+            sort_link = driver.find_element_by_xpath(
+                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
+            sort_link.click()
+
+            sorted_attr.reverse()
+            for j in range(self.items_count):
+                text = driver.find_element_by_xpath(
+                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+                if attr in ['sample_type', 'analyte_code']:
+                    assert text == get_name_by_code(attr, sorted_attr[j])
+                else:
+                    assert text.strip() == str(sorted_attr[j])

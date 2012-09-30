@@ -27,7 +27,7 @@
                                                             data-files_size="{{ r.files_size }}"
                                                             data-last_modified ="{{ r.last_modified }}"
                                                             data-disease_abbr="{{ r.disease_abbr }}"
-                                                            data-sample_type="{{ r.sample_type.text }}"
+                                                            data-sample_type="{{ r.sample_type }}"
                                                             data-analyte_code="{{ r.analyte_code }}"
                                                             data-library_strategy="{{ r.library_strategy }}"
                                                             data-center_name="{{ r.center_name }}"></td>
@@ -37,7 +37,7 @@
                 <td>{% if r.files_size %}{{ r.files_size }}{% else %}{{ r.files.file.0.filesize }}{% endif %}</td>
                 <td>{{ r.last_modified }}</td>
                 <td>{{ r.disease_abbr }}</td>
-                <td>{% get_name_by_code 'sample_type' r.sample_type.text %}</td>
+                <td>{% get_name_by_code 'sample_type' r.sample_type %}</td>
                 <td>{% get_name_by_code 'analyte_code' r.analyte_code %}</td>
                 <td>{{ r.library_strategy }}</td>
                 <td>{{ r.center_name }}</td>
