@@ -27,7 +27,7 @@ def get_cart_stats(request):
     cart = get_or_create_cart(request)
     stats = {'count': len(cart), 'size': 0}
     for analysis_id, f in cart.iteritems():
-        if 'files_size' in f and int == type(f['files_size']):
+        if 'files_size' in f and isinstance(f['files_size'], (int, long)):
             stats['size'] += int(f['files_size'] / 1024.0 / 1024.0)
     return stats
 
