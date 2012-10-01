@@ -1,4 +1,5 @@
 import os
+import time
 import shutil
 
 from wsapi.settings import CACHE_DIR
@@ -102,7 +103,7 @@ class CartTestCase(LiveServerTestCase):
 
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
-        driver.implicitly_wait(1)
+        time.sleep(1)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
         for uuid in self.selected:
