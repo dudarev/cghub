@@ -14,9 +14,8 @@ TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
 	 core.TestTemplateTags core.PaginatorUnitTestCase \
          cart.CartTests cart.CacheTestCase \
          help
-TEST_UI=cart.LinksNavigationsTests \
-        core.SearchTests \
-	core.SidebarTests
+TEST_UI=cart.LinksNavigationsTests cart.CartUITests \
+        core.SearchTests core.SidebarTests \
 
 MANAGE= $(PYTHON) manage.py
 
