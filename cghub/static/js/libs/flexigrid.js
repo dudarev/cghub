@@ -1410,6 +1410,7 @@
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
                 if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
             };
+            this.grid.adjustTableWidth();
         });
     }; //end flexigrid
     $.fn.flexReload = function (p) { // function to reload grid
