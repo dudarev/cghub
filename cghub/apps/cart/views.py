@@ -68,6 +68,7 @@ class CartDownloadFilesView(View):
                 result = Results.from_file(os.path.join(settings.CART_CACHE_FOLDER, filename))
             except IOError:
                 print 'ololol'
+                print get_attributes
                 result = api_request(
                     query='analysis_id={0}'.format(analysis_id),
                     get_attributes=get_attributes)
