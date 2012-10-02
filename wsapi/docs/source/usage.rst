@@ -50,6 +50,20 @@ Example:
     first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
     refname = first_run_experiment_ref.attrib['refname']
 
+.. code-block:: python
+
+    >>> from wsapi.api import multiple_request
+    >>> mr = multiple_request(queries_list=['xml_text=5c4da*', 'analysis_id=5c4da*'])
+    >>> mr
+    <wsapi.api.Results object at 0xa7c430c>
+    >>> xml = mr._lxml_results
+    >>> xml.Hits
+    2
+    >>> xml.xpath('Query')
+    ['analysis_id:5c4da*', 'xml_text:5c4da*']
+    >>> xml.xpath('Result/analysis_id')
+    ['3f3f1d98-7657-4123-ae60-ff59e5dfd66c', '5c4da821-5329-47bc-8941-88f477afcbf1']
+
 Caching
 ~~~~~~~
 
