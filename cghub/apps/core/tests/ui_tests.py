@@ -305,5 +305,6 @@ class SearchTests(LiveServerTestCase):
             second = self.selenium.find_element_by_css_selector(selector).text
             # TODO: for now ignoring the case when one of them is 'None'
             # consider doing it differently
-            if not (first == 'None' or second == 'None'):
+            if not (first == 'None' or second == 'None' or
+                    first == ' ' or second == ' '):
                 self.assertLessEqual(first, second)
