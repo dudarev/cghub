@@ -15,6 +15,7 @@ TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
          cart.CartTests cart.CacheTestCase \
          help
 TEST_UI=cart.LinksNavigationsTests cart.CartUITests \
+	cart.SortWithinCartTestCase \
         core.SearchTests core.SidebarTests \
 
 MANAGE= $(PYTHON) manage.py

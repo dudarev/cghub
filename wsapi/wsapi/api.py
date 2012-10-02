@@ -232,7 +232,7 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
-        save_to_cache(query=query, data=results)
+        save_to_cache(query=query, get_attributes=get_attributes, data=results)
 
     # Sort and slice if needed
     if hasattr(results, 'Result'):
@@ -294,7 +294,7 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
 
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
-        save_to_cache(query=str(list(queries_list)), data=results)
+        save_to_cache(query=str(list(queries_list)), get_attributes=get_attributes, data=results)
 
     # Sort and slice if needed
     if hasattr(results, 'Result'):

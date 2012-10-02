@@ -11,6 +11,9 @@ from django.http import HttpRequest, QueryDict
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
+from cghub.apps.core.templatetags.search_tags import get_name_by_code
+from cghub.apps.core.filters_storage import ALL_FILTERS
+
 
 class CoreTests(TestCase):
     def test_index(self):
@@ -46,6 +49,19 @@ class CoreTests(TestCase):
 class TestTemplateTags(TestCase):
     def test_sort_link_tag(self):
         test_request = HttpRequest()
+        test_request.path = '/any_path/'
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+        ).render(Context({
+            'request': test_request
+        }))
+
+        self.assertEqual(
+            out,
+            '<a class="sort-link" href="/any_path/?sort_by=last_modified">Date Uploaded</a>')
+
+        test_request.path = ''
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"
@@ -127,8 +143,6 @@ class TestTemplateTags(TestCase):
                 "Limits can be numbers or it's string representation")
 
     def test_get_name_by_code_tag(self):
-        from cghub.apps.core.templatetags.search_tags import get_name_by_code
-        from cghub.apps.core.filters_storage import ALL_FILTERS
         for section, section_data in ALL_FILTERS.iteritems():
             key = 'filters'
             if section == "sample_type":
