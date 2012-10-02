@@ -50,10 +50,10 @@ class Results(object):
         """
         with open(file_name) as f:
             return cls(
-                    objectify.fromstring(
-                        f.read()
-                        )
-                    )
+                objectify.fromstring(
+                    f.read()
+                )
+            )
 
     def calculate_files_size(self):
         """Files size is stored in structures
@@ -117,10 +117,11 @@ class Results(object):
         """
         Removes some attributes from results to make them shorter.
         """
-        attributes_to_remove = ['sample_accession', 'legacy_sample_id',
-                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
-                'analyte_code', 'sample_type', 'library_strategy',
-                'platform', 'analysis_xml', 'run_xml', 'experiment_xml',]
+        attributes_to_remove = [
+            'sample_accession', 'legacy_sample_id',
+            'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
+            'analyte_code', 'sample_type', 'library_strategy',
+            'platform', 'analysis_xml', 'run_xml', 'experiment_xml', ]
         for r in self.Result:
             for a in attributes_to_remove:
                 r.remove(r.find(a))
@@ -129,11 +130,12 @@ class Results(object):
             objectify.deannotate(r.analysis_attribute_uri)
             etree.cleanup_namespaces(r)
 
+
 def merge_results(xml_results):
     """
     Merges search results into one object.
 
-    Iterable may contain instances of(even at the same time):
+    Iterable may contain instances of (even at the same time):
 
     :class:`lxml.objectify.ObjectifiedElement`
         Make sure it has Query, Hits attributes(may not contain Result attribute)
@@ -141,7 +143,7 @@ def merge_results(xml_results):
         Its attribute _lxml_results must meet requirements above
 
     Merging excludes duplicates. Timestamp is added after merging.
-    Queties are aggregating.
+    Queries are aggregated.
 
     Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
     """
@@ -183,11 +185,13 @@ def merge_results(xml_results):
 
     return result
 
-def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=True, file_name=None,
-    ignore_cache=False):
+
+def request(
+        query=None, offset=None, limit=None, sort_by=None,
+        get_attributes=True, file_name=None, ignore_cache=False):
     """
     Makes a request to CGHub web service or gets data from a file.
-    Returns parsed :class:`Results` object.
+    Returns parsed :class:`wsapi.api.Results` object.
 
     If file_name specified reads results from file.
     Else tries to get results from cache.
@@ -205,10 +209,10 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
     results = []
     results_from_cache = True
 
-    if query == None and file_name == None:
+    if query is None and file_name is None:
         raise QueryRequired
 
-    if query == None and file_name:
+    if query is None and file_name:
         results = objectify.fromstring(open(file_name, 'r').read())
 
     # Getting results from the cache
@@ -258,10 +262,12 @@ def request(query=None, offset=None, limit=None, sort_by=None, get_attributes=Tr
 
     return results
 
-def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
-    get_attributes=True, file_name=None, ignore_cache=False):
+
+def multiple_request(
+        queries_list=None, offset=None, limit=None, sort_by=None,
+        get_attributes=True, file_name=None, ignore_cache=False):
     """
-    The only difference from wsapi.api.request is that the first argument can be 
+    The only difference from wsapi.api.request is that the first argument can be
     iterable(tuple or list) with many queries.
 
     If takes string as first argument acts like request().
@@ -270,7 +276,8 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     """
 
     if isinstance(queries_list, str):
-        return request(queries_list, offset, limit, sort_by,
+        return request(
+            queries_list, offset, limit, sort_by,
             get_attributes, file_name, ignore_cache)
 
     if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
@@ -279,7 +286,7 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
     results = []
     results_from_cache = True
 
-    if not queries_list and file_name == None:
+    if not queries_list and file_name is None:
         raise QueryRequired
 
     if not queries_list and file_name:
@@ -294,8 +301,10 @@ def multiple_request(queries_list=None, offset=None, limit=None, sort_by=None,
         results_from_cache = False
         results_list = []
         for query in queries_list:
-            results_list.append(request(query=query, offset=None, limit=None, sort_by=None,
-                get_attributes=get_attributes, file_name=file_name, ignore_cache=ignore_cache))
+            results_list.append(
+                request(
+                    query=query, offset=None, limit=None, sort_by=None,
+                    get_attributes=get_attributes, file_name=file_name, ignore_cache=ignore_cache))
         results = merge_results(results_list)
 
     results = Results(results)
