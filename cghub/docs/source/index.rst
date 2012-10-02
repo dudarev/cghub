@@ -12,6 +12,7 @@ Contents:
     :maxdepth: 2
 
     development.rst
+    testing.rst
     deployment.rst
     settings.rst
     static.rst
