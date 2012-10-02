@@ -64,7 +64,7 @@ ALL_FILTERS = {
         },
     },
     "last_modified": {
-        "title": "By Date Uploaded",
+        "title": "By Time Modified",
         "filters": OrderedDict([
             ("", {
                 'filter_name': "Any date",
