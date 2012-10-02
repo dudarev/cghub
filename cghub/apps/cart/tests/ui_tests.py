@@ -1,4 +1,5 @@
 import os
+import time
 import shutil
 
 from wsapi.settings import CACHE_DIR
@@ -9,6 +10,7 @@ from django.conf import settings
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.templatetags.search_tags import get_name_by_code
 
@@ -40,7 +42,7 @@ class LinksNavigationsTests(LiveServerTestCase):
         self.selenium.find_element_by_partial_link_text("Help").click()
 
 
-class CartTestCase(LiveServerTestCase):
+class CartUITests(LiveServerTestCase):
     cache_file = '0aab3523a4352c73abf8940e7c9ae7a5.xml'
     selected = [
         'a15b7a89-0085-4879-9715-a37a460ff26d',
@@ -62,7 +64,7 @@ class CartTestCase(LiveServerTestCase):
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
-        super(CartTestCase, self).setUpClass()
+        super(CartUITests, self).setUpClass()
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
@@ -78,7 +80,7 @@ class CartTestCase(LiveServerTestCase):
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(CartTestCase, self).tearDownClass()
+        super(CartUITests, self).tearDownClass()
         os.remove(os.path.join(CACHE_DIR, self.cache_file))
 
     def test_cart(self):
@@ -111,7 +113,7 @@ class CartTestCase(LiveServerTestCase):
 
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
-        driver.implicitly_wait(1)
+        time.sleep(1)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
         for uuid in self.selected:
