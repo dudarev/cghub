@@ -86,9 +86,9 @@ else
 endif
 
 celeryd:
-	-kill -9 `cat $(CELERYD_PID)`
+	-@kill -9 `cat $(CELERYD_PID)`
 	# -B option is for celerybeat with one worker (scheduling)
-	$(MANAGE) celeryd -Q celery -B --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)
+	$(MANAGE) celeryd -Q celery -B --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)&
 
 celeryd_stop:
 	-kill -9 `cat $(CELERYD_PID)`
