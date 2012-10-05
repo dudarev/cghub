@@ -13,7 +13,7 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-7DAY%20TO%20NOW]'
+    default_query = 'last_modified=[NOW-1MONTH%20TO%20NOW]'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -103,6 +103,6 @@ class SearchView(TemplateView):
         last_modified = request.GET.get('last_modified')
         if not q and not last_modified:
             GET_parameters = request.GET.copy()
-            GET_parameters['last_modified'] = '[NOW-7DAY TO NOW]'
+            GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
             return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
         return super(SearchView, self).dispatch(request, *args, **kwargs)
