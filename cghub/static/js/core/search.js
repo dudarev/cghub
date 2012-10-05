@@ -51,7 +51,7 @@ jQuery(function ($) {
                 } else {
                     if (section == 'last_modified') {
                         if (window.location.search === '') {
-                            select.find('option[value = "[NOW-1DAY TO NOW]"]').attr('selected', 'selected');
+                            select.find('option[value = "[NOW-1MONTH TO NOW]"]').attr('selected', 'selected');
                         } else {
                             select.find('option[value = ""]').attr('selected', 'selected');
                         }
@@ -60,6 +60,10 @@ jQuery(function ($) {
                     }
                 }
             });
+
+            var time_filter_applied = $('#time-filter-applied').attr('data');
+            $(".date-filters").find('option[value = "' + time_filter_applied + '"]').attr('selected', 'selected');
+
             // checking for search query
             if ('q' in filters) {
                 $('input.search-query').val(filters['q']);

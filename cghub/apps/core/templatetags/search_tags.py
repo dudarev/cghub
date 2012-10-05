@@ -93,7 +93,7 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
-            filtered_by_str += '<li>Uploaded '
+            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '">Uploaded '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
             continue
 
