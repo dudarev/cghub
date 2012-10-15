@@ -98,6 +98,9 @@ less:
 
 minjs:
 	@grunt --config cghub/grunt.js min
+
+selectfilters:
+	$(MANAGE) selectfilters
 #
 # end targets
 

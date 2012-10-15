@@ -1,7 +1,3 @@
-try:
-    from collections import OrderedDict
-except ImportError:
-    from celery.utils.compat import OrderedDict
 """
 Storage file for filters
 
@@ -13,6 +9,8 @@ Storage file for filters
         }
     }
 }
+
+'filters' above are OrderedDict 
 
 For dates it has special format:
 
@@ -29,6 +27,12 @@ For dates it has special format:
 }
 
 """
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from celery.utils.compat import OrderedDict
+
 
 DATE_FILTERS_HTML_IDS = OrderedDict([
     ("", "id_date_any"),
@@ -125,7 +129,7 @@ ALL_FILTERS = {
             "40": "TRB",
             "50": "CELL",
             "60": "XP",
-            "61": "XCL",        
+            "61": "XCL",
         }
     },
     "library_strategy": {
