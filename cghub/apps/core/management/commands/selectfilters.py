@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from cghub.apps.core.filters_storage import ALL_FILTERS
+from cghub.apps.core.filters_storage_full import ALL_FILTERS
 
 class Command(BaseCommand):
     help = 'Check what filters are used.'
@@ -13,3 +13,4 @@ class Command(BaseCommand):
             for f in ALL_FILTERS[k]['filters']:
                 self.stdout.write('  %s' % f)
                 self.stdout.write('\n')
+        self.stdout.write(str(ALL_FILTERS))
