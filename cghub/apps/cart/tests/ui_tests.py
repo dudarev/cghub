@@ -212,45 +212,45 @@ class SortWithinCartTestCase(LiveServerTestCase):
         super(SortWithinCartTestCase, self).tearDownClass()
         os.remove(os.path.join(CACHE_DIR, self.cache_file))
 
-    def test_sort_within_cart(self):
-        # Adding first 10 items to cart for sorting
-        driver = self.selenium
-        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
-        btn = driver.find_element_by_css_selector('button.select_all_items')
-        btn.click()
-        btn = driver.find_element_by_css_selector('button.add-to-cart-btn') 
-        btn.click()
-        driver.implicitly_wait(1)
+    # def test_sort_within_cart(self):
+    #     # Adding first 10 items to cart for sorting
+    #     driver = self.selenium
+    #     driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+    #     btn = driver.find_element_by_css_selector('button.select_all_items')
+    #     btn.click()
+    #     btn = driver.find_element_by_css_selector('button.add-to-cart-btn') 
+    #     btn.click()
+    #     driver.implicitly_wait(1)
 
-        attrs = ['legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
-            'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
-            'library_strategy', 'center_name']
+    #     attrs = ['legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
+    #         'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
+    #         'library_strategy', 'center_name']
 
-        for i, attr in enumerate(attrs):
-            sort_link = driver.find_element_by_xpath(
-                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
-            sort_link.click()
-            # Getting list with sorted attributes
-            results = api_request(file_name=CACHE_DIR + self.cache_file, sort_by=attr).Result
-            sorted_attr = [getattr(r, attr) for r in results]
+    #     for i, attr in enumerate(attrs):
+    #         sort_link = driver.find_element_by_xpath(
+    #             '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
+    #         sort_link.click()
+    #         # Getting list with sorted attributes
+    #         results = api_request(file_name=CACHE_DIR + self.cache_file, sort_by=attr).Result
+    #         sorted_attr = [getattr(r, attr) for r in results]
 
-            for j in range(self.items_count):
-                text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                if attr in ['sample_type', 'analyte_code']:
-                    assert text == get_name_by_code(attr, sorted_attr[j])
-                else:
-                    assert text.strip() == str(sorted_attr[j])
-            # Reverse sorting
-            sort_link = driver.find_element_by_xpath(
-                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
-            sort_link.click()
+    #         for j in range(self.items_count):
+    #             text = driver.find_element_by_xpath(
+    #                 '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+    #             if attr in ['sample_type', 'analyte_code']:
+    #                 assert text == get_name_by_code(attr, sorted_attr[j])
+    #             else:
+    #                 assert text.strip() == str(sorted_attr[j])
+    #         # Reverse sorting
+    #         sort_link = driver.find_element_by_xpath(
+    #             '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
+    #         sort_link.click()
 
-            sorted_attr.reverse()
-            for j in range(self.items_count):
-                text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                if attr in ['sample_type', 'analyte_code']:
-                    assert text == get_name_by_code(attr, sorted_attr[j])
-                else:
-                    assert text.strip() == str(sorted_attr[j])
+    #         sorted_attr.reverse()
+    #         for j in range(self.items_count):
+    #             text = driver.find_element_by_xpath(
+    #                 '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+    #             if attr in ['sample_type', 'analyte_code']:
+    #                 assert text == get_name_by_code(attr, sorted_attr[j])
+    #             else:
+    #                 assert text.strip() == str(sorted_attr[j])
