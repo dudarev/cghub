@@ -12,7 +12,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from cghub.apps.core.templatetags.search_tags import get_name_by_code
+from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
+    get_sample_type_by_code)
 
 
 class LinksNavigationsTests(LiveServerTestCase):
@@ -228,6 +229,12 @@ class SortWithinCartTestCase(LiveServerTestCase):
             'library_strategy', 'center_name']
 
         for i, attr in enumerate(attrs):
+            # IMPORTANT
+            # fix for extra 'full name' columns, their sorting links are duplicates anyway
+            # after changing the columns' set check attrs list above
+            if i in (6, 8, 12):
+                continue
+
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -238,10 +245,12 @@ class SortWithinCartTestCase(LiveServerTestCase):
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                if attr in ['sample_type', 'analyte_code']:
-                    assert text == get_name_by_code(attr, sorted_attr[j])
+                if attr == 'sample_type':
+                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
+                elif attr == 'analyte_code':
+                    self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
-                    assert text.strip() == str(sorted_attr[j])
+                    self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
@@ -251,7 +260,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                if attr in ['sample_type', 'analyte_code']:
-                    assert text == get_name_by_code(attr, sorted_attr[j])
+                if attr == 'sample_type':
+                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
+                elif attr == 'analyte_code':
+                    self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
-                    assert text.strip() == str(sorted_attr[j])
+                    self.assertEqual(text.strip(), str(sorted_attr[j]))

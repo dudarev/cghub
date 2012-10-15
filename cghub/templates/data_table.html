@@ -10,10 +10,13 @@
                 <th width='75'>{% sort_link request 'files_size' 'Files Size' %}</th>
                 <th width='120'>{% sort_link request 'last_modified' 'Last modified' %}</th>
                 <th width='65'>{% sort_link request 'disease_abbr' 'Disease' %}</th>
+                <th width='200'>{% sort_link request 'disease_abbr' 'Disease (full)' %}</th>
                 <th width='75'>{% sort_link request 'sample_type' 'Sample Type' %}</th>
+                <th width='150'>{% sort_link request 'sample_type' 'Sample Type (full)' %}</th>
                 <th width='95'>{% sort_link request 'analyte_code' 'Experiment Type' %}</th>
                 <th width='100'>{% sort_link request 'library_strategy' 'Run Type' %}</th>
                 <th width='100'>{% sort_link request 'center_name' 'Center' %}</th>
+                <th width='100'>{% sort_link request 'center_name' 'Center (full)' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -37,10 +40,13 @@
                 <td>{% if r.files_size %}{{ r.files_size }}{% else %}{{ r.files.file.0.filesize }}{% endif %}</td>
                 <td>{{ r.last_modified }}</td>
                 <td>{{ r.disease_abbr }}</td>
-                <td>{% get_name_by_code 'sample_type' r.sample_type %}</td>
+                <td>{% get_name_by_code 'disease_abbr' r.disease_abbr %}</td>
+                <td>{% get_sample_type_by_code r.sample_type format='shortcut' %}</td>
+                <td>{% get_sample_type_by_code r.sample_type format='full' %}</td>
                 <td>{% get_name_by_code 'analyte_code' r.analyte_code %}</td>
                 <td>{{ r.library_strategy }}</td>
                 <td>{{ r.center_name }}</td>
+                <td>{% get_name_by_code 'center_name' r.center_name %}</td>
             </tr>
         {% endfor %}
         </tbody>

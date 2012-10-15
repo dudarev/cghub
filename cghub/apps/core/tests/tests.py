@@ -111,8 +111,8 @@ class TestTemplateTags(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            'Applied filter(s): <ul><li>Center: Harvard</li><li id="time-filter-applied" \
-data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls, Sarcoma</li>\
+            'Applied filter(s): <ul><li>Center: Harvard (HMS-RK)</li><li id="time-filter-applied" \
+data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls (CNTL), Sarcoma (SARC)</li>\
 <li>Run Type: AMPLICON, CTS</li></ul>')
 
     def test_items_per_page_tag(self):
@@ -145,12 +145,17 @@ data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls, Sarcoma</
 
     def test_get_name_by_code_tag(self):
         for section, section_data in ALL_FILTERS.iteritems():
-            key = 'filters'
             if section == "sample_type":
-                key = 'shortcuts'
-
-            for code, name in section_data[key].iteritems():
-                assert (get_name_by_code(section, code) == name)
+                try:
+                    for code, name in section_data[key].iteritems():
+                        get_name_by_code(section, code)
+                        assert False
+                except Exception as e:
+                    assert e.message == 'Use get_sample_type_by_code tag for sample types.'
+            else:
+                key = 'filters'
+                for code, name in section_data[key].iteritems():
+                    assert (get_name_by_code(section, code) == name)
 
         assert (get_name_by_code('unknown_section', 'unknown_code') ==
                 'unknown_code')
