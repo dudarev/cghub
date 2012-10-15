@@ -63,7 +63,7 @@ class CartDownloadFilesView(View):
             filename = "{0}_with{1}_attributes".format(
                 analysis_id,
                 '' if get_attributes else 'out')
-            try:   
+            try:
                 result = Results.from_file(os.path.join(settings.CART_CACHE_FOLDER, filename))
             except IOError:
                 result = api_request(
@@ -95,5 +95,5 @@ class CartDownloadFilesView(View):
         mfio.write(results.tostring())
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
-        response['Content-Disposition'] = 'attachment; filename=xml.xml'
+        response['Content-Disposition'] = 'attachment; filename=metadata.xml'
         return response
