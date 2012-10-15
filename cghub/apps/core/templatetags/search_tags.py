@@ -1,7 +1,6 @@
 import urllib
 from django import template
 from django.utils.http import urlencode
-from django.core.urlresolvers import reverse
 from django.utils.html import escape
 from django.template import Context
 from django.template.loader import select_template
@@ -23,6 +22,7 @@ def get_name_by_code(filter_section, code):
             return ALL_FILTERS[filter_section]['filters'][code]
     except KeyError:
         return code
+
 
 @register.simple_tag
 def get_sample_type_by_code(code, format):
@@ -115,7 +115,11 @@ def applied_filters(request):
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
         for value in filters:
-            filters_str += ', %s[%s]' % (ALL_FILTERS[f]['filters'][value], value)
+            # do not put abbreviation in parenthesis if it is the same
+            if ALL_FILTERS[f]['filters'][value] == value:
+                filters_str += ', %s' % (value)
+            else:
+                filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
         filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
 
