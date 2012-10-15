@@ -153,7 +153,7 @@ class CartUITests(LiveServerTestCase):
         # Check there are no pre-existed files in /tmp/wsapi/
         try:
             os.remove(CACHE_DIR + 'manifest.xml')
-            os.remove(CACHE_DIR + 'xml.xml')
+            os.remove(CACHE_DIR + 'metadata.xml')
         except OSError:
             pass
         # Download Manifest file
@@ -170,9 +170,9 @@ class CartUITests(LiveServerTestCase):
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(CACHE_DIR + 'xml.xml')
+            os.remove(CACHE_DIR + 'metadata.xml')
         except OSError:
-            assert False, "File xml.xml wasn't downloaded"
+            assert False, "File metadata.xml wasn't downloaded"
 
         # Remove selected from cart
         btn = driver.find_element_by_class_name('cart-form-remove')
@@ -219,13 +219,14 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
         btn = driver.find_element_by_css_selector('button.select_all_items')
         btn.click()
-        btn = driver.find_element_by_css_selector('button.add-to-cart-btn') 
+        btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
         driver.implicitly_wait(1)
 
-        attrs = ['legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
-            'last_modified', 'disease_abbr', 'disease_abbr', 'sample_type', 'sample_type', 'analyte_code',
-            'library_strategy', 'center_name', 'center_name']
+        attrs = [
+            'legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
+            'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
+            'library_strategy', 'center_name']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT

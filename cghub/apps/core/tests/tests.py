@@ -111,8 +111,9 @@ class TestTemplateTags(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            u'Applied filter(s): <ul><li>Center: Harvard[HMS-RK]</li><li id="time-filter-applied" \
-data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls[CNTL], Sarcoma[SARC]</li><li>Run Type: AMPLICON[AMPLICON], CTS[CTS]</li></ul>')
+            'Applied filter(s): <ul><li>Center: Harvard (HMS-RK)</li><li id="time-filter-applied" \
+data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls (CNTL), Sarcoma (SARC)</li>\
+<li>Run Type: AMPLICON, CTS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
