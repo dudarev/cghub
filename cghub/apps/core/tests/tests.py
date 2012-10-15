@@ -111,8 +111,9 @@ class TestTemplateTags(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            'Applied filter(s): <ul><li>Center: Harvard</li><li>Uploaded this week\
-</li><li>Disease: Controls, Sarcoma</li><li>Run Type: AMPLICON, CTS</li></ul>')
+            'Applied filter(s): <ul><li>Center: Harvard</li><li id="time-filter-applied" \
+data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls, Sarcoma</li>\
+<li>Run Type: AMPLICON, CTS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -228,14 +229,14 @@ class SearchViewPaginationTestCase(TestCase):
     def test_last_modified_if_no_q(self):
         """
         Test that if there is not q query, last_modified is substituted.
-        Search with last 7 days.
+        Search with last month.
         """
         response = self.client.get(
             reverse('search_page') +
             '?center_name={center_name}'.format(center_name='%28BCM%29'),
             follow=True)
         self.assertTrue('last_modified' in response.redirect_chain[0][0])
-        self.assertTrue('7DAY' in response.redirect_chain[0][0])
+        self.assertTrue('1MONTH' in response.redirect_chain[0][0])
 
 
 class PaginatorUnitTestCase(TestCase):
