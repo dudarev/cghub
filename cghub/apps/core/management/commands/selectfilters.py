@@ -7,21 +7,22 @@ from django.core.management.base import BaseCommand
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS
 
-def format_dict(d, tab=4*' ', padding=''):
+
+def format_dict(d, tab=4 * ' ', padding=''):
     isOrderedDict = isinstance(d, OrderedDict)
     if isOrderedDict:
         s = ['OrderedDict([\n']
     else:
         s = ['{\n']
-    for k,v in d.items():
+    for k, v in d.items():
         if isinstance(v, dict) or isinstance(v, OrderedDict):
-            v = format_dict(v, tab, padding=padding+tab)
+            v = format_dict(v, tab, padding=padding + tab)
         else:
             v = repr(v)
         if isOrderedDict:
-            s.append('%s(%r, %s),\n' % (padding+tab, k, v))
+            s.append('%s(%r, %s),\n' % (padding + tab, k, v))
         else:
-            s.append('%s%r: %s,\n' % (padding+tab, k, v))
+            s.append('%s%r: %s,\n' % (padding + tab, k, v))
     if isOrderedDict:
         s.append('%s])' % padding)
     else:
@@ -42,3 +43,14 @@ class Command(BaseCommand):
                 self.stdout.write('\n')
         self.stdout.write(str(ALL_FILTERS))
         print format_dict(ALL_FILTERS)
+        filters_storage = open('cghub/apps/core/filters_storage_full.py', 'r').read()
+        all_filters_index = filters_storage.index('ALL_FILTERS')
+        filters_storage = ''.join([
+            filters_storage[:all_filters_index],
+            'ALL_FILTERS = ',
+            format_dict(ALL_FILTERS),
+        ])
+        f = open('cghub/apps/core/filters_storage_short.py', 'w')
+        f.write(filters_storage)
+        f.close()
+        self.stdout.write('File cghub/apps/core/filters_storage_short.py is created\n')
