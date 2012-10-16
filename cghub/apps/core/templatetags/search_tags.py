@@ -1,7 +1,6 @@
 import urllib
 from django import template
 from django.utils.http import urlencode
-from django.core.urlresolvers import reverse
 from django.utils.html import escape
 from django.template import Context
 from django.template.loader import select_template
@@ -18,12 +17,26 @@ def get_name_by_code(filter_section, code):
     """
     try:
         if filter_section == "sample_type":
-            code = str(code)
-            if len(code) == 1:
-                code = '0' + code
-            return ALL_FILTERS[filter_section]['shortcuts'][code]
+            raise Exception('Use get_sample_type_by_code tag for sample types.')
         else:
             return ALL_FILTERS[filter_section]['filters'][code]
+    except KeyError:
+        return code
+
+
+@register.simple_tag
+def get_sample_type_by_code(code, format):
+    code = str(code)
+    if len(code) == 1:
+        code = '0' + code
+
+    try:
+        if format == 'full':
+            return ALL_FILTERS['sample_type']['filters'][code]
+        elif format == 'shortcut':
+            return ALL_FILTERS['sample_type']['shortcuts'][code]
+        else:
+            raise Exception('Unknown format for sample type.')
     except KeyError:
         return code
 
@@ -63,6 +76,7 @@ def filter_link(request, attribute, value):
 @register.simple_tag
 def applied_filters(request):
     applied_filters = {
+        'study': request.GET.get('study'),
         'center_name': request.GET.get('center_name'),
         'last_modified': request.GET.get('last_modified'),
         'analyte_code': request.GET.get('analyte_code'),
@@ -102,7 +116,11 @@ def applied_filters(request):
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
         for value in filters:
-            filters_str += ', ' + ALL_FILTERS[f]['filters'][value]
+            # do not put abbreviation in parenthesis if it is the same
+            if ALL_FILTERS[f]['filters'][value] == value:
+                filters_str += ', %s' % (value)
+            else:
+                filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
         filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
 
