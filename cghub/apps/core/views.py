@@ -57,6 +57,7 @@ class SearchView(TemplateView):
             sort_by = urllib.quote(sort_by)
         filter_str = ''
         allowed_attributes = [
+            'study',
             'center_name',
             'last_modified',
             'analyte_code',
