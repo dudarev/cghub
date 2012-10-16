@@ -43,7 +43,7 @@ ALL_FILTERS = OrderedDict([
         "title": "By Study",
         "filters": OrderedDict([
             ("phs000178", "TCGA"),
-            ("temporary", "TCGA_MUT_BENCHMARK_4"),
+            ("TCGA_MUT_BENCHMARK_4", "temporary"),
         ])
     }),
     ("center_name", {
@@ -132,7 +132,7 @@ ALL_FILTERS = OrderedDict([
             "40": "TRB",
             "50": "CELL",
             "60": "XP",
-            "61": "XCL",        
+            "61": "XCL",
         }
     }),
     ("library_strategy", {
