@@ -76,6 +76,7 @@ def filter_link(request, attribute, value):
 @register.simple_tag
 def applied_filters(request):
     applied_filters = {
+        'study': request.GET.get('study'),
         'center_name': request.GET.get('center_name'),
         'last_modified': request.GET.get('last_modified'),
         'analyte_code': request.GET.get('analyte_code'),

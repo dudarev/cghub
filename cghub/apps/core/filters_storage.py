@@ -38,8 +38,15 @@ DATE_FILTERS_HTML_IDS = OrderedDict([
     ("[NOW-1YEAR TO NOW]", "id_date_year"),
 ])
 
-ALL_FILTERS = {
-    "center_name": {
+ALL_FILTERS = OrderedDict([
+    ("study", {
+        "title": "By Study",
+        "filters": OrderedDict([
+            ("phs000178", "TCGA"),
+            ("TCGA_MUT_BENCHMARK_4", "temporary"),
+        ])
+    }),
+    ("center_name", {
         "title": "By Center",
         "filters": OrderedDict([
             ("BCM", "Baylor"),
@@ -50,8 +57,8 @@ ALL_FILTERS = {
             ("USC-JHU", "USC/Sidney K. B."),
             ("WUGSC", "Washington U."),
         ]),
-    },
-    "analyte_code": {
+    }),
+    ("analyte_code", {
         "title": "By Experiment Type",
         "filters": OrderedDict([
             ("D", "DNA"),
@@ -62,8 +69,8 @@ ALL_FILTERS = {
             ("W", "WGA"),
             ("X", "WGA X"),
         ]),
-    },
-    "last_modified": {
+    }),
+    ("last_modified", {
         "title": "By Time Modified",
         "filters": OrderedDict([
             ("", {
@@ -82,8 +89,8 @@ ALL_FILTERS = {
                 "filter_name": "This year",
                 "filter_id": "id_date_year"}),
         ]),
-    },
-    "sample_type": {
+    }),
+    ("sample_type", {
         "title": "By Sample Type",
         "filters": OrderedDict([
             ("07", "Additional Metastatic"),
@@ -125,10 +132,10 @@ ALL_FILTERS = {
             "40": "TRB",
             "50": "CELL",
             "60": "XP",
-            "61": "XCL",        
+            "61": "XCL",
         }
-    },
-    "library_strategy": {
+    }),
+    ("library_strategy", {
         "title": "By Run Type",
         "filters": OrderedDict([
             ("AMPLICON", "AMPLICON"),
@@ -152,8 +159,8 @@ ALL_FILTERS = {
             ("WGS", "WGS"),
             ("WXS", "WXS"),
         ]),
-    },
-    "disease_abbr": {
+    }),
+    ("disease_abbr", {
         "title": "By Disease",
         "filters": OrderedDict([
             ("LAML", "Acute Myeloid Leukemia"),
@@ -184,5 +191,5 @@ ALL_FILTERS = {
             ("THCA", "Thyroid carcinoma"),
             ("UCEC", "Uterine Corpus Endometrioid Carcinoma"),
         ]),
-    },
-}
+    }),
+])
