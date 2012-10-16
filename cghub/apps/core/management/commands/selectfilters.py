@@ -1,6 +1,33 @@
+try:
+    from collections import OrderedDict
+except ImportError:
+    from celery.utils.compat import OrderedDict
+
 from django.core.management.base import BaseCommand
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS
+
+def format_dict(d, tab=4*' ', padding=''):
+    isOrderedDict = isinstance(d, OrderedDict)
+    if isOrderedDict:
+        s = ['OrderedDict([\n']
+    else:
+        s = ['{\n']
+    for k,v in d.items():
+        if isinstance(v, dict) or isinstance(v, OrderedDict):
+            v = format_dict(v, tab, padding=padding+tab)
+        else:
+            v = repr(v)
+        if isOrderedDict:
+            s.append('%s(%r, %s),\n' % (padding+tab, k, v))
+        else:
+            s.append('%s%r: %s,\n' % (padding+tab, k, v))
+    if isOrderedDict:
+        s.append('%s])' % padding)
+    else:
+        s.append('%s}' % padding)
+    return ''.join(s)
+
 
 class Command(BaseCommand):
     help = 'Check what filters are used.'
@@ -14,3 +41,4 @@ class Command(BaseCommand):
                 self.stdout.write('  %s' % f)
                 self.stdout.write('\n')
         self.stdout.write(str(ALL_FILTERS))
+        print format_dict(ALL_FILTERS)
