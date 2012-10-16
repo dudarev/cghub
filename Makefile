@@ -101,6 +101,10 @@ minjs:
 
 selectfilters:
 	$(MANAGE) selectfilters
+
+selectfilters_clean:
+	# clean previously checked filters
+	$(MANAGE) selectfilters -c
 #
 # end targets
 

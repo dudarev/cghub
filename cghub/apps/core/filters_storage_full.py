@@ -10,7 +10,7 @@ Storage file for filters
     }
 }
 
-'filters' above are OrderedDict 
+'filters' above are OrderedDict
 
 For dates it has special format:
 
@@ -197,3 +197,5 @@ ALL_FILTERS = OrderedDict([
         ]),
     }),
 ])
+# end of ALL_FILTERS
+# do not remove this comment, it is used in selectfilters
