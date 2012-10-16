@@ -103,6 +103,7 @@ class TestTemplateTags(TestCase):
     def test_apllied_filters_tag(self):
         request = HttpRequest()
         request.GET.update({
+            'study': '(phs000178)',
             'center_name': '(HMS-RK)',
             'library_strategy': '(AMPLICON OR CTS)',
             'last_modified': '[NOW-7DAY TO NOW]',
@@ -111,9 +112,11 @@ class TestTemplateTags(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            'Applied filter(s): <ul><li>Center: Harvard (HMS-RK)</li><li id="time-filter-applied" \
-data="[NOW-7DAY TO NOW]">Uploaded this week</li><li>Disease: Controls (CNTL), Sarcoma (SARC)</li>\
-<li>Run Type: AMPLICON, CTS</li></ul>')
+            'Applied filter(s): <ul><li id="time-filter-applied" '
+            'data="[NOW-7DAY TO NOW]">Uploaded this week</li>'
+            '<li>Disease: Controls (CNTL), Sarcoma (SARC)</li>'
+            '<li>Center: Harvard (HMS-RK)</li>'
+            '<li>Study: TCGA (phs000178)</li><li>Run Type: AMPLICON, CTS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
