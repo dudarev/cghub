@@ -107,3 +107,10 @@ class SearchView(TemplateView):
             GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
             return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
         return super(SearchView, self).dispatch(request, *args, **kwargs)
+
+
+class ItemDetailsView(TemplateView):
+    template_name = 'core/item_details.html'
+
+    def get_context_data(self, **kwargs):
+        return {}

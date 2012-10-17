@@ -45,6 +45,11 @@ class CoreTests(TestCase):
                 self.assertTrue(len(sample_type) == 2)
         self.assertTrue('Found' in response.content)
 
+    def test_item_datils_view(self):
+        uuid = '12345678-1234-1234-1234-123456789abc'
+        r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        self.assertEqual(r.status_code, 200)
+
 
 class TestTemplateTags(TestCase):
     def test_sort_link_tag(self):
