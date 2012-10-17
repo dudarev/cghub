@@ -33,6 +33,9 @@ wsapi/utils/profile/imgs
 cghub/media/api_results_cache
 progress.*
 
+cghub/apps/core/is_filter_used.pkl
+cghub/apps/core/filters_storage_short.py
+
 #
 # Included objects
 #

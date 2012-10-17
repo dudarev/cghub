@@ -100,23 +100,23 @@ class TestTemplateTags(TestCase):
             out,
             '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded&nbsp;&darr;</a>')
 
-    def test_apllied_filters_tag(self):
+    def test_applied_filters_tag(self):
         request = HttpRequest()
         request.GET.update({
             'study': '(phs000178)',
             'center_name': '(HMS-RK)',
-            'library_strategy': '(AMPLICON OR CTS)',
+            'library_strategy': '(WGS OR WXS)',
             'last_modified': '[NOW-7DAY TO NOW]',
-            'disease_abbr': '(CNTL OR SARC)', })
+            'disease_abbr': '(CNTL OR COAD)', })
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
             'Applied filter(s): <ul><li id="time-filter-applied" '
             'data="[NOW-7DAY TO NOW]">Uploaded this week</li>'
-            '<li>Disease: Controls (CNTL), Sarcoma (SARC)</li>'
+            '<li>Disease: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li>Center: Harvard (HMS-RK)</li>'
-            '<li>Study: TCGA (phs000178)</li><li>Run Type: AMPLICON, CTS</li></ul>')
+            '<li>Study: TCGA (phs000178)</li><li>Run Type: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
