@@ -59,6 +59,16 @@ class CoreTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertNotContains(r, u'No data.')
         self.assertContains(r, results.Result.center_name)
+        # not ajax
+        self.assertContains(r, '<head>')
+        # try ajax request
+        r = self.client.get(
+                        reverse('item_details',
+                        kwargs={'uuid': results.Result.analysis_id}),
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, results.Result.center_name)
+        self.assertNotContains(r, '<head>')
 
 
 class TestTemplateTags(TestCase):
