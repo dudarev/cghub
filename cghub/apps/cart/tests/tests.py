@@ -10,6 +10,12 @@ from cghub.settings.utils import PROJECT_ROOT
 
 
 class CartTests(TestCase):
+
+    aids = (
+            '12345678-1234-1234-1234-123456789abc',
+            '12345678-4321-1234-1234-123456789abc',
+            '87654321-1234-1234-1234-123456789abc')
+
     def setUp(self):
         self.client = Client()
         self.cart_page_url = reverse('cart_page')
@@ -18,9 +24,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"analysis_id":"file1", "files_size": 1048576},'
-                                                        '"file2":{"analysis_id":"file2", "files_size": 1048576},'
-                                                        '"file3":{"analysis_id":"file3", "files_size": 1048576}}'
+                                                        'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -35,16 +41,16 @@ class CartTests(TestCase):
         self.failUnlessEqual(len(response.context['results']), 3)
 
         # make sure we have files we've posted
-        for f in selected_files:
+        for f in self.aids:
             self.assertEqual(f in response.content, True)
 
     def test_card_add_duplicate_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file1', 'file1']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"analysis_id":"file1"}, '
-                                                        '"file1":{"analysis_id":"file1"}, '
-                                                        '"file1":{"analysis_id":"file1"}}'
+                                          'attributes': '{"file1":{"analysis_id":"%s"}, '
+                                                        '"file1":{"analysis_id":"%s"}, '
+                                                        '"file1":{"analysis_id":"%s"}}' % self.aids
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -62,12 +68,12 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"analysis_id":"file1"},'
-                                                        '"file2":{"analysis_id":"file2"},'
-                                                        '"file3":{"analysis_id":"file3"}}'
+                                          'attributes': '{"file1":{"analysis_id":"%s"},'
+                                                        '"file2":{"analysis_id":"%s"},'
+                                                        '"file3":{"analysis_id":"%s"}}' % self.aids
         })
         # remove files
-        rm_selected_files = ['file1', 'file3']
+        rm_selected_files = [self.aids[0], self.aids[1]]
         url = reverse('cart_add_remove_files', args=['remove'])
         response = self.client.post(url, {'selected_files': rm_selected_files})
 

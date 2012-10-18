@@ -107,3 +107,24 @@ class SearchView(TemplateView):
             GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
             return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
         return super(SearchView, self).dispatch(request, *args, **kwargs)
+
+
+class ItemDetailsView(TemplateView):
+
+    template_name = 'core/item_details.html'
+    ajax_template_name = 'core/details_table.html'
+
+    def get_context_data(self, **kwargs):
+        results = api_request(query='analysis_id=%s' % kwargs['uuid'])
+        if hasattr(results, 'Result'):
+            return {'res': results.Result}
+        return {'res', None}
+
+    def get_template_names(self):
+        """
+        Returns a list of template names to be used for the request. Must return
+        a list. May not be called if render_to_response is overridden.
+        """
+        if self.request.is_ajax():
+            return [self.ajax_template_name]
+        return [self.template_name]

@@ -41,6 +41,13 @@ module.exports = function (grunt) {
                     compress:true
                 }
             },
+            core_details:{
+                src:cssStaticFolder + 'core/details.less',
+                dest:cssStaticFolder + 'core/details.css',
+                options:{
+                    compress:true
+                }
+            },
             flexigrid:{
                 src:cssStaticFolder + 'libs/flexigrid/flexigrid.css',
                 dest:cssStaticFolder + 'libs/flexigrid/flexigrid.min.css',
