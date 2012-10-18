@@ -61,10 +61,6 @@ module.exports = function (grunt) {
                 src:[jsStaticFolder + 'base.js'],
                 dest:jsStaticFolder + 'base.min.js'
             },
-            bootstrap:{
-                src:[jsStaticFolder + 'libs/bootstrap/dev/*.js'],
-                dest:jsStaticFolder + 'libs/bootstrap/bootstrap.min.js'
-            },
             cart:{
                 src:[jsStaticFolder + 'cart/cart.js'],
                 dest:jsStaticFolder + 'cart/cart.min.js'
