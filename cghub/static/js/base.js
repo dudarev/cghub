@@ -55,12 +55,11 @@ jQuery(function ($) {
             $('.js-item-details-link').live('click', function(obj){
                 var link=$(obj.target);
                 var modal=$(link.attr('data-target'))
-                modal.on('show', function(){
+                modal.on('shown', function(){
                     modal.find('.modal-body').load(link.attr('href'));
+                }).on('show', function(){
+                    modal.find('.modal-body').html('Loading ...');
                     modal.find('.modal-label').html('Details for UUID='+link.text());
-                }).on('hidden', function(){
-                    modal.find('.modal-body').empty();
-                    modal.find('.modal-label').empty();
                 }).modal('show');
                 return false;
             });

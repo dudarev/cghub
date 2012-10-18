@@ -1,8 +1,21 @@
 {% if res %}
-    {{ res.analysis_id }}
-    {{ res.state }}
-    {{ res.last_modified }}
-    {{ res.center_name }}
+    <table class="table table-bordered">
+        <tr><th>State</th><td>{{ res.state }}</td></tr>
+        <tr><th>Last modified</th><td>{{ res.last_modified }}</td></tr>
+        <tr><th>Upload date</th><td>{{ res.upload_date }}</td></tr>
+        <tr><th>Published date</th><td>{{ res.published_date }}</td></tr>
+        <tr><th>Center name</th><td>{{ res.center_name }}</td></tr>
+        <tr><th>Study</th><td>{{ res.study }}</td></tr>
+        <tr><th>Aliquot id</th><td>{{ res.aliquot_id }}</td></tr>
+        <tr><th>Legacy sample id</th><td>{{ res.legacy_sample_id }}</td></tr>
+        <tr><th>Disease abbr</th><td>{{ res.disease_abbr }}</td></tr>
+        <tr><th>TSS id</th><td>{{ res.tss_id }}</td></tr>
+        <tr><th>Participant id</th><td>{{ res.participant_id }}</td></tr>
+        <tr><th>Sample id</th><td>{{ res.sample_id }}</td></tr>
+        <tr><th>Analyte code</th><td>{{ res.analyte_code }}</td></tr>
+        <tr><th>Sample type</th><td>{{ res.sample_type }}</td></tr>
+        <tr><th>Library strategy</th><td>{{ res.library_strategy }}</td></tr>
+    </table>
 {% else %}
     No data.
 {% endif %}
