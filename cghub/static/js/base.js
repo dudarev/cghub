@@ -37,7 +37,7 @@ jQuery(function ($) {
                 cghub.base.$selectAll.each(function(i, e) {
                     $(e).html('Select all');
                 });
-            };
+            }
             return false;
         },
         defineActiveLink:function () {
@@ -54,7 +54,7 @@ jQuery(function ($) {
         activateItemDetailsLinks:function () {
             $('.js-item-details-link').live('click', function(obj){
                 var link=$(obj.target);
-                var modal=$(link.attr('data-target'))
+                var modal=$(link.attr('data-target'));
                 modal.on('shown', function(){
                     modal.find('.modal-body').load(link.attr('href'));
                 }).on('show', function(){
@@ -63,7 +63,7 @@ jQuery(function ($) {
                 }).modal('show');
                 return false;
             });
-        },
+        }
     };
     cghub.base.init();
 });
