@@ -113,4 +113,7 @@ class ItemDetailsView(TemplateView):
     template_name = 'core/item_details.html'
 
     def get_context_data(self, **kwargs):
-        return {}
+        results = api_request(query='analysis_id=%s' % kwargs['uuid'])
+        if hasattr(results, 'Result'):
+            return {'res': results.Result}
+        return {'res', None}

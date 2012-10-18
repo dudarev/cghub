@@ -49,6 +49,16 @@ class CoreTests(TestCase):
         uuid = '12345678-1234-1234-1234-123456789abc'
         r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
         self.assertEqual(r.status_code, 200)
+        self.assertContains(r, u'No data.')
+        from cghub.wsapi.api import request as api_request
+        results = api_request(query='last_modified=[NOW-1MONTH TO NOW]')
+        self.assertTrue(hasattr(results, 'Result'))
+        r = self.client.get(
+                        reverse('item_details',
+                        kwargs={'uuid': results.Result.analysis_id}))
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, u'No data.')
+        self.assertContains(r, results.Result.center_name)
 
 
 class TestTemplateTags(TestCase):
