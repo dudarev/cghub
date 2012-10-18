@@ -153,4 +153,4 @@ def items_per_page(request, *limits):
             link = '<a href="%s">%d</a>' % (path, limit)
         links += '&nbsp;' + link + '&nbsp;|'
 
-    return '<span>Items per page:%s</span>' % links[:-1]
+    return '<div>Items per page:%s</div>' % links[:-1]

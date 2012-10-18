@@ -21,7 +21,7 @@ jQuery(function ($) {
             cghub.cart.$removeBtn = $('.btn.cart-form-remove');
         },
         bindEvents:function () {
-            cghub.cart.$searchTable.flexigrid({height: 'auto'});
+            cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             cghub.cart.$downloadManifestBtn.on('click', cghub.cart.downloadManifest);
             cghub.cart.$downloadXmlBtn.on('click', cghub.cart.downloadXml);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);

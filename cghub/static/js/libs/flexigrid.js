@@ -1411,6 +1411,57 @@
                 if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
             };
             this.grid.adjustTableWidth();
+
+            // Init the column select menu
+            var columns = $('.hDivBox > table > thead > tr > th').slice(1),
+                columnSelectMenu = $('select.column-select'),
+                grid = this.grid,
+                columnsCount = columns.length;
+            // select presented columns
+            for (var i = 0; i < columnsCount; i++) {
+                var col = $(columns[i]),
+                    option = $('<option>').attr('value', i + 1).html(col.find('a').html());
+                if (hiddenColumns.indexOf((i + 1).toString()) < 0) {option.attr('selected', 'selected')}
+
+                columnSelectMenu.append(option)
+            };
+            function onComplete(selector) {
+                var text = 'Not all',
+                    allOption = $(selector).next().next().find('input[value = "(all)"]');
+                if (allOption.is(':checked')) {
+                    text = 'All'
+                }
+                $(selector).next().find('.ui-dropdownchecklist-text').html(text).css({'color': '#333'});                
+            }
+            columnSelectMenu.dropdownchecklist({
+                firstItemChecksAll: true,
+                width: 170,
+                textFormatFunction: function(options) {
+                    $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
+                    return 'selecting...';
+                },
+                onComplete: onComplete,
+                onItemClick: function(checkbox, selector) {
+                    var value = $(checkbox).val(),
+                        allOption = $(selector).next().next().find('input[value = "(all)"]');
+                    if (value != '(all)') {
+                        grid.toggleCol(value)
+                    } else {
+                        if (!allOption.is(':checked')) {
+                            console.log('lolol')
+                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                                if ($(el).is(':checked')) {grid.toggleCol($(el).val())}
+                            })
+                        } else {
+                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                                if (!$(el).is(':checked')) {grid.toggleCol($(el).val())}
+                            })
+                        }
+                    }
+                },
+                explicitClose: 'close'
+            });
+            onComplete(columnSelectMenu)
         });
     }; //end flexigrid
     $.fn.flexReload = function (p) { // function to reload grid
