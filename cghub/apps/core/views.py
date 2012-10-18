@@ -80,7 +80,8 @@ class SearchView(TemplateView):
 
         if 'xml_text' in query:
             queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
-            results = api_multiple_request(queries_list=queries_list, sort_by=sort_by,
+            results = api_multiple_request(
+                queries_list=queries_list, sort_by=sort_by,
                 offset=offset, limit=limit)
         else:
             results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
@@ -118,7 +119,7 @@ class ItemDetailsView(TemplateView):
         results = api_request(query='analysis_id=%s' % kwargs['uuid'])
         if hasattr(results, 'Result'):
             return {'res': results.Result}
-        return {'res', None}
+        return {'res': None}
 
     def get_template_names(self):
         """
