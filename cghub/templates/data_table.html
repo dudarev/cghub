@@ -35,7 +35,7 @@
                                                             data-library_strategy="{{ r.library_strategy }}"
                                                             data-center_name="{{ r.center_name }}"></td>
                 <td>{{ r.legacy_sample_id }}</td>
-                <td>{{ r.analysis_id }}</td>
+                <td><a href="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" class="js-item-details-link">{{ r.analysis_id }}</a></td>
                 <td>{{ r.sample_accession }}</td>
                 <td>{% if r.files_size %}{{ r.files_size }}{% else %}{{ r.files.file.0.filesize }}{% endif %}</td>
                 <td>{{ r.last_modified }}</td>
@@ -51,4 +51,18 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% comment %}
+        Item details popup template
+    {% endcomment %}
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" role="dialog" aria-labelledby="itemDetails" aria-hidden="true" data-remote="/details/">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 class="modal-label"></h3>
+        </div>
+        <div class="modal-body" data-remote="true"></div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+    </div>
 {% endif %}
