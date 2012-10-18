@@ -41,6 +41,13 @@ module.exports = function (grunt) {
                     compress:true
                 }
             },
+            core_details:{
+                src:cssStaticFolder + 'core/details.less',
+                dest:cssStaticFolder + 'core/details.css',
+                options:{
+                    compress:true
+                }
+            },
             flexigrid:{
                 src:cssStaticFolder + 'libs/flexigrid/flexigrid.css',
                 dest:cssStaticFolder + 'libs/flexigrid/flexigrid.min.css',
@@ -53,10 +60,6 @@ module.exports = function (grunt) {
             base:{
                 src:[jsStaticFolder + 'base.js'],
                 dest:jsStaticFolder + 'base.min.js'
-            },
-            bootstrap:{
-                src:[jsStaticFolder + 'libs/bootstrap/dev/*.js'],
-                dest:jsStaticFolder + 'libs/bootstrap/bootstrap.min.js'
             },
             cart:{
                 src:[jsStaticFolder + 'cart/cart.js'],

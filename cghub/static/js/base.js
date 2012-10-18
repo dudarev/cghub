@@ -19,6 +19,7 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
+            cghub.base.activateItemDetailsLinks();
             cghub.base.$selectAll.each(function(i, e) {
                 $(e).on('click', cghub.base.changeCheckboxes);
             });
@@ -36,7 +37,7 @@ jQuery(function ($) {
                 cghub.base.$selectAll.each(function(i, e) {
                     $(e).html('Select all');
                 });
-            };
+            }
             return false;
         },
         defineActiveLink:function () {
@@ -49,6 +50,19 @@ jQuery(function ($) {
             } else {
                 pageLink.closest('li').addClass('active');
             }
+        },
+        activateItemDetailsLinks:function () {
+            $('.js-item-details-link').live('click', function(obj){
+                var link=$(obj.target);
+                var modal=$(link.attr('data-target'));
+                modal.on('shown', function(){
+                    modal.find('.modal-body').load(link.attr('href'));
+                }).on('show', function(){
+                    modal.find('.modal-body').html('Loading ...');
+                    modal.find('.modal-label').html('Details for UUID='+link.text());
+                }).modal('show');
+                return false;
+            });
         }
     };
     cghub.base.init();
