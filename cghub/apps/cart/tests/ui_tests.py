@@ -217,11 +217,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
         # Adding first 10 items to cart for sorting
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
-        btn = driver.find_element_by_css_selector('button.select_all_items')
-        btn.click()
-        btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
-        btn.click()
-        driver.implicitly_wait(1)
+
+        driver.find_element_by_css_selector('button.select_all_items').click()
+        driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
         attrs = [
             'legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
