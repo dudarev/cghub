@@ -70,7 +70,7 @@ jQuery(function ($) {
             }
         },
         initFlexigrid: function() {
-            cghub.search.$searchTable.flexigrid({height: 'auto'});
+            cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
         },
         initDdcl: function() {
             for (var i = cghub.search.$filterSelects.length - 1; i >= 0; i--) {

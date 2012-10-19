@@ -2,6 +2,9 @@ from django.test import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 import time
 import re
+import os, shutil
+from wsapi.settings import CACHE_DIR
+from wsapi.api import request as api_request
 
 
 class SidebarTests(LiveServerTestCase):
@@ -308,3 +311,62 @@ class SearchTests(LiveServerTestCase):
             if not (first == 'None' or second == 'None' or
                     first == ' ' or second == ' '):
                 self.assertLessEqual(first, second)
+
+
+class ColumnSelectTestCase(LiveServerTestCase):
+    cache_file = '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
+    query = "6d53*"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(ColumnSelectTestCase, self).setUpClass()
+        TEST_DATA_DIR = 'cghub/test_data/'
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        shutil.copy(
+            os.path.join(TEST_DATA_DIR, self.cache_file),
+            os.path.join(CACHE_DIR, self.cache_file)
+        )
+        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        self.items_count = lxml.Hits
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(ColumnSelectTestCase, self).tearDownClass()
+        os.remove(os.path.join(CACHE_DIR, self.cache_file))
+
+    def select_columns(self, driver, location):
+        column_count = len(driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")) - 1
+        # Find select on search or cart page
+        if location == 'search':
+            select = driver.find_element_by_xpath("//form[@id='id_add_files_form']/span/span\
+                /span[@class='ui-dropdownchecklist-text']")
+        elif location == 'cart':
+            select = driver.find_element_by_xpath("//form/span/span/span[@class='ui-dropdownchecklist-text']")
+        select.click()
+        # Unselecting one by one
+        r = range(column_count)
+        for i in r:
+            driver.find_element_by_id('ddcl-1-i%d' % (i + 1)).click()
+            for j in r[:(i + 1)]:
+                assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+            for j in r[(i + 1):]:
+                assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+        # Select (all) option
+        driver.find_element_by_id('ddcl-1-i0').click()
+        for i in range(column_count):
+            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed()
+
+        select.click()
+
+    def test_column_select(self):
+        driver = self.selenium
+        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+
+        self.select_columns(driver, 'search')
+        driver.find_element_by_css_selector('button.select_all_items').click()
+        driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        self.select_columns(driver, 'cart')
