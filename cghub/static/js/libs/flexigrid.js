@@ -279,7 +279,7 @@
                 }
                 // Saving hidden columns to sessionStorage
                 if (visible) {
-                    hiddenColumns.pop(hiddenColumns.indexOf(cid));
+                    hiddenColumns.splice(hiddenColumns.indexOf(cid), 1);
                 } else if (hiddenColumns.indexOf(cid) < 0) {
                     hiddenColumns = hiddenColumns.concat(cid);
                 }
