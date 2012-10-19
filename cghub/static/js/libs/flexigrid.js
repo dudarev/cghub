@@ -1448,7 +1448,6 @@
                         grid.toggleCol(value)
                     } else {
                         if (!allOption.is(':checked')) {
-                            console.log('lolol')
                             $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
                                 if ($(el).is(':checked')) {grid.toggleCol($(el).val())}
                             })
