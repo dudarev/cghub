@@ -196,6 +196,18 @@ ALL_FILTERS = OrderedDict([
             ("UCEC", "Uterine Corpus Endometrioid Carcinoma"),
         ]),
     }),
+    ("state", {
+        "title": "By State",
+        "filters": OrderedDict([
+            ("submitted", "Submitted"),
+            ("uploading", "Uploading"),
+            ("validating_data", "Validating data"),
+            ("bad_data", "Bad data"),
+            ("validating_sample", "Validating sample"),
+            ("live", "Live"),
+            ("supressed", "Supressed")
+        ])
+    })
 ])
 # end of ALL_FILTERS
 # do not remove this comment, it is used in selectfilters
