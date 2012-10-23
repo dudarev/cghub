@@ -8,15 +8,17 @@
 {% endblock %}
 {% block main_content %}
     <div class="span6 help-content">
-
-        <h2> Help </h2>
-    
-        See help for search and cart in corresponding sections:
-
+        <h2>Help</h2>
+        Below you will find information on how to navigate and use the Web GUI to gather a Manifest and Metadata XML file:
         <ul class="help-sections">
+            <li><a href="{% url help_overview_page %}">Overview</a></li>
+            <dl>
+                <dt>Direct links to the three sites listed in the overview.
+                    <dd>- <a href="{% url help_navbar_page %}">Navigation Bar</a></li>
+                    <dd>- <a href="{% url help_filters_page %}">Left Side Filter Bar</a></li>
+                    <dd>- <a href="{% url help_results_page %}">Results Area</a></li>
             <li><a href="{% url help_cart_page %}">Cart</a></li>
-            <li><a href="{% url help_search_page %}">Search</a></li>
+            <li><a href="{% url help_usecase_page %}">Use Case</a></li>
         </ul>
-
     </div>
 {% endblock %}
