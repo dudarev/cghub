@@ -11,7 +11,7 @@ jQuery(function ($) {
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
-            cghub.base.highlightCode();
+            cghub.base.highlightCode('pre.xml-code');
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -60,9 +60,7 @@ jQuery(function ($) {
                 modal.on('shown', function(){
                     if (!loaded){
                         modal.find('.modal-body').load(link.attr('href'), function(){
-                            var xmlcontainer = $('.modal-body pre.xml-code');
-                            xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
-                            hljs.highlightBlock(xmlcontainer[0]);
+                            cghub.base.highlightCode('.modal-body pre.xml-code');
                             loaded = true;
                         });
                     };
@@ -73,8 +71,8 @@ jQuery(function ($) {
                 return false;
             });
         },
-        highlightCode:function() {
-            var xmlcontainer = $('pre.xml-code');
+        highlightCode:function(element) {
+            var xmlcontainer = $(element);
             if (xmlcontainer.length) {
                 xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
                 hljs.highlightBlock(xmlcontainer[0]);

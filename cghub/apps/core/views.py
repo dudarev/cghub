@@ -118,7 +118,7 @@ class ItemDetailsView(TemplateView):
     def get_context_data(self, **kwargs):
         results = api_request(query='analysis_id=%s' % kwargs['uuid'])
         if hasattr(results, 'Result'):
-            return {'res': results.Result, 'raw': results.tostring}
+            return {'res': results.Result, 'raw_xml': results.tostring}
         return {'res': None}
 
     def get_template_names(self):
