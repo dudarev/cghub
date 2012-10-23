@@ -20,16 +20,18 @@
 			<li>Once you have verified the files in your cart, click Download Manifest to create a XML file that you can pass to GeneTorrent to download, or click Download metadata to create a XML file that you can examine.<br>
 			<li>In this use case I will create a "Download Manifest" XML file that I can then pass to me GeneTorrent client. (please note that GeneTorrent is not yet available for Windows&reg or Mac&reg OS's) Be sure to note where your Manifest Download file is download and the name of the XML file.<br>
 			<li>GeneTorrent (GT) command:<br>
-			<br>GeneTorrent -d /path/to/manifest.xml -c /path/to/mykey.pem -p /path/to/save/data -vv<br>
+                        <br>
+                        <code>GeneTorrent -d /path/to/manifest.xml -c /path/to/mykey.pem -p /path/to/save/data -vv</code>
+                        <br>
 			<br>
             <ul>
-                <li>The -d option tells GT to look at this file to determine what to download.
-                <li>The -c option tells GT to look at this location for the mykey.pem file.
-                <li>The -p opteion tells GT what path to download the BAM files to.
-                <li>And the -vv (two v's) is a verbose output to the screen so you can see what GT is doing.</ul>
+                <li>The <code>-d</code> option tells GT to look at this file to determine what to download.
+                <li>The <code>-c</code> option tells GT to look at this location for the mykey.pem file.
+                <li>The <code>-p</code> opteion tells GT what path to download the BAM files to.
+                <li>And the <code>-vv</code> (two v's) is a verbose output to the screen so you can see what GT is doing.</ul>
             </ul>
-			<br>All these options can be viewed from the manual (man) pages from GT in the command line ( i.e. "man GeneTorrent") or downloaded from CGHub's website found here under "CGHub Documentation":<br>
-https://cghub.ucsc.edu/help/help.html
+			<br>All these options can be viewed from the manual (man) pages from GT in the command line ( i.e. <code>man GeneTorrent</code>) or downloaded from CGHub's website found here under "CGHub Documentation":<br>
+                        <a href="https://cghub.ucsc.edu/help/help.html">https://cghub.ucsc.edu/help/help.html</a>
         </ol>
 
     </div>
