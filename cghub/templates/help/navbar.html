@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="span6 help-content">
+        <h2> <a href="{% url help_page %}">Help</a>:<a href="{% url help_overview_page %}"> Overview</a></h2>
+        <h3>The navigation bar.</h3>
+        <p><img src="{{ STATIC_URL }}img/help/navbar.png" width="460" height="30" title="A screenshot of the top navigation bar which has a UC Santa Curz link to the CGHub homepage, a search link, a cart link, a help link and a seach box."></p>
+        <p>The navigation bar has 5 active areas.</p>
+        <ul>
+            <li>UC SANTA CRUZ<br>
+            This link will take you to the CGHub's home page located at https://cghub.ucsc.edu</li>
+            <li>Search<br>
+            This link will take you back to the main page and will reset all filters set in the left side filter bar. 
+            <li>Cart<br>
+            This is where you find all of the items you have placed in you cart, and where you can select to download the xml files you have created by placing the selected items in your cart. 
+            <li>Help<br>
+            This link will take you to the help section where you can find some information on how to use the search box and the cart features. 
+            <li>Search Box<br>
+            his is where you can do a specific search on the metadata you are looking for. For example, if you know the UUID you are looking for you can do a search for it (i.e. <code>c8df19f9-f6b5-427d-a122-619d3379821b</code> will return one result). Once you have entered your search criteria, press the enter key to initiate the search.
+        </ul>
+    </div>
+{% endblock %}

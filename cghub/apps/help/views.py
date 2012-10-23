@@ -3,15 +3,9 @@ from django.views.generic.base import TemplateView
 from django.http import HttpResponseRedirect
 
 
-class HelpSearchView(TemplateView):
-    template_name = 'help/search.html'
-
-
-class HelpCartView(TemplateView):
-    template_name = 'help/cart.html'
-
-
-class HelpMainView(TemplateView):
+class HelpView(TemplateView):
+    # override it in urls as
+    # ... HelpView.as_view(template_name='help/navbar.html') ...
     template_name = 'help/help.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -21,4 +15,4 @@ class HelpMainView(TemplateView):
             if request.GET.get('from', '').startswith('/cart'):
                 return HttpResponseRedirect(reverse('help_cart_page'))
             return HttpResponseRedirect(reverse('help_page'))
-        return super(HelpMainView, self).dispatch(request, *args, **kwargs)
+        return super(HelpView, self).dispatch(request, *args, **kwargs)
