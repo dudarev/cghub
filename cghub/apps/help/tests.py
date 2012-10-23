@@ -1,12 +1,9 @@
-"""
-Test help pages
-"""
-
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 
 class HelpTest(TestCase):
+
     def test_links_to_home(self):
         response = self.client.get(reverse('help_cart_page'))
         # two occurances in navigation bar /help/?from=/help/
