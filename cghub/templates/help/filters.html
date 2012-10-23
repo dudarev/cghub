@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="span6 help-content">
+        <h2> <a href="{% url help_page %}">Help</a>:<a href="{% url help_overview_page %}"> Overview</a></h2>
+        <h3>Left side filters bar.</h3>
+        <img src="{{ STATIC_URL }}img/help/filters.png" width="145" height="270" title="A screenshot of the left side navigation bar that has six option to choose from. Center, Sample, Time, Disease, Experiment, and Run Type.">
+        <br>
+        <br>
+		<p>The left side filter bar contains six categories to choose from that can optimized your search depending on what you are looking for. </p>
+        <br>
+		<p>Available options:</p>
+		<ul>
+			<li>By Center:
+			<br>
+			This is the submitting center, which uploaded the data to CGHub.
+			<li>By Sample Type: 
+			<br>
+			This is the type of sample that the DNA was derived from. (E.G. Blood, Tumor etc.)
+			<li>By Time Modified: 
+			<br>
+			Reflects the date this data was uploaded to CGHub.
+			<li>By Disease:
+			<br>
+			Esophageal carcinoma, Brain Lower Grade Giloma, etc
+			<li>By Experiment:
+			<br>
+			RNA, DNA, WGA, etc.
+			<li>By Run Type:
+			<br>
+			WGS, WXS, MRE-Seq etc.
+		</ul>
+    </div>
+{% endblock %}
