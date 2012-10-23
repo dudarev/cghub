@@ -60,7 +60,9 @@ jQuery(function ($) {
                 modal.on('shown', function(){
                     if (!loaded){
                         modal.find('.modal-body').load(link.attr('href'), function(){
-                            $('.modal-body pre.xml-code').each(function(i, e) {hljs.highlightBlock(e)});
+                            var xmlcontainer = $('.modal-body pre.xml-code');
+                            xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
+                            hljs.highlightBlock(xmlcontainer[0]);
                             loaded = true;
                         });
                     };
@@ -72,7 +74,11 @@ jQuery(function ($) {
             });
         },
         highlightCode:function() {
-            $('pre.xml-code').each(function(i, e) {hljs.highlightBlock(e)});
+            var xmlcontainer = $('pre.xml-code');
+            if (xmlcontainer.length) {
+                xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
+                hljs.highlightBlock(xmlcontainer[0]);
+            }
         },
     };
     cghub.base.init();
