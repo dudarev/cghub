@@ -198,10 +198,10 @@ class SearchTests(LiveServerTestCase):
         element.submit()
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         self.selenium.find_element_by_link_text("50").click()
         assert 50 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
 
     def test_pagination(self):
         self.selenium.get(self.live_server_url)
@@ -209,7 +209,7 @@ class SearchTests(LiveServerTestCase):
         element.send_keys("6d7*")
         element.submit()
         assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys("6d*")
@@ -217,10 +217,10 @@ class SearchTests(LiveServerTestCase):
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
         assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         self.selenium.find_element_by_link_text("2").click()
         assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[3]/div[5]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
 
     def test_filtering_shown(self):
         self.selenium.get(self.live_server_url)
