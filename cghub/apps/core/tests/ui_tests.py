@@ -18,18 +18,18 @@ class SidebarTests(LiveServerTestCase):
     def test_select_all(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-        driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
+        self.selenium.find_element_by_css_selector("#ddcl-7 > span:first-child > span").click()
 
-        # by center has 7 centers, i0 - deselect all, i1-i7 - selections
-        driver.find_element_by_id("ddcl-6-i0").click()
+        # by center has 8 centers, i0 - deselect all, i1-i7 - selections
+        driver.find_element_by_id("ddcl-7-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-6-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-7-i%d" % i)
             self.assertFalse(cb.is_selected())
 
         # click again - select all
-        driver.find_element_by_id("ddcl-6-i0").click()
+        driver.find_element_by_id("ddcl-7-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-6-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-7-i%d" % i)
             self.assertTrue(cb.is_selected())
 
     def test_select_date(self):
@@ -65,78 +65,89 @@ class SidebarTests(LiveServerTestCase):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
-        # center: BCM+OR+WUGSC+OR+BCCAGSC
-        driver.find_element_by_id("ddcl-6-i0").click()
-        driver.find_element_by_id("ddcl-6-i1").click()
-        driver.find_element_by_id("ddcl-6-i2").click()
-        driver.find_element_by_id("ddcl-6-i3").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-6-ddw']/div/div[9]").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-5']/span/span").click()
-        # sample type: 02+OR+03+OR+13
-        driver.find_element_by_id("ddcl-5-i0").click()
-        driver.find_element_by_id("ddcl-5-i1").click()
-        driver.find_element_by_id("ddcl-5-i2").click()
-        driver.find_element_by_id("ddcl-5-i3").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-5-ddw']/div/div[21]").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-3']/span/span").click()
-        # disease_abbr: ESCA+OR+DLBC+OR+READ
-        driver.find_element_by_id("ddcl-3-i0").click()
-        driver.find_element_by_id("ddcl-3-i1").click()
-        driver.find_element_by_id("ddcl-3-i2").click()
-        driver.find_element_by_id("ddcl-3-i3").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-3-ddw']/div/div[29]").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-2']/span/span").click()
-        # analyte_code: D+OR+G+OR+H
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
+        # study: phs000178
+        driver.find_element_by_id("ddcl-8-i0").click()
+        driver.find_element_by_id("ddcl-8-i1").click()
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-7 > span:first-child > span").click()
+        # center: BCM+OR+BCCAGSC+OR+BI
+        driver.find_element_by_id("ddcl-7-i0").click()
+        driver.find_element_by_id("ddcl-7-i1").click()
+        driver.find_element_by_id("ddcl-7-i2").click()
+        driver.find_element_by_id("ddcl-7-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-7 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-4 > span:first-child > span").click()
+        # sample type: 10+OR+12+OR+20
+        driver.find_element_by_id("ddcl-4-i0").click()
+        driver.find_element_by_id("ddcl-4-i1").click()
+        driver.find_element_by_id("ddcl-4-i2").click()
+        driver.find_element_by_id("ddcl-4-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-4 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-2 > span:first-child > span").click()
+        # disease_abbr: LAML+OR+BLCA+OR+LGG
         driver.find_element_by_id("ddcl-2-i0").click()
         driver.find_element_by_id("ddcl-2-i1").click()
         driver.find_element_by_id("ddcl-2-i2").click()
         driver.find_element_by_id("ddcl-2-i3").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-2-ddw']/div/div[9]/span").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-1']/span/span").click()
-        # library_strategy: POOLCLONE+OR+WCS+OR+EST
-        driver.find_element_by_id("ddcl-1-i0").click()
-        driver.find_element_by_id("ddcl-1-i1").click()
-        driver.find_element_by_id("ddcl-1-i2").click()
-        driver.find_element_by_id("ddcl-1-i3").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-1-ddw']/div/div[22]/span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-2 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-6 > span:first-child > span").click()
+        # analyte_code: D+OR+H+OR+R
+        driver.find_element_by_id("ddcl-6-i0").click()
+        driver.find_element_by_id("ddcl-6-i1").click()
+        driver.find_element_by_id("ddcl-6-i2").click()
+        driver.find_element_by_id("ddcl-6-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-6 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-3 > span:first-child > span").click()
+        # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
+        driver.find_element_by_id("ddcl-3-i0").click()
+        driver.find_element_by_id("ddcl-3-i1").click()
+        driver.find_element_by_id("ddcl-3-i2").click()
+        driver.find_element_by_id("ddcl-3-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-3 > span:last-child > span").click()
         driver.find_element_by_id("id_apply_filters").click()
 
         url = driver.current_url
 
-        # center: BCM+OR+WUGSC+OR+BCCAGSC
+        print url
+
+        
+        # study: phs000178
+        self.assertTrue('phs000178' in url)
+        self.assertFalse('TCGA_MUT_BENCHMARK_4' in url)
+        # center: BCM+OR+BCCAGSC+OR+BI
         self.assertTrue(
             'BCM' in url and
-            'WUGSC' in url and
-            'BCCAGSC' in url)
+            'BCCAGSC' in url and
+            'BI' in url)
         self.assertFalse(
             'UNC-LCCC' in url)
-        # sample type: 02+OR+03+OR+13
+        # sample type: 10+OR+12+OR+20
         self.assertTrue(
-            re.match('.*sample_type=[^&]*02', url) and
-            re.match('.*sample_type=[^&]*03', url) and
-            re.match('.*sample_type=[^&]*13', url))
+            re.match('.*sample_type=[^&]*10', url) and
+            re.match('.*sample_type=[^&]*12', url) and
+            re.match('.*sample_type=[^&]*20', url))
         self.assertFalse(
             re.match('.*sample_type=[^&]*14', url))
-        # disease_abbr: ESCA+OR+DLBC+OR+READ
+        # disease_abbr: LAML+OR+BLCA+OR+LGG
         self.assertTrue(
-            re.match('.*disease_abbr=[^&]*ESCA', url) and
-            re.match('.*disease_abbr=[^&]*DLBC', url) and
-            re.match('.*disease_abbr=[^&]*READ', url))
+            re.match('.*disease_abbr=[^&]*LAML', url) and
+            re.match('.*disease_abbr=[^&]*BLCA', url) and
+            re.match('.*disease_abbr=[^&]*LGG', url))
         self.assertFalse(
             re.match('.*disease_abbr=[^&]*GBM', url))
-        # analyte_code: D+OR+G+OR+H
+        # analyte_code: D+OR+H+OR+R
         self.assertTrue(
             re.match('.*analyte_code=[^&]*D', url) and
-            re.match('.*analyte_code=[^&]*G', url) and
-            re.match('.*analyte_code=[^&]*H', url))
+            re.match('.*analyte_code=[^&]*H', url) and
+            re.match('.*analyte_code=[^&]*R', url))
         self.assertFalse(
             re.match('.*analyte_code=[^&]*T', url))
-        # library_strategy: POOLCLONE+OR+WCS+OR+EST
+        # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
         self.assertTrue(
-            re.match('.*library_strategy=[^&]*POOLCLONE', url) and
-            re.match('.*library_strategy=[^&]*WCS', url) and
-            re.match('.*library_strategy=[^&]*EST', url))
+            re.match('.*library_strategy=[^&]*Bisulfite-Seq', url) and
+            re.match('.*library_strategy=[^&]*OTHER', url) and
+            re.match('.*library_strategy=[^&]*RNA-Seq', url))
         self.assertFalse(
             re.match('.*library_strategy=[^&]*WXS', url))
 
