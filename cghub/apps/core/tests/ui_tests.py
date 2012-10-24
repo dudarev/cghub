@@ -225,19 +225,19 @@ class SearchTests(LiveServerTestCase):
     def test_filtering_shown(self):
         self.selenium.get(self.live_server_url)
         # unselect all
-        self.selenium.execute_script("$('.sidebar span')[0].click()")
-        self.selenium.execute_script("$('#ddcl-6-i0').attr('checked', false)")
-        self.selenium.execute_script("$('#ddcl-6-i0').click()")
+        self.selenium.execute_script("$('#ddcl-7').click()")
+        self.selenium.execute_script("$('#ddcl-7-i0').attr('checked', false)")
+        self.selenium.execute_script("$('#ddcl-7-i0').click()")
 
         # select Baylor and Harvard
-        self.selenium.execute_script("$('#ddcl-6-i1').click()")
-        self.selenium.execute_script("$('#ddcl-6-i6').click()")
+        self.selenium.execute_script("$('#ddcl-7-i1').click()")
+        self.selenium.execute_script("$('#ddcl-7-i4').click()")
 
         self.search()
 
         # check if filters is shown
         filter = (self.selenium.find_element_by_css_selector(
-            "#ddcl-6 > span:first-child > span:first-child"))
+            "#ddcl-7 > span:first-child > span"))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
 
     def test_pagination_links(self):
@@ -291,11 +291,18 @@ class SearchTests(LiveServerTestCase):
 
     def test_sorting_order(self):
         columns = ['Barcode', 'UUID', 'Accession', 'Files Size',
-                   'Last modified', 'Disease', 'Sample Type',
-                   'Experiment Type', 'Run Type', 'Center']
+                   'Last modified', 'Disease', 'Disease (full)',
+                   'Sample Type', 'Sample Type (full)',
+                   'Experiment Type', 'Run Type', 'Center', 'Center (full)']
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
+            if i in (5, 7, 11):
+                continue
+            # scroll table
+            self.selenium.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link:contains(%s)')"
+                        ".parents('th').position().left);" % column);
             # after first click element element is asc sorted
             self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -303,6 +310,10 @@ class SearchTests(LiveServerTestCase):
             selector = ".bDiv > table td:nth-child({})".format(i + 2)
             first = self.selenium.find_element_by_css_selector(selector).text
 
+            # scroll table
+            self.selenium.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link:contains(%s)')"
+                        ".parents('th').position().left);" % column);
             # resort
             self.selenium.find_element_by_partial_link_text(column).click()
             second = self.selenium.find_element_by_css_selector(selector).text

@@ -235,7 +235,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 continue
 
             # scroll table
-            driver.execute_script("$('.flexigrid div').scrollLeft($('.sort-link[href*=%s]').parents('th').position().left);" % attr);
+            driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link[href*=%s]')"
+                        ".parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -253,7 +255,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
-            driver.execute_script("$('.flexigrid div').scrollLeft($('.sort-link[href*=%s]').parents('th').position().left);" % attr);
+            driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link[href*=%s]')"
+                        ".parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
             sort_link.click()
@@ -262,7 +266,6 @@ class SortWithinCartTestCase(LiveServerTestCase):
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                print i, j, text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
                 elif attr == 'analyte_code':
