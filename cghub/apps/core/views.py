@@ -13,7 +13,7 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-1MONTH%20TO%20NOW]'
+    default_query = 'last_modified=[NOW-1MONTH%20TO%20NOW]&state=(live)'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -64,6 +64,7 @@ class SearchView(TemplateView):
             'sample_type',
             'library_strategy',
             'disease_abbr',
+            'state'
         ]
         for attr in allowed_attributes:
             if self.request.GET.get(attr):

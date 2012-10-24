@@ -17,6 +17,7 @@
                 <th width='100'>{% sort_link request 'library_strategy' 'Run Type' %}</th>
                 <th width='100'>{% sort_link request 'center_name' 'Center' %}</th>
                 <th width='100'>{% sort_link request 'center_name' 'Center (full)' %}</th>
+                <th width='70'>{% sort_link request 'state' 'State' %}</th>
             </tr>
         </thead>
         <tbody>
@@ -33,7 +34,8 @@
                                                             data-sample_type="{{ r.sample_type }}"
                                                             data-analyte_code="{{ r.analyte_code }}"
                                                             data-library_strategy="{{ r.library_strategy }}"
-                                                            data-center_name="{{ r.center_name }}"></td>
+                                                            data-center_name="{{ r.center_name }}"
+                                                            data-state="{{ r.state }}"></td>
                 <td>{{ r.legacy_sample_id }}</td>
                 <td><a href="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" class="js-item-details-link">{{ r.analysis_id }}</a></td>
                 <td>{{ r.sample_accession }}</td>
@@ -47,6 +49,7 @@
                 <td>{{ r.library_strategy }}</td>
                 <td>{{ r.center_name }}</td>
                 <td>{% get_name_by_code 'center_name' r.center_name %}</td>
+                <td>{% get_name_by_code 'state' r.state %}</td>
             </tr>
         {% endfor %}
         </tbody>

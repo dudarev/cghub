@@ -168,6 +168,18 @@ ALL_FILTERS = OrderedDict([
         ]),
         'title': 'By Disease',
     }),
+    ("state", {
+        "filters": OrderedDict([
+            ("submitted", "Submitted"),
+            ("uploading", "Uploading"),
+            ("validating_data", "Validating data"),
+            ("bad_data", "Bad data"),
+            ("validating_sample", "Validating sample"),
+            ("live", "Live"),
+            ("supressed", "Supressed")
+        ]),
+        "title": "By State",
+    })
 ])
 # end of ALL_FILTERS
 # do not remove this comment, it is used in selectfilters
