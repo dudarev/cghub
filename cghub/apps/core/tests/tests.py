@@ -69,6 +69,8 @@ class CoreTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, results.Result.center_name)
         self.assertNotContains(r, '<head>')
+        # test raw_xml
+        self.assertTrue(r.context.get('raw_xml', False))
 
 
 class TestTemplateTags(TestCase):
