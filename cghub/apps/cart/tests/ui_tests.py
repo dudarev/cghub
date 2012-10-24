@@ -222,9 +222,10 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
         attrs = [
-            'legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
-            'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
-            'library_strategy', 'center_name']
+            'legacy_sample_id', 'analysis_id', 'sample_accession',
+            'files_size', 'last_modified', 'disease_abbr', 'disease_abbr',
+            'sample_type', 'sample_type', 'analyte_code', 'library_strategy',
+            'center_name', 'center_name']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT
@@ -233,6 +234,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
             if i in (6, 8, 12):
                 continue
 
+            # scroll table
+            driver.execute_script("$('.flexigrid div').scrollLeft($('.sort-link[href*=%s]').parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -250,6 +253,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
+            driver.execute_script("$('.flexigrid div').scrollLeft($('.sort-link[href*=%s]').parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
             sort_link.click()
@@ -258,6 +262,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+                print i, j, text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
                 elif attr == 'analyte_code':
