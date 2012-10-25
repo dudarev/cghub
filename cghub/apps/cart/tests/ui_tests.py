@@ -220,22 +220,23 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
         attrs = [
-            'legacy_sample_id', 'analysis_id', 'sample_accession',
-            'files_size', 'last_modified', 'disease_abbr', 'disease_abbr',
-            'sample_type', 'sample_type', 'analyte_code', 'library_strategy',
-            'center_name', 'center_name']
+            'analysis_id', 'study', 'center_name', 'center_name',
+            'analyte_code', 'last_modified', 'sample_type', 'sample_type',
+            'library_strategy', 'disease_abbr', 'disease_abbr', 'state',
+            'legacy_sample_id', 'sample_accession', 'files_size']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT
             # fix for extra 'full name' columns, their sorting links are duplicates anyway
             # after changing the columns' set check attrs list above
-            if i in (6, 8, 12):
+            if i in (3, 7, 10):
                 continue
 
             # scroll table
             driver.execute_script("$('.flexigrid div')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
                         ".parents('th').position().left);" % attr);
+            time.sleep(2)
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -245,10 +246,10 @@ class SortWithinCartTestCase(LiveServerTestCase):
 
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]/div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
-                elif attr == 'analyte_code':
+                elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
@@ -266,7 +267,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
-                elif attr == 'analyte_code':
+                elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
