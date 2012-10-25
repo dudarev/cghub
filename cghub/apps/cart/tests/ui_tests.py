@@ -1,9 +1,7 @@
-import os
-import time
-import shutil
+import time, os
 
-from wsapi.settings import CACHE_DIR
 from wsapi.api import request as api_request
+from wsapi.settings import CACHE_DIR
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -12,22 +10,27 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-    get_sample_type_by_code)
+from cghub.apps.core.tests.ui_tests import (
+                            wsapi_cache_copy, wsapi_cache_remove)
+from cghub.apps.core.templatetags.search_tags import (
+                            get_name_by_code, get_sample_type_by_code)
 
 
 class LinksNavigationsTests(LiveServerTestCase):
+    cache_files = ('e663e2849a7da1a84256e4527d4102ac.xml',)
 
     @classmethod
-    def setUpClass(cls):
-        cls.selenium = webdriver.Firefox()
-        cls.selenium.implicitly_wait(5)
-        super(LinksNavigationsTests, cls).setUpClass()
+    def setUpClass(self):
+        self.selenium = webdriver.Firefox()
+        self.selenium.implicitly_wait(5)
+        super(LinksNavigationsTests, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
 
     @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super(LinksNavigationsTests, cls).tearDownClass()
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(LinksNavigationsTests, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
 
     def test_cart_link(self):
         self.selenium.get(self.live_server_url)
@@ -44,7 +47,10 @@ class LinksNavigationsTests(LiveServerTestCase):
 
 
 class CartUITests(LiveServerTestCase):
-    cache_file = '0aab3523a4352c73abf8940e7c9ae7a5.xml'
+    cache_files = (
+            '0aab3523a4352c73abf8940e7c9ae7a5.xml',
+            '33b4441ffd0d7ab7ec21f0cff9a53d95.xml',
+            '427dcd2c78d4be27efe3d0cde008b1f9.xml')
     selected = [
         'a15b7a89-0085-4879-9715-a37a460ff26d',
         'd1cc01ad-951b-424a-9860-2f400d3e0282'
@@ -66,15 +72,9 @@ class CartUITests(LiveServerTestCase):
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(CartUITests, self).setUpClass()
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        shutil.copy(
-            os.path.join(TEST_DATA_DIR, self.cache_file),
-            os.path.join(CACHE_DIR, self.cache_file)
-        )
+        wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
-        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
         uuids = lxml.xpath('/ResultSet/Result/analysis_id')
         self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
@@ -82,7 +82,7 @@ class CartUITests(LiveServerTestCase):
     def tearDownClass(self):
         self.selenium.quit()
         super(CartUITests, self).tearDownClass()
-        os.remove(os.path.join(CACHE_DIR, self.cache_file))
+        wsapi_cache_remove(self.cache_files)
 
     def test_cart(self):
         # Testing proper item adding
@@ -189,7 +189,11 @@ class CartUITests(LiveServerTestCase):
 
 
 class SortWithinCartTestCase(LiveServerTestCase):
-    cache_file = '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
+    cache_files = (
+                    'cb712a7b93a6411001cbc34cfb883594.xml',
+                    'ecbf7eaaf5b476df08b2997afd675701.xml',
+                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
+                    )
     query = "6d53*"
 
     @classmethod
@@ -197,21 +201,15 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        shutil.copy(
-            os.path.join(TEST_DATA_DIR, self.cache_file),
-            os.path.join(CACHE_DIR, self.cache_file)
-        )
-        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        wsapi_cache_copy(self.cache_files)
+        lxml = api_request(file_name=CACHE_DIR + self.cache_files[1])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(SortWithinCartTestCase, self).tearDownClass()
-        os.remove(os.path.join(CACHE_DIR, self.cache_file))
+        wsapi_cache_remove(self.cache_files)
 
     def test_sort_within_cart(self):
         # Adding first 10 items to cart for sorting
@@ -222,34 +220,43 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
         attrs = [
-            'legacy_sample_id', 'analysis_id', 'sample_accession', 'files_size',
-            'last_modified', 'disease_abbr', 'sample_type', 'analyte_code',
-            'library_strategy', 'center_name']
+            'analysis_id', 'study', 'center_name', 'center_name',
+            'analyte_code', 'last_modified', 'sample_type', 'sample_type',
+            'library_strategy', 'disease_abbr', 'disease_abbr', 'state',
+            'legacy_sample_id', 'sample_accession', 'files_size']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT
             # fix for extra 'full name' columns, their sorting links are duplicates anyway
             # after changing the columns' set check attrs list above
-            if i in (6, 8, 12):
+            if i in (3, 7, 10):
                 continue
 
+            # scroll table
+            driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link[href*=%s]')"
+                        ".parents('th').position().left);" % attr);
+            time.sleep(2)
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
             # Getting list with sorted attributes
-            results = api_request(file_name=CACHE_DIR + self.cache_file, sort_by=attr).Result
+            results = api_request(file_name=CACHE_DIR + self.cache_files[1], sort_by=attr).Result
             sorted_attr = [getattr(r, attr) for r in results]
 
             for j in range(self.items_count):
                 text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
+                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]/div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
-                elif attr == 'analyte_code':
+                elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
+            driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.sort-link[href*=%s]')"
+                        ".parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
             sort_link.click()
@@ -260,7 +267,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
-                elif attr == 'analyte_code':
+                elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
