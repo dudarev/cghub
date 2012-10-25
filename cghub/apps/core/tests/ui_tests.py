@@ -7,13 +7,39 @@ from wsapi.settings import CACHE_DIR
 from wsapi.api import request as api_request
 
 
+def wsapi_cache_copy(cache_files):
+    """
+    copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    """
+    TEST_DATA_DIR = 'cghub/test_data/'
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    for f in cache_files:
+        shutil.copy(
+            os.path.join(TEST_DATA_DIR, f),
+            os.path.join(CACHE_DIR, f)
+        )
+
+
+def wsapi_cache_remove(cache_files):
+    """
+    remove cache_files from CACHE_DIR
+    """
+    for f in cache_files:
+        os.remove(os.path.join(CACHE_DIR, f))
+
+
 class SidebarTests(LiveServerTestCase):
+    cache_files = (
+                    '7fef5a3e22282d1330d8478c3cb6dcae.xml',
+                    'e663e2849a7da1a84256e4527d4102ac.xml')
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SidebarTests, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
 
     def test_select_all(self):
         driver = self.selenium
@@ -166,9 +192,20 @@ class SidebarTests(LiveServerTestCase):
     def tearDownClass(self):
         self.selenium.quit()
         super(SidebarTests, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
 
 
 class SearchTests(LiveServerTestCase):
+    cache_files = (
+                '02bb9676ca1a88fececbb4909ccca4fc.xml', '5fa63cb5e9696f2f6edb9cafd16a377f.xml',
+                '714f182ce3b2196b3b064880493e242d.xml', 'c0db6ab7b80ded4f9211570170011d80.xml',
+                '1337b453bc52e564fdf5853222aee83d.xml', '647ecc223f2f713367bed01d695fbcca.xml',
+                '718a11e6622c452544644029fcc90664.xml', 'e663e2849a7da1a84256e4527d4102ac.xml',
+                '3e45de4a60a55cb60772e035417aabb1.xml', '69f24e8461162cca74992a655cd902cc.xml',
+                '7483974d8235868e5d4d2079d5051332.xml', 'eb43d51ba32b3d5b63288be3d53d409b.xml',
+                '4fef00a90792853839aa515df0d4208a.xml', '6ac8323ed6e770f1453201f34809779b.xml',
+                'a2ea32b5bcb173f3e434979ba599c3ad.xml', 'fe7edde187f36c943a97e63775909caf.xml',
+            )
     query = "6d5*"
 
     @classmethod
@@ -176,11 +213,13 @@ class SearchTests(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SearchTests, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(SearchTests, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
 
     def search(self, text="6d*"):
         element = self.selenium.find_element_by_name("q")
@@ -351,7 +390,10 @@ class SearchTests(LiveServerTestCase):
 
 
 class ColumnSelectTestCase(LiveServerTestCase):
-    cache_file = '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
+    cache_files = (
+                '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                'cb712a7b93a6411001cbc34cfb883594.xml',
+                'ecbf7eaaf5b476df08b2997afd675701.xml')
     query = "6d53*"
 
     @classmethod
@@ -359,21 +401,15 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(ColumnSelectTestCase, self).setUpClass()
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        shutil.copy(
-            os.path.join(TEST_DATA_DIR, self.cache_file),
-            os.path.join(CACHE_DIR, self.cache_file)
-        )
-        lxml = api_request(file_name=CACHE_DIR + self.cache_file)._lxml_results
+        wsapi_cache_copy(self.cache_files)
+        lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
-        os.remove(os.path.join(CACHE_DIR, self.cache_file))
+        wsapi_cache_remove(self.cache_files)
 
     def select_columns(self, driver, location):
         column_count = len(driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")) - 1
@@ -382,21 +418,29 @@ class ColumnSelectTestCase(LiveServerTestCase):
             select = driver.find_element_by_xpath("//form[@id='id_add_files_form']/span/span\
                 /span[@class='ui-dropdownchecklist-text']")
         elif location == 'cart':
-            select = driver.find_element_by_xpath("//form/span/span/span[@class='ui-dropdownchecklist-text']")
+            select = driver.find_element_by_css_selector("#ddcl-1 > span:first-child > span")
         select.click()
         # Unselecting one by one
         r = range(column_count)
         for i in r:
             driver.find_element_by_id('ddcl-1-i%d' % (i + 1)).click()
             for j in r[:(i + 1)]:
+                driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % j);
                 assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
             for j in r[(i + 1):]:
+                driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % j);
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
         # Select (all) option
         driver.find_element_by_id('ddcl-1-i0').click()
         for i in range(column_count):
+            driver.execute_script("$('.flexigrid div')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % i);
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed()
-
         select.click()
 
     def test_column_select(self):
