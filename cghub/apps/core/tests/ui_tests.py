@@ -204,8 +204,7 @@ class SearchTests(LiveServerTestCase):
                 '3e45de4a60a55cb60772e035417aabb1.xml', '69f24e8461162cca74992a655cd902cc.xml',
                 '7483974d8235868e5d4d2079d5051332.xml', 'eb43d51ba32b3d5b63288be3d53d409b.xml',
                 '4fef00a90792853839aa515df0d4208a.xml', '6ac8323ed6e770f1453201f34809779b.xml',
-                'a2ea32b5bcb173f3e434979ba599c3ad.xml', 'fe7edde187f36c943a97e63775909caf.xml',
-            )
+                'a2ea32b5bcb173f3e434979ba599c3ad.xml', 'fe7edde187f36c943a97e63775909caf.xml')
     query = "6d5*"
 
     @classmethod
@@ -351,15 +350,16 @@ class SearchTests(LiveServerTestCase):
         self.__parent_has_class(link, 'active')
 
     def test_sorting_order(self):
-        columns = ['Barcode', 'UUID', 'Accession', 'Files Size',
-                   'Last modified', 'Disease', 'Disease (full)',
-                   'Sample Type', 'Sample Type (full)',
-                   'Experiment Type', 'Run Type', 'Center',
-                   'Center (full)', 'State']
+        columns = [
+                    'UUID', 'Study', 'Center', 'Center (full)',
+                    'Experiment Type', 'Last modified',
+                    'Sample Type', 'Sample Type (full)', 'Run Type',
+                    'Disease', 'Disease (full)', 'State', 'Barcode',
+                    'Sample Accession', 'Files Size']
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
-            if i in (5, 7, 11):
+            if i in (3, 7, 10):
                 continue
             # scroll table
             self.selenium.execute_script("$('.flexigrid div')"
