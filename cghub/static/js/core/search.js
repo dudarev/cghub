@@ -55,6 +55,12 @@ jQuery(function ($) {
                         } else {
                             select.find('option[value = ""]').attr('selected', 'selected');
                         }
+                    } else if (section == 'state') {
+                        if (window.location.pathname.indexOf('search') > 0) {
+                            select.find('option[value = "(all)"]').attr('selected', 'selected');
+                        } else {
+                            select.find('option[value = "live"]').attr('selected', 'selected');
+                        }
                     } else {
                         select.find('option[value = "(all)"]').attr('selected', 'selected');
                     }

@@ -16,6 +16,37 @@ from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
 class CoreTests(TestCase):
+    cache_files = [
+        'd35ccea87328742e26a8702dee596ee9.xml'
+    ]
+    query = "6d54*"
+
+    def setUp(self):
+        """
+        Copy cached files to default cache directory.
+        """
+
+        # cache filenames are generated as following:
+        # >>> from wsapi.cache import get_cache_file_name
+        # >>> get_cache_file_name('xml_text=6d5%2A', True)
+        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
+
+        TEST_DATA_DIR = 'cghub/test_data/'
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        for f in self.cache_files:
+            shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(CACHE_DIR, f)
+            )
+        self.default_results = objectify.fromstring(
+            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+        self.default_results_count = len(self.default_results.findall('Result'))
+
+    def tearDown(self):
+        for f in self.cache_files:
+            os.remove(os.path.join(CACHE_DIR, f))
+
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -26,12 +57,12 @@ class CoreTests(TestCase):
         self.assertTrue('No results found' in response.content)
 
     def test_existent_search(self):
-        response = self.client.get('/search/?q=6d7*')
+        response = self.client.get('/search/?q=%s' % self.query)
         self.assertEqual(response.status_code, 200)
 
     def test_double_digit_for_sample_type(self):
         from lxml.html import fromstring
-        response = self.client.get('/search/?q=6d7*')
+        response = self.client.get('/search/?q=%s' % self.query)
         c = fromstring(response.content)
         sample_type_index = 0
         for th in c.cssselect('th'):
@@ -50,8 +81,10 @@ class CoreTests(TestCase):
         r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, u'No data.')
+
         from cghub.wsapi.api import request as api_request
-        results = api_request(query='last_modified=[NOW-1MONTH TO NOW]')
+        file_name = os.path.join(CACHE_DIR, self.cache_files[0])
+        results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         r = self.client.get(
                         reverse('item_details',
@@ -69,6 +102,8 @@ class CoreTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, results.Result.center_name)
         self.assertNotContains(r, '<head>')
+        # test raw_xml
+        self.assertTrue(r.context.get('raw_xml', False))
 
 
 class TestTemplateTags(TestCase):

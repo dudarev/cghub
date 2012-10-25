@@ -83,6 +83,7 @@ def applied_filters(request):
         'sample_type': request.GET.get('sample_type'),
         'library_strategy': request.GET.get('library_strategy'),
         'disease_abbr': request.GET.get('disease_abbr'),
+        'state': request.GET.get('state'),
         'q': request.GET.get('q'),
     }
 
@@ -117,8 +118,9 @@ def applied_filters(request):
         filters_str = ''
         for value in filters:
             # do not put abbreviation in parenthesis if it is the same
-            if ALL_FILTERS[f]['filters'][value] == value:
-                filters_str += ', %s' % (value)
+            # or if the filter type is state
+            if ALL_FILTERS[f]['filters'][value] == value or f == 'state':
+                filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
             else:
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
