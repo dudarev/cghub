@@ -4,6 +4,7 @@
         <thead>
             <tr>
                 <th class="data-table-checkbox-header" width='15'></th>
+                <th width='100'>{% sort_link request 'study' 'Study' %}</th>
                 <th width='235'>{% sort_link request 'legacy_sample_id' 'Barcode' %}</th>
                 <th width='220'>{% sort_link request 'analysis_id' 'UUID' %}</th>
                 <th width='75'>{% sort_link request 'sample_accession' 'Accession' %}</th>
@@ -36,6 +37,7 @@
                                                             data-library_strategy="{{ r.library_strategy }}"
                                                             data-center_name="{{ r.center_name }}"
                                                             data-state="{{ r.state }}"></td>
+                <td>{% get_name_by_code 'study' r.study %}</td>
                 <td>{{ r.legacy_sample_id }}</td>
                 <td><a href="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" class="js-item-details-link">{{ r.analysis_id }}</a></td>
                 <td>{{ r.sample_accession }}</td>
@@ -69,3 +71,4 @@
         </div>
     </div>
 {% endif %}
+dif %}
