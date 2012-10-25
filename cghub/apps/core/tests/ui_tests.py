@@ -18,18 +18,18 @@ class SidebarTests(LiveServerTestCase):
     def test_select_all(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-        self.selenium.find_element_by_css_selector("#ddcl-7 > span:first-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
-        driver.find_element_by_id("ddcl-7-i0").click()
+        driver.find_element_by_id("ddcl-8-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-7-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-8-i%d" % i)
             self.assertFalse(cb.is_selected())
 
         # click again - select all
-        driver.find_element_by_id("ddcl-7-i0").click()
+        driver.find_element_by_id("ddcl-8-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-7-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-8-i%d" % i)
             self.assertTrue(cb.is_selected())
 
     def test_select_date(self):
@@ -65,53 +65,57 @@ class SidebarTests(LiveServerTestCase):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-9 > span:first-child > span").click()
         # study: phs000178
+        driver.find_element_by_id("ddcl-9-i0").click()
+        driver.find_element_by_id("ddcl-9-i1").click()
+        self.selenium.find_element_by_css_selector("#ddcl-9 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
+        # center: BCM+OR+BCCAGSC+OR+BI
         driver.find_element_by_id("ddcl-8-i0").click()
         driver.find_element_by_id("ddcl-8-i1").click()
+        driver.find_element_by_id("ddcl-8-i2").click()
+        driver.find_element_by_id("ddcl-8-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-8 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-5 > span:first-child > span").click()
+        # sample type: 10+OR+12+OR+20
+        driver.find_element_by_id("ddcl-5-i0").click()
+        driver.find_element_by_id("ddcl-5-i1").click()
+        driver.find_element_by_id("ddcl-5-i2").click()
+        driver.find_element_by_id("ddcl-5-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-5 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-3 > span:first-child > span").click()
+        # disease_abbr: LAML+OR+BLCA+OR+LGG
+        driver.find_element_by_id("ddcl-3-i0").click()
+        driver.find_element_by_id("ddcl-3-i1").click()
+        driver.find_element_by_id("ddcl-3-i2").click()
+        driver.find_element_by_id("ddcl-3-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-3 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-7 > span:first-child > span").click()
-        # center: BCM+OR+BCCAGSC+OR+BI
+        # analyte_code: D+OR+H+OR+R
         driver.find_element_by_id("ddcl-7-i0").click()
         driver.find_element_by_id("ddcl-7-i1").click()
         driver.find_element_by_id("ddcl-7-i2").click()
         driver.find_element_by_id("ddcl-7-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-7 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-4 > span:first-child > span").click()
-        # sample type: 10+OR+12+OR+20
+        # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
         driver.find_element_by_id("ddcl-4-i0").click()
         driver.find_element_by_id("ddcl-4-i1").click()
         driver.find_element_by_id("ddcl-4-i2").click()
         driver.find_element_by_id("ddcl-4-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-4 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:first-child > span").click()
-        # disease_abbr: LAML+OR+BLCA+OR+LGG
+        # state: bad_data+OR+validating_sample+OR+live+OR+supressed
         driver.find_element_by_id("ddcl-2-i0").click()
         driver.find_element_by_id("ddcl-2-i1").click()
         driver.find_element_by_id("ddcl-2-i2").click()
         driver.find_element_by_id("ddcl-2-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-6 > span:first-child > span").click()
-        # analyte_code: D+OR+H+OR+R
-        driver.find_element_by_id("ddcl-6-i0").click()
-        driver.find_element_by_id("ddcl-6-i1").click()
-        driver.find_element_by_id("ddcl-6-i2").click()
-        driver.find_element_by_id("ddcl-6-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-6 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-3 > span:first-child > span").click()
-        # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
-        driver.find_element_by_id("ddcl-3-i0").click()
-        driver.find_element_by_id("ddcl-3-i1").click()
-        driver.find_element_by_id("ddcl-3-i2").click()
-        driver.find_element_by_id("ddcl-3-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-3 > span:last-child > span").click()
         driver.find_element_by_id("id_apply_filters").click()
 
         url = driver.current_url
 
-        print url
-
-        
         # study: phs000178
         self.assertTrue('phs000178' in url)
         self.assertFalse('TCGA_MUT_BENCHMARK_4' in url)
@@ -150,6 +154,13 @@ class SidebarTests(LiveServerTestCase):
             re.match('.*library_strategy=[^&]*RNA-Seq', url))
         self.assertFalse(
             re.match('.*library_strategy=[^&]*WXS', url))
+        # state: bad_data+OR+validating_sample+OR+live+OR+supressed
+        self.assertTrue(
+            re.match('.*state=[^&]*bad_data', url) and
+            re.match('.*state=[^&]*validating_sample', url) and
+            re.match('.*state=[^&]*live', url))
+        self.assertFalse(
+            re.match('.*state=[^&]*submitted', url))
 
     @classmethod
     def tearDownClass(self):
@@ -236,19 +247,19 @@ class SearchTests(LiveServerTestCase):
     def test_filtering_shown(self):
         self.selenium.get(self.live_server_url)
         # unselect all
-        self.selenium.execute_script("$('#ddcl-7').click()")
-        self.selenium.execute_script("$('#ddcl-7-i0').attr('checked', false)")
-        self.selenium.execute_script("$('#ddcl-7-i0').click()")
+        self.selenium.execute_script("$('#ddcl-8').click()")
+        self.selenium.execute_script("$('#ddcl-8-i0').attr('checked', false)")
+        self.selenium.execute_script("$('#ddcl-8-i0').click()")
 
         # select Baylor and Harvard
-        self.selenium.execute_script("$('#ddcl-7-i1').click()")
-        self.selenium.execute_script("$('#ddcl-7-i4').click()")
+        self.selenium.execute_script("$('#ddcl-8-i1').click()")
+        self.selenium.execute_script("$('#ddcl-8-i4').click()")
 
         self.search()
 
         # check if filters is shown
         filter = (self.selenium.find_element_by_css_selector(
-            "#ddcl-7 > span:first-child > span"))
+            "#ddcl-8 > span:first-child > span"))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
 
     def test_pagination_links(self):
@@ -304,7 +315,8 @@ class SearchTests(LiveServerTestCase):
         columns = ['Barcode', 'UUID', 'Accession', 'Files Size',
                    'Last modified', 'Disease', 'Disease (full)',
                    'Sample Type', 'Sample Type (full)',
-                   'Experiment Type', 'Run Type', 'Center', 'Center (full)']
+                   'Experiment Type', 'Run Type', 'Center',
+                   'Center (full)', 'State']
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
@@ -332,7 +344,10 @@ class SearchTests(LiveServerTestCase):
             # consider doing it differently
             if not (first == 'None' or second == 'None' or
                     first == ' ' or second == ' '):
-                self.assertLessEqual(first, second)
+                if column == 'Files Size':
+                    self.assertLessEqual(int(first), int(second))
+                else:
+                    self.assertLessEqual(first, second)
 
 
 class ColumnSelectTestCase(LiveServerTestCase):
