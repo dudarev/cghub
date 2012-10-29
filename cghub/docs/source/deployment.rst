@@ -49,7 +49,7 @@ It is a good idea to keep database file (in case of sqlite) outside of the code 
 Local settings
 ------------------
 
-Local settings in ``cghub/settings/local.py `` need to be updated. An example:
+Local settings in ``cghub/settings/local.py`` need to be updated. An example:
 
 .. code-block:: python
 

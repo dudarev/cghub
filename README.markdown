@@ -38,4 +38,3 @@ One more target was added to Makefile:
 
 <http://localhost:8002> and
 <http://localhost:8001> correspondingly.
-
