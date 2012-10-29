@@ -1,3 +1,4 @@
+import sys
 import djcelery
 
 from cart_cache import TIME_CHECK_CART_CACHE_INTERVAL
@@ -21,8 +22,8 @@ CELERYBEAT_SCHEDULE = {
         },
     }
 
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-
-CELERY_RESULT_BACKEND = "amqp"
+if not 'test' in sys.argv:
+    CELERY_RESULT_BACKEND = "amqp"
+    CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
 CELERYD_CONCURRENCY = 1
