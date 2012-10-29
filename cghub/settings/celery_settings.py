@@ -5,11 +5,11 @@ from api_cache import TIME_CHECK_API_CACHE_INTERVAL
 
 djcelery.setup_loader()
 
-BROKER_URL = "django://"
 CELERY_IMPORTS = (
     "cghub.apps.cart.tasks",
     "cghub.apps.core.tasks",
     )
+
 CELERYBEAT_SCHEDULE = {
     "clear-cart-cache": {
         "task": "cghub.apps.cart.tasks.cache_clear_task",
@@ -20,3 +20,9 @@ CELERYBEAT_SCHEDULE = {
         "schedule": TIME_CHECK_API_CACHE_INTERVAL,
         },
     }
+
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+CELERY_RESULT_BACKEND = "amqp"
+
+CELERYD_CONCURRENCY = 1

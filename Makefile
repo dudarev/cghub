@@ -86,12 +86,18 @@ else
 endif
 
 celeryd:
-	-@kill -9 `cat $(CELERYD_PID)`
+	-kill -9 `cat $(CELERYD_PID)`
+	-kill -9 `cat $(CELERYCAM_PID)`
+	-kill -9 `cat $(CELERYBEAT_PID)`
 	# -B option is for celerybeat with one worker (scheduling)
-	$(MANAGE) celeryd -Q celery -B --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)&
+	$(MANAGE) celeryd -E -Q celery --pidfile=$(CELERYD_PID) --logfile=$(CELERYD_LOG)&
+	$(MANAGE) celerybeat --detach --pidfile=$(CELERYBEAT_PID)
+	$(MANAGE) celerycam --detach --pidfile=$(CELERYCAM_PID)
 
 celeryd_stop:
 	-kill -9 `cat $(CELERYD_PID)`
+	-kill -9 `cat $(CELERYCAM_PID)`
+	-kill -9 `cat $(CELERYBEAT_PID)`
 
 less:
 	@grunt-less --config cghub/grunt.js less
