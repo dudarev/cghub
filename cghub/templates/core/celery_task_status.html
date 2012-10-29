@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/celery_status.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/celery_status.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+<table class="celery-task-status table table-bordered">
+    {% for task in tasks %}
+        <tr>
+            <td>{{ task.task_id }}</td>
+            <td>{{ task.state|safe }}</td>
+            <td><b>{{ task.name }}<b></td>
+            <td>{{ task.tstamp }}</td>
+
+        </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -54,6 +54,13 @@ module.exports = function (grunt) {
                 options:{
                     compress:true
                 }
+            },
+            celery_status:{
+                src:cssStaticFolder + 'core/celery_status.less',
+                dest:cssStaticFolder + 'core/celery_status.css',
+                options:{
+                    compress:true
+                }
             }
         },
         min:{
