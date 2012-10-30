@@ -130,3 +130,22 @@ class ItemDetailsView(TemplateView):
         if self.request.is_ajax():
             return [self.ajax_template_name]
         return [self.template_name]
+
+
+class CeleryTasksStatus(TemplateView):
+    template_name = 'core/celery_task_status.html'
+
+    def get_context_data(self):
+        from djcelery.models import TaskState
+        from djcelery.humanize import naturaldate
+        from djcelery.admin import TASK_STATE_COLORS
+        # Showing last 50 task states
+        tasks = TaskState.objects.all()[:50].values('task_id', 'state', 'name', 'tstamp')
+
+        def prettify_task(task):
+            task['tstamp'] = naturaldate(task['tstamp'])
+            color = TASK_STATE_COLORS.get(task['state'], "black")
+            task['state'] = "<b><span style=\"color: %s;\">%s</span></b>" % (color, task['state'])
+            return task
+
+        return {"tasks": map(prettify_task, tasks)}

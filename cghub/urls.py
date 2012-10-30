@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from cghub.apps.core.views import HomeView, SearchView, ItemDetailsView
+from cghub.apps.core.views import (HomeView, SearchView, ItemDetailsView,
+	CeleryTasksStatus)
 
 
 admin.autodiscover()
@@ -16,6 +17,7 @@ urlpatterns = patterns(
     url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^help/', include('cghub.apps.help.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^status/$', CeleryTasksStatus.as_view(), name='celery_tasks_status'),
 )
 
 urlpatterns += staticfiles_urlpatterns()

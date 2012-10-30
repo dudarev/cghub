@@ -25,6 +25,8 @@ and ``celeryd`` process is started.
     # make documentation
     cd ${rev_path}/wsapi/docs/ && make html
 
+    cp ${rev_path}/cghub/settings/local.py.staging ${rev_path}/cghub/settings/local.py
+
     # start celeryd process
     cd ${rev_path} && make celeryd &
 
