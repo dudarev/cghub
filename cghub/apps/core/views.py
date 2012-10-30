@@ -148,4 +148,4 @@ class CeleryTasksStatus(TemplateView):
             task['state'] = "<b><span style=\"color: %s;\">%s</span></b>" % (color, task['state'])
             return task
 
-        return {"tasks": map(lambda t: prettify_task(t), tasks)}
+        return {"tasks": map(prettify_task, tasks)}

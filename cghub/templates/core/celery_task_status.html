@@ -8,6 +8,14 @@
 {% endblock %}
 {% block main_content %}
 <table class="celery-task-status table table-bordered">
+    <thead>
+        <tr>
+            <th>UUID</th>
+            <th>State</th>
+            <th>Name</th>
+            <th>When</th>
+        </tr>
+    </thead>
     {% for task in tasks %}
         <tr>
             <td>{{ task.task_id }}</td>
