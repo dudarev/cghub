@@ -22,8 +22,7 @@ CELERYBEAT_SCHEDULE = {
         },
     }
 
-if not 'test' in sys.argv:
-    CELERY_RESULT_BACKEND = "amqp"
-    CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+CELERY_RESULT_BACKEND = "amqp"
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
 CELERYD_CONCURRENCY = 1
