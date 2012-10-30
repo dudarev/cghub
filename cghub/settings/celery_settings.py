@@ -24,5 +24,7 @@ CELERYBEAT_SCHEDULE = {
 
 CELERY_RESULT_BACKEND = "amqp"
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+if 'test' in sys.argv:
+    BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
 
 CELERYD_CONCURRENCY = 1
