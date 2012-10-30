@@ -7,9 +7,9 @@ Celery
 To run periodic tasks (for now only related to :ref:`caching <cacing>`) we use Celery.
 Its settings are in ``settings/celery_settings.py``.
 
-In locals.py define BROKER_URL
+In ``local.py`` define BROKER_URL
 
-:file:`celery_settings.py`:
+:file:`local.py`:
 
 .. code-block:: python
 
@@ -95,8 +95,8 @@ to keep files is also specified.
     # cart_cache.py
 
     CART_CACHE_FOLDER = os.path.join(MEDIA_ROOT, 'api_results_cache')
-    TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=24)
-    TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=12)
+    TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
+    TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
 
 Paging
 -------------
