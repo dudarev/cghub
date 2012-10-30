@@ -3,9 +3,11 @@
 Development
 ============================================
 
-----------------------------
-Setting up and running the app:
 -------------------------------
+Setting up and running the app
+-------------------------------
+
+Make sure RabbitMQ server is installed (see section about RabbitMQ below).
 
 .. code-block:: bash
 
