@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 """
 wsapi.settings
 ~~~~~~~~~~~~~~~~~~~~
@@ -17,3 +18,6 @@ USE_CACHE = True
 
 CACHE_BACKEND = 'simple'
 CACHE_DIR = '/tmp/wsapi/'
+
+TIME_DELETE_API_CACHE_FILES_OLDER = datetime.timedelta(minutes=2)
+TIME_CHECK_API_CACHE_INTERVAL = datetime.timedelta(minutes=1) 
