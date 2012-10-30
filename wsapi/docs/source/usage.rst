@@ -90,3 +90,31 @@ Here is an example of using it with a periodic Celery task:
         """
         now = datetime.datetime.now()
         clear_cache(now - TIME_DELETE_API_CACHE_FILES_OLDER)
+
+An example of :file:`celeryconfig` :
+
+.. code-block:: python
+
+    import settings
+
+    CELERY_IMPORTS = ("tasks",)
+
+    CELERYBEAT_SCHEDULE = {
+        "clear-api-cache": {
+            "task": "tasks.api_cache_clear_task",
+            "schedule": settings.TIME_CHECK_API_CACHE_INTERVAL,
+        },
+    }
+
+    CELERY_RESULT_BACKEND = "amqp"
+
+    CELERYD_CONCURRENCY = 1
+
+    # $ rabbitmqctl add_user myuser mypassword
+    # $ rabbitmqctl add_vhost myvhost
+    # $ rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
+    # Example
+    # BROKER_URL = "amqp://user:password@host:port/vhost"
+    # guest user if for example only
+
+    BROKER_URL = "amqp://guest:guest@localhost:5672//"
