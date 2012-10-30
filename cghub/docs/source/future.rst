@@ -7,7 +7,7 @@ Future improvements
 Depending on WSI-API
 ---------------------------------------------
 
-WSI-API *may* specify some parameters in the future that would improve speed, but will reqire some modifications to be made.
+WSI-API *may* specify some parameters in the future that would improve speed, but will require some modifications to be made.
 
 They *may* include: 
 
