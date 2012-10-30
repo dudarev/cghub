@@ -1,0 +1,1 @@
+BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
