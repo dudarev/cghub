@@ -5,3 +5,44 @@
 # BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
 
 # BROKER_URL = "amqp://user:password@host:port/vhost"
+
+# logging settings, example of using SysLogHandler
+# from logging.handlers import SysLogHandler
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+#         },
+#         'simple': {
+#             'format': '%(levelname)s %(message)s'
+#         },
+#     },
+#     'filters': {
+#         'require_debug_false': {
+#             '()': 'django.utils.log.RequireDebugFalse'
+#         }
+#     },
+#     'handlers': {
+#         'mail_admins': {
+#             'level': 'ERROR',
+#             'filters': ['require_debug_false'],
+#             'class': 'django.utils.log.AdminEmailHandler'
+#         },
+#         'syslog':{ 
+#         	  'address': '/dev/log',
+#             'level':'ERROR', 
+#             'class': 'logging.handlers.SysLogHandler', 
+#             'formatter': 'verbose',
+#         },
+#     },
+#     'loggers': {
+#         'django.request': {
+#             'handlers': ['syslog',],
+#             'level': 'ERROR',
+#             'propagate': True,
+#             },
+#         }
+# }
