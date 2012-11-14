@@ -110,3 +110,62 @@ Number of results per page may be set in ``settings/defaults.py``:
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
+LOGGING
+--------------
+
+:file:`cghub.setting.local.py.default` contains the exmple of a SysLogHadler usage.
+
+.. code-block:: python
+
+	from logging.handlers import SysLogHandler
+
+	LOGGING = {
+	    'version': 1,
+	    'disable_existing_loggers': False,
+	    'formatters': {
+	        'verbose': {
+	            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+	        },
+	        'simple': {
+	            'format': '%(levelname)s %(message)s'
+	        },
+	    },
+	    'filters': {
+	        'require_debug_false': {
+	            '()': 'django.utils.log.RequireDebugFalse'
+	        }
+	    },
+	    'handlers': {
+	        'mail_admins': {
+	            'level': 'ERROR',
+	            'filters': ['require_debug_false'],
+	            'class': 'django.utils.log.AdminEmailHandler'
+	        },
+	        'syslog':{ 
+	            'address': '/dev/log',
+	            'level':'ERROR', 
+	            'class': 'logging.handlers.SysLogHandler', 
+	            'formatter': 'verbose',
+	        },
+	    },
+	    'loggers': {
+	        'django.request': {
+	            'handlers': ['syslog',],
+	            'level': 'ERROR',
+	            'propagate': True,
+	            },
+	        }
+	}
+
+.. code-block:: bash
+
+	>>> import logging
+	>>> l = logging.getLogger('django.request')
+	>>> l.error('Error msg')
+	................
+	jey@travelmate:/var/log$ tail -1 syslog
+	Nov 14 10:22:13 travelmate ERROR 2012-11-14 02:22:13,599 <console> 17654 1077970624 Error msg
+
+For more information see the `complete SysLogHandler reference`_ .
+
+.. _`complete SysLogHandler reference`: http://docs.python.org/2/library/logging.handlers.html#sysloghandler
