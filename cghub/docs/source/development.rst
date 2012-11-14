@@ -108,3 +108,121 @@ See the RabbitMQ `Admin Guide`_ for more information about `access control`_.
 
 .. _`access control`: http://www.rabbitmq.com/admin-guide.html#access-control
 
+-----------------------
+Daemonizing Celery
+-----------------------
+
+If you want to daemonize celery, you may use scripts provided by celery itself.
+Installation:
+
+.. code-block:: bash
+
+    $ wget https://raw.github.com/celery/celery/master/extra/generic-init.d/celeryd https://raw.github.com/celery/celery/master/extra/generic-init.d/celerybeat https://raw.github.com/celery/celery/master/extra/generic-init.d/celeryevcam
+    $ chmod 755 celeryd celerybeat celeryevcam
+    $ sudo mv celeryd /etc/init.d/celeryd 
+    $ sudo mv celerybeat /etc/init.d/celerybeat
+    $ sudo mv celeryevcam /etc/init.d/celeryevcam
+    $ sudo touch /etc/default/celeryd
+    $ sudo vim /etc/default/celeryd
+
+Change to your paths:
+
+.. code-block:: bash
+
+    # /etc/default/celeryd
+
+    # Name of nodes to start, here we have a single node
+    CELERYD_NODES="w1"
+    # or we could have three nodes:
+    #CELERYD_NODES="w1 w2 w3"
+
+    # Where to chdir at start. Location of manage.py
+    CELERYD_CHDIR="/path/to/project"
+
+    # Python interpreter from virtual environment.
+    ENV_PYTHON="path/to/env/bin/python"
+
+    # How to call "manage.py celeryd_multi"
+    CELERYD_MULTI="$ENV_PYTHON $CELERYD_CHDIR/manage.py celeryd_multi"
+
+    # How to call "manage.py celeryctl"
+    CELERYCTL="$ENV_PYTHON $CELERYD_CHDIR/manage.py celeryctl"
+
+    # Extra arguments to celeryd
+    CELERYD_OPTS="-E --time-limit=300 --concurrency=8"
+
+    # Name of the celery config module.
+    CELERY_CONFIG_MODULE="cghub.settings"
+
+    # %n will be replaced with the nodename.
+    CELERYD_LOG_FILE="/path/to/logs/dir/%n.log"
+    CELERYD_PID_FILE="/path/to/pids/dir/%n.pid"
+
+    # Workers should run as an unprivileged user.
+    CELERYD_USER="celery"
+    CELERYD_GROUP="celery"
+
+    # Name of the projects settings module.
+    export DJANGO_SETTINGS_MODULE="cghub.settings"
+
+    # Where the Django project is.
+    CELERYBEAT_CHDIR="/path/to/project"
+
+    # Path to celerybeat
+    CELERYBEAT="$ENV_PYTHON $CELERYD_CHDIR/manage.py celerybeat"
+
+    # Extra arguments to celerybeat
+    CELERYBEAT_OPTS="--schedule=/var/run/celerybeat-schedule"
+
+    CELERYBEAT_PID_FILE="/path/to/logs/dir/celerybeat.pid"
+    CELERYBEAT_LOG_FILE="/path/to/logs/dir/celerybeat.log"
+
+    # Path to celeryd
+    CELERYEV="$ENV_PYTHON $CELERYD_CHDIR/manage.py"
+
+    # Extra arguments to manage.py
+    CELERYEV_OPTS="celeryev"
+
+    # Camera class to use (required)
+    CELERYEV_CAM="djcelery.snapshot.Camera"
+
+    CELERYEV_PID_FILE="/path/to/pids/dir/celeryevcam.pid"
+    CELERYEV_LOG_FILE="/path/to/logs/dir/celeryevcam.log"
+
+Note that if you want Django to monitor tasks (in the admin panel or at the status page provided by the cghub app) you need to start celeryd with "-E" argument to create events and start /etc/init.d/celeryevcam daemon.
+
+Also if you choose to run as unprivileged user ``celery``, make sure to create it and change permissions of all required directories
+
+.. code-block:: bash
+    
+    $ sudo adduser --system --no-create-home --disabled-login --disabled-password --group celery
+
+.. code-block:: bash
+
+    sudo chown celery:celery /var/run/celery/
+    sudo chown celery:celery /tmp/wsapi/
+
+Start daemons:
+
+.. code-block:: bash
+
+    $ sudo /etc/init.d/celeryd start
+    $ sudo /etc/init.d/celerybeat start
+    $ sudo /etc/init.d/celeryevcam start
+
+Make sure that logs are OK (if you set up ``/path/to/logs/dir`` above as ``/var/log/celery``):
+
+.. code-block:: bash
+
+    $ vim /var/log/celery/w1.log 
+    $ vim /var/log/celery/celerybeat.log 
+    $ vim /var/log/celery/celeryevcam.log
+
+
+or just
+
+.. code-block:: bash
+
+    $ vim /var/log/celery/*.log 
+
+On the website check ``/admin/djcelery/workerstate/`` and ``/admin/djcelery/periodictask/`` to see that the worker is online and periodic task are scheduled (you need to see at least two, one for cleaning requests cache, another for cleaning cart cache). You may adjust periodicity there as well.
