@@ -108,6 +108,7 @@ See the RabbitMQ `Admin Guide`_ for more information about `access control`_.
 
 .. _`access control`: http://www.rabbitmq.com/admin-guide.html#access-control
 
+-----------------------
 Daemonizing Celery
 -----------------------
 
@@ -124,17 +125,21 @@ Installation:
     $ sudo touch /etc/default/celeryd
     $ sudo vim /etc/default/celeryd
 
+Change to your paths:
+
 .. code-block:: bash
+
+    # /etc/default/celeryd
 
     # Name of nodes to start, here we have a single node
     CELERYD_NODES="w1"
     # or we could have three nodes:
     #CELERYD_NODES="w1 w2 w3"
 
-    # Where to chdir at start.
+    # Where to chdir at start. Location of manage.py
     CELERYD_CHDIR="/path/to/project"
 
-    # Python interpreter from environment.
+    # Python interpreter from virtual environment.
     ENV_PYTHON="path/to/env/bin/python"
 
     # How to call "manage.py celeryd_multi"
@@ -184,20 +189,40 @@ Installation:
     CELERYEV_PID_FILE="/path/to/pids/dir/celeryevcam.pid"
     CELERYEV_LOG_FILE="/path/to/logs/dir/celeryevcam.log"
 
-Note that if you want django to monitor tasks(in the admin panel or at the status page provided by the cghub app) you need to start celeryd with "-E" argument to create events and start /etc/init.d/celeryevcam daemon.
+Note that if you want Django to monitor tasks (in the admin panel or at the status page provided by the cghub app) you need to start celeryd with "-E" argument to create events and start /etc/init.d/celeryevcam daemon.
 
-Usage example:
+Also if you choose to run as unprivileged user ``celery``, make sure to create it and change permissions of all required directories
+
+.. code-block:: bash
+    
+    $ sudo adduser --system --no-create-home --disabled-login --disabled-password --group celery
 
 .. code-block:: bash
 
-    $ /etc/init.d/celeryd start
-    celeryd-multi v3.0.11 (Chiastic Slide)
-    > Starting nodes...
-        > w1.travelmate: ERROR: Pidfile (/home/jey/42/ucsc-cghub/pids/celeryd_w1.pid) already exists.
-    Seems we're already running? (pid: 21209)
-    OK
-    $ /etc/init.d/celerybeat start
-    Starting celerybeat...
-    $ /etc/init.d/celeryevcam start
-    Starting celeryev...
-    Stale pidfile exists. Removing it.
+    sudo chown celery:celery /var/run/celery/
+    sudo chown celery:celery /tmp/wsapi/
+
+Start daemons:
+
+.. code-block:: bash
+
+    $ sudo /etc/init.d/celeryd start
+    $ sudo /etc/init.d/celerybeat start
+    $ sudo /etc/init.d/celeryevcam start
+
+Make sure that logs are OK (if you set up ``/path/to/logs/dir`` above as ``/var/log/celery``):
+
+.. code-block:: bash
+
+    $ vim /var/log/celery/w1.log 
+    $ vim /var/log/celery/celerybeat.log 
+    $ vim /var/log/celery/celeryevcam.log
+
+
+or just
+
+.. code-block:: bash
+
+    $ vim /var/log/celery/*.log 
+
+On the website check ``/admin/djcelery/workerstate/`` and ``/admin/djcelery/periodictask/`` to see that the worker is online and periodic task are scheduled (you need to see at least two, one for cleaning requests cache, another for cleaning cart cache). You may adjust periodicity there as well.
