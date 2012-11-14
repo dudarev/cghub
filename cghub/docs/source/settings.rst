@@ -110,10 +110,10 @@ Number of results per page may be set in ``settings/defaults.py``:
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
-LOGGING
+Logging
 --------------
 
-:file:`cghub.setting.local.py.default` contains the exmple of a SysLogHadler usage.
+:file:`cghub.setting.local.py.default` contains the example of a SysLogHadler usage.
 
 .. code-block:: python
 
