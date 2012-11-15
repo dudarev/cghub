@@ -182,7 +182,7 @@ class CacheTestCase(TestCase):
             #   File "lxml.objectify.pyx", line 485, in lxml.objectify._lookupChildOrRaise (src/lxml/lxml.objectify.c:5428)
             # AttributeError: no such child: Result
             pass
-
+        import time
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             mail.outbox[0].subject,

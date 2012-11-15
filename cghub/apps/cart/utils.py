@@ -1,3 +1,4 @@
+import sys
 import socket
 import traceback
 
@@ -39,10 +40,14 @@ def get_cart_stats(request):
 
 
 def cache_results(file_dict):
+
     try:
+        if 'test' in sys.argv:
+            from celery import Celery
+            from django.conf import settings
+            Celery(broker=settings.BROKER_URL).connection().connect()
         cache_results_task.delay(file_dict)
     except socket.error, v:
-        print '111111111'
         subject = '[ucsc-cghub] ERROR: Message broker not working'
         message = traceback.format_exc()
         mail_admins(subject, message, fail_silently=False)
