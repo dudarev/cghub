@@ -175,6 +175,7 @@ class CacheTestCase(TestCase):
         """Testing caching cart is working when message broker is not running"""
         broker_url = settings.BROKER_URL
         settings.BROKER_URL = broker_url.replace('5672', '9999')
+        settings.ADMINS = (('admin', 'admin@admin.com'),)
         try:
             cache_results({})
         except AttributeError:
@@ -190,3 +191,4 @@ class CacheTestCase(TestCase):
         )
 
         settings.BROKER_URL = broker_url
+        settings.ADMINS = ()
