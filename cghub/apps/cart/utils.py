@@ -50,7 +50,7 @@ def cache_results(file_dict):
     except socket.error, v:
         subject = '[ucsc-cghub] ERROR: Message broker not working'
         message = traceback.format_exc()
-        mail_admins(subject, message, fail_silently=False)
+        mail_admins(subject, message, fail_silently=True)
 
         cache_results_task(file_dict)
     
