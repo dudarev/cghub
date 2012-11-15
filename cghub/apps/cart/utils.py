@@ -1,4 +1,10 @@
+import socket
+import traceback
+
+from django.core.mail import mail_admins
+
 from cghub.apps.cart.tasks import cache_results_task
+
 
 def get_or_create_cart(request):
     """ return cart and creates it if it does not exist """
@@ -33,4 +39,13 @@ def get_cart_stats(request):
 
 
 def cache_results(file_dict):
-    cache_results_task.delay(file_dict)
+    try:
+        cache_results_task.delay(file_dict)
+    except socket.error, v:
+        print '111111111'
+        subject = '[ucsc-cghub] ERROR: Message broker not working'
+        message = traceback.format_exc()
+        mail_admins(subject, message, fail_silently=False)
+
+        cache_results_task(file_dict)
+    

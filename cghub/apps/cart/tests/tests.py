@@ -1,12 +1,16 @@
-import glob
-from lxml import etree, objectify
-import shutil
-from django.conf import settings
 import os
+import glob
+import shutil
+from lxml import etree, objectify
+
+from django.core import mail
+from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+
 from cghub.settings.utils import PROJECT_ROOT
+from cghub.apps.cart.utils import cache_results
 
 
 class CartTests(TestCase):
@@ -167,3 +171,22 @@ class CacheTestCase(TestCase):
         for file in files:
             os.remove(file)
 
+    def test_cache_errors(self):
+        """Testing caching cart is working when message broker is not running"""
+        broker_url = settings.BROKER_URL
+        settings.BROKER_URL = broker_url.replace('5672', '9999')
+        try:
+            cache_results({})
+        except AttributeError:
+            #   File "lxml.objectify.pyx", line 226, in lxml.objectify.ObjectifiedElement.__getattr__ (src/lxml/lxml.objectify.c:2894)
+            #   File "lxml.objectify.pyx", line 485, in lxml.objectify._lookupChildOrRaise (src/lxml/lxml.objectify.c:5428)
+            # AttributeError: no such child: Result
+            pass
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            settings.EMAIL_SUBJECT_PREFIX + '[ucsc-cghub] ERROR: Message broker not working'
+        )
+
+        settings.BROKER_URL = broker_url

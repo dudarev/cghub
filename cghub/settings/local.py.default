@@ -46,3 +46,18 @@
 #             },
 #         }
 # }
+
+# Email settings
+EMAIL_SUBJECT_PREFIX = ''
+DEFAULT_FROM_EMAIL = 'no-reply@localhost'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
+
+# ADMINS = (
+#     ('admin', 'admin@admin.com')
+# )
+
+# MANAGERS = ADMINS
