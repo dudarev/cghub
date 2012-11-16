@@ -41,7 +41,6 @@ def get_cart_stats(request):
 
 def cache_results(file_dict):
 
-    cache_results_task.delay(file_dict)
     try:
         if 'test' in sys.argv:
             from celery import Celery
