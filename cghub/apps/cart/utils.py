@@ -41,6 +41,7 @@ def get_cart_stats(request):
 
 def cache_results(file_dict):
 
+    cache_results_task.delay(file_dict)
     try:
         if 'test' in sys.argv:
             from celery import Celery
@@ -51,6 +52,5 @@ def cache_results(file_dict):
         subject = '[ucsc-cghub] ERROR: Message broker not working'
         message = traceback.format_exc()
         mail_admins(subject, message, fail_silently=True)
-
-        cache_results_task(file_dict)
+        # cache_results_task(file_dict)
     

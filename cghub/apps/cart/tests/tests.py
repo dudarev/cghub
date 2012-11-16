@@ -174,7 +174,7 @@ class CacheTestCase(TestCase):
     def test_cache_errors(self):
         """Testing caching cart is working when message broker is not running"""
         broker_url = settings.BROKER_URL
-        settings.BROKER_URL = ''
+        settings.BROKER_URL = 'non_existent_url'
         settings.ADMINS = (('admin', 'admin@admin.com'),)
         try:
             cache_results({})

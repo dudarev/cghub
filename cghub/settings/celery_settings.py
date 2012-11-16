@@ -25,7 +25,7 @@ CELERYBEAT_SCHEDULE = {
 CELERY_RESULT_BACKEND = "amqp"
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
-if 'test' in sys.argv:
-    BROKER_URL = "django://"
+#if 'test' in sys.argv:
+#    BROKER_URL = "django://"
 
 CELERYD_CONCURRENCY = 1
