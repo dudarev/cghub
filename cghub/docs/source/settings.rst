@@ -94,7 +94,7 @@ to keep files is also specified.
 
     # cart_cache.py
 
-    CART_CACHE_FOLDER = os.path.join(MEDIA_ROOT, 'api_results_cache')
+    CART_CACHE_FOLDER = '/tmp/wsapi/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
 
