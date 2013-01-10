@@ -1,7 +1,7 @@
 # constants
 #
 
--include Makefile.def
+include Makefile.def
 
 #
 # end of constants
@@ -33,10 +33,10 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
-	cd wsapi && nosetests
+	cd wsapi && nosetests -s
 
 test_web:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
+	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
 
 test_api:
 	cd wsapi && nosetests -s
@@ -111,6 +111,23 @@ selectfilters:
 selectfilters_clean:
 	# clean previously checked filters
 	$(MANAGE) selectfilters -c
+
+##
+# cghub specific setup targets.
+cghub-setup:
+	@[ $$EUID == 0 ]  || (echo "cghub-setup target must be run as root" >/dev/stderr; exit 1)
+	mkdir -p ${CACHE_DIR}
+	chown ${cghubuser}:${cghubwwwgrp} ${CACHE_DIR}
+	chmod g+rwxs ${CACHE_DIR}
+	mkdir -p ${PIDS_DIR} ${LOGS_DIR}
+	chown ${cghubuser}:${cghubgrp} ${PIDS_DIR} ${LOGS_DIR}
+	chown ${cghubuser}:${cghubdevgrp} ${CGHUB_APPROOT_DIR}
+	chmod g+rwxs ${CGHUB_APPROOT_DIR}
+	chown ${cghubuser}:${cghubdevgrp} ${CGHUB_APP_DIR}
+	find ${CGHUB_APP_DIR} -type d |xargs chmod g+rwxs
+	chmod -R g+w ${CGHUB_APP_DIR}
+
+
 #
 # end targets
 

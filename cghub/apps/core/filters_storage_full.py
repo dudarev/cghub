@@ -47,7 +47,7 @@ ALL_FILTERS = OrderedDict([
         "title": "By Study",
         "filters": OrderedDict([
             ("phs000178", "TCGA"),
-            ("TCGA_MUT_BENCHMARK_4", "temporary"),
+            ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
         ])
     }),
     ("center_name", {
@@ -67,7 +67,7 @@ ALL_FILTERS = OrderedDict([
         "filters": OrderedDict([
             ("D", "DNA"),
             ("G", "GenomePlex"),
-            ("H", "mirVana RNA"),
+            ("H", "miRNA"),
             ("R", "RNA"),
             ("T", "Total RNA"),
             ("W", "WGA"),

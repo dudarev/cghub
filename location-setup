@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+symLinkedFiles='Makefile.def cghub/settings/local.py wsapi/wsapi/settings.py'
+
+usage="
+  location-setup name
+
+Setup symlinks for a particular environment the applications is run in.
+This sets up symlinks for:
+
+   $symLinkedFiles
+"
+
+if [ $# != 1 ] ; then
+    echo "Error: Wrong # args: $usage" >&2
+    exit 1
+fi
+loc="$1"
+
+for target in $symLinkedFiles ; do
+    src=$target.$loc
+    srcBase=$(basename $src)
+    if [ ! -e $src ] ; then
+        echo "Error: $src does not exist, is location valid?" >&2
+        exit 1
+    fi
+    echo "$srcBase -> $target"
+    ln -sf $srcBase $target
+done

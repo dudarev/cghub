@@ -1,6 +1,7 @@
 Test case ID,Description,Expected outcome
 Links navigations,,
 LINKS-1,"Links (Home, Cart, Help) lead to correct pages.",Expected pages are open when links are clicked.
+LINKS-2,"Access application without trailing slash in URL.","Application behaves as expected for all links."
 Sidebar navigation,,
 SIDEBAR-1,Clicking (all) checkbox selects or deselects all in that category.,
 SIDEBAR-2,Only one category can be selected for “By date uploaded” category,Radio buttons allow to select only one category for this special category.
@@ -14,6 +15,7 @@ SEARCH-5,Filtering is shown,On search results page a message about used filters 
 SEARCH-6,Page navigation links work,"Links “Prev”, “Next”, 1, 2, etc. lead to correct search results pages."
 SEARCH-7,First and last pages are shown as links in paging navigation.,These links may be followed and correct pages are reached.
 SEARCH-8,Sorting is done by clicking table headlines,"When a user clicks table headers sorting is made and sorting order is displayed. When the link is clicked again, the order is reversed and new order is displayed."
+SEARCH-9,"Select Items per page of 25, then 50","More items are displays"
 Cart,,
 CART-1,Items from search results may be added to cart by selecting checkboxes,"When “Add to cart” button is clicked, items for which checkboxes were selected are added to cart. User is directed to the cart page."
 CART-2,Select all checkbox selects all items,"The checkbox in the header of the table when checked checks all other checkboxes on the page. When one unchecks it, every other checkbox becomes unchecked. When it is checked and one of other checkboxes is unchecked it also becomes unchecked."
@@ -23,4 +25,4 @@ CART-5,Items may be removed from the cart,"When checkboxes are checked on the ca
 CART-6,Select all checkbox works the same way as in search results,see CART-2
 CART-7,Headers may sort cart content,When clicking cart table headers the table content  is sorted correspondingly See SEARCH-7
 CART-8,Manifest may be downloaded,"When button “Download Manifest” is clicked, manifest for all items in the cart is downloaded."
-CART-9,XML may be downloaded,"Similar to CART-8, but full XML information is downloaded, when button “Download XML” is clicked."
+CART-9,Metadata may be downloaded,"Similar to CART-8, but full  information is downloaded, when button “Download metadata” is clicked."

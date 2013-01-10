@@ -1,0 +1,43 @@
+SHELL=/bin/bash
+
+PROJECT_NAME= cghub
+PROJECT_API= wsapi
+BIND_TO=0.0.0.0
+RUNSERVER_PORT=8000
+MAILSERVER_PORT=1025
+
+# ensure we pick up the right python:
+export PATH:=/usr/local/bin:${PATH}
+
+PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
+
+PYTHON= PYTHONPATH=$(PYTHONPATH) python
+
+TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
+	 core.TestTemplateTags core.PaginatorUnitTestCase \
+         cart.CartTests cart.CacheTestCase \
+         help
+TEST_UI=cart.LinksNavigationsTests cart.CartUITests \
+	cart.SortWithinCartTestCase \
+        core.SearchTests core.SidebarTests \
+
+MANAGE= $(PYTHON) manage.py
+
+localRoot=/a/markd/compbio/cghub/projs/webgui/devel/cghub_data_browser/local
+PIDS_DIR=${localRoot}/var/run/celery
+LOGS_DIR=${localRoot}/var/log/celery
+
+CELERYD_PID=$(PIDS_DIR)/celeryd.pid
+CELERYD_LOG=$(LOGS_DIR)/celeryd.log
+CELERYCAM_PID=$(PIDS_DIR)/celerycam.pid
+CELERYBEAT_PID=$(PIDS_DIR)/celerybeat.pid
+
+# CGHubs specific defs
+CACHE_DIR=${localRoot}/var/cache/cghub-data-browser
+CGHUB_APPROOT_DIR=/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser
+CGHUB_APP_DIR=${CGHUB_APPROOT_DIR}/app
+
+cghubuser = markd
+cghubgrp = markd
+cghubdevgrp = markd
+cghubwwwgrp = www

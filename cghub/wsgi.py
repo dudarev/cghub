@@ -16,6 +16,12 @@ framework.
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cghub.settings")
+os.environ.setdefault("PYTHON_EGG_CACHE", "/tmp/wsgi-python-eggs")
+
+# FIXME: not sure why this doesn't get picked up from WSGIPythonPath in apache
+import sys
+sys.path.append("/usr/local/cghub/cghub-data-browser/app")
+sys.path.append("/usr/local/cghub/cghub-data-browser/app/cghub")
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
@@ -23,6 +29,3 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cghub.settings")
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
-# Apply WSGI middleware here.
-# from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)

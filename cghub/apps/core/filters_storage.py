@@ -46,7 +46,7 @@ ALL_FILTERS = OrderedDict([
     ('study', {
         'filters': OrderedDict([
             ('phs000178', 'TCGA'),
-            ('TCGA_MUT_BENCHMARK_4', 'temporary'),
+            ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
         ]),
         'title': 'By Study',
     }),

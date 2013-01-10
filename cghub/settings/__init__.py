@@ -16,7 +16,4 @@ from .logging_settings import *
 if 'test' in sys.argv:
     from tests import *
 
-try:
-    from .local import *
-except:
-    print '***cghub/settins/local.py not found***'
+from .local import *

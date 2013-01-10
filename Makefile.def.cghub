@@ -1,0 +1,42 @@
+SHELL=/bin/bash
+
+PROJECT_NAME= cghub
+PROJECT_API= wsapi
+BIND_TO=0.0.0.0
+RUNSERVER_PORT=8000
+MAILSERVER_PORT=1025
+
+# ensure we pick up the right python:
+export PATH:=/usr/local/bin:${PATH}
+
+PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
+
+PYTHON= PYTHONPATH=$(PYTHONPATH) python
+
+TEST_APP=core.SearchViewPaginationTestCase core.CoreTests \
+	 core.TestTemplateTags core.PaginatorUnitTestCase \
+         cart.CartTests cart.CacheTestCase \
+         help
+TEST_UI=cart.LinksNavigationsTests cart.CartUITests \
+	cart.SortWithinCartTestCase \
+        core.SearchTests core.SidebarTests \
+
+MANAGE= $(PYTHON) manage.py
+
+PIDS_DIR=/scratch/var/run/celery
+LOGS_DIR=/scratch/var/log/celery
+
+CELERYD_PID=$(PIDS_DIR)/celeryd.pid
+CELERYD_LOG=$(LOGS_DIR)/celeryd.log
+CELERYCAM_PID=$(PIDS_DIR)/celerycam.pid
+CELERYBEAT_PID=$(PIDS_DIR)/celerybeat.pid
+
+# CGHubs specific defs
+CACHE_DIR=/scratch/var/cache/cghub-data-browser
+CGHUB_APPROOT_DIR=/usr/local/cghub/cghub-data-browser
+CGHUB_APP_DIR=${CGHUB_APPROOT_DIR}/app
+
+cghubuser = cghubapp
+cghubgrp = cghubapp
+cghubdevgrp = dev
+cghubwwwgrp = apache

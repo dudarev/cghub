@@ -13,7 +13,7 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-1MONTH%20TO%20NOW]&state=(live)'
+    default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]&state=(live)'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -45,6 +45,26 @@ class HomeView(TemplateView):
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
+    allowed_attributes = [
+        'study',
+        'center_name',
+        'last_modified',
+        'analyte_code',
+        'sample_type',
+        'library_strategy',
+        'disease_abbr',
+        'state'
+    ]
+    # FIXME temporary: filters, if specified, don't restrict data range
+    date_no_limit_attributes = [
+        'q',
+        'last_modified',
+        'analyte_code',
+        'sample_type',
+        'library_strategy',
+        'disease_abbr',
+    ]
+
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
@@ -56,17 +76,7 @@ class SearchView(TemplateView):
         if sort_by:
             sort_by = urllib.quote(sort_by)
         filter_str = ''
-        allowed_attributes = [
-            'study',
-            'center_name',
-            'last_modified',
-            'analyte_code',
-            'sample_type',
-            'library_strategy',
-            'disease_abbr',
-            'state'
-        ]
-        for attr in allowed_attributes:
+        for attr in self.allowed_attributes:
             if self.request.GET.get(attr):
                 filter_str += '&%s=%s' % (
                     attr,
@@ -98,13 +108,21 @@ class SearchView(TemplateView):
             context['message'] = 'No results found.'
         return context
 
-    def dispatch(self, request, *args, **kwargs):
+    def __should_restrict_date(self, request):
+        # FIXME: this is temporary until GNOS has more support
         # if there are no any `q` query parameters
         # and now `last_modified` is specified
-        # redirect to search page with last 7 days results
-        q = request.GET.get('q')
-        last_modified = request.GET.get('last_modified')
-        if not q and not last_modified:
+        for attr in self.date_no_limit_attributes:
+            if request.GET.get(attr):
+                print "nolimit", request.GET
+                return False
+        print "limit", request.GET
+        return True
+
+    def dispatch(self, request, *args, **kwargs):
+        # if results are not is not restricted by filters or search, then
+        # redirect to search page with last month results
+        if self.__should_restrict_date(request):
             GET_parameters = request.GET.copy()
             GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
             return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())

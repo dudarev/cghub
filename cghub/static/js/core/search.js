@@ -59,7 +59,15 @@ jQuery(function ($) {
                         if (window.location.pathname.indexOf('search') > 0) {
                             select.find('option[value = "(all)"]').attr('selected', 'selected');
                         } else {
+                            // default state to live
                             select.find('option[value = "live"]').attr('selected', 'selected');
+                        }
+                    } else if (section == 'study') {
+                        if (window.location.pathname.indexOf('search') > 0) {
+                            select.find('option[value = "(all)"]').attr('selected', 'selected');
+                        } else {
+                            // default state to study to TCGA for now
+                            select.find('option[value = "phs000178"]').attr('selected', 'selected');
                         }
                     } else {
                         select.find('option[value = "(all)"]').attr('selected', 'selected');
