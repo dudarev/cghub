@@ -40,7 +40,7 @@
 .flexigrid div.cDrag div:hover,.flexigrid div.cDrag div.dragging{background:url(images/line.gif) repeat-y 2px center;}
 .flexigrid div.iDiv{border:1px solid #316ac5;position:absolute;overflow:visible;background:none;}
 .flexigrid div.iDiv input,.flexigrid div.iDiv select,.flexigrid div.iDiv textarea{font-family:Arial,Helvetica,sans-serif;font-size:11px;}
-.flexigrid div.iDiv input.tb{border:0px;padding:0px;width:100%;height:100%;padding:0px;background:none;}
+.flexigrid div.iDiv input.tb{border:0px;width:100%;height:100%;padding:0px;background:none;}
 .flexigrid div.bDiv{border:1px solid #ccc;border-top:0px;background:#fff;overflow:auto;position:relative;}
 .flexigrid div.bDiv table{border-bottom:1px solid #ccc;}
 .flexigrid div.hGrip{position:absolute;top:0px;right:0px;height:5px;width:5px;background:url(images/line.gif) repeat-x center;margin-right:1px;cursor:col-resize;}
