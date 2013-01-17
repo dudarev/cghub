@@ -262,8 +262,42 @@
             },
             adjustTableWidth: function () {
                 var hDivBox = $('.hDivBox');
-                if (hDivBox.parent().width() > hDivBox.width()) {
+                var widthDiff = hDivBox.parent().width() - hDivBox.width();
+                if (widthDiff > 0) {
                     $('.bDiv').children().width(hDivBox.width());
+                };
+                // fit last column
+                var columns = $('.hDiv th:visible div');
+                if(columns.length > 1) {
+                    var i = columns.length - 1;
+                    var nw = 100;
+                    if(widthDiff >= 0) {
+                        nw = $(columns[i]).width() + widthDiff;
+                    };
+                    $('th:visible div:eq(' + i + ')', this.hDiv).css('width', nw);
+                    $('tr', this.bDiv).each(
+                        function () {
+                                var $tdDiv = $('td:visible div:eq(' + i + ')', this);
+                                $tdDiv.css('width', nw);
+                                g.addTitleToCell($tdDiv);
+                        });
+                    this.hDiv.scrollLeft = this.bDiv.scrollLeft;
+                    this.rePosDrag();
+                    this.fixHeight();
+                }
+                if(columns.length > 2 && widthDiff < 0) {
+                    var i = columns.length - 2;
+                    var nw = 100;
+                    $('th:visible div:eq(' + i + ')', this.hDiv).css('width', nw);
+                    $('tr', this.bDiv).each(
+                        function () {
+                                var $tdDiv = $('td:visible div:eq(' + i + ')', this);
+                                $tdDiv.css('width', nw);
+                                g.addTitleToCell($tdDiv);
+                        });
+                    this.hDiv.scrollLeft = this.bDiv.scrollLeft;
+                    this.rePosDrag();
+                    this.fixHeight();
                 }
             },
             toggleCol: function (cid, visible) {
