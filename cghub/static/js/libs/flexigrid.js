@@ -261,44 +261,56 @@
                 g.adjustTableWidth();
             },
             adjustTableWidth: function () {
-                var hDivBox = $('.hDivBox');
-                var widthDiff = hDivBox.parent().width() - hDivBox.width();
+                var $hDivBox = $('.hDivBox');
+                var widthDiff = $hDivBox.parent().width() - $hDivBox.width();
+                var $oldLast = $('th div.flLastCol', this.hDiv);
+                var $newLast = $('th:visible:last div', this.hDiv);
+                if($oldLast && $newLast) {
+                    // if not same columns
+                    if($oldLast.parent().index() != $newLast.parent().index()) {
+                        var ow = $oldLast.width() - parseInt($hDivBox.attr('add-width'));
+                        $hDivBox.attr('add-width', 0);
+                        $oldLast.css('width', ow);
+                        $('tr', this.bDiv).each(
+                            function () {
+                                    var $tdDiv = $('td:eq(' + $oldLast.parent().index() + ') div', this);
+                                    $tdDiv.css('width', ow);
+                                    g.addTitleToCell($tdDiv);
+                            });
+                        this.hDiv.scrollLeft = this.bDiv.scrollLeft;
+                        this.rePosDrag();
+                        this.fixHeight();
+                        $oldLast.removeClass('flLastCol');
+                        widthDiff = $hDivBox.parent().width() - $hDivBox.width();
+                    }
+                }
+                var addWidth = 0;
+                if($hDivBox.attr('add-width')) {
+                    addWidth = parseInt($hDivBox.attr('add-width'));
+                }
+                var nw;
+                if($newLast.parent().index() != 0 && (widthDiff + addWidth) > 0) {
+                    nw = $newLast.width() + widthDiff;
+                    $hDivBox.attr('add-width', widthDiff + addWidth);
+                } else {
+                    nw = $newLast.width() - addWidth;
+                    $hDivBox.attr('add-width', 0);
+                }
+                $newLast.addClass('flLastCol');
+                $newLast.css('width', nw);
+                $('tr', this.bDiv).each(
+                    function () {
+                        var $tdDiv = $('td:eq(' + $newLast.parent().index() + ') div', this);
+                        $tdDiv.css('width', nw);
+                        g.addTitleToCell($tdDiv);
+                });
+                this.hDiv.scrollLeft = this.bDiv.scrollLeft;
+                this.rePosDrag();
+                this.fixHeight();
+                widthDiff = $hDivBox.parent().width() - $hDivBox.width();
                 if (widthDiff > 0) {
-                    $('.bDiv').children().width(hDivBox.width());
+                    $('.bDiv').children().width($hDivBox.width());
                 };
-                // fit last column
-                var columns = $('.hDiv th:visible div');
-                if(columns.length > 1) {
-                    var i = columns.length - 1;
-                    var nw = 100;
-                    if(widthDiff >= 0) {
-                        nw = $(columns[i]).width() + widthDiff;
-                    };
-                    $('th:visible div:eq(' + i + ')', this.hDiv).css('width', nw);
-                    $('tr', this.bDiv).each(
-                        function () {
-                                var $tdDiv = $('td:visible div:eq(' + i + ')', this);
-                                $tdDiv.css('width', nw);
-                                g.addTitleToCell($tdDiv);
-                        });
-                    this.hDiv.scrollLeft = this.bDiv.scrollLeft;
-                    this.rePosDrag();
-                    this.fixHeight();
-                }
-                if(columns.length > 2 && widthDiff < 0) {
-                    var i = columns.length - 2;
-                    var nw = 100;
-                    $('th:visible div:eq(' + i + ')', this.hDiv).css('width', nw);
-                    $('tr', this.bDiv).each(
-                        function () {
-                                var $tdDiv = $('td:visible div:eq(' + i + ')', this);
-                                $tdDiv.css('width', nw);
-                                g.addTitleToCell($tdDiv);
-                        });
-                    this.hDiv.scrollLeft = this.bDiv.scrollLeft;
-                    this.rePosDrag();
-                    this.fixHeight();
-                }
             },
             toggleCol: function (cid, visible) {
                 var ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];
