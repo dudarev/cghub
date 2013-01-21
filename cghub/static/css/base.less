@@ -1,3 +1,5 @@
+@import "libs/bootstrap/less/mixins.less";
+
 .base-container {
     padding-top: 50px;
     width: 100%;
@@ -27,5 +29,27 @@
 	width: 100%;
     div.bDiv tr.trSelected td {
         background-color: #d5effc;
+    }
+}
+
+.tooltip {
+    position: fixed;
+    z-index: 1000;
+    display: none;
+    max-width: 250px;
+    background: rgba(0, 0, 0, .8);
+    visibility: visible;
+    padding: 5px;
+    font-size: 12px;
+    opacity: 1;
+    color: #fff;
+    padding: 5px 6px 4px 10px;
+    .border-radius(3px);
+    &:before {
+        display: inline-block;
+        content: '?';
+        position: relative;
+        left: -6px;
+        color: #ffc40d;
     }
 }

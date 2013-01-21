@@ -12,6 +12,7 @@ jQuery(function ($) {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
             cghub.base.highlightCode('pre.xml-code');
+            cghub.base.activateTooltipHelp();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -69,6 +70,26 @@ jQuery(function ($) {
                     modal.find('.modal-label').html('Details for UUID='+link.text());
                 }).modal('show');
                 return false;
+            });
+        },
+        activateTooltipHelp:function () {
+            $(document).on('mouseenter', '.js-tooltip-help, .ui-dropdownchecklist-text', function(e){
+                cghub.base.tooltipTimeout = setTimeout(function() {
+                    var posX = $(e.target).offset().left - $(window).scrollLeft();
+                    var posY = $(e.target).offset().top - $(window).scrollTop() - 2;
+                    var content = $(e.target).attr('data-tooltip');
+                    if(!content) {
+                        content = 'Click to view help for ' + $(e.target).text();
+                    }
+                    var tooltip = $('<div class="tooltip"></div>').html(content).appendTo($('body'));
+                    tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                }, 1500);
+            });
+            $(document).on('mouseout', '.js-tooltip-help, .ui-dropdownchecklist-text', function(){
+                if(cghub.base.tooltipTimeout) {
+                    clearTimeout(cghub.base.tooltipTimeout);
+                    $('.tooltip').remove();
+                }
             });
         },
         highlightCode:function(element) {
