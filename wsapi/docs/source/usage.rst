@@ -12,9 +12,13 @@ Web service interface (WSI) to CGHub data is described in `CGHub documentation <
 (look for `User's Guide`).
 The Python API described in this documentation provides Python interface to it.
 
-At the moment WSI API provides two resources ``analysisObject`` and ``analysisAttributes``, e.g.
+At the moment WSI API provides several metadata resources (``analysisId``, ``analysisDetail``, 
+``analysisSubmission``, ``analysisFull``, ``analysisObject``, ``analysisAttributes``)
 
-https://cghub.ucsc.edu/cghub/metadata/analysisObject?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+In the Python API wrapper ``analysisId`` and ``analysisAttributes`` are used now.
+One may see example of possible responses for a specific id with HTTP requests as shown below:
+
+https://cghub.ucsc.edu/cghub/metadata/analysisId?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
 
 https://cghub.ucsc.edu/cghub/metadata/analysisAttributes?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
 

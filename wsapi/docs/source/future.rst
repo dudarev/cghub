@@ -12,15 +12,15 @@ Only last modification time for a query
 
 This would be helpful to validate cache for queries.
 
-Similar to ``analysisObject`` and ``analysisAttributes``, 
+Similar to ``analysisId`` and ``analysisAttributes``, 
 WSI-API may have a method that would return only one date -- 
 the most latest of all modification dates for all results.
 
-Similar to existing query ``analysisObject``:
+Similar to existing query ``analysisId``:
 
-`https://cghub.ucsc.edu/cghub/metadata/analysisObject?xml_text=6d7* <https://cghub.ucsc.edu/cghub/metadata/analysisObject?xml_text=6d7*>`__
+`https://cghub.ucsc.edu/cghub/metadata/analysisId?xml_text=6d7* <https://cghub.ucsc.edu/cghub/metadata/analysisId?xml_text=6d7*>`__
 
-(returns 11 results as of 2012-07-12)
+(returns 127 results as of 2013-01-22)
 
 It may use ``lastModified``, for example:
 
@@ -42,9 +42,10 @@ Return all elements except ``*_xml``
 
 This would reduce size of files transfered.
 
-At the moment a query to ``analysisObject`` has the most minimum of information 
+At the moment a query to ``analysisId`` has the most minimum of information 
 and ``analysisAttributes`` also return ``*_xml`` elements such as ``analysis_xml``. 
-This increases size significantly.
+This increases size significantly. 
+(``analysisObject`` query is similar to ``analysisId`` but is depricated.)
 
 May be, there could be another query that returns all elements except ``*_xml`` ones.
 
