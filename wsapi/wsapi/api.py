@@ -16,7 +16,7 @@ from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
 
 CGHUB_SERVER = 'https://cghub.ucsc.edu'
-CGHUB_ANALYSIS_OBJECT_URI = '/cghub/metadata/analysisObject'
+CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
 CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
 
 
@@ -227,7 +227,7 @@ def request(
         if get_attributes:
             uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
         else:
-            uri = CGHUB_ANALYSIS_OBJECT_URI
+            uri = CGHUB_ANALYSIS_ID_URI
         if not '=' in query:
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
         url = u'{0}{1}?{2}'.format(server, uri, query)
