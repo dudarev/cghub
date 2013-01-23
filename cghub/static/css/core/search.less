@@ -1,3 +1,4 @@
+@import "../libs/bootstrap/less/mixins.less";
 @import "../base.less";
 @import "../bam-filter-sidebar.less";
 @import "../dropdownchecklist.less";
@@ -21,4 +22,20 @@ form.search-form {
 
 .filter-select {
     display: none;
+}
+
+.applied-filters {
+    margin-top: 5px;
+    ul {
+        list-style-type: none;
+        margin-left: 20px;
+        li {
+            padding: 2px 0;
+            b {
+                font-weight: normal;
+                padding: 0 2px;
+                border-bottom: 1px dotted #222;
+            }
+        }
+    }
 }

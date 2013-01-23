@@ -73,7 +73,7 @@ jQuery(function ($) {
             });
         },
         activateTooltipHelp:function () {
-            $(document).on('mouseenter', '.js-tooltip-help, .ui-dropdownchecklist-text', function(e){
+            $(document).on('mouseenter', '.js-tooltip-help', function(e){
                 cghub.base.tooltipTimeout = setTimeout(function() {
                     var posX = $(e.target).offset().left - $(window).scrollLeft();
                     var posY = $(e.target).offset().top - $(window).scrollTop() - 2;
@@ -85,7 +85,7 @@ jQuery(function ($) {
                     tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
                 }, 1500);
             });
-            $(document).on('mouseout', '.js-tooltip-help, .ui-dropdownchecklist-text', function(){
+            $(document).on('mouseout', '.js-tooltip-help', function(){
                 if(cghub.base.tooltipTimeout) {
                     clearTimeout(cghub.base.tooltipTimeout);
                     $('.tooltip').remove();

@@ -95,7 +95,7 @@ def applied_filters(request):
     # query is mentioned first
     if applied_filters.get('q', None):
         # Text query from search input
-        filtered_by_str += '<li>Text query: "' + applied_filters['q'] + '"</li>'
+        filtered_by_str += '<li><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
 
     for f in applied_filters:
         if not applied_filters[f]:
@@ -108,7 +108,7 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
-            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '">Uploaded '
+            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
             continue
 
@@ -124,7 +124,7 @@ def applied_filters(request):
             else:
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
-        filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
+        filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
 
     filtered_by_str += '</ul>'
     return filtered_by_str

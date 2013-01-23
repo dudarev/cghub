@@ -12,6 +12,7 @@ from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import get_name_by_code
+from cghub.apps.core.templatetags.core_tags import file_size
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -173,10 +174,10 @@ class TestTemplateTags(TestCase):
         self.assertEqual(
             result,
             'Applied filter(s): <ul><li id="time-filter-applied" '
-            'data="[NOW-7DAY TO NOW]">Uploaded this week</li>'
-            '<li>Disease: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li>Center: Harvard (HMS-RK)</li>'
-            '<li>Study: TCGA (phs000178)</li><li>Run Type: WGS, WXS</li></ul>')
+            'data="[NOW-7DAY TO NOW]"><b>Uploaded</b>: this week</li>'
+            '<li><b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
+            '<li><b>Center</b>: Harvard (HMS-RK)</li>'
+            '<li><b>Study</b>: TCGA (phs000178)</li><li><b>Run Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -222,6 +223,12 @@ class TestTemplateTags(TestCase):
 
         assert (get_name_by_code('unknown_section', 'unknown_code') ==
                 'unknown_code')
+
+    def test_file_size_filter(self):
+        self.assertEqual(file_size('123'), '123 Bytes')
+        self.assertEqual(file_size(123456), '123.46 KB')
+        self.assertEqual(file_size(1234567), '1.23 MB')
+        self.assertEqual(file_size(1234567890), '1.23 GB')
 
 
 class SearchViewPaginationTestCase(TestCase):
