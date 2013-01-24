@@ -256,27 +256,27 @@ def table_row(result):
     Return table row ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
-        'UUID': result['analysis_id'],
-        'Study': get_name_by_code('study', result['study']),
-        'Disease': result['disease_abbr'],
+        'UUID': result.get('analysis_id', ''),
+        'Study': get_name_by_code('study', result.get('study', '')),
+        'Disease': result.get('disease_abbr', ''),
         'Disease Name': get_name_by_code(
-                                'disease_abbr', result['disease_abbr']),
-        'Run Type': result['library_strategy'],
-        'Center': result['center_name'],
+                                'disease_abbr', result.get('disease_abbr', '')),
+        'Run Type': result.get('library_strategy', ''),
+        'Center': result.get('center_name', ''),
         'Center Name': get_name_by_code(
-                                'center_name', result['center_name']),
+                                'center_name', result.get('center_name', '')),
         'Experiment Type': get_name_by_code(
-                                'analyte_code', result['analyte_code']),
-        'Last modified': result['last_modified'],
+                                'analyte_code', result.get('analyte_code', '')),
+        'Last modified': result.get('last_modified', ''),
         'Sample Type': get_sample_type_by_code(
-                                result['sample_type'], format='shortcut'),
+                                result.get('sample_type', ''), format='shortcut'),
         'Sample Type Name': get_sample_type_by_code(
-                                result['sample_type'], format='full'),
-        'State': get_name_by_code('state', result['state']),
-        'Barcode': result['legacy_sample_id'],
-        'Sample Accession': result['sample_accession'],
-        'Files Size': (result['files_size'] if result['files_size'] else
-                                result['files'].file[0].filesize),
+                                result.get('sample_type', ''), format='full'),
+        'State': get_name_by_code('state', result.get('state', '')),
+        'Barcode': result.get('legacy_sample_id', ''),
+        'Sample Accession': result.get('sample_accession', ''),
+        'Files Size': (result.get('files_size') or result.get('files')
+                            and result.get('files').file[0].filesize),
     }
     html = ''
     for c in settings.TABLE_COLUMNS:

@@ -11,7 +11,8 @@ from django.http import HttpRequest, QueryDict
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
-from cghub.apps.core.templatetags.search_tags import get_name_by_code
+from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
+                                                table_header, table_row)
 from cghub.apps.core.templatetags.core_tags import file_size
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -229,6 +230,30 @@ class TestTemplateTags(TestCase):
         self.assertEqual(file_size(123456), '120.56 KB')
         self.assertEqual(file_size(1234567), '1.18 MB')
         self.assertEqual(file_size(1234567890), '1.15 GB')
+
+    def test_table_header_tag(self):
+        COLUMNS = ('Disease', 'UUID', 'Study')
+        request = HttpRequest()
+        with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
+            res = table_header(request)
+            self.assertTrue(res.find('<th') != -1)
+            self.assertTrue(res.find(COLUMNS[0]) != -1)
+            self.assertTrue(res.find(COLUMNS[1]) != -1)
+            self.assertTrue(res.find(COLUMNS[2]) == -1)
+
+    def test_table_row_tag(self):
+        COLUMNS = ('Disease', 'UUID', 'Study')
+        RESULT = {
+                'disease_abbr': 'COAD',
+                'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
+                'study': 'phs000178',
+                }
+        with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
+            res = table_row(RESULT)
+            self.assertTrue(res.find('<td') != -1)
+            self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
+            self.assertTrue(res.find(RESULT['analysis_id']) != -1)
+            self.assertTrue(res.find(RESULT['study']) == -1)
 
 
 class SearchViewPaginationTestCase(TestCase):
