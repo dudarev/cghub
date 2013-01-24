@@ -1,5 +1,17 @@
 @import "libs/bootstrap/less/mixins.less";
 
+.navbar {
+    .brand {
+        padding-top: 10px;
+        padding-bottom: 8px;
+    }
+    ul {
+        a {
+            font-size: 14px;
+        }
+    }
+}
+
 .base-container {
     padding-top: 50px;
     width: 100%;
@@ -25,10 +37,19 @@
 .search-query {
 	color: #333 !important;
 }
+
 .flexigrid {
 	width: 100%;
+    // fix selected row highlighting
     div.bDiv tr.trSelected td {
         background-color: #d5effc;
+    }
+    // clickable rows
+    .bDiv tr {
+        cursor: pointer;
+        td:first-child {
+            cursor: default;
+        }
     }
 }
 

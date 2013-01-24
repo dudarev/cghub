@@ -518,7 +518,7 @@
                 $(t).empty();
                 $(t).append(tbody);
                 this.addCellProp();
-                this.addRowProp();
+                // this.addRowProp(); disable on row click
                 this.rePosDrag();
                 tbody = null;
                 data = null;
@@ -1144,7 +1144,7 @@
         }
         //add td & row properties
         g.addCellProp();
-        g.addRowProp();
+        //g.addRowProp(); disable on row click
         //set cDrag
         var cdcol = $('thead tr:first th:first', g.hDiv).get(0);
         if (cdcol != null) {

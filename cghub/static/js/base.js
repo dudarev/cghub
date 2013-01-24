@@ -54,20 +54,21 @@ jQuery(function ($) {
             }
         },
         activateItemDetailsLinks:function () {
-            $('.js-item-details-link').live('click', function(obj){
-                var link = $(obj.target);
-                var modal = $(link.attr('data-target'));
+            $(document).on('click', '.bDiv tr', function(obj){
+                if(obj.target.localName=='input') return;
+                var tr = $(this);
+                var modal = $(tr.attr('data-target'));
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
-                        modal.find('.modal-body').load(link.attr('href'), function(){
+                        modal.find('.modal-body').load(tr.attr('data-details-url'), function(){
                             cghub.base.highlightCode('.modal-body pre.xml-code');
                             loaded = true;
                         });
                     };
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for UUID='+link.text());
+                    modal.find('.modal-label').html('Details for UUID='+tr.attr('data-uuid'));
                 }).modal('show');
                 return false;
             });
