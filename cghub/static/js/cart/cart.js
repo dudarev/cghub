@@ -22,6 +22,7 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid .bDiv tr').contextmenu();
             cghub.cart.$downloadManifestBtn.on('click', cghub.cart.downloadManifest);
             cghub.cart.$downloadXmlBtn.on('click', cghub.cart.downloadXml);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);

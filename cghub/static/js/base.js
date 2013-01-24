@@ -56,20 +56,32 @@ jQuery(function ($) {
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
                 if(obj.target.localName=='input') return;
-                var tr = $(this);
-                var modal = $(tr.attr('data-target'));
+                var $tr = $(this);
+                var modal = $($tr.attr('data-target'));
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
-                        modal.find('.modal-body').load(tr.attr('data-details-url'), function(){
+                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(){
                             cghub.base.highlightCode('.modal-body pre.xml-code');
                             loaded = true;
                         });
                     };
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for UUID='+tr.attr('data-uuid'));
+                    modal.find('.modal-label').html('Details for UUID='+$tr.attr('data-uuid'));
                 }).modal('show');
+                return false;
+            });
+            $(document).on('click', '.js-details-popup', function() {
+                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                $tr.trigger('click');
+                return false;
+            });
+            $(document).on('click', '.js-details-page', function() {
+                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                /* open in new tab */
+                window.open($tr.attr('data-details-url'), '_blank');
+                window.focus();
                 return false;
             });
         },
