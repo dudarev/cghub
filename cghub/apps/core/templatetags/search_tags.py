@@ -2,6 +2,7 @@ import urllib
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape
+from django.conf import settings
 from django.template import Context
 from django.template.loader import select_template
 
@@ -135,13 +136,13 @@ def sort_link(request, attribute, link_anchor):
     """
     Generates a link based on request.path and `order` direction for `attribute`
     Specifies sort `direction`: '-' (DESC) or '' (ASC)
-    
+
     """
     data = {}
     for k in request.GET:
         if k not in ('offset',):
             data[k] = request.GET[k]
-    
+
     if 'sort_by' in data and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
@@ -162,10 +163,125 @@ def sort_link(request, attribute, link_anchor):
             sorting_arrow = "&nbsp;&darr;"
     else:
         sorting_arrow = direction_label
-    
+
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
     return '<a class="sort-link" href="%(href)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
         'link_anchor': link_anchor,
         'sorting_arrow': sorting_arrow,
         'href': href}
+
+
+@register.simple_tag
+def table_header(request):
+    """
+    Return table header ordered accoreding to settings.TABLE_COLUNS
+    """
+    COLS = {
+        'UUID': {
+            'width': 220,
+            'attr': 'analysis_id',
+        },
+        'Study': {
+            'width': 100,
+            'attr': 'study',
+        },
+        'Disease': {
+            'width': 65,
+            'attr': 'disease_abbr',
+        },
+        'Disease Name': {
+            'width': 200,
+            'attr': 'disease_abbr',
+        },
+        'Run Type': {
+            'width': 100,
+            'attr': 'library_strategy',
+        },
+        'Center': {
+            'width': 100,
+            'attr': 'center_name',
+        },
+        'Center Name': {
+            'width': 100,
+            'attr': 'center_name',
+        },
+        'Experiment Type': {
+            'width': 95,
+            'attr': 'analyte_code',
+        },
+        'Last modified': {
+            'width': 120,
+            'attr': 'last_modified',
+        },
+        'Sample Type': {
+            'width': 75,
+            'attr': 'sample_type',
+        },
+        'Sample Type Name': {
+            'width': 150,
+            'attr': 'sample_type',
+        },
+        'State': {
+            'width': 70,
+            'attr': 'state',
+        },
+        'Barcode': {
+            'width': 235,
+            'attr': 'legacy_sample_id',
+        },
+        'Sample Accession': {
+            'width': 75,
+            'attr': 'sample_accession',
+        },
+        'Files Size': {
+            'width': 75,
+            'attr': 'files_size',
+        },
+    }
+    html = ''
+    for c in settings.TABLE_COLUMNS:
+        col = COLS.get(c, None)
+        if col == None:
+            continue
+        html += '<th width="%d">%s</th>' % (
+                            col['width'],
+                            sort_link(request, col['attr'], c))
+    return html
+
+
+@register.simple_tag
+def table_row(result):
+    """
+    Return table row ordered accoreding to settings.TABLE_COLUNS
+    """
+    COLS = {
+        'UUID': result['analysis_id'],
+        'Study': get_name_by_code('study', result['study']),
+        'Disease': result['disease_abbr'],
+        'Disease Name': get_name_by_code(
+                                'disease_abbr', result['disease_abbr']),
+        'Run Type': result['library_strategy'],
+        'Center': result['center_name'],
+        'Center Name': get_name_by_code(
+                                'center_name', result['center_name']),
+        'Experiment Type': get_name_by_code(
+                                'analyte_code', result['analyte_code']),
+        'Last modified': result['last_modified'],
+        'Sample Type': get_sample_type_by_code(
+                                result['sample_type'], format='shortcut'),
+        'Sample Type Name': get_sample_type_by_code(
+                                result['sample_type'], format='full'),
+        'State': get_name_by_code('state', result['state']),
+        'Barcode': result['legacy_sample_id'],
+        'Sample Accession': result['sample_accession'],
+        'Files Size': (result['files_size'] if result['files_size'] else
+                                result['files'].file[0].filesize),
+    }
+    html = ''
+    for c in settings.TABLE_COLUMNS:
+        col = COLS.get(c, None)
+        if col == None:
+            continue
+        html += '<td>%s</td>' % col
+    return html

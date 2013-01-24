@@ -4,21 +4,7 @@
         <thead>
             <tr>
                 <th class="data-table-checkbox-header" width='15'></th>
-                <th width='220'>{% sort_link request 'analysis_id' 'UUID' %}</th>
-                <th width='100'>{% sort_link request 'study' 'Study' %}</th>
-                <th width='65'>{% sort_link request 'disease_abbr' 'Disease' %}</th>
-                <th width='200'>{% sort_link request 'disease_abbr' 'Disease Name' %}</th>
-                <th width='100'>{% sort_link request 'library_strategy' 'Run Type' %}</th>
-                <th width='100'>{% sort_link request 'center_name' 'Center' %}</th>
-                <th width='100'>{% sort_link request 'center_name' 'Center Name' %}</th>
-                <th width='95'>{% sort_link request 'analyte_code' 'Experiment Type' %}</th>
-                <th width='120'>{% sort_link request 'last_modified' 'Last modified' %}</th>
-                <th width='75'>{% sort_link request 'sample_type' 'Sample Type' %}</th>
-                <th width='150'>{% sort_link request 'sample_type' 'Sample Type Name' %}</th>
-                <th width='70'>{% sort_link request 'state' 'State' %}</th>
-                <th width='235'>{% sort_link request 'legacy_sample_id' 'Barcode' %}</th>
-                <th width='75'>{% sort_link request 'sample_accession' 'Sample Accession' %}</th>
-                <th width='75'>{% sort_link request 'files_size' 'Files Size' %}</th>
+                {% table_header request %}
             </tr>
         </thead>
         <tbody>
@@ -38,21 +24,7 @@
                                                             data-library_strategy="{{ r.library_strategy }}"
                                                             data-center_name="{{ r.center_name }}"
                                                             data-state="{{ r.state }}"></td>
-                <td>{{ r.analysis_id }}</td>
-                <td>{% get_name_by_code 'study' r.study %}</td>
-                <td>{{ r.disease_abbr }}</td>
-                <td>{% get_name_by_code 'disease_abbr' r.disease_abbr %}</td>
-                <td>{{ r.library_strategy }}</td>
-                <td>{{ r.center_name }}</td>
-                <td>{% get_name_by_code 'center_name' r.center_name %}</td>
-                <td>{% get_name_by_code 'analyte_code' r.analyte_code %}</td>
-                <td>{{ r.last_modified }}</td>
-                <td>{% get_sample_type_by_code r.sample_type format='shortcut' %}</td>
-                <td>{% get_sample_type_by_code r.sample_type format='full' %}</td>
-                <td>{% get_name_by_code 'state' r.state %}</td>
-                <td>{{ r.legacy_sample_id }}</td>
-                <td>{{ r.sample_accession }}</td>
-                <td>{% if r.files_size %}{{ r.files_size }}{% else %}{{ r.files.file.0.filesize }}{% endif %}</td>
+                {% table_row r %}
             </tr>
         {% endfor %}
         </tbody>

@@ -2,6 +2,12 @@
 .clearfix:after{clear:both;}
 .hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
 .input-block-level{display:block;width:100%;min-height:28px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
+.clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:"";}
+.clearfix:after{clear:both;}
+.hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
+.input-block-level{display:block;width:100%;min-height:28px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
+.navbar .brand{padding-top:10px;padding-bottom:8px;}
+.navbar ul a{font-size:14px;}
 .base-container{padding-top:50px;width:100%;min-width:1280px;}
 .base-sidebar{padding-left:10px;}
 .base-content{width:78%;min-width:980px;}
@@ -9,7 +15,9 @@
 .sort-link{display:block;}
 .search-query{color:#333 !important;}
 .flexigrid{width:100%;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
+.flexigrid .bDiv tr{cursor:pointer;}.flexigrid .bDiv tr td:first-child{cursor:default;}
 .tooltip{position:fixed;z-index:1000;display:none;max-width:250px;background:rgba(0, 0, 0, 0.8);visibility:visible;padding:5px;font-size:12px;opacity:1;color:#fff;padding:5px 6px 4px 10px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}.tooltip:before{display:inline-block;content:'?';position:relative;left:-6px;color:#ffc40d;}
+.dropdown-menu li>a:hover{color:#222;background-color:#eee;}
 input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
@@ -28,3 +36,4 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 div.search-btn-group{padding:15px 0;}
 form.search-form{margin:175px 0;text-align:center;}form.search-form input{font-size:20px;font-weight:normal;padding:14px 24px;margin-right:10px;width:30%;}
 .filter-select{display:none;}
+.applied-filters{margin-top:5px;}.applied-filters ul{list-style-type:none;margin-left:20px;}.applied-filters ul li{padding:2px 0;}.applied-filters ul li b{font-weight:normal;padding:0 2px;border-bottom:1px dotted #222;}
