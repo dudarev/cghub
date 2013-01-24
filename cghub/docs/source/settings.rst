@@ -110,6 +110,21 @@ Number of results per page may be set in ``settings/defaults.py``:
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
+Columns ordering
+----------------
+Columns ordering for the results table can be specified in settings file.
+Default configuration is located in ``settings/ui.py``:
+
+.. code-block:: python
+
+    # ui.py
+
+    TABLE_COLUMNS = (
+    'UUID',
+    'Study',
+    'Disease',
+    ...
+
 Logging
 --------------
 

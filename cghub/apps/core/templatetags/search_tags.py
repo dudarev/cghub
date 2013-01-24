@@ -231,7 +231,7 @@ def table_header(request):
             'attr': 'legacy_sample_id',
         },
         'Sample Accession': {
-            'width': 75,
+            'width': 100,
             'attr': 'sample_accession',
         },
         'Files Size': {
@@ -250,33 +250,49 @@ def table_header(request):
     return html
 
 
+def get_result_attr(result, attr):
+    try:
+        return result[attr]
+    except KeyError:
+        pass
+    return ''
+
+
 @register.simple_tag
 def table_row(result):
     """
     Return table row ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
-        'UUID': result.get('analysis_id', ''),
-        'Study': get_name_by_code('study', result.get('study', '')),
-        'Disease': result.get('disease_abbr', ''),
+        'UUID': get_result_attr(result, 'analysis_id'),
+        'Study': get_name_by_code(
+                    'study', get_result_attr(result, 'study')),
+        'Disease': get_result_attr(result, 'disease_abbr'),
         'Disease Name': get_name_by_code(
-                                'disease_abbr', result.get('disease_abbr', '')),
-        'Run Type': result.get('library_strategy', ''),
-        'Center': result.get('center_name', ''),
+                    'disease_abbr',
+                    get_result_attr(result, 'disease_abbr')),
+        'Run Type': get_result_attr(result, 'library_strategy'),
+        'Center': get_result_attr(result, 'center_name'),
         'Center Name': get_name_by_code(
-                                'center_name', result.get('center_name', '')),
+                    'center_name',
+                    get_result_attr(result, 'center_name')),
         'Experiment Type': get_name_by_code(
-                                'analyte_code', result.get('analyte_code', '')),
-        'Last modified': result.get('last_modified', ''),
+                    'analyte_code',
+                    get_result_attr(result, 'analyte_code')),
+        'Last modified': get_result_attr(result, 'last_modified'),
         'Sample Type': get_sample_type_by_code(
-                                result.get('sample_type', ''), format='shortcut'),
+                    get_result_attr(result, 'sample_type'),
+                    format='shortcut'),
         'Sample Type Name': get_sample_type_by_code(
-                                result.get('sample_type', ''), format='full'),
-        'State': get_name_by_code('state', result.get('state', '')),
-        'Barcode': result.get('legacy_sample_id', ''),
-        'Sample Accession': result.get('sample_accession', ''),
-        'Files Size': (result.get('files_size') or result.get('files')
-                            and result.get('files').file[0].filesize),
+                    get_result_attr(result, 'sample_type'),
+                    format='full'),
+        'State': get_name_by_code(
+                    'state', get_result_attr(result, 'state')),
+        'Barcode': get_result_attr(result, 'legacy_sample_id'),
+        'Sample Accession': get_result_attr(result, 'sample_accession'),
+        'Files Size': (get_result_attr(result, 'files_size')
+                    or get_result_attr(result, 'files')
+                    and get_result_attr(result, 'files').file[0].filesize),
     }
     html = ''
     for c in settings.TABLE_COLUMNS:
