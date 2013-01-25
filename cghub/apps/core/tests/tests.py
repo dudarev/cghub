@@ -12,8 +12,7 @@ from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-                                                table_header, table_row)
-from cghub.apps.core.templatetags.core_tags import file_size
+                                    table_header, table_row, file_size)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 

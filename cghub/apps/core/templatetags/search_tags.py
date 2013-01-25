@@ -11,6 +11,25 @@ from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 register = template.Library()
 
 
+@register.filter
+def file_size(value):
+    """
+    Transform number of bytes to value in KB, MB or GB
+    123456 -> 123.46 KB
+    """
+    try:
+        bytes = int(value)
+    except ValueError:
+        return ''
+    if bytes >= 1073741824:
+        return '%.2f GB' % round(bytes / 1073741824., 2)
+    if bytes >= 1048576:
+        return '%.2f MB' % round(bytes / 1048576., 2)
+    if bytes >= 1024:
+        return '%.2f KB' % round(bytes / 1024., 2)
+    return '%d Bytes' % bytes
+
+
 @register.simple_tag
 def get_name_by_code(filter_section, code):
     """
@@ -290,7 +309,7 @@ def table_row(result):
                     'state', get_result_attr(result, 'state')),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
-        'Files Size': (get_result_attr(result, 'files_size')
+        'Files Size': file_size(get_result_attr(result, 'files_size')
                     or get_result_attr(result, 'files')
                     and get_result_attr(result, 'files').file[0].filesize),
     }
