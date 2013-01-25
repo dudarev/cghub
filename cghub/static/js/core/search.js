@@ -85,6 +85,7 @@ jQuery(function ($) {
         },
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid .bDiv tr').contextmenu();
         },
         initDdcl: function() {
             for (var i = cghub.search.$filterSelects.length - 1; i >= 0; i--) {

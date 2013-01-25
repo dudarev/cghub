@@ -39,7 +39,7 @@ class CartTests(TestCase):
         # make sure counter in header is OK
         self.failUnlessEqual('Cart (3)' in response.content, True)
         self.failUnlessEqual('Files in your cart: 3' in response.content, True)
-        self.failUnlessEqual('3.00 Mb' in response.content, True)
+        self.failUnlessEqual('3.00 MB' in response.content, True)
 
         # make sure we have 3 files in cart
         self.failUnlessEqual(len(response.context['results']), 3)

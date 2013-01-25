@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load search_tags %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
@@ -13,7 +14,7 @@
                 In your cart
             </h1>
         </div>
-        <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|floatformat:2 }} Mb)</span></div>
+        <div><span>Files in your cart: {{ stats.count }} ({{ stats.size|file_size }})</span></div>
 
         <form action="{% url cart_page %}action/" method="POST">
             {% csrf_token %}

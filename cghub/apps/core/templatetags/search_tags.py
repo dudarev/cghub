@@ -2,12 +2,32 @@ import urllib
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape
+from django.conf import settings
 from django.template import Context
 from django.template.loader import select_template
 
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 
 register = template.Library()
+
+
+@register.filter
+def file_size(value):
+    """
+    Transform number of bytes to value in KB, MB or GB
+    123456 -> 123.46 KB
+    """
+    try:
+        bytes = int(value)
+    except ValueError:
+        return ''
+    if bytes >= 1073741824:
+        return '%.2f GB' % round(bytes / 1073741824., 2)
+    if bytes >= 1048576:
+        return '%.2f MB' % round(bytes / 1048576., 2)
+    if bytes >= 1024:
+        return '%.2f KB' % round(bytes / 1024., 2)
+    return '%d Bytes' % bytes
 
 
 @register.simple_tag
@@ -95,7 +115,7 @@ def applied_filters(request):
     # query is mentioned first
     if applied_filters.get('q', None):
         # Text query from search input
-        filtered_by_str += '<li>Text query: "' + applied_filters['q'] + '"</li>'
+        filtered_by_str += '<li><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
 
     for f in applied_filters:
         if not applied_filters[f]:
@@ -108,7 +128,7 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
-            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '">Uploaded '
+            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
             continue
 
@@ -124,7 +144,7 @@ def applied_filters(request):
             else:
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
-        filtered_by_str += '<li>%s: %s</li>' % (title, filters_str[2:])
+        filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
 
     filtered_by_str += '</ul>'
     return filtered_by_str
@@ -135,13 +155,13 @@ def sort_link(request, attribute, link_anchor):
     """
     Generates a link based on request.path and `order` direction for `attribute`
     Specifies sort `direction`: '-' (DESC) or '' (ASC)
-    
+
     """
     data = {}
     for k in request.GET:
         if k not in ('offset',):
             data[k] = request.GET[k]
-    
+
     if 'sort_by' in data and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
@@ -162,10 +182,141 @@ def sort_link(request, attribute, link_anchor):
             sorting_arrow = "&nbsp;&darr;"
     else:
         sorting_arrow = direction_label
-    
+
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
     return '<a class="sort-link" href="%(href)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
         'link_anchor': link_anchor,
         'sorting_arrow': sorting_arrow,
         'href': href}
+
+
+@register.simple_tag
+def table_header(request):
+    """
+    Return table header ordered accoreding to settings.TABLE_COLUNS
+    """
+    COLS = {
+        'UUID': {
+            'width': 220,
+            'attr': 'analysis_id',
+        },
+        'Study': {
+            'width': 100,
+            'attr': 'study',
+        },
+        'Disease': {
+            'width': 65,
+            'attr': 'disease_abbr',
+        },
+        'Disease Name': {
+            'width': 200,
+            'attr': 'disease_abbr',
+        },
+        'Run Type': {
+            'width': 100,
+            'attr': 'library_strategy',
+        },
+        'Center': {
+            'width': 100,
+            'attr': 'center_name',
+        },
+        'Center Name': {
+            'width': 100,
+            'attr': 'center_name',
+        },
+        'Experiment Type': {
+            'width': 95,
+            'attr': 'analyte_code',
+        },
+        'Last modified': {
+            'width': 120,
+            'attr': 'last_modified',
+        },
+        'Sample Type': {
+            'width': 75,
+            'attr': 'sample_type',
+        },
+        'Sample Type Name': {
+            'width': 150,
+            'attr': 'sample_type',
+        },
+        'State': {
+            'width': 70,
+            'attr': 'state',
+        },
+        'Barcode': {
+            'width': 235,
+            'attr': 'legacy_sample_id',
+        },
+        'Sample Accession': {
+            'width': 100,
+            'attr': 'sample_accession',
+        },
+        'Files Size': {
+            'width': 75,
+            'attr': 'files_size',
+        },
+    }
+    html = ''
+    for c in settings.TABLE_COLUMNS:
+        col = COLS.get(c, None)
+        if col == None:
+            continue
+        html += '<th width="%d">%s</th>' % (
+                            col['width'],
+                            sort_link(request, col['attr'], c))
+    return html
+
+
+def get_result_attr(result, attr):
+    try:
+        return result[attr]
+    except KeyError:
+        pass
+    return ''
+
+
+@register.simple_tag
+def table_row(result):
+    """
+    Return table row ordered accoreding to settings.TABLE_COLUNS
+    """
+    COLS = {
+        'UUID': get_result_attr(result, 'analysis_id'),
+        'Study': get_name_by_code(
+                    'study', get_result_attr(result, 'study')),
+        'Disease': get_result_attr(result, 'disease_abbr'),
+        'Disease Name': get_name_by_code(
+                    'disease_abbr',
+                    get_result_attr(result, 'disease_abbr')),
+        'Run Type': get_result_attr(result, 'library_strategy'),
+        'Center': get_result_attr(result, 'center_name'),
+        'Center Name': get_name_by_code(
+                    'center_name',
+                    get_result_attr(result, 'center_name')),
+        'Experiment Type': get_name_by_code(
+                    'analyte_code',
+                    get_result_attr(result, 'analyte_code')),
+        'Last modified': get_result_attr(result, 'last_modified'),
+        'Sample Type': get_sample_type_by_code(
+                    get_result_attr(result, 'sample_type'),
+                    format='shortcut'),
+        'Sample Type Name': get_sample_type_by_code(
+                    get_result_attr(result, 'sample_type'),
+                    format='full'),
+        'State': get_name_by_code(
+                    'state', get_result_attr(result, 'state')),
+        'Barcode': get_result_attr(result, 'legacy_sample_id'),
+        'Sample Accession': get_result_attr(result, 'sample_accession'),
+        'Files Size': file_size(get_result_attr(result, 'files_size')
+                    or get_result_attr(result, 'files')
+                    and get_result_attr(result, 'files').file[0].filesize),
+    }
+    html = ''
+    for c in settings.TABLE_COLUMNS:
+        col = COLS.get(c, None)
+        if col == None:
+            continue
+        html += '<td>%s</td>' % col
+    return html

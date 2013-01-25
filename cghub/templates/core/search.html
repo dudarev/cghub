@@ -27,7 +27,7 @@
     </div>
     {% if num_results %}
         <div>Found {{ num_results }} results</div>
-        <div>{% applied_filters request %}</div>
+        <div class="applied-filters">{% applied_filters request %}</div>
     {% endif %}
     {% if num_results > 0 %}
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form">
@@ -62,7 +62,7 @@
             <input class="search-query" type="text" name="q">
         </form>
     {% else %}
-        <div>{% applied_filters request %}</div>
+        <div class="applied-filters">{% applied_filters request %}</div>
         {% if message %}
             <h4>{{ message }}<h4>
         {% endif %}

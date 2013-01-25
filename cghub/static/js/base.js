@@ -54,26 +54,39 @@ jQuery(function ($) {
             }
         },
         activateItemDetailsLinks:function () {
-            $('.js-item-details-link').live('click', function(obj){
-                var link = $(obj.target);
-                var modal = $(link.attr('data-target'));
+            $(document).on('click', '.bDiv tr', function(obj){
+                if(obj.target.localName=='input') return;
+                var $tr = $(this);
+                var modal = $($tr.attr('data-target'));
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
-                        modal.find('.modal-body').load(link.attr('href'), function(){
+                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(){
                             cghub.base.highlightCode('.modal-body pre.xml-code');
                             loaded = true;
                         });
                     };
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for UUID='+link.text());
+                    modal.find('.modal-label').html('Details for UUID='+$tr.attr('data-uuid'));
                 }).modal('show');
+                return false;
+            });
+            $(document).on('click', '.js-details-popup', function() {
+                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                $tr.trigger('click');
+                return false;
+            });
+            $(document).on('click', '.js-details-page', function() {
+                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                /* open in new tab */
+                window.open($tr.attr('data-details-url'), '_blank');
+                window.focus();
                 return false;
             });
         },
         activateTooltipHelp:function () {
-            $(document).on('mouseenter', '.js-tooltip-help, .ui-dropdownchecklist-text', function(e){
+            $(document).on('mouseenter', '.js-tooltip-help', function(e){
                 cghub.base.tooltipTimeout = setTimeout(function() {
                     var posX = $(e.target).offset().left - $(window).scrollLeft();
                     var posY = $(e.target).offset().top - $(window).scrollTop() - 2;
@@ -85,7 +98,7 @@ jQuery(function ($) {
                     tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
                 }, 1500);
             });
-            $(document).on('mouseout', '.js-tooltip-help, .ui-dropdownchecklist-text', function(){
+            $(document).on('mouseout', '.js-tooltip-help', function(){
                 if(cghub.base.tooltipTimeout) {
                     clearTimeout(cghub.base.tooltipTimeout);
                     $('.tooltip').remove();

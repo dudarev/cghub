@@ -81,9 +81,10 @@ module.exports = function (grunt) {
                 dest:jsStaticFolder + 'core/search.min.js'
             },
             flexigrid:{
-                src:[jsStaticFolder + 'libs/flexigrid.js'],
+                src:[jsStaticFolder + 'libs/flexigrid.js',
+                    jsStaticFolder + 'libs/bootstrap-contextmenu.js'],
                 dest:jsStaticFolder + 'libs/flexigrid.min.js'
-            }
+            },
         }
     });
 };
