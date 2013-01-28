@@ -259,12 +259,13 @@ def table_header(request):
         },
     }
     html = ''
-    for c in settings.TABLE_COLUMNS:
+    for c, ds in settings.TABLE_COLUMNS:
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th width="%d">%s</th>' % (
+        html += '<th width="%d" data-ds="%s">%s</th>' % (
                             col['width'],
+                            ds,
                             sort_link(request, col['attr'], c))
     return html
 
@@ -314,7 +315,7 @@ def table_row(result):
                     and get_result_attr(result, 'files').file[0].filesize),
     }
     html = ''
-    for c in settings.TABLE_COLUMNS:
+    for c, ds in settings.TABLE_COLUMNS:
         col = COLS.get(c, None)
         if col == None:
             continue

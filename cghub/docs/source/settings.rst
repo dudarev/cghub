@@ -102,17 +102,17 @@ Paging
 -------------
 
 The results are paged when requested from the server. This paging is done by the app, not by WSI API. 
-Number of results per page may be set in ``settings/defaults.py``:
+Number of results per page may be set in ``settings/ui.py``:
 
 .. code-block:: python
 
-    # default.py
+    # ui.py
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
-Columns ordering
+Columns ordering and default state
 ----------------
-Columns ordering for the results table can be specified in settings file.
+Columns ordering and default state for the results table can be specified in project settings.
 Default configuration is located in ``settings/ui.py``:
 
 .. code-block:: python
@@ -120,10 +120,12 @@ Default configuration is located in ``settings/ui.py``:
     # ui.py
 
     TABLE_COLUMNS = (
-    'UUID',
-    'Study',
-    'Disease',
+    ('UUID', 'visible'),
+    ('Study', 'visible'),
+    ('Disease', 'visible'),
     ...
+
+Allowed default states: 'visible', 'hidden'.
 
 Logging
 --------------
