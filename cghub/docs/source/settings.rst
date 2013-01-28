@@ -102,11 +102,11 @@ Paging
 -------------
 
 The results are paged when requested from the server. This paging is done by the app, not by WSI API. 
-Number of results per page may be set in ``settings/defaults.py``:
+Number of results per page may be set in ``settings/ui.py``:
 
 .. code-block:: python
 
-    # default.py
+    # ui.py
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
