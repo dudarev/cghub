@@ -17,30 +17,20 @@ jQuery(function ($) {
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
             cghub.base.$navbarListItem = $('div.navbar ul li');
-            cghub.base.$selectAll = $('.select_all_items');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
             cghub.base.activateItemDetailsLinks();
-            cghub.base.$selectAll.each(function(i, e) {
-                $(e).on('click', cghub.base.changeCheckboxes);
-            });
+            $('.js-select-all').live('change', cghub.base.changeCheckboxes);
+            $('.data-table-checkbox').live('change', cghub.base.updateSelectAll);
         },
         changeCheckboxes:function () {
-            var btn = $(this),
-                resultCheckboxes = $('.data-table-checkbox');
-            if (btn.html() == 'Select all') {
-                resultCheckboxes.prop('checked', true);
-                cghub.base.$selectAll.each(function(i, e) {
-                    $(e).html('Unselect all');
-                });
-            } else if (btn.html() == 'Unselect all') {
-                resultCheckboxes.prop('checked', false);
-                cghub.base.$selectAll.each(function(i, e) {
-                    $(e).html('Select all');
-                });
-            }
+            $('.data-table-checkbox').prop('checked', $(this).is(':checked'));
             return false;
+        },
+        updateSelectAll:function () {
+            $('.js-select-all').prop('checked',
+                $('.data-table-checkbox').length == $('.data-table-checkbox:checked').length);
         },
         defineActiveLink:function () {
             cghub.base.$navbarAnchors.each(cghub.base.resetActiveLink);
