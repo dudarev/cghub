@@ -93,6 +93,16 @@ class CartTests(TestCase):
         for f in rm_selected_files:
             self.assertEqual(f in response.content, False)
 
+        # test removing doesn't loses sorting
+        rm_selected_files = [self.aids[2]]
+        params = '?sort_by=analysis_id'
+        url = reverse('cart_add_remove_files', args=['remove']) + params
+        response = self.client.post(
+                    url,
+                    {'selected_files': rm_selected_files},
+                    **{'HTTP_REFERER':'http://somepage.com/%s' % params})
+        self.assertRedirects(response, reverse('cart_page') + params)
+
 
 class CacheTestCase(TestCase):
     def test_cache_generate_manifest(self):

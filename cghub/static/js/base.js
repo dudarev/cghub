@@ -21,8 +21,8 @@ jQuery(function ($) {
         bindEvents:function () {
             cghub.base.defineActiveLink();
             cghub.base.activateItemDetailsLinks();
-            $('.js-select-all').live('change', cghub.base.changeCheckboxes);
-            $('.data-table-checkbox').live('change', cghub.base.updateSelectAll);
+            $(document).on('change', '.js-select-all', cghub.base.changeCheckboxes);
+            $(document).on('change', '.data-table-checkbox', cghub.base.updateSelectAll);
         },
         changeCheckboxes:function () {
             $('.data-table-checkbox').prop('checked', $(this).is(':checked'));
