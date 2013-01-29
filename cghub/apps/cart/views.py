@@ -43,7 +43,11 @@ class CartAddRemoveFilesView(View):
             for f in request.POST.getlist('selected_files'):
                 # remove file from cart by sample id
                 remove_file_from_cart(request, f)
-            return HttpResponseRedirect(reverse('cart_page'))
+            params = request.META.get('HTTP_REFERER', '')
+            url = reverse('cart_page')
+            if params.find('/?') != -1:
+                url += params[params.find('/?')+1:len(params)]
+            return HttpResponseRedirect(url)
 
 
 class CartDownloadFilesView(View):
