@@ -18,6 +18,7 @@ jQuery(function ($) {
             cghub.search.$searchTable = $('table.data-table');
             cghub.search.$addFilesForm = $('form#id_add_files_form');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
+            cghub.search.$resetFiltersButton = $('button#id_reset_filters');
             cghub.search.$selectAllLink = $('.select-all');
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
@@ -27,6 +28,7 @@ jQuery(function ($) {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
+            cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -209,7 +211,12 @@ jQuery(function ($) {
             if (!is_error){
                 window.location.href = href.search(new_search);
             }
-        }
+            $(this).blur();
+        },
+        resetFilters:function() {
+            window.location.href = "/";
+            $(this).blur();
+        },
     };
     cghub.search.init();
 });
