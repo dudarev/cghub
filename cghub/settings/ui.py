@@ -10,7 +10,7 @@ Format:
 Available column_names : 'Barcode', 'Center', 'Center Name', 'Disease', 
 'Disease Name', 'Experiment Type', 'Files Size', 'Last modified',
 'Run Type', 'Sample Accession', 'Sample Type', 'Sample Type Name',
-'State', 'Study', 'UUID'.
+'State', 'Study', 'Upload time', 'UUID'.
 
 Available default_states: 'visible', 'hidden'.
 """
@@ -24,6 +24,7 @@ TABLE_COLUMNS = (
     ('Center', 'visible'),
     ('Center Name', 'visible'),
     ('Experiment Type', 'visible'),
+    ('Upload time', 'visible'),
     ('Last modified', 'visible'),
     ('Sample Type', 'visible'),
     ('Sample Type Name', 'visible'),

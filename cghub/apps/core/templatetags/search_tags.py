@@ -229,6 +229,10 @@ def table_header(request):
             'width': 95,
             'attr': 'analyte_code',
         },
+        'Upload time': {
+            'width': 120,
+            'attr': 'upload_date',
+        },
         'Last modified': {
             'width': 120,
             'attr': 'last_modified',
@@ -299,6 +303,7 @@ def table_row(result):
         'Experiment Type': get_name_by_code(
                     'analyte_code',
                     get_result_attr(result, 'analyte_code')),
+        'Upload time': get_result_attr(result, 'upload_date'),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Sample Type': get_sample_type_by_code(
                     get_result_attr(result, 'sample_type'),
