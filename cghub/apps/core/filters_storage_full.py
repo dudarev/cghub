@@ -74,6 +74,31 @@ ALL_FILTERS = OrderedDict([
             ("X", "WGA X"),
         ]),
     }),
+    ('upload_date', {
+        'filters': OrderedDict([
+            ('', {
+                'filter_id': 'id_date_any',
+                'filter_name': 'Any date',
+            }),
+            ('[NOW-1DAY TO NOW]', {
+                'filter_id': 'id_date_today',
+                'filter_name': 'Today',
+            }),
+            ('[NOW-7DAY TO NOW]', {
+                'filter_id': 'id_date_week',
+                'filter_name': 'This week',
+            }),
+            ('[NOW-1MONTH TO NOW]', {
+                'filter_id': 'id_date_month',
+                'filter_name': 'This month',
+            }),
+            ('[NOW-1YEAR TO NOW]', {
+                'filter_id': 'id_date_year',
+                'filter_name': 'This year',
+            }),
+        ]),
+        'title': 'By Upload Time',
+    }),
     ("last_modified", {
         "title": "By Time Modified",
         "filters": OrderedDict([
@@ -199,13 +224,13 @@ ALL_FILTERS = OrderedDict([
     ("state", {
         "title": "By State",
         "filters": OrderedDict([
+            ("bad_data", "Bad data"),
+            ("live", "Live"),
             ("submitted", "Submitted"),
+            ("supressed", "Supressed"),
             ("uploading", "Uploading"),
             ("validating_data", "Validating data"),
-            ("bad_data", "Bad data"),
             ("validating_sample", "Validating sample"),
-            ("live", "Live"),
-            ("supressed", "Supressed")
         ])
     })
 ])

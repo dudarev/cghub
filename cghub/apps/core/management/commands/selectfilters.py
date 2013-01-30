@@ -16,13 +16,13 @@ from cghub.wsapi.api import request as api_request
 
 FILE_NAME_FILTERS_USED = 'cghub/apps/core/is_filter_used.pkl'
 DATE_RANGES = [
-    'last_modified=[NOW-1DAY%20TO%20NOW]',
-    'last_modified=[NOW-7DAY%20TO%20NOW]',
-    'last_modified=[NOW-1MONTH%20TO%20NOW]',
-    'last_modified=[NOW-2MONTH%20TO%20NOW]',
-    'last_modified=[NOW-3MONTH%20TO%20NOW]',
-    'last_modified=[NOW-6MONTH%20TO%20NOW]',
-    'last_modified=[NOW-12MONTH%20TO%20NOW]',
+    'upload_date=[NOW-1DAY%20TO%20NOW]',
+    'upload_date=[NOW-7DAY%20TO%20NOW]',
+    'upload_date=[NOW-1MONTH%20TO%20NOW]',
+    'upload_date=[NOW-2MONTH%20TO%20NOW]',
+    'upload_date=[NOW-3MONTH%20TO%20NOW]',
+    'upload_date=[NOW-6MONTH%20TO%20NOW]',
+    'upload_date=[NOW-12MONTH%20TO%20NOW]',
     '',
 ]
 
@@ -91,7 +91,7 @@ class Command(BaseCommand):
         # populate dict is_filter_used
         # { (filter_name, filter_value): True/False }
         for k in ALL_FILTERS:
-            if k == 'last_modified':
+            if k in ('last_modified', 'upload_date'):
                 continue
             self.stdout.write(k)
             self.stdout.write('\n')
@@ -118,7 +118,7 @@ class Command(BaseCommand):
                 
         # delete those filters that are not used
         for k in ALL_FILTERS:
-            if k == 'last_modified':
+            if k in ('last_modified', 'upload_date'):
                 continue
             self.stdout.write(k)
             self.stdout.write('\n')
