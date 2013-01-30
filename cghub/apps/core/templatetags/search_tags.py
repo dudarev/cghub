@@ -98,6 +98,7 @@ def applied_filters(request):
     applied_filters = {
         'study': request.GET.get('study'),
         'center_name': request.GET.get('center_name'),
+        'upload_date': request.GET.get('upload_date'),
         'last_modified': request.GET.get('last_modified'),
         'analyte_code': request.GET.get('analyte_code'),
         'sample_type': request.GET.get('sample_type'),
@@ -128,7 +129,11 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed differently
         if f == 'last_modified':
-            filtered_by_str += '<li id="time-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
+            filtered_by_str += '<li id="modified-filter-applied" data="' + filters + '"><b>Modified</b>: '
+            filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
+            continue
+        if f == 'upload_date':
+            filtered_by_str += '<li id="uploaded-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
             filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
             continue
 

@@ -49,6 +49,7 @@ class SearchView(TemplateView):
         'study',
         'center_name',
         'last_modified',
+        'upload_date',
         'analyte_code',
         'sample_type',
         'library_strategy',
