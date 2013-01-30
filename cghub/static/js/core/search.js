@@ -41,7 +41,7 @@ jQuery(function ($) {
                 var select = $(el),
                     section = select.attr('section');
                 if (section in filters) {
-                    if (section == 'last_modified') {
+                    if (section == 'last_modified' || section == 'upload_date') {
                         var value = filters[section];
                         select.find('option[value = "' + value + '"]').attr('selected', 'selected');
                     } else {
@@ -51,7 +51,7 @@ jQuery(function ($) {
                         }
                     }
                 } else {
-                    if (section == 'last_modified') {
+                    if (section == 'last_modified' || section == 'upload_date') {
                         if (window.location.search === '') {
                             select.find('option[value = "[NOW-1MONTH TO NOW]"]').attr('selected', 'selected');
                         } else {
@@ -77,8 +77,10 @@ jQuery(function ($) {
                 }
             });
 
-            var time_filter_applied = $('#time-filter-applied').attr('data');
-            $(".date-filters").find('option[value = "' + time_filter_applied + '"]').attr('selected', 'selected');
+            var modified_filter_applied = $('#modified-filter-applied').attr('data');
+            $(".date-filters[section='last_modified']").find('option[value = "' + modified_filter_applied + '"]').attr('selected', 'selected');
+            var uploaded_filter_applied = $('#uploaded-filter-applied').attr('data');
+            $(".date-filters[section='upload_date']").find('option[value = "' + uploaded_filter_applied + '"]').attr('selected', 'selected');
 
             // checking for search query
             if ('q' in filters) {
@@ -92,7 +94,7 @@ jQuery(function ($) {
         initDdcl: function() {
             for (var i = cghub.search.$filterSelects.length - 1; i >= 0; i--) {
                 var select = cghub.search.$filterSelects[i];
-                if ($(select).attr('section') == 'last_modified') {
+                if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
                         width: 170,
                         explicitClose: 'close'
@@ -162,7 +164,7 @@ jQuery(function ($) {
             var href = URI(location.href);
             var new_search = URI.parseQuery(window.location.search);
             var is_error = false;
-            var sections = $('select.filter-select[section != "last_modified"]');
+            var sections = $('select.filter-select:not(.date-filters)');
             var searchQuery = $('input.search-query').val();
 
             // loop by sections excluding date
@@ -191,12 +193,14 @@ jQuery(function ($) {
             });
             // add date filter
             if (searchQuery == '' || window.location.search != '') {
-                var dateQuery = $('.date-filters').next().next().find('input[type = "radio"]:checked').val();
-                if (dateQuery != ''){
-                    new_search['last_modified'] = dateQuery;
-                } else {
-                    delete new_search['last_modified'];
-                }
+                $('.date-filters').each(function() {
+                    var dateQuery = $(this).next().next().find('input[type = "radio"]:checked').val();
+                    if (dateQuery != ''){
+                        new_search[$(this).attr('section')] = dateQuery;
+                    } else {
+                        delete new_search[$(this).attr('section')];
+                    }
+                })
             }
             // check search input
             if (searchQuery !== '') {

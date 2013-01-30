@@ -72,6 +72,31 @@ ALL_FILTERS = OrderedDict([
         ]),
         'title': 'By Experiment Type',
     }),
+    ('upload_date', {
+        'filters': OrderedDict([
+            ('', {
+                'filter_id': 'id_date_any',
+                'filter_name': 'Any date',
+            }),
+            ('[NOW-1DAY TO NOW]', {
+                'filter_id': 'id_date_today',
+                'filter_name': 'Today',
+            }),
+            ('[NOW-7DAY TO NOW]', {
+                'filter_id': 'id_date_week',
+                'filter_name': 'This week',
+            }),
+            ('[NOW-1MONTH TO NOW]', {
+                'filter_id': 'id_date_month',
+                'filter_name': 'This month',
+            }),
+            ('[NOW-1YEAR TO NOW]', {
+                'filter_id': 'id_date_year',
+                'filter_name': 'This year',
+            }),
+        ]),
+        'title': 'By Upload Time',
+    }),
     ('last_modified', {
         'filters': OrderedDict([
             ('', {
