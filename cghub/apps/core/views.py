@@ -27,8 +27,7 @@ class HomeView(TemplateView):
         limit = settings.DEFAULT_PAGINATOR_LIMIT
         results = api_request(query=self.default_query, sort_by='-last_modified',
                               limit=limit)
-        results.calculate_files_size()
-        results.add_assembly_name()
+        results.add_custom_fields()
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
             context['results'] = results.Result
@@ -100,9 +99,8 @@ class SearchView(TemplateView):
             results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
 
         # this function calculates files_size attribute
-        results.calculate_files_size()
-        # and this adds assembly_name to Results
-        results.add_assembly_name()
+        # and adds assembly_name to Results
+        results.add_custom_fields()
 
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)

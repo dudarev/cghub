@@ -231,8 +231,8 @@ def table_header(request):
             'attr': 'files_size',
         },
         'Reference genome': {
-            'width': 100,
-            'attr': 'assembly',
+            'width': 120,
+            'attr': 'assembly_name',
         },
         'Run Type': {
             'width': 100,
