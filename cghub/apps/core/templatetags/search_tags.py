@@ -266,6 +266,10 @@ def table_header(request):
             'width': 75,
             'attr': 'files_size',
         },
+        'Reference genome': {
+            'width': 100,
+            'attr': 'assembly',
+        },
     }
     html = ''
     for c, ds in settings.TABLE_COLUMNS:
@@ -323,6 +327,7 @@ def table_row(result):
         'Files Size': file_size(get_result_attr(result, 'files_size')
                     or get_result_attr(result, 'files')
                     and get_result_attr(result, 'files').file[0].filesize),
+        'Reference genome': 'genome mock',
     }
     html = ''
     for c, ds in settings.TABLE_COLUMNS:

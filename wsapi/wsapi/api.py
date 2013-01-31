@@ -82,6 +82,27 @@ class Results(object):
             r.files_size = files_size
         self.is_files_size_calculated = True
 
+    def add_assembly_name(self):
+        """Assempbly short name is stored in structures
+
+        .. code-block :: xml
+
+        <Result>
+            <analysis_xml>
+                <ANALYSIS_SET>
+                    <ANALYSIS>
+                        <ANALYSIS_TYPE>
+                            <REFERENCE_ALIGNMENT>
+                                <ASSEMBLY>
+                                    <STANDARD short_name="GRCh37-lite"/>
+                                </ASSEMBLY>
+                                ...
+        """
+        if not hasattr(self, 'Result'):
+            return
+        for r in self.Result:
+            r.assembly_name = r.analysis_xml.ANALYSIS_SET.ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT.ASSEMBLY.STANDARD.get('short_name')
+
     def sort(self, sort_by):
         """
         Sorts results by attribute ``sort_by``.

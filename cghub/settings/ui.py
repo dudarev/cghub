@@ -9,13 +9,14 @@ Format:
 
 Available column_names : 'Barcode', 'Center', 'Center Name', 'Disease', 
 'Disease Name', 'Experiment Type', 'Files Size', 'Last modified',
-'Run Type', 'Sample Accession', 'Sample Type', 'Sample Type Name',
-'State', 'Study', 'Upload time', 'UUID'.
+'Reference genome', 'Run Type', 'Sample Accession', 'Sample Type',
+'Sample Type Name', 'State', 'Study', 'Upload time', 'UUID'.
 
 Available default_states: 'visible', 'hidden'.
 """
 
 TABLE_COLUMNS = (
+    ('Reference genome', 'visible'),
     ('UUID', 'visible'),
     ('Study', 'visible'),
     ('Disease', 'visible'),

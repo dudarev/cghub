@@ -18,6 +18,11 @@ class SortingTest(unittest.TestCase):
         self.assertEqual(results.Result[0].files_size, 8407199477+10497249326)
         self.assertEqual(results.Result[1].files_size, 10497249326)
 
+    def test_add_assembly_name(self):
+        results = request(file_name='tests/test_data/search_several_files.xml')
+        results.add_assembly_name()
+        self.assertEqual(results.Result[0].assembly_name, 'HG19_Broad_variant')
+
     def test_sort_by_files_size(self):
         results = request(file_name='tests/test_data/search_several_files.xml')
         results.sort(sort_by='-files_size')
