@@ -21,6 +21,7 @@ TABLE_COLUMNS = (
     ('Disease', 'visible'),
     ('Disease Name', 'visible'),
     ('Run Type', 'visible'),
+    ('Reference genome', 'visible'),
     ('Center', 'visible'),
     ('Center Name', 'visible'),
     ('Experiment Type', 'visible'),
@@ -32,7 +33,6 @@ TABLE_COLUMNS = (
     ('Barcode', 'visible'),
     ('Sample Accession', 'visible'),
     ('Files Size', 'visible'),
-    ('Reference genome', 'visible'),
 )
 
 DEFAULT_PAGINATOR_LIMIT = 10
