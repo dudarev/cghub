@@ -16,7 +16,6 @@ Available default_states: 'visible', 'hidden'.
 """
 
 TABLE_COLUMNS = (
-    ('Reference genome', 'visible'),
     ('UUID', 'visible'),
     ('Study', 'visible'),
     ('Disease', 'visible'),
@@ -33,6 +32,7 @@ TABLE_COLUMNS = (
     ('Barcode', 'visible'),
     ('Sample Accession', 'visible'),
     ('Files Size', 'visible'),
+    ('Reference genome', 'visible'),
 )
 
 DEFAULT_PAGINATOR_LIMIT = 10

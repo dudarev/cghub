@@ -76,11 +76,10 @@ class Results(object):
         In real results we see only one file.
         This function takes care of a situation if there will be several ``<file>`` elements.
 
-        Assempbly short name is stored in structures
+        Assembly short name is stored in structures
 
         .. code-block :: xml
 
-        <Result>
             <analysis_xml>
                 <ANALYSIS_SET>
                     <ANALYSIS>
@@ -90,6 +89,7 @@ class Results(object):
                                     <STANDARD short_name="GRCh37-lite"/>
                                 </ASSEMBLY>
                                 ...
+
         """
 
         if self.is_custom_fields_calculated:
