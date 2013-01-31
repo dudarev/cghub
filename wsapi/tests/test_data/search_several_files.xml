@@ -26,6 +26,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/13dd13ef-60af-4f05-be7c-514caaa4d875</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/13dd13ef-60af-4f05-be7c-514caaa4d875</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="2">
 		<analysis_id>e39a9afe-a24a-4ad1-aee4-675468563adc</analysis_id>
@@ -46,6 +59,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/e39a9afe-a24a-4ad1-aee4-675468563adc</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/e39a9afe-a24a-4ad1-aee4-675468563adc</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="GRCh37-lite"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="3">
 		<analysis_id>ee34b3d8-3dfa-4bfe-82e7-8446410e00c3</analysis_id>
@@ -66,6 +92,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/ee34b3d8-3dfa-4bfe-82e7-8446410e00c3</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/ee34b3d8-3dfa-4bfe-82e7-8446410e00c3</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="4">
 		<analysis_id>f1931a82-fb97-4c1e-aae8-9b356b8998cc</analysis_id>
@@ -86,6 +125,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/f1931a82-fb97-4c1e-aae8-9b356b8998cc</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/f1931a82-fb97-4c1e-aae8-9b356b8998cc</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="5">
 		<analysis_id>9ea48a58-5474-4de6-a045-4f3bd8418578</analysis_id>
@@ -106,6 +158,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/9ea48a58-5474-4de6-a045-4f3bd8418578</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/9ea48a58-5474-4de6-a045-4f3bd8418578</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="GRCh37-lite"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="6">
 		<analysis_id>9f18b2d5-81ba-43ad-a5ac-053e6363baee</analysis_id>
@@ -126,6 +191,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/9f18b2d5-81ba-43ad-a5ac-053e6363baee</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/9f18b2d5-81ba-43ad-a5ac-053e6363baee</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="7">
 		<analysis_id>a97fb5c9-a138-4ddf-8ede-6fdbb0425b47</analysis_id>
@@ -146,6 +224,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/a97fb5c9-a138-4ddf-8ede-6fdbb0425b47</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/a97fb5c9-a138-4ddf-8ede-6fdbb0425b47</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="8">
 		<analysis_id>add29515-5019-456c-b3b1-3e09fed8717b</analysis_id>
@@ -166,6 +257,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/add29515-5019-456c-b3b1-3e09fed8717b</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/add29515-5019-456c-b3b1-3e09fed8717b</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="9">
 		<analysis_id>c4328422-3fee-4ad2-8a59-fdf3ba407c2e</analysis_id>
@@ -186,6 +290,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/c4328422-3fee-4ad2-8a59-fdf3ba407c2e</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/c4328422-3fee-4ad2-8a59-fdf3ba407c2e</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="10">
 		<analysis_id>f55f5292-35c5-4e1a-bd63-5c25a923044c</analysis_id>
@@ -206,6 +323,19 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/f55f5292-35c5-4e1a-bd63-5c25a923044c</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/f55f5292-35c5-4e1a-bd63-5c25a923044c</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 	<Result id="11">
 		<analysis_id>8c0a17d3-4f39-4904-9f85-546346eb9e3e</analysis_id>
@@ -236,5 +366,18 @@
 		</files>
 		<analysis_attribute_uri>https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/8c0a17d3-4f39-4904-9f85-546346eb9e3e</analysis_attribute_uri>
 		<analysis_data_uri>https://cghub.ucsc.edu/cghub/data/analysis/download/8c0a17d3-4f39-4904-9f85-546346eb9e3e</analysis_data_uri>
+        <analysis_xml>
+            <ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <ANALYSIS alias="TCGA-CU-A0YR-10A-01D-A10R-02" center_name="HMS-RK" analysis_center="HMS-RK" analysis_date="2012-10-16T11:04:54">
+                    <ANALYSIS_TYPE>
+                        <REFERENCE_ALIGNMENT>
+                            <ASSEMBLY>
+                                <STANDARD short_name="HG19_Broad_variant"/>
+                            </ASSEMBLY>
+                        </REFERENCE_ALIGNMENT>
+                    </ANALYSIS_TYPE>
+                </ANALYSIS>
+            </ANALYSIS_SET>
+        </analysis_xml>
 	</Result>
 </ResultSet>

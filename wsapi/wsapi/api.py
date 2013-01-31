@@ -24,6 +24,9 @@ class Results(object):
     """
     Wrapper class for results obtained with lxml. This object is returned by :func:`request`.
     """
+
+    CALCULATED_FIELDS = ('files_size', 'assembly_name',)
+
     def __init__(self, lxml_results):
         """
         :param lxml_results: needs to be converted with lxml.objectify
@@ -33,7 +36,7 @@ class Results(object):
             results = objectify.fromstring(open(cache_file_name, 'r').read())
         """
         self._lxml_results = lxml_results
-        self.is_files_size_calculated = False
+        self.is_custom_fields_calculated = False
 
     def __getattr__(self, attr):
         if attr in self.__dict__:
@@ -55,8 +58,11 @@ class Results(object):
                 )
             )
 
-    def calculate_files_size(self):
-        """Files size is stored in structures
+    def add_custom_fields(self):
+        """
+        Add files_size and assembly_name fields.
+        
+        Files size is stored in structures
 
         .. code-block :: xml
 
@@ -69,9 +75,24 @@ class Results(object):
 
         In real results we see only one file.
         This function takes care of a situation if there will be several ``<file>`` elements.
+
+        Assembly short name is stored in structures
+
+        .. code-block :: xml
+
+            <analysis_xml>
+                <ANALYSIS_SET>
+                    <ANALYSIS>
+                        <ANALYSIS_TYPE>
+                            <REFERENCE_ALIGNMENT>
+                                <ASSEMBLY>
+                                    <STANDARD short_name="GRCh37-lite"/>
+                                </ASSEMBLY>
+                                ...
+
         """
 
-        if self.is_files_size_calculated:
+        if self.is_custom_fields_calculated:
             return
         if not hasattr(self, 'Result'):
             return
@@ -80,13 +101,16 @@ class Results(object):
             for f in r.files.file:
                 files_size += int(f.filesize)
             r.files_size = files_size
-        self.is_files_size_calculated = True
+            r.assembly_name = r.analysis_xml.ANALYSIS_SET\
+                    .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
+                    .ASSEMBLY.STANDARD.get('short_name')
+        self.is_custom_fields_calculated = True
 
     def sort(self, sort_by):
         """
         Sorts results by attribute ``sort_by``.
         If ``sort_by`` starts with ``-`` the order is descending.
-        If ``sort_by`` is ``files_size`` it is calculated. See :py:meth:`calculate_files_size` for details.
+        If ``sort_by`` is ``files_size`` it is calculated. See :py:meth:`add_custom_fields` for details.
         """
         from operator import itemgetter
 
@@ -96,8 +120,8 @@ class Results(object):
             reverse_order = True
             sort_by = sort_by[1:]
 
-        if sort_by == 'files_size':
-            self.calculate_files_size()
+        if sort_by in self.CALCULATED_FIELDS:
+            self.add_custom_fields()
 
         self.Result = [x for x in self.Result]
 
