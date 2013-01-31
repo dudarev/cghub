@@ -65,7 +65,7 @@
                     <ANALYSIS_TYPE>
                         <REFERENCE_ALIGNMENT>
                             <ASSEMBLY>
-                                <STANDARD short_name="HG19_Broad_variant"/>
+                                <STANDARD short_name="GRCh37-lite"/>
                             </ASSEMBLY>
                         </REFERENCE_ALIGNMENT>
                     </ANALYSIS_TYPE>
@@ -164,7 +164,7 @@
                     <ANALYSIS_TYPE>
                         <REFERENCE_ALIGNMENT>
                             <ASSEMBLY>
-                                <STANDARD short_name="HG19_Broad_variant"/>
+                                <STANDARD short_name="GRCh37-lite"/>
                             </ASSEMBLY>
                         </REFERENCE_ALIGNMENT>
                     </ANALYSIS_TYPE>

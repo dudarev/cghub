@@ -202,25 +202,9 @@ def table_header(request):
     Return table header ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
-        'UUID': {
-            'width': 220,
-            'attr': 'analysis_id',
-        },
-        'Study': {
-            'width': 100,
-            'attr': 'study',
-        },
-        'Disease': {
-            'width': 65,
-            'attr': 'disease_abbr',
-        },
-        'Disease Name': {
-            'width': 200,
-            'attr': 'disease_abbr',
-        },
-        'Run Type': {
-            'width': 100,
-            'attr': 'library_strategy',
+        'Barcode': {
+            'width': 235,
+            'attr': 'legacy_sample_id',
         },
         'Center': {
             'width': 100,
@@ -230,17 +214,37 @@ def table_header(request):
             'width': 100,
             'attr': 'center_name',
         },
+        'Disease': {
+            'width': 65,
+            'attr': 'disease_abbr',
+        },
+        'Disease Name': {
+            'width': 200,
+            'attr': 'disease_abbr',
+        },
         'Experiment Type': {
             'width': 95,
             'attr': 'analyte_code',
         },
-        'Upload time': {
-            'width': 120,
-            'attr': 'upload_date',
+        'Files Size': {
+            'width': 75,
+            'attr': 'files_size',
+        },
+        'Reference genome': {
+            'width': 100,
+            'attr': 'assembly',
+        },
+        'Run Type': {
+            'width': 100,
+            'attr': 'library_strategy',
         },
         'Last modified': {
             'width': 120,
             'attr': 'last_modified',
+        },
+        'Sample Accession': {
+            'width': 100,
+            'attr': 'sample_accession',
         },
         'Sample Type': {
             'width': 75,
@@ -254,21 +258,17 @@ def table_header(request):
             'width': 70,
             'attr': 'state',
         },
-        'Barcode': {
-            'width': 235,
-            'attr': 'legacy_sample_id',
-        },
-        'Sample Accession': {
+        'Study': {
             'width': 100,
-            'attr': 'sample_accession',
+            'attr': 'study',
         },
-        'Files Size': {
-            'width': 75,
-            'attr': 'files_size',
+        'Upload time': {
+            'width': 120,
+            'attr': 'upload_date',
         },
-        'Reference genome': {
-            'width': 100,
-            'attr': 'assembly',
+        'UUID': {
+            'width': 220,
+            'attr': 'analysis_id',
         },
     }
     html = ''
@@ -297,23 +297,25 @@ def table_row(result):
     Return table row ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
-        'UUID': get_result_attr(result, 'analysis_id'),
-        'Study': get_name_by_code(
-                    'study', get_result_attr(result, 'study')),
-        'Disease': get_result_attr(result, 'disease_abbr'),
-        'Disease Name': get_name_by_code(
-                    'disease_abbr',
-                    get_result_attr(result, 'disease_abbr')),
-        'Run Type': get_result_attr(result, 'library_strategy'),
+        'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
         'Center Name': get_name_by_code(
                     'center_name',
                     get_result_attr(result, 'center_name')),
+        'Disease': get_result_attr(result, 'disease_abbr'),
+        'Disease Name': get_name_by_code(
+                    'disease_abbr',
+                    get_result_attr(result, 'disease_abbr')),
         'Experiment Type': get_name_by_code(
                     'analyte_code',
                     get_result_attr(result, 'analyte_code')),
-        'Upload time': get_result_attr(result, 'upload_date'),
+        'Files Size': file_size(get_result_attr(result, 'files_size')
+                    or get_result_attr(result, 'files')
+                    and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
+        'Run Type': get_result_attr(result, 'library_strategy'),
+        'Reference genome': get_result_attr(result, 'assembly_name'),
+        'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
                     get_result_attr(result, 'sample_type'),
                     format='shortcut'),
@@ -322,12 +324,10 @@ def table_row(result):
                     format='full'),
         'State': get_name_by_code(
                     'state', get_result_attr(result, 'state')),
-        'Barcode': get_result_attr(result, 'legacy_sample_id'),
-        'Sample Accession': get_result_attr(result, 'sample_accession'),
-        'Files Size': file_size(get_result_attr(result, 'files_size')
-                    or get_result_attr(result, 'files')
-                    and get_result_attr(result, 'files').file[0].filesize),
-        'Reference genome': 'genome mock',
+        'Study': get_name_by_code(
+                    'study', get_result_attr(result, 'study')),
+        'Upload time': get_result_attr(result, 'upload_date'),
+        'UUID': get_result_attr(result, 'analysis_id'),
     }
     html = ''
     for c, ds in settings.TABLE_COLUMNS:

@@ -34,6 +34,7 @@ class Results(object):
         """
         self._lxml_results = lxml_results
         self.is_files_size_calculated = False
+        self.is_assembly_names_added = False
 
     def __getattr__(self, attr):
         if attr in self.__dict__:
@@ -98,10 +99,15 @@ class Results(object):
                                 </ASSEMBLY>
                                 ...
         """
+        if self.is_assembly_names_added:
+            return
         if not hasattr(self, 'Result'):
             return
         for r in self.Result:
-            r.assembly_name = r.analysis_xml.ANALYSIS_SET.ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT.ASSEMBLY.STANDARD.get('short_name')
+            r.assembly_name = r.analysis_xml.ANALYSIS_SET\
+                    .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
+                    .ASSEMBLY.STANDARD.get('short_name')
+        self.assembly_names_added = True
 
     def sort(self, sort_by):
         """
@@ -119,6 +125,9 @@ class Results(object):
 
         if sort_by == 'files_size':
             self.calculate_files_size()
+
+        if sort_by == 'assembly_name':
+            self.add_assembly_name()
 
         self.Result = [x for x in self.Result]
 

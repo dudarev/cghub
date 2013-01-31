@@ -28,6 +28,7 @@ class HomeView(TemplateView):
         results = api_request(query=self.default_query, sort_by='-last_modified',
                               limit=limit)
         results.calculate_files_size()
+        results.add_assembly_name()
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
             context['results'] = results.Result
@@ -100,6 +101,8 @@ class SearchView(TemplateView):
 
         # this function calculates files_size attribute
         results.calculate_files_size()
+        # and this adds assembly_name to Results
+        results.add_assembly_name()
 
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
