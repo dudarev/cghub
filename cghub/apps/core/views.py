@@ -54,7 +54,8 @@ class SearchView(TemplateView):
         'sample_type',
         'library_strategy',
         'disease_abbr',
-        'state'
+        'state',
+        'refassem_short_name',
     ]
     # FIXME temporary: filters, if specified, don't restrict data range
     date_no_limit_attributes = [

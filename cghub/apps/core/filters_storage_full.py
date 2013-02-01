@@ -189,6 +189,15 @@ ALL_FILTERS = OrderedDict([
             ("WXS", "WXS"),
         ]),
     }),
+    ('refassem_short_name', {
+        'filters': OrderedDict([
+            ('NBCI36*', 'NBCI36'),
+            ('HG18*', 'HG18'),
+            ('GRCh37*', 'GRCh37'),
+            ('HG19*', 'HG19'),
+        ]),
+        'title': 'By Assembly',
+    }),
     ("disease_abbr", {
         "title": "By Disease",
         "filters": OrderedDict([

@@ -166,6 +166,15 @@ ALL_FILTERS = OrderedDict([
         ]),
         'title': 'By Run Type',
     }),
+    ('refassem_short_name', {
+        'filters': OrderedDict([
+            ('NBCI36*', 'NBCI36'),
+            ('HG18*', 'HG18'),
+            ('GRCh37*', 'GRCh37'),
+            ('HG19*', 'HG19'),
+        ]),
+        'title': 'By Assembly',
+    }),
     ('disease_abbr', {
         'filters': OrderedDict([
             ('LAML', 'Acute Myeloid Leukemia'),
