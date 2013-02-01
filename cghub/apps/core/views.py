@@ -99,7 +99,7 @@ class SearchView(TemplateView):
             results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
 
         # this function calculates files_size attribute
-        # and adds assembly_name to Results
+        # and adds refassem_short_name to Results
         results.add_custom_fields()
 
         if hasattr(results, 'Result'):
