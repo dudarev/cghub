@@ -105,6 +105,7 @@ def applied_filters(request):
         'library_strategy': request.GET.get('library_strategy'),
         'disease_abbr': request.GET.get('disease_abbr'),
         'state': request.GET.get('state'),
+        'refassem_short_name': request.GET.get('refassem_short_name'),
         'q': request.GET.get('q'),
     }
 
@@ -141,6 +142,17 @@ def applied_filters(request):
         title = ALL_FILTERS[f]['title'][3:]
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
+
+        # Filters by assembly can use complex queries
+        if f == 'refassem_short_name':
+            for value in ALL_FILTERS[f]['filters']:
+                for i in filters:
+                    if value.find(i) != -1:
+                        filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                        break
+            filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+            continue
+
         for value in filters:
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
