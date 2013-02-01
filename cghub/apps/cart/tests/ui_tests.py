@@ -13,7 +13,8 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 from cghub.apps.core.tests.ui_tests import (
                             wsapi_cache_copy, wsapi_cache_remove)
 from cghub.apps.core.templatetags.search_tags import (
-                            get_name_by_code, get_sample_type_by_code)
+                            get_name_by_code, get_sample_type_by_code,
+                            file_size)
 
 
 class LinksNavigationsTests(LiveServerTestCase):
@@ -89,13 +90,13 @@ class CartUITests(LiveServerTestCase):
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
-        # Test Select all link
+        # Test Select all link in search results
         for uuid in self.page_uuids:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % uuid)
             assert not checkbox.is_selected()
 
-        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
         for uuid in self.page_uuids:
@@ -103,7 +104,7 @@ class CartUITests(LiveServerTestCase):
                 'input[value="%s"]' % uuid)
             assert checkbox.is_selected()
 
-        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
         # Select two items for adding to cart
@@ -129,18 +130,18 @@ class CartUITests(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (60764.00 Mb)'
+        assert stat.text == 'Files in your cart: 2 (59.34 GB)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
 
-        # Testing 'Select all' button
+        # Testing 'Select all' button in the cart
         for uuid in self.selected:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % uuid)
             assert not checkbox.is_selected()
 
-        btn = driver.find_element_by_css_selector('button.select_all_items')
+        btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
         driver.implicitly_wait(1)
 
@@ -179,7 +180,7 @@ class CartUITests(LiveServerTestCase):
         btn.click()
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 0 (0.00 Mb)'
+        assert stat.text == 'Files in your cart: 0 (0 Bytes)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (0)'
@@ -216,20 +217,21 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
-        driver.find_element_by_css_selector('button.select_all_items').click()
+        driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
         attrs = [
-            'analysis_id', 'study', 'center_name', 'center_name',
-            'analyte_code', 'last_modified', 'sample_type', 'sample_type',
-            'library_strategy', 'disease_abbr', 'disease_abbr', 'state',
-            'legacy_sample_id', 'sample_accession', 'files_size']
+            'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
+            'library_strategy', 'assembly_name', 'center_name', 'center_name',
+            'analyte_code', 'upload_date', 'last_modified', 'sample_type',
+            'sample_type', 'state', 'legacy_sample_id', 'sample_accession',
+            'files_size']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT
             # fix for extra 'full name' columns, their sorting links are duplicates anyway
             # after changing the columns' set check attrs list above
-            if i in (3, 7, 10):
+            if i in (3, 7, 12):
                 continue
 
             # scroll table
@@ -251,6 +253,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
                 elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
+                elif attr == 'files_size':
+                    self.assertEqual(text.strip(), file_size(sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
@@ -269,5 +273,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
                 elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
+                elif attr == 'files_size':
+                    self.assertEqual(text.strip(), file_size(sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
