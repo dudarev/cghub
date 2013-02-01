@@ -202,6 +202,10 @@ def table_header(request):
     Return table header ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
+        'Assembly': {
+            'width': 120,
+            'attr': 'refassem_short_name',
+        },
         'Barcode': {
             'width': 235,
             'attr': 'legacy_sample_id',
@@ -229,10 +233,6 @@ def table_header(request):
         'Files Size': {
             'width': 75,
             'attr': 'files_size',
-        },
-        'Reference genome': {
-            'width': 120,
-            'attr': 'assembly_name',
         },
         'Run Type': {
             'width': 100,
@@ -297,6 +297,7 @@ def table_row(result):
     Return table row ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
+        'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
         'Center Name': get_name_by_code(
@@ -314,7 +315,6 @@ def table_row(result):
                     and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Run Type': get_result_attr(result, 'library_strategy'),
-        'Reference genome': get_result_attr(result, 'assembly_name'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
                     get_result_attr(result, 'sample_type'),
