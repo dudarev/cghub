@@ -168,7 +168,7 @@ ALL_FILTERS = OrderedDict([
     }),
     ('refassem_short_name', {
         'filters': OrderedDict([
-            ('NBCI36* OR HG18*', 'NBCI36/HG18'),
+            ('NCBI36* OR HG18*', 'NCBI36/HG18'),
             ('GRCh37* OR HG19*', 'GRCh37/HG19'),
         ]),
         'title': 'By Assembly',
