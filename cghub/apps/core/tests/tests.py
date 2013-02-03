@@ -77,7 +77,7 @@ class CoreTests(TestCase):
                 self.assertTrue(len(sample_type) == 2)
         self.assertTrue('Found' in response.content)
 
-    def test_item_datils_view(self):
+    def test_item_details_view(self):
         uuid = '12345678-1234-1234-1234-123456789abc'
         r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
         self.assertEqual(r.status_code, 200)
@@ -349,7 +349,7 @@ class PaginatorUnitTestCase(TestCase):
         paginator = Paginator({'num_results': 100, 'request': request})
         self.assertEqual(
             paginator.get_first(),
-            {'url': '?&offset=0&limit=10', 'page_number': 0}
+            {'url': '?offset=0&limit=10', 'page_number': 0}
         )
 
     def test_get_last_method(self):
@@ -357,5 +357,5 @@ class PaginatorUnitTestCase(TestCase):
         paginator = Paginator({'num_results': 100, 'request': request})
         self.assertEqual(
             paginator.get_last(),
-            {'url': '?&offset=90&limit=10', 'page_number': 9}
+            {'url': '?offset=90&limit=10', 'page_number': 9}
         )
