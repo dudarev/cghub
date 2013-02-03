@@ -60,10 +60,12 @@ class CartDownloadFilesView(View):
             return HttpResponseRedirect(reverse('cart_page'))
 
     @staticmethod
-    def get_results(cart, get_attributes):
+    def get_results(cart, get_attributes, live_only=False):
         results = None
         results_counter = 1
         for analysis_id in cart:
+            if live_only and cart[analysis_id].get('state') != 'live':
+                continue
             filename = "{0}_with{1}_attributes".format(
                 analysis_id,
                 '' if get_attributes else 'out')
@@ -86,7 +88,7 @@ class CartDownloadFilesView(View):
 
     def manifest(self, cart):
         mfio = StringIO()
-        results = self.get_results(cart, get_attributes=False)
+        results = self.get_results(cart, get_attributes=False, live_only=True)
         mfio.write(results.tostring())
         mfio.seek(0)
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')

@@ -106,6 +106,9 @@ class CartTests(TestCase):
 
 class CacheTestCase(TestCase):
     def test_cache_generate_manifest(self):
+        """
+        Test if manifest collects only data from files where state='live'
+        """
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
         api_results_cache_dir = settings.CART_CACHE_FOLDER
         files = glob.glob(os.path.join(api_results_cache_dir, '*'))
@@ -117,28 +120,17 @@ class CacheTestCase(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         self.client.post(reverse('cart_add_remove_files', args=['add']),
                 {'selected_files': selected_files,
-                 'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
-                               '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
-                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'
+                 'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
+                               '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
+                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
             })
-        manifest = None
-        results_counter = 1
-        for analysis_id in self.client.session.get('cart'):
-            filename = "{0}_without_attributes".format(analysis_id)
-            with open(os.path.join(api_results_cache_dir, filename)) as f:
-                result = objectify.fromstring(f.read())
-            if manifest is None:
-                manifest = result
-                manifest.Query.clear()
-                manifest.Hits.clear()
-            else:
-                result.Result.set('id', u'{0}'.format(results_counter))
-                manifest.insert(results_counter + 1, result.Result)
-            results_counter += 1
+
         response = self.client.post(reverse('cart_download_files', args=['manifest']))
         content_manifest = etree.fromstring(response.content)
-        self.assertEqual(set(manifest.getroottree().getroot().itertext()),
-            set(content_manifest.getroottree().getroot().itertext()))
+        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(content_manifest.getroottree().getroot().itertext()))
+        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(content_manifest.getroottree().getroot().itertext()))
+        self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(content_manifest.getroottree().getroot().itertext()))
+
         files = glob.glob(os.path.join(api_results_cache_dir, '*'))
         for file in files:
             os.remove(file)
