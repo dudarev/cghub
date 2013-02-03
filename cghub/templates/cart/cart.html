@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load search_tags %}
+{% load pagination_tags %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
@@ -26,11 +27,14 @@
                         <button class="btn cart-form-download-xml">Download metadata</button>
                     </div>
                 </div>
+                {% items_per_page request 10 25 50 %}
                 <div class="column-select-label"><span>Columns:</span></div>
                 <select class="column-select" multiple>
                   <option value="(all)">(all)</option>
                 </select>
                 {% include 'data_table.html' %}
+                {% items_per_page request 10 25 50 %}
+                {% pagination %}
                 <div class="btn-toolbar">
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
