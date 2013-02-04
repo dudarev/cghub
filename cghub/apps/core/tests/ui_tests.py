@@ -534,3 +534,62 @@ class ColumnsFillTableWidthTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
         self.select_columns(driver, 'cart')
+
+
+class ResetFiltersButtonTestCase(LiveServerTestCase):
+    cache_files = (
+                '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                'cb712a7b93a6411001cbc34cfb883594.xml',
+                'ecbf7eaaf5b476df08b2997afd675701.xml')
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(ColumnsFillTableWidthTestCase, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(ColumnsFillTableWidthTestCase, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def test_reset_filters_button(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+
+        # Apply filters on Center Name
+        driver.find_element_by_xpath("//span[@id='ddcl-9']/span/span").click()
+        driver.find_element_by_id("ddcl-9-i0").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-9-ddw']/div/div/label").click()
+        driver.find_element_by_id("ddcl-9-i4").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-9-ddw']/div/div[5]/label").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-9']/span/span").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
+        driver.find_element_by_id("ddcl-7-i0").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-7-ddw']/div/div/label").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-6']/span/span").click()
+        driver.find_element_by_id("ddcl-6-i0").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-6-ddw']/div/div/label").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-6']/span/span").click()
+        driver.find_element_by_id("id_apply_filters").click()
+        # TODO check Harvard is in .applied-filters and in top5 .text
+        # of Center Name column (partial link text?)
+
+        # Apply filters on Sample Type
+        driver.find_element_by_xpath("//span[@id='ddcl-5']/span/span").click()
+        driver.find_element_by_id("ddcl-5-i0").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-5-ddw']/div/div/label").click()
+        driver.find_element_by_id("ddcl-5-i1").click()
+        driver.find_element_by_xpath("//div[@id='ddcl-5-ddw']/div/div[2]/label").click()
+        driver.find_element_by_xpath("//span[@id='ddcl-5']/span/span").click()
+        driver.find_element_by_id("id_apply_filters").click()
+        # TODO check Blood Derived Normal is in .applied-filters and
+        # in top5 .text of Sample Type column (partial link text?)
+
+        # Reset filters
+        driver.find_element_by_id("id_reset_filters").click()
+        # TODO check Harvard and Blood... not in .applied-filters
+        # top5 centers and sample types are not harv and blood...
