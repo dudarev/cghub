@@ -546,50 +546,85 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ColumnsFillTableWidthTestCase, self).setUpClass()
+        super(ResetFiltersButtonTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(ColumnsFillTableWidthTestCase, self).tearDownClass()
+        super(ResetFiltersButtonTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
     def test_reset_filters_button(self):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        # Apply filters on Center Name
+        # Apply filters on Center Name.
         driver.find_element_by_xpath("//span[@id='ddcl-9']/span/span").click()
         driver.find_element_by_id("ddcl-9-i0").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-9-ddw']/div/div/label").click()
-        driver.find_element_by_id("ddcl-9-i4").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-9-ddw']/div/div[5]/label").click()
+        driver.find_element_by_xpath("//label[@for='ddcl-9-i4']").click()
         driver.find_element_by_xpath("//span[@id='ddcl-9']/span/span").click()
         driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
         driver.find_element_by_id("ddcl-7-i0").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-7-ddw']/div/div/label").click()
         driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
         driver.find_element_by_xpath("//span[@id='ddcl-6']/span/span").click()
         driver.find_element_by_id("ddcl-6-i0").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-6-ddw']/div/div/label").click()
         driver.find_element_by_xpath("//span[@id='ddcl-6']/span/span").click()
-        driver.find_element_by_id("id_apply_filters").click()
-        # TODO check Harvard is in .applied-filters and in top5 .text
-        # of Center Name column (partial link text?)
-
-        # Apply filters on Sample Type
+        # Apply filters on Sample Type.
         driver.find_element_by_xpath("//span[@id='ddcl-5']/span/span").click()
         driver.find_element_by_id("ddcl-5-i0").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-5-ddw']/div/div/label").click()
-        driver.find_element_by_id("ddcl-5-i1").click()
-        driver.find_element_by_xpath("//div[@id='ddcl-5-ddw']/div/div[2]/label").click()
+        driver.find_element_by_xpath("//label[@for='ddcl-5-i1']").click()
         driver.find_element_by_xpath("//span[@id='ddcl-5']/span/span").click()
         driver.find_element_by_id("id_apply_filters").click()
-        # TODO check Blood Derived Normal is in .applied-filters and
-        # in top5 .text of Sample Type column (partial link text?)
+
+        # Make sure filters are applied.
+        applied_filters1 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
+        applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[4]")
+        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-9-i4']")
+        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-5-i1']")
+        self.assertTrue(filter1.text in applied_filters1.text)
+        self.assertTrue(filter2.text in applied_filters2.text)
+
+        for i in range(3):
+            text1 = driver.find_element_by_xpath(
+                "//div[@class='bDiv']//table//tbody//tr[%d]//td[9]/div" % (i + 1)).text
+            text2 = driver.find_element_by_xpath(
+                "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
+            self.assertEqual(filter1.text, text1)
+            self.assertEqual(filter2.text, text2)
 
         # Reset filters
         driver.find_element_by_id("id_reset_filters").click()
-        # TODO check Harvard and Blood... not in .applied-filters
-        # top5 centers and sample types are not harv and blood...
+        time.sleep(2)
+
+        driver.execute_script(
+            "$('.flexigrid div')"
+            ".scrollLeft($('.flexigrid table thead tr th[axis=col13]')"
+            ".position().left)")
+
+        # Sort by Sample Type Name to make sure column includes not only
+        # Blood Derived Normal
+        driver.find_element_by_xpath("//th[@axis='col13']").click()
+        tmp_text = driver.find_element_by_xpath(
+            "//div[@class='bDiv']//table//tbody//tr[1]//td[14]/div").text
+        if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-5-i1']").text:
+            driver.find_element_by_xpath("//th[@axis='col13']").click()
+
+        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-9-i4']")
+        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-5-i1']")
+        for i in range(3):
+            text1 = driver.find_element_by_xpath(
+                "//div[@class='bDiv']//table//tbody//tr[%d]//td[9]/div" % (i + 1)).text
+            text2 = driver.find_element_by_xpath(
+                "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
+            self.assertNotEqual(filter1.text, text1)
+            self.assertNotEqual(filter2.text, text2)
+
+        applied_filters3 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
+        self.assertTrue(filter1.text not in applied_filters3.text)
+        try:
+            applied_filters4 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[4]")
+        except:
+            pass
+        else:
+            self.assertTrue(filter2.text not in applied_filters4.text)
