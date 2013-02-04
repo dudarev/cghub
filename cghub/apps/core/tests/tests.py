@@ -83,32 +83,37 @@ class CoreTests(WithCacheTestCase):
 
     def test_item_details_view(self):
         uuid = '12345678-1234-1234-1234-123456789abc'
-        r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
-        self.assertEqual(r.status_code, 200)
-        self.assertContains(r, u'No data.')
+        response = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
         file_name = os.path.join(CACHE_DIR, self.cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
-        r = self.client.get(
+        response = self.client.get(
                         reverse('item_details',
                         kwargs={'uuid': results.Result.analysis_id}))
-        self.assertEqual(r.status_code, 200)
-        self.assertNotContains(r, u'No data.')
-        self.assertContains(r, results.Result.center_name)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, u'No data.')
+        self.assertContains(response, results.Result.center_name)
         # not ajax
-        self.assertContains(r, '<head>')
+        self.assertContains(response, '<head>')
         # try ajax request
-        r = self.client.get(
+        response = self.client.get(
                         reverse('item_details',
                         kwargs={'uuid': results.Result.analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(r.status_code, 200)
-        self.assertContains(r, results.Result.center_name)
-        self.assertNotContains(r, '<head>')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, results.Result.center_name)
+        self.assertNotContains(response, '<head>')
+        # test if response contains some of needed fields
+        self.assertContains(response, 'Last modified')
+        self.assertContains(response, 'Disease abbr')
+        self.assertContains(response, 'Disease Name')
+        self.assertContains(response, 'Sample Accession')
         # test raw_xml
-        self.assertTrue(r.context.get('raw_xml', False))
+        self.assertTrue(response.context.get('raw_xml', False))
 
 
 class CoreUtilsTests(TestCase):

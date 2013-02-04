@@ -58,7 +58,7 @@ jQuery(function ($) {
                     };
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for UUID='+$tr.attr('data-uuid'));
+                    modal.find('.modal-label').html('Details for UUID '+$tr.attr('data-uuid'));
                 }).modal('show');
                 return false;
             });
