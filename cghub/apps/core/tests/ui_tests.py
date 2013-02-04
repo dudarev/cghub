@@ -511,6 +511,19 @@ class ColumnsFillTableWidthTestCase(LiveServerTestCase):
 
         # Taking in count some random borders < 3px total.
         self.assertTrue((full_width - all_columns_width) < 3)
+
+        # Remove first 2 columns
+        all_columns_width = first_col.size.get('width', 0)
+        for i in range(1, 3):
+            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % i).click()
+        for x in range(1, 6):
+            col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
+            if col.is_displayed():
+                all_columns_width += col.size.get('width', 0)
+
+        # Taking in count some random borders < 3px total.
+        self.assertTrue((full_width - all_columns_width) < 3)
+
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
 
     def test_column_fill_table_space(self):
