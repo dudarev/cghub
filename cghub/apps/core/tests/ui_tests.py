@@ -459,3 +459,65 @@ class ColumnSelectTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
         self.select_columns(driver, 'cart')
+
+
+class ColumnsFillTableWidthTestCase(LiveServerTestCase):
+    cache_files = (
+                '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                'cb712a7b93a6411001cbc34cfb883594.xml',
+                'ecbf7eaaf5b476df08b2997afd675701.xml')
+    query = "6d53*"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(ColumnsFillTableWidthTestCase, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(ColumnsFillTableWidthTestCase, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def select_columns(self, driver, location):
+        time.sleep(3)
+        # Find select on search or cart page
+        if location == 'search':
+            select = driver.find_element_by_xpath("//form[@id='id_add_files_form']/span/span\
+                /span[@class='ui-dropdownchecklist-text']")
+        elif location == 'cart':
+            select = driver.find_element_by_css_selector("#ddcl-1 > span:first-child > span")
+        select.click()
+
+        full_table = driver.find_element_by_class_name('hDiv')
+        full_width = full_table.value_of_css_property('width')[:-2]
+        full_width = int(full_width.split('.')[0])
+
+        # Unselect all elements
+        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+
+        # Add columns by 1 each step and check their width equals 
+        # full tabel width.
+        first_col = driver.find_element_by_xpath("//th[@axis='col0']")
+        all_columns_width = first_col.size.get('width', 0)
+        for i in range(1, 6):
+            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % i).click()
+        for x in range(1, 6):
+            col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
+            if col.is_displayed():
+                all_columns_width += col.size.get('width', 0)
+
+        # Taking in count some random borders < 3px total.
+        self.assertTrue((full_width - all_columns_width) < 3)
+        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+
+    def test_column_fill_table_space(self):
+        driver = self.selenium
+        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+
+        self.select_columns(driver, 'search')
+        driver.find_element_by_css_selector('input.js-select-all').click()
+        driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        self.select_columns(driver, 'cart')
