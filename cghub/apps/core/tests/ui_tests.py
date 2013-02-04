@@ -44,18 +44,18 @@ class SidebarTests(LiveServerTestCase):
     def test_select_all(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-9 > span:first-child > span").click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
-        driver.find_element_by_id("ddcl-8-i0").click()
+        driver.find_element_by_id("ddcl-9-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-8-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-9-i%d" % i)
             self.assertFalse(cb.is_selected())
 
         # click again - select all
-        driver.find_element_by_id("ddcl-8-i0").click()
+        driver.find_element_by_id("ddcl-9-i0").click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-8-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-9-i%d" % i)
             self.assertTrue(cb.is_selected())
 
     def test_select_date(self):
@@ -91,18 +91,18 @@ class SidebarTests(LiveServerTestCase):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        self.selenium.find_element_by_css_selector("#ddcl-9 > span:first-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-10 > span:first-child > span").click()
         # study: phs000178
+        driver.find_element_by_id("ddcl-10-i0").click()
+        driver.find_element_by_id("ddcl-10-i2").click()
+        self.selenium.find_element_by_css_selector("#ddcl-10 > span:last-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-9 > span:first-child > span").click()
+        # center: BCM+OR+BCCAGSC+OR+BI
         driver.find_element_by_id("ddcl-9-i0").click()
         driver.find_element_by_id("ddcl-9-i1").click()
+        driver.find_element_by_id("ddcl-9-i2").click()
+        driver.find_element_by_id("ddcl-9-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-9 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
-        # center: BCM+OR+BCCAGSC+OR+BI
-        driver.find_element_by_id("ddcl-8-i0").click()
-        driver.find_element_by_id("ddcl-8-i1").click()
-        driver.find_element_by_id("ddcl-8-i2").click()
-        driver.find_element_by_id("ddcl-8-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-8 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-5 > span:first-child > span").click()
         # sample type: 10+OR+12+OR+20
         driver.find_element_by_id("ddcl-5-i0").click()
@@ -117,13 +117,13 @@ class SidebarTests(LiveServerTestCase):
         driver.find_element_by_id("ddcl-3-i2").click()
         driver.find_element_by_id("ddcl-3-i3").click()
         self.selenium.find_element_by_css_selector("#ddcl-3 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-7 > span:first-child > span").click()
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:first-child > span").click()
         # analyte_code: D+OR+H+OR+R
-        driver.find_element_by_id("ddcl-7-i0").click()
-        driver.find_element_by_id("ddcl-7-i1").click()
-        driver.find_element_by_id("ddcl-7-i2").click()
-        driver.find_element_by_id("ddcl-7-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-7 > span:last-child > span").click()
+        driver.find_element_by_id("ddcl-8-i0").click()
+        driver.find_element_by_id("ddcl-8-i1").click()
+        driver.find_element_by_id("ddcl-8-i2").click()
+        driver.find_element_by_id("ddcl-8-i3").click()
+        self.selenium.find_element_by_css_selector("#ddcl-8 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-4 > span:first-child > span").click()
         # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
         driver.find_element_by_id("ddcl-4-i0").click()
@@ -134,9 +134,10 @@ class SidebarTests(LiveServerTestCase):
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:first-child > span").click()
         # state: bad_data+OR+validating_sample+OR+live+OR+supressed
         driver.find_element_by_id("ddcl-2-i0").click()
+        driver.find_element_by_id("ddcl-2-i0").click()
         driver.find_element_by_id("ddcl-2-i1").click()
         driver.find_element_by_id("ddcl-2-i2").click()
-        driver.find_element_by_id("ddcl-2-i3").click()
+        driver.find_element_by_id("ddcl-2-i7").click()
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:last-child > span").click()
         driver.find_element_by_id("id_apply_filters").click()
 
@@ -285,19 +286,19 @@ class SearchTests(LiveServerTestCase):
     def test_filtering_shown(self):
         self.selenium.get(self.live_server_url)
         # unselect all
-        self.selenium.execute_script("$('#ddcl-8').click()")
-        self.selenium.execute_script("$('#ddcl-8-i0').attr('checked', false)")
-        self.selenium.execute_script("$('#ddcl-8-i0').click()")
+        self.selenium.execute_script("$('#ddcl-9').click()")
+        self.selenium.execute_script("$('#ddcl-9-i0').click()")
+        self.selenium.execute_script("$('#ddcl-9-i0').click()")
 
         # select Baylor and Harvard
-        self.selenium.execute_script("$('#ddcl-8-i1').click()")
-        self.selenium.execute_script("$('#ddcl-8-i4').click()")
+        self.selenium.execute_script("$('#ddcl-9-i1').click()")
+        self.selenium.execute_script("$('#ddcl-9-i4').click()")
 
         self.search()
 
         # check if filters is shown
         filter = (self.selenium.find_element_by_css_selector(
-            "#ddcl-8 > span:first-child > span"))
+            "#ddcl-9 > span:first-child > span"))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
 
     def test_pagination_links(self):
@@ -351,15 +352,16 @@ class SearchTests(LiveServerTestCase):
 
     def test_sorting_order(self):
         columns = [
-                    'UUID', 'Study', 'Center', 'Center (full)',
-                    'Experiment Type', 'Last modified',
-                    'Sample Type', 'Sample Type (full)', 'Run Type',
-                    'Disease', 'Disease (full)', 'State', 'Barcode',
-                    'Sample Accession', 'Files Size']
+                    'UUID', 'Study', 'Disease', 'Disease Name',
+                    'Run Type', 'Reference genome', 'Center',
+                    'Center Name', 'Experiment Type', 'Upload time',
+                    'Last modified', 'Sample Type', 'Sample Type Name', 
+                    'State', 'Barcode', 'Sample Accession', 'Files Size'
+        ]
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
-            if i in (3, 7, 10):
+            if i in (3, 7, 12):
                 continue
             # scroll table
             self.selenium.execute_script("$('.flexigrid div')"
@@ -412,6 +414,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def select_columns(self, driver, location):
+        time.sleep(3)
         column_count = len(driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")) - 1
         # Find select on search or cart page
         if location == 'search':
@@ -423,24 +426,29 @@ class ColumnSelectTestCase(LiveServerTestCase):
         # Unselecting one by one
         r = range(column_count)
         for i in r:
-            driver.find_element_by_id('ddcl-1-i%d' % (i + 1)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (i + 1)).click()
             for j in r[:(i + 1)]:
                 driver.execute_script("$('.flexigrid div')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
-                        ".position().left)" % j);
+                        ".position().left)" % j)
                 assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
             for j in r[(i + 1):]:
                 driver.execute_script("$('.flexigrid div')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
-                        ".position().left)" % j);
+                        ".position().left)" % j)
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
         # Select (all) option
-        driver.find_element_by_id('ddcl-1-i0').click()
-        for i in range(column_count):
+        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+        r2 = range(column_count)
+        for x in r2:
             driver.execute_script("$('.flexigrid div')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
-                        ".position().left)" % i);
-            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed()
+                        ".position().left)" % x)
+            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
+            # I hide each column after test checks if it exists because this
+            # part can't check last two columns when tests are run not in fullscreen.
+            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (x + 1)).click()        
+        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
         select.click()
 
     def test_column_select(self):
@@ -448,6 +456,6 @@ class ColumnSelectTestCase(LiveServerTestCase):
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
         self.select_columns(driver, 'search')
-        driver.find_element_by_css_selector('button.select_all_items').click()
+        driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
         self.select_columns(driver, 'cart')
