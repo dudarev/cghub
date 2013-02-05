@@ -105,6 +105,7 @@ def applied_filters(request):
         'library_strategy': request.GET.get('library_strategy'),
         'disease_abbr': request.GET.get('disease_abbr'),
         'state': request.GET.get('state'),
+        'refassem_short_name': request.GET.get('refassem_short_name'),
         'q': request.GET.get('q'),
     }
 
@@ -141,6 +142,17 @@ def applied_filters(request):
         title = ALL_FILTERS[f]['title'][3:]
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
+
+        # Filters by assembly can use complex queries
+        if f == 'refassem_short_name':
+            for value in ALL_FILTERS[f]['filters']:
+                for i in filters:
+                    if value.find(i) != -1:
+                        filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                        break
+            filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+            continue
+
         for value in filters:
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
@@ -202,6 +214,10 @@ def table_header(request):
     Return table header ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
+        'Assembly': {
+            'width': 120,
+            'attr': 'refassem_short_name',
+        },
         'Barcode': {
             'width': 235,
             'attr': 'legacy_sample_id',
@@ -229,10 +245,6 @@ def table_header(request):
         'Files Size': {
             'width': 75,
             'attr': 'files_size',
-        },
-        'Reference genome': {
-            'width': 120,
-            'attr': 'assembly_name',
         },
         'Run Type': {
             'width': 100,
@@ -297,6 +309,7 @@ def table_row(result):
     Return table row ordered accoreding to settings.TABLE_COLUNS
     """
     COLS = {
+        'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
         'Center Name': get_name_by_code(
@@ -314,7 +327,6 @@ def table_row(result):
                     and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Run Type': get_result_attr(result, 'library_strategy'),
-        'Reference genome': get_result_attr(result, 'assembly_name'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
                     get_result_attr(result, 'sample_type'),

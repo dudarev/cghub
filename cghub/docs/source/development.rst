@@ -30,6 +30,38 @@ Make sure RabbitMQ server is installed (see section about RabbitMQ below).
     # in another terminal from `cghub` directory
     make run
 
+-----------------------
+Filters customizing
+-----------------------
+
+Filters list can be edited in ``cghub/apps/core/filters_storage_full.py``:
+
+.. code-block:: python
+
+    ALL_FILTERS = OrderedDict([
+    ("study", {
+        "title": "By Study",
+        "filters": OrderedDict([
+            ("phs000178", "TCGA"),
+            ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
+        ])
+    }),
+    ("center_name", {
+        "title": "By Center",
+        ...
+
+In case of refassem_short_name, complex queries with "OR" are allowed:
+
+.. code-block:: python
+
+    ('refassem_short_name', {
+        'filters': OrderedDict([
+            ('NBCI36* OR HG18*', 'NBCI36/HG18'),
+            ('GRCh37* OR HG19*', 'GRCh37/HG19'),
+        ]),
+        'title': 'By Assembly',
+    }),
+
 ----------------------------
 Filters list shortening
 ----------------------------
