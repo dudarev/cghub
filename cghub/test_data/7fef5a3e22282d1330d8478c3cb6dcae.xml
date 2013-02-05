@@ -1,1 +1,0 @@
-<ResultSet date="2012-10-25 10:16:47"><Query>study:(phs000178) center_name:(BCM OR BCCAGSC OR BI) last_modified:[NOW-1MONTH TO NOW] analyte_code:(D OR H OR R) sample_type:(10 OR 12 OR 20) library_strategy:(Bisulfite-Seq OR OTHER OR RNA-Seq) disease_abbr:(LAML OR BLCA OR LGG) state:(bad_data OR validating_sample OR live OR supressed)</Query><Hits>0</Hits></ResultSet>
