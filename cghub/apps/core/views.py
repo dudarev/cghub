@@ -54,7 +54,8 @@ class SearchView(TemplateView):
         'sample_type',
         'library_strategy',
         'disease_abbr',
-        'state'
+        'state',
+        'refassem_short_name',
     ]
     # FIXME temporary: filters, if specified, don't restrict data range
     date_no_limit_attributes = [
@@ -99,7 +100,7 @@ class SearchView(TemplateView):
             results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
 
         # this function calculates files_size attribute
-        # and adds assembly_name to Results
+        # and adds refassem_short_name to Results
         results.add_custom_fields()
 
         if hasattr(results, 'Result'):

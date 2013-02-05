@@ -25,7 +25,7 @@ class Results(object):
     Wrapper class for results obtained with lxml. This object is returned by :func:`request`.
     """
 
-    CALCULATED_FIELDS = ('files_size', 'assembly_name',)
+    CALCULATED_FIELDS = ('files_size', 'refassem_short_name',)
 
     def __init__(self, lxml_results):
         """
@@ -60,7 +60,7 @@ class Results(object):
 
     def add_custom_fields(self):
         """
-        Add files_size and assembly_name fields.
+        Add files_size and refassem_short_name fields.
         
         Files size is stored in structures
 
@@ -101,7 +101,7 @@ class Results(object):
             for f in r.files.file:
                 files_size += int(f.filesize)
             r.files_size = files_size
-            r.assembly_name = r.analysis_xml.ANALYSIS_SET\
+            r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
                     .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
                     .ASSEMBLY.STANDARD.get('short_name')
         self.is_custom_fields_calculated = True
