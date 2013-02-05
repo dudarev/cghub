@@ -46,8 +46,14 @@ jQuery(function ($) {
                         select.find('option[value = "' + value + '"]').attr('selected', 'selected');
                     } else {
                         var values = filters[section].slice(1, -1).split(' OR ');
-                        for (var i = values.length - 1; i >= 0; i--) {
-                            select.find('option[value = "' + values[i] + '"]').attr('selected', 'selected');
+                        if(section == 'refassem_short_name') {
+                            for (var i = values.length - 1; i >= 0; i--) {
+                                select.find('option[value *= "' + values[i] + '"]').attr('selected', 'selected');
+                            }
+                        } else {
+                            for (var i = values.length - 1; i >= 0; i--) {
+                                select.find('option[value = "' + values[i] + '"]').attr('selected', 'selected');
+                            }
                         }
                     }
                 } else {
