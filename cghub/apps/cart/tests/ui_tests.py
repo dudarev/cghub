@@ -18,7 +18,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 
 class LinksNavigationsTests(LiveServerTestCase):
-    cache_files = ('e663e2849a7da1a84256e4527d4102ac.xml',)
+    cache_files = ('f6d938fbf161765df8d8d7cd1ef87428.xml',)
 
     @classmethod
     def setUpClass(self):
@@ -49,15 +49,20 @@ class LinksNavigationsTests(LiveServerTestCase):
 
 class CartUITests(LiveServerTestCase):
     cache_files = (
-            '0aab3523a4352c73abf8940e7c9ae7a5.xml',
-            '33b4441ffd0d7ab7ec21f0cff9a53d95.xml',
-            '427dcd2c78d4be27efe3d0cde008b1f9.xml')
+                '0aab3523a4352c73abf8940e7c9ae7a5.xml',
+                '33b4441ffd0d7ab7ec21f0cff9a53d95.xml',
+                '427dcd2c78d4be27efe3d0cde008b1f9.xml',
+                '10fec8ea2505e24d4e5705b76461f649.xml',
+                '10fec8ea2505e24d4e5705b76461f649.xml-no-attr',
+                '72eaed3637a5d9aca2c36dc3c8db14b7.xml',
+                '72eaed3637a5d9aca2c36dc3c8db14b7.xml-no-attr',
+                'f6d938fbf161765df8d8d7cd1ef87428.xml')
     selected = [
-        'a15b7a89-0085-4879-9715-a37a460ff26d',
-        'd1cc01ad-951b-424a-9860-2f400d3e0282'
+        '49d8aaef-72e0-4165-9c1f-d21da1dc6107',
+        'abf14d92-2bbe-4393-95a8-9f1f51d57f5d'
     ]
     unselected = [
-        'f9570c3d-31ab-4356-96f0-d5788a4fb5b4',
+        '4bd7ad2f-d72d-443c-88f1-bd921fd0c5c8',
     ]
     query = "6d5*"
 
@@ -130,7 +135,7 @@ class CartUITests(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (59.34 GB)'
+        assert stat.text == 'Files in your cart: 2 (26.44 GB)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
@@ -222,10 +227,10 @@ class SortWithinCartTestCase(LiveServerTestCase):
 
         attrs = [
             'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
-            'library_strategy', 'assembly_name', 'center_name', 'center_name',
-            'analyte_code', 'upload_date', 'last_modified', 'sample_type',
-            'sample_type', 'state', 'legacy_sample_id', 'sample_accession',
-            'files_size']
+            'library_strategy', 'refassem_short_name', 'center_name',
+            'center_name', 'analyte_code', 'upload_date', 'last_modified',
+            'sample_type', 'sample_type', 'state', 'legacy_sample_id',
+            'sample_accession', 'files_size']
 
         for i, attr in enumerate(attrs):
             # IMPORTANT
