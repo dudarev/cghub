@@ -34,4 +34,4 @@ For this setup the database and modify local settings in ``local.py``:
         }
     }
 
-Plan for UI tests is stored at ``cghub/docs/CGHub-UI-tests-plan.csv``.
+Plan for UI tests is stored at ``cghub/docs/CGHub-UI-tests-plan.tsv``.
