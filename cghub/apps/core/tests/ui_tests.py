@@ -248,15 +248,18 @@ class SidebarTests(LiveServerTestCase):
 
 
 class SearchTests(LiveServerTestCase):
+
     cache_files = (
-        '03dd7235eeb75bd19521e49b0da96604.xml', '5c0d0328d8b134326b65f7664b4ca24e.xml',
-        '5e738425d80dea7295cd651dd6a96d9f.xml', '5ea10a06f93809b5edd95faa69136998.xml',
-        '6c34d043ca88ec8032f97eac592e33d9.xml', '09e82ff3db65f0bf8cb36acb8e3a4d9b.xml',
-        '76c362d1a1f7cf2bddbe62293303ad7e.xml', '790aa376817fac025b17aa878fb86e9b.xml',
-        '883e0c485eb8e243cbe59a18ff8422de.xml', '1840e02f540e3c90412421274d9c786d.xml',
-        '4160e2c5199163358e7e918eaf1b7986.xml', '9807dc10d56f084a38968d7ee98a0163.xml',
-        'b5b52e9da30c9869530490533891e709.xml', 'bb4d172f8ae244b8674e1d07466d3f55.xml',
-        'c710cbb0603056ec3243a154884687c6.xml', 'f6d938fbf161765df8d8d7cd1ef87428.xml')
+        '5c0d0328d8b134326b65f7664b4ca24e.xml', '76c362d1a1f7cf2bddbe62293303ad7e.xml',
+        'bb4d172f8ae244b8674e1d07466d3f55.xml', 'f6d938fbf161765df8d8d7cd1ef87428.xml',
+        '707395879d3c23366c5ec1642e69f7ad.xml', '91b007cb6807683c2e2ecfba09c24f7d.xml',
+        'ec658922e853a8c3741330af01bc405b.xml', 'aa06888ac2f625d8d3f84a5e30a34f39.xml',
+        '790aa376817fac025b17aa878fb86e9b.xml', 'cfbc5305b10bdb1bae5b420f0a371af6.xml',
+        '03dd7235eeb75bd19521e49b0da96604.xml', '8095ea0809a0074e8c415845115062b3.xml',
+        '0de87d39f79698685cbbe78b8dae8f54.xml', '13dd8ffefeee9a4bcca7b5f29ed6911f.xml',
+        '4c9983171c2b3b793d74d55ca49b980d.xml', '09e82ff3db65f0bf8cb36acb8e3a4d9b.xml',
+        '4160e2c5199163358e7e918eaf1b7986.xml', '6c34d043ca88ec8032f97eac592e33d9.xml',
+        'b5b52e9da30c9869530490533891e709.xml')
     query = "6d5*"
 
     @classmethod
@@ -272,7 +275,7 @@ class SearchTests(LiveServerTestCase):
         super(SearchTests, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
-    def search(self, text="6d*"):
+    def search(self, text="6d1*"):
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys(text)
@@ -290,15 +293,15 @@ class SearchTests(LiveServerTestCase):
     def test_url(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
-        element.send_keys("6d7*")
+        element.send_keys("6d71*")
         element.submit()
         time.sleep(10)
-        assert "/search/?q=6d7%2A" in self.selenium.current_url
+        assert "/search/?q=6d71%2A" in self.selenium.current_url
 
     def test_search_result(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
-        element.send_keys("6d7*")
+        element.send_keys("6d71*")
         element.submit()
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
@@ -306,7 +309,7 @@ class SearchTests(LiveServerTestCase):
     def test_count_pages(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
-        element.send_keys("6d*")
+        element.send_keys("6d1*")
         element.submit()
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
@@ -324,7 +327,7 @@ class SearchTests(LiveServerTestCase):
             "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d*")
+        element.send_keys("6d1*")
         element.submit()
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
@@ -423,7 +426,7 @@ class SearchTests(LiveServerTestCase):
 
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
-            if i in (3, 7, 12):
+            if i in (3, 7, 11):
                 continue
             # scroll table
             self.selenium.execute_script("$('.flexigrid div')"

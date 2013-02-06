@@ -233,17 +233,15 @@ class SortWithinCartTestCase(LiveServerTestCase):
             'sample_accession', 'files_size']
 
         for i, attr in enumerate(attrs):
-            # IMPORTANT
-            # fix for extra 'full name' columns, their sorting links are duplicates anyway
-            # after changing the columns' set check attrs list above
-            if i in (3, 7, 12):
+            if i in (3, 7, 11):
                 continue
 
             # scroll table
-            driver.execute_script("$('.flexigrid div')"
+            if i > 5:
+                driver.execute_script("$('.flexigrid div')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
-                        ".parents('th').position().left);" % attr);
-            time.sleep(2)
+                        ".parents('th').position().left);" % attr)
+            time.sleep(5)
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -255,7 +253,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]/div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
-                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
+                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
                 elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 elif attr == 'files_size':
@@ -275,7 +273,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 text = driver.find_element_by_xpath(
                     '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
                 if attr == 'sample_type':
-                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'shortcut'))
+                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
                 elif attr in ('analyte_code', 'study', 'state'):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 elif attr == 'files_size':
