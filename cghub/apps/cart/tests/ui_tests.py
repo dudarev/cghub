@@ -11,9 +11,11 @@ from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import (
-                            wsapi_cache_copy, wsapi_cache_remove)
+                            wsapi_cache_copy,
+                            wsapi_cache_remove)
 from cghub.apps.core.templatetags.search_tags import (
-                            get_name_by_code, get_sample_type_by_code,
+                            get_name_by_code,
+                            get_sample_type_by_code,
                             file_size)
 
 
