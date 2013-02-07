@@ -12,6 +12,8 @@ from django.core.urlresolvers import reverse
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
 
+from cghub.apps.core.tests import WithCacheTestCase
+
 
 class CartTests(TestCase):
 
@@ -102,6 +104,12 @@ class CartTests(TestCase):
                     {'selected_files': rm_selected_files},
                     **{'HTTP_REFERER':'http://somepage.com/%s' % params})
         self.assertRedirects(response, reverse('cart_page') + params)
+
+
+class CartAddItemsTest(WithCacheTestCase):
+
+    def test_add_all_items(self):
+        pass
 
 
 class CacheTestCase(TestCase):
