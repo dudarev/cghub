@@ -32,27 +32,25 @@ class CartAddRemoveFilesView(View):
 
     def post(self, request, action):
         if 'add' == action:
-            # get all additional attributes of files
-            attributes = json.loads(request.POST['attributes'])
-            for f in request.POST.getlist('selected_files'):
-                add_file_to_cart(request, attributes[f])
-                cache_results(attributes[f])
-            return HttpResponse(
-                json.dumps({"redirect": reverse('cart_page')}),
-                mimetype="application/json")
-        if 'add_all' == action:
-            attributes = json.loads(request.POST.get('attributes'))
-            filters = json.loads(request.POST.get('filters'))
-            query = get_filters_string(filters)[1:]
-            results = api_request(query=query)
-            results.add_custom_fields()
-            for r in results.Result:
-                r_attrs = dict((attr, unicode(getattr(r, attr)))
+            filters = request.POST.get('filters')
+            if filters:
+                attributes = json.loads(request.POST.get('attributes'))
+                filters = json.loads(filters)
+                query = get_filters_string(filters)[1:]
+                results = api_request(query=query)
+                results.add_custom_fields()
+                for r in results.Result:
+                    r_attrs = dict((attr, unicode(getattr(r, attr)))
                                for attr in attributes
                                if hasattr(r, attr))
-                r_attrs.update({'analysis_id': r.analysis_id})
-                add_file_to_cart(request, r_attrs)
-                cache_results(r_attrs)
+                    r_attrs.update({'analysis_id': r.analysis_id})
+                    add_file_to_cart(request, r_attrs)
+                    cache_results(r_attrs)
+            else:
+                attributes = json.loads(request.POST.get('attributes'))
+                for f in request.POST.getlist('selected_files'):
+                    add_file_to_cart(request, attributes[f])
+                    cache_results(attributes[f])
             return HttpResponse(
                 json.dumps({"redirect": reverse('cart_page')}),
                 mimetype="application/json")

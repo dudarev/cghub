@@ -120,7 +120,7 @@ class CartAddItemsTests(WithCacheTestCase):
                 'last_modified': '[NOW-1DAY TO NOW]',
                 'analyte_code': '(D)'
                 }
-        url = reverse('cart_add_remove_files', args=['add_all'])
+        url = reverse('cart_add_remove_files', args=['add'])
         response = self.client.post(
                     url,
                     {'attributes': json.dumps(attributes),
