@@ -68,25 +68,22 @@ class Paginator(object):
 
     def current_page(self):
         return {
-            'url': self.url_template.format(
-                path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=self.offset),
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=self.offset),
             'page_number': self.offset / self.limit,
             }
 
     def next_page(self):
         return {
-            'url': self.url_template.format(
-                path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=self.offset + self.limit),
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=self.offset),
             'page_number': self.offset / self.limit + 1
         }
 
     def prev_page(self):
         return {
-            'url': self.url_template.format(
-                path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=self.offset - self.limit),
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=self.offset),
             'page_number': self.offset / self.limit - 1
         }
 
@@ -94,12 +91,26 @@ class Paginator(object):
         ps = []
         for page_number in xrange(self.pages_count):
             ps.append({
-                'url': self.url_template.format(
-                    path=self.get_path(), getvars=self.get_vars(),
-                    limit=self.limit, offset=page_number * self.limit),
+                'url': self._get_url(path=self.get_path(),
+                    getvars=self.get_vars(), limit=self.limit,
+                    offset=page_number * self.limit),
                 'page_number': page_number,
                 })
         return ps
+
+    def get_first(self):
+        return {
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=0),
+            'page_number': 0
+        }
+
+    def get_last(self):
+        return {
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                limit=self.limit, offset=(self.pages_count - 1) * self.limit),
+            'page_number': self.pages_count - 1
+        }
 
     def has_prev(self):
         return self.offset > 0
@@ -107,21 +118,12 @@ class Paginator(object):
     def has_next(self):
         return (self.num_results - self.offset) > self.limit
 
-    def get_first(self):
-        return {
-            'url': self.url_template.format(
-                path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=0),
-            'page_number': 0
-        }
-
-    def get_last(self):
-        return {
-            'url': self.url_template.format(
-                path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=(self.pages_count - 1) * self.limit),
-            'page_number': self.pages_count - 1
-        }
+    def _get_url(self, path, getvars, limit, offset):
+        url = self.url_template.format(path=path, getvars=getvars,
+            limit=limit, offset=offset)
+        if '?&' in url:
+            url = url.replace('?&', '?')
+        return url
 
 
 @register.inclusion_tag('pagination.html', takes_context=True)

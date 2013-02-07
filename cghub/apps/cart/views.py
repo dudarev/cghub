@@ -23,7 +23,12 @@ class CartView(TemplateView):
         if sort_by:
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
-        return {'results': cart, 'stats': get_cart_stats(self.request)}
+        stats = get_cart_stats(self.request)
+        offset = self.request.GET.get('offset')
+        offset = offset and offset.isdigit() and int(offset) or 0
+        limit = self.request.GET.get('limit')
+        limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        return {'results': cart[offset:offset+limit], 'stats': stats, 'num_results': stats['count']}
 
 
 class CartAddRemoveFilesView(View):

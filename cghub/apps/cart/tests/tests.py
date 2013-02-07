@@ -37,12 +37,12 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # make sure counter in header is OK
-        self.failUnlessEqual('Cart (3)' in response.content, True)
-        self.failUnlessEqual('Files in your cart: 3' in response.content, True)
-        self.failUnlessEqual('3.00 MB' in response.content, True)
+        self.assertContains(response, 'Cart (3)')
+        self.assertContains(response, 'Files in your cart: 3')
+        self.assertContains(response, '3.00 MB')
 
         # make sure we have 3 files in cart
-        self.failUnlessEqual(len(response.context['results']), 3)
+        self.assertEqual(len(response.context['results']), 3)
 
         # make sure we have files we've posted
         for f in self.aids:
@@ -61,11 +61,11 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # make sure we have only 1 file in cart
-        self.failUnlessEqual(len(response.context['results']), 1)
+        self.assertEqual(len(response.context['results']), 1)
 
         # make sure counter in header is OK
-        self.failUnlessEqual('Cart (1)' in response.content, True)
-        self.failUnlessEqual('Files in your cart: 1' in response.content, True)
+        self.assertContains(response, 'Cart (1)')
+        self.assertContains(response, 'Files in your cart: 1')
 
     def test_cart_remove_files(self):
         # add files
@@ -83,11 +83,11 @@ class CartTests(TestCase):
 
         # go to cart page
         response = self.client.get(self.cart_page_url)
-        self.failUnlessEqual(len(response.context['results']), 1)
+        self.assertEqual(len(response.context['results']), 1)
 
         # make sure counter in header is OK
-        self.failUnlessEqual('Cart (1)' in response.content, True)
-        self.failUnlessEqual('Files in your cart: 1' in response.content, True)
+        self.assertContains(response, 'Cart (1)')
+        self.assertContains(response, 'Files in your cart: 1')
 
         # make sure we do not have removed files in cart
         for f in rm_selected_files:
@@ -102,6 +102,37 @@ class CartTests(TestCase):
                     {'selected_files': rm_selected_files},
                     **{'HTTP_REFERER':'http://somepage.com/%s' % params})
         self.assertRedirects(response, reverse('cart_page') + params)
+
+    def test_cart_pagination(self):
+        # add 3 files to cart
+        url = reverse('cart_add_remove_files', args=['add'])
+        selected_files = ['file1', 'file2', 'file3']
+        response = self.client.post(url, {'selected_files': selected_files,
+                                      'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                                    '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                                    '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
+        })
+        # go to cart page
+        response = self.client.get(self.cart_page_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Items per page:')
+
+        # 2 items per page
+        response = self.client.get(reverse('cart_page') +
+                                       '?offset={offset}&limit={limit}'.format(
+                                          offset=0, limit=2))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '1')
+        self.assertContains(response, '2')
+        self.assertContains(response, 'Prev')
+        self.assertContains(response, 'Next')
+        self.assertContains(response, 'Items per page:')
+
+        # 2 items per page, 2nd page
+        response = self.client.get(reverse('cart_page') +
+                                   '?offset={offset}&limit={limit}'.format(
+                                       offset=2, limit=2))
+        self.assertEqual(response.status_code, 200)
 
 
 class CacheTestCase(TestCase):
