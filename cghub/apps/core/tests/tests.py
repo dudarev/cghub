@@ -13,6 +13,7 @@ from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                                     table_header, table_row, file_size)
+from cghub.apps.core.utils import get_filters_string
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -108,6 +109,15 @@ class CoreTests(WithCacheTestCase):
         self.assertNotContains(r, '<head>')
         # test raw_xml
         self.assertTrue(r.context.get('raw_xml', False))
+
+
+class CoreUtilsTests(TestCase):
+    def test_get_filters_string(self):
+        res = get_filters_string({
+                        'study': 'TGGA',
+                        'center_name': 'BCM',
+                        'bad_param': 'bad'})
+        self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
 
 class TestTemplateTags(TestCase):

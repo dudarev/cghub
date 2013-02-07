@@ -108,8 +108,13 @@ class CartTests(TestCase):
 
 class CartAddItemsTest(WithCacheTestCase):
 
+    cache_files = [
+        'd35ccea87328742e26a8702dee596ee9.xml'
+    ]
+
     def test_add_all_items(self):
-        pass
+        url = reverse('cart_add_remove_files', args=['add_all'])
+        
 
 
 class CacheTestCase(TestCase):

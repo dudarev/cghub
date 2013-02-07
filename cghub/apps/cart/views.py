@@ -39,6 +39,10 @@ class CartAddRemoveFilesView(View):
             return HttpResponse(
                 json.dumps({"redirect": reverse('cart_page')}),
                 mimetype="application/json")
+        if 'add_all' == action:
+            return HttpResponse(
+                json.dumps({"redirect": reverse('cart_page')}),
+                mimetype="application/json")
         if 'remove' == action:
             for f in request.POST.getlist('selected_files'):
                 # remove file from cart by sample id
