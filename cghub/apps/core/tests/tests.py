@@ -13,15 +13,12 @@ from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                                     table_header, table_row, file_size)
+from cghub.apps.core.utils import get_filters_string
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
-class CoreTests(TestCase):
-    cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
-    ]
-    query = "6d54*"
-
+class WithCacheTestCase(TestCase):
+    
     def setUp(self):
         """
         Copy cached files to default cache directory.
@@ -47,6 +44,13 @@ class CoreTests(TestCase):
     def tearDown(self):
         for f in self.cache_files:
             os.remove(os.path.join(CACHE_DIR, f))
+
+
+class CoreTests(WithCacheTestCase):
+    cache_files = [
+        'd35ccea87328742e26a8702dee596ee9.xml'
+    ]
+    query = "6d54*"
 
     def test_index(self):
         response = self.client.get('/')
@@ -105,6 +109,15 @@ class CoreTests(TestCase):
         self.assertNotContains(r, '<head>')
         # test raw_xml
         self.assertTrue(r.context.get('raw_xml', False))
+
+
+class CoreUtilsTests(TestCase):
+    def test_get_filters_string(self):
+        res = get_filters_string({
+                        'study': 'TGGA',
+                        'center_name': 'BCM',
+                        'bad_param': 'bad'})
+        self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
 
 class TestTemplateTags(TestCase):
@@ -260,37 +273,11 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find(RESULT['study']) == -1)
 
 
-class SearchViewPaginationTestCase(TestCase):
+class SearchViewPaginationTestCase(WithCacheTestCase):
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml'
     ]
     query = "6d54*"
-
-    def setUp(self):
-        """
-        Copy cached files to default cache directory.
-        """
-
-        # cache filenames are generated as following:
-        # >>> from wsapi.cache import get_cache_file_name
-        # >>> get_cache_file_name('xml_text=6d5%2A', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
-
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        for f in self.cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
-            )
-        self.default_results = objectify.fromstring(
-            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
-
-    def tearDown(self):
-        for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
