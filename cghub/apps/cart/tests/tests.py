@@ -8,6 +8,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+from django.utils import simplejson as json
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
@@ -30,9 +31,9 @@ class CartTests(TestCase):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(url, {'selected_files': selected_files,
-                                                        'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
+                        'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
         })
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -106,15 +107,30 @@ class CartTests(TestCase):
         self.assertRedirects(response, reverse('cart_page') + params)
 
 
-class CartAddItemsTest(WithCacheTestCase):
+class CartAddItemsTests(WithCacheTestCase):
 
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        '32aca6fc099abe3ce91e88422edc0a20.xml'
     ]
 
     def test_add_all_items(self):
+        attributes = ['study', 'center_name', 'analyte_code']
+        filters = {
+                'state': '(live)',
+                'last_modified': '[NOW-1DAY TO NOW]',
+                'analyte_code': '(D)'
+                }
         url = reverse('cart_add_remove_files', args=['add_all'])
-        
+        response = self.client.post(
+                    url,
+                    {'attributes': json.dumps(attributes),
+                    'filters': json.dumps(filters)})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data, 'redirect')
+        # check resultes was added to cart
+        response = self.client.get(reverse('cart_page'))
+        self.assertContains(response, 'Cart (14)')
 
 
 class CacheTestCase(TestCase):

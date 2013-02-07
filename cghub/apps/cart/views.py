@@ -4,11 +4,12 @@ from django.conf import settings
 import os
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
+from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson as json
+from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
-from django.core.servers import basehttp
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
@@ -40,6 +41,18 @@ class CartAddRemoveFilesView(View):
                 json.dumps({"redirect": reverse('cart_page')}),
                 mimetype="application/json")
         if 'add_all' == action:
+            attributes = json.loads(request.POST.get('attributes'))
+            filters = json.loads(request.POST.get('filters'))
+            query = get_filters_string(filters)[1:]
+            results = api_request(query=query)
+            results.add_custom_fields()
+            for r in results.Result:
+                r_attrs = dict((attr, unicode(getattr(r, attr)))
+                               for attr in attributes
+                               if hasattr(r, attr))
+                r_attrs.update({'analysis_id': r.analysis_id})
+                add_file_to_cart(request, r_attrs)
+                cache_results(r_attrs)
             return HttpResponse(
                 json.dumps({"redirect": reverse('cart_page')}),
                 mimetype="application/json")
