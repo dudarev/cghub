@@ -48,7 +48,8 @@ class CartAddRemoveFilesView(View):
                     r_attrs = dict((attr, unicode(getattr(r, attr)))
                                for attr in attributes
                                if hasattr(r, attr))
-                    r_attrs.update({'analysis_id': r.analysis_id})
+                    r_attrs['files_size'] = int(r.files_size)
+                    r_attrs['analysis_id'] = unicode(r.analysis_id)
                     add_file_to_cart(request, r_attrs)
                     cache_results(r_attrs)
             else:

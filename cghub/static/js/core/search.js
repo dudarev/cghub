@@ -169,7 +169,8 @@ jQuery(function ($) {
             return false;
         },
         addAllFilesClick:function () {
-            console.log('click');
+            if($(this).hasClass('disabled')) return false;
+            $(this).addClass('disabled');
             var $form = $(this).parents('form');
             var attributes = $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data();
             var filters = cghub.search.getFiltersValues()['filters'];
