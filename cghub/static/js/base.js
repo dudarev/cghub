@@ -51,9 +51,13 @@ jQuery(function ($) {
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
-                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(){
-                            cghub.base.highlightCode('.modal-body pre.xml-code');
-                            loaded = true;
+                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(response, status, xhr){
+                            if (status == "error") {
+                                modal.find('.modal-body').html('There was an error loading data. Please contact admin.');
+                            } else {
+                                cghub.base.highlightCode('.modal-body pre.xml-code');
+                                loaded = true;
+                            }
                         });
                     };
                 }).on('show', function(){
