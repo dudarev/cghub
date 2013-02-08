@@ -394,7 +394,7 @@ def details_table(result):
         'Sample id': get_result_attr(result, 'sample_id'),
     }
     html = ''
-    for field_name, default_state in settings.DETAILS_FIELDS:
+    for field_name in settings.DETAILS_FIELDS:
         value = FIELD_VALUES.get(field_name, None)
         if value == None:
             continue

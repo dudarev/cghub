@@ -12,7 +12,7 @@ from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-                                    table_header, table_row, file_size)
+                    table_header, table_row, file_size, details_table)
 from cghub.apps.core.utils import get_filters_string
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -276,6 +276,18 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
             self.assertTrue(res.find(RESULT['analysis_id']) != -1)
             self.assertTrue(res.find(RESULT['study']) == -1)
+
+    def test_details_table_tag(self):
+        FIELDS = ('UUID', 'Study')
+        RESULT = {
+                'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
+                'study': 'phs000178',
+                }
+        with self.settings(DETAILS_FIELDS = FIELDS):
+            res = details_table(RESULT)
+            self.assertTrue(res.find('<td') != -1)
+            for field in FIELDS:
+                self.assertTrue(res.find(field) != -1)
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
