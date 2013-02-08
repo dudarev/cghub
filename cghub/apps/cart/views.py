@@ -6,7 +6,7 @@ from django.conf import settings
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.core.servers import basehttp
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 
 from cghub.apps.core.utils import get_filters_string
@@ -41,6 +41,8 @@ class CartAddRemoveFilesView(View):
     """ Handles files added to cart """
 
     def post(self, request, action):
+        if not request.is_ajax():
+            raise Http404
         if 'add' == action:
             filters = request.POST.get('filters')
             if filters:
@@ -74,6 +76,9 @@ class CartAddRemoveFilesView(View):
             if params.find('/?') != -1:
                 url += params[params.find('/?') + 1:len(params)]
             return HttpResponseRedirect(url)
+
+    def get(self, request, action):
+        raise Http404
 
 
 class CartDownloadFilesView(View):

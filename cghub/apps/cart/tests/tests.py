@@ -30,11 +30,13 @@ class CartTests(TestCase):
     def test_cart_add_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(url, {'selected_files': selected_files,
-                        'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
-        })
+        response = self.client.post(
+                        url,
+                        {'selected_files': selected_files,
+                            'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                            '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                            '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
@@ -54,11 +56,13 @@ class CartTests(TestCase):
     def test_card_add_duplicate_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file1', 'file1']
-        response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"analysis_id":"%s"}, '
-                                                        '"file1":{"analysis_id":"%s"}, '
-                                                        '"file1":{"analysis_id":"%s"}}' % self.aids
-        })
+        response = self.client.post(
+                        url,
+                        {'selected_files': selected_files,
+                            'attributes': '{"file1":{"analysis_id":"%s"}, '
+                            '"file1":{"analysis_id":"%s"}, '
+                            '"file1":{"analysis_id":"%s"}}' % self.aids},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
@@ -74,15 +78,20 @@ class CartTests(TestCase):
         # add files
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(url, {'selected_files': selected_files,
-                                          'attributes': '{"file1":{"analysis_id":"%s"},'
-                                                        '"file2":{"analysis_id":"%s"},'
-                                                        '"file3":{"analysis_id":"%s"}}' % self.aids
-        })
+        response = self.client.post(
+                            url, 
+                            {'selected_files': selected_files,
+                                    'attributes': '{"file1":{"analysis_id":"%s"},'
+                                    '"file2":{"analysis_id":"%s"},'
+                                    '"file3":{"analysis_id":"%s"}}' % self.aids},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # remove files
         rm_selected_files = [self.aids[0], self.aids[1]]
         url = reverse('cart_add_remove_files', args=['remove'])
-        response = self.client.post(url, {'selected_files': rm_selected_files})
+        response = self.client.post(
+                        url,
+                        {'selected_files': rm_selected_files},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -103,18 +112,21 @@ class CartTests(TestCase):
         response = self.client.post(
                     url,
                     {'selected_files': rm_selected_files},
-                    **{'HTTP_REFERER':'http://somepage.com/%s' % params})
+                    **{'HTTP_REFERER':'http://somepage.com/%s' % params,
+                    'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'})
         self.assertRedirects(response, reverse('cart_page') + params)
 
     def test_cart_pagination(self):
         # add 3 files to cart
         url = reverse('cart_add_remove_files', args=['add'])
         selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(url, {'selected_files': selected_files,
-                                      'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                                    '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                                    '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids
-        })
+        response = self.client.post(
+                                url,
+                                {'selected_files': selected_files,
+                                    'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                    '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                    '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
@@ -137,6 +149,15 @@ class CartTests(TestCase):
                                        offset=2, limit=2))
         self.assertEqual(response.status_code, 200)
 
+    def test_cart_add_raise_http_404_when_get(self):
+        """
+        Only POST method allowed for 'cart_add_remove_files' url
+        """
+        response = self.client.get(reverse(
+                                'cart_add_remove_files',
+                                args=['add']))
+        self.assertEqual(response.status_code, 404)
+
 
 class CartAddItemsTests(WithCacheTestCase):
 
@@ -155,7 +176,8 @@ class CartAddItemsTests(WithCacheTestCase):
         response = self.client.post(
                     url,
                     {'attributes': json.dumps(attributes),
-                    'filters': json.dumps(filters)})
+                    'filters': json.dumps(filters)},
+                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertTrue(data, 'redirect')
@@ -175,12 +197,13 @@ class CacheTestCase(TestCase):
         for file in files:
             shutil.copy(file, os.path.join(api_results_cache_dir, os.path.basename(file)))
         selected_files = ['file1', 'file2', 'file3']
-        self.client.post(reverse('cart_add_remove_files', args=['add']),
+        self.client.post(
+                reverse('cart_add_remove_files', args=['add']),
                 {'selected_files': selected_files,
                  'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
                                '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
-                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'
-            })
+                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'},
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         manifest = None
         results_counter = 1
         for analysis_id in self.client.session.get('cart'):
@@ -213,12 +236,13 @@ class CacheTestCase(TestCase):
         for file in files:
             shutil.copy(file, os.path.join(api_results_cache_dir, os.path.basename(file)))
         selected_files = ['file1', 'file2', 'file3']
-        self.client.post(reverse('cart_add_remove_files', args=['add']),
+        self.client.post(
+                reverse('cart_add_remove_files', args=['add']),
                 {'selected_files': selected_files,
                  'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
                                '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
-                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'
-            })
+                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'},
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         xml = None
         results_counter = 1
         for analysis_id in self.client.session.get('cart'):
