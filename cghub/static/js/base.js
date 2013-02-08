@@ -59,7 +59,7 @@ jQuery(function ($) {
                                 loaded = true;
                             }
                         });
-                    };
+                    }
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
                     modal.find('.modal-label').html('Details for UUID='+$tr.attr('data-uuid'));
@@ -105,7 +105,7 @@ jQuery(function ($) {
                 xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
                 hljs.highlightBlock(xmlcontainer[0]);
             }
-        },
+        }
     };
     cghub.base.init();
 });
