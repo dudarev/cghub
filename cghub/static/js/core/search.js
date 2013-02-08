@@ -164,6 +164,9 @@ jQuery(function ($) {
                 url:$(this).attr('action'),
                 success:function (data) {
                     window.location.href = data.redirect;
+                },
+                error:function (){
+                    $('#errorAddCartModal').modal();
                 }
             });
             return false;
@@ -181,6 +184,9 @@ jQuery(function ($) {
                 url:$form.attr('action'),
                 success:function (data) {
                     window.location.href = data.redirect;
+                },
+                error:function (){
+                    $('#errorAddCartModal').modal();
                 }
             });
             return false;
