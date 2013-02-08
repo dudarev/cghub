@@ -48,7 +48,15 @@ class WithCacheTestCase(TestCase):
 
 class CoreTests(WithCacheTestCase):
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        '35d58c85ed93322dcaacadef5538a455.xml',
+        '5c4840476e9f1638af7e4ba9224c8689.xml',
+        '871693661c3a3ed7898913da0de0c952.xml',
+        '9824a6de49af620ba53c45c13ceccef0.xml',
+        '9ff0ad7159cf4c2c360cc8070576e08a.xml',
+        'aad96e9a8702634a40528d6280187da7.xml',
+        'f6d938fbf161765df8d8d7cd1ef87428.xml',
+        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
     query = "6d54*"
 
