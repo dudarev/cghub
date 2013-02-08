@@ -127,6 +127,21 @@ Default configuration is located in ``settings/ui.py``:
 
 Allowed default states: 'visible', 'hidden'.
 
+Details list ordering
+----------------
+Details list ordering can be specified in project settings.
+Default configuration is located in ``settings/ui.py``:
+
+.. code-block:: python
+
+    # ui.py
+
+    DETAILS_FIELDS = (
+    'UUID',
+    'Study',
+    'Disease',
+    ...
+
 Logging
 --------------
 
