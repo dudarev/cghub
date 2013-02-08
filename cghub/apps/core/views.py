@@ -123,6 +123,7 @@ class ItemDetailsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         results = api_request(query='analysis_id=%s' % kwargs['uuid'])
+        results.add_custom_fields()
         if hasattr(results, 'Result'):
             return {'res': results.Result, 'raw_xml': results.tostring}
         return {'res': None}

@@ -306,9 +306,9 @@ def get_result_attr(result, attr):
 @register.simple_tag
 def table_row(result):
     """
-    Return table row ordered accoreding to settings.TABLE_COLUNS
+    Return table row ordered according to settings.TABLE_COLUMNS
     """
-    COLS = {
+    FIELD_VALUES = {
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
@@ -342,9 +342,61 @@ def table_row(result):
         'UUID': get_result_attr(result, 'analysis_id'),
     }
     html = ''
-    for c, ds in settings.TABLE_COLUMNS:
-        col = COLS.get(c, None)
-        if col == None:
+    for field_name, default_state in settings.TABLE_COLUMNS:
+        value = FIELD_VALUES.get(field_name, None)
+        if value == None:
             continue
-        html += '<td>%s</td>' % col
+        html += '<td>%s</td>' % value
+    return html
+
+
+@register.simple_tag
+def details_table(result):
+    """
+    Return table with details
+    """
+    FIELD_VALUES = {
+        'Assembly': get_result_attr(result, 'refassem_short_name'),
+        'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
+        'Center': get_result_attr(result, 'center_name'),
+        'Center Name': get_name_by_code(
+            'center_name',
+            get_result_attr(result, 'center_name')),
+        'Disease abbr': get_result_attr(result, 'disease_abbr'),
+        'Disease Name': get_name_by_code(
+            'disease_abbr',
+            get_result_attr(result, 'disease_abbr')),
+        'Experiment Type': get_name_by_code(
+            'analyte_code',
+            get_result_attr(result, 'analyte_code')),
+        'Files Size': file_size(get_result_attr(result, 'files_size')
+            or get_result_attr(result, 'files')
+            and get_result_attr(result, 'files').file[0].filesize),
+        'Last modified': get_result_attr(result, 'last_modified'),
+        'Library strategy': get_result_attr(result, 'library_strategy'),
+        'Sample Accession': get_result_attr(result, 'sample_accession'),
+        'Sample Type': get_sample_type_by_code(
+            get_result_attr(result, 'sample_type'),
+            format='shortcut'),
+        'Sample Type Name': get_sample_type_by_code(
+            get_result_attr(result, 'sample_type'),
+            format='full'),
+        'State': get_name_by_code(
+            'state', get_result_attr(result, 'state')),
+        'Study': get_name_by_code(
+            'study', get_result_attr(result, 'study')),
+        'Upload time': get_result_attr(result, 'upload_date'),
+        'UUID': get_result_attr(result, 'analysis_id'),
+        'Published time': get_result_attr(result, 'published_date'),
+        'Aliquot id': get_result_attr(result, 'aliquot_id'),
+        'TSS id': get_result_attr(result, 'tss_id'),
+        'Participant id': get_result_attr(result, 'participant_id'),
+        'Sample id': get_result_attr(result, 'sample_id'),
+    }
+    html = ''
+    for field_name in settings.DETAILS_FIELDS:
+        value = FIELD_VALUES.get(field_name, None)
+        if value == None:
+            continue
+        html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
     return html
