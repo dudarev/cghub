@@ -49,4 +49,18 @@
         <li><a href="#" class="js-details-popup">Details</a></li>
         <li><a href="#" class="js-details-page">Show details in new window</a></li>
     </ul>
+
+    {% comment %}
+        Item details popup template
+    {% endcomment %}
+    <div class="modal fade" id="errorAddCartModal" tabindex="-1" role="dialog" aria-labelledby="errorAddCart" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 class="modal-label">Error Adding to Cart.</h3>
+        </div>
+        <div class="modal-body">There was an error while adding to the cart. Please contact admin.</div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+    </div>
 {% endif %}
