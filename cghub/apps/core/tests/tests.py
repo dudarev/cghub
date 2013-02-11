@@ -300,7 +300,8 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        '87cf4c35a105874bcb38d0b563da5f16.xml',
     ]
     query = "6d54*"
 
@@ -349,8 +350,8 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
         """
         response = self.client.get(
             reverse('search_page') +
-            '?center_name={center_name}'.format(center_name='%28BCM%29'),
-            follow=True)
+            '?upload_date=%5BNOW-1DAY+TO+NOW%5D&center_name={center_name}'.format(
+                            center_name='%28BCM%29'), follow=True)
         self.assertTrue('last_modified' in response.redirect_chain[0][0])
         self.assertTrue('1MONTH' in response.redirect_chain[0][0])
 
