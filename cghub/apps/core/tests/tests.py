@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
+from django.utils import simplejson as json
 
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
@@ -14,6 +15,7 @@ from apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
 from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.forms import CheckInputTypeForm
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -300,8 +302,7 @@ class TestTemplateTags(TestCase):
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml',
-        '87cf4c35a105874bcb38d0b563da5f16.xml',
+        'd35ccea87328742e26a8702dee596ee9.xml'
     ]
     query = "6d54*"
 
@@ -350,8 +351,8 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
         """
         response = self.client.get(
             reverse('search_page') +
-            '?upload_date=%5BNOW-1DAY+TO+NOW%5D&center_name={center_name}'.format(
-                            center_name='%28BCM%29'), follow=True)
+            '?center_name={center_name}'.format(center_name='%28BCM%29'),
+            follow=True)
         self.assertTrue('last_modified' in response.redirect_chain[0][0])
         self.assertTrue('1MONTH' in response.redirect_chain[0][0])
 
@@ -372,3 +373,32 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
+
+
+class CoreFormsTestCase(TestCase):
+    def test_checkinput_form_good_input(self):
+        filters = '["foo", "bar"]'
+        attributes = '{"foo": "bar"}'
+        form = CheckInputTypeForm(filters, attributes)
+        self.assertTrue(form.is_valid())
+
+        filters = '{"foo": "bar"}'
+        attributes = '["foo", "bar"]'
+        form = CheckInputTypeForm(filters, attributes)
+        self.assertTrue(form.is_valid())
+
+    def test_checkinput_form_bad_input(self):
+        filters = 'foo0bar'
+        attributes = '["foo", "bar"]'
+        form = CheckInputTypeForm(filters, attributes)
+        self.assertFalse(form.is_valid())
+
+        filters = '["foo", "bar"]'
+        attributes = 'foo0bar'
+        form = CheckInputTypeForm(filters, attributes)
+        self.assertFalse(form.is_valid())
+
+        filters = ''
+        attributes = ''
+        form = CheckInputTypeForm(filters, attributes)
+        self.assertFalse(form.is_valid())

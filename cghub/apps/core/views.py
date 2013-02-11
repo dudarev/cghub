@@ -11,6 +11,7 @@ from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
 from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.forms import CheckInputTypeForm
 
 
 class HomeView(TemplateView):
