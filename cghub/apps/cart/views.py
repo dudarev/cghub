@@ -1,14 +1,17 @@
+import os
 from StringIO import StringIO
 from operator import itemgetter
+
 from django.conf import settings
-import os
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.core.servers import basehttp
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
+
+from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
-from django.core.servers import basehttp
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
@@ -23,19 +26,44 @@ class CartView(TemplateView):
         if sort_by:
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
-        return {'results': cart, 'stats': get_cart_stats(self.request)}
+        stats = get_cart_stats(self.request)
+        offset = self.request.GET.get('offset')
+        offset = offset and offset.isdigit() and int(offset) or 0
+        limit = self.request.GET.get('limit')
+        limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        return {
+            'results': cart[offset:offset + limit],
+            'stats': stats,
+            'num_results': stats['count']}
 
 
 class CartAddRemoveFilesView(View):
     """ Handles files added to cart """
 
     def post(self, request, action):
+        if not request.is_ajax():
+            raise Http404
         if 'add' == action:
-            # get all additional attributes of files
-            attributes = json.loads(request.POST['attributes'])
-            for f in request.POST.getlist('selected_files'):
-                add_file_to_cart(request, attributes[f])
-                cache_results(attributes[f])
+            filters = request.POST.get('filters')
+            if filters:
+                attributes = json.loads(request.POST.get('attributes'))
+                filters = json.loads(filters)
+                query = get_filters_string(filters)[1:]
+                results = api_request(query=query)
+                results.add_custom_fields()
+                for r in results.Result:
+                    r_attrs = dict(
+                        (attr, unicode(getattr(r, attr)))
+                        for attr in attributes if hasattr(r, attr))
+                    r_attrs['files_size'] = int(r.files_size)
+                    r_attrs['analysis_id'] = unicode(r.analysis_id)
+                    add_file_to_cart(request, r_attrs)
+                    cache_results(r_attrs)
+            else:
+                attributes = json.loads(request.POST.get('attributes'))
+                for f in request.POST.getlist('selected_files'):
+                    add_file_to_cart(request, attributes[f])
+                    cache_results(attributes[f])
             return HttpResponse(
                 json.dumps({"redirect": reverse('cart_page')}),
                 mimetype="application/json")
@@ -46,8 +74,11 @@ class CartAddRemoveFilesView(View):
             params = request.META.get('HTTP_REFERER', '')
             url = reverse('cart_page')
             if params.find('/?') != -1:
-                url += params[params.find('/?')+1:len(params)]
+                url += params[params.find('/?') + 1:len(params)]
             return HttpResponseRedirect(url)
+
+    def get(self, request, action):
+        raise Http404
 
 
 class CartDownloadFilesView(View):

@@ -16,6 +16,7 @@ pids/*
 logs/*
 celerybeat-schedule
 node_modules
+env/
 
 #
 # Added to this project

@@ -10,6 +10,8 @@ from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
+from cghub.apps.core.utils import get_filters_string
+
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
@@ -45,18 +47,6 @@ class HomeView(TemplateView):
 class SearchView(TemplateView):
     template_name = 'core/search.html'
 
-    allowed_attributes = [
-        'study',
-        'center_name',
-        'last_modified',
-        'upload_date',
-        'analyte_code',
-        'sample_type',
-        'library_strategy',
-        'disease_abbr',
-        'state',
-        'refassem_short_name',
-    ]
     # FIXME temporary: filters, if specified, don't restrict data range
     date_no_limit_attributes = [
         'q',
@@ -77,13 +67,7 @@ class SearchView(TemplateView):
         limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
         if sort_by:
             sort_by = urllib.quote(sort_by)
-        filter_str = ''
-        for attr in self.allowed_attributes:
-            if self.request.GET.get(attr):
-                filter_str += '&%s=%s' % (
-                    attr,
-                    urllib.quote(self.request.GET.get(attr))
-                )
+        filter_str = get_filters_string(self.request.GET)
 
         if q:
             query = u"xml_text={0}".format(urlquote(q))
@@ -139,6 +123,7 @@ class ItemDetailsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         results = api_request(query='analysis_id=%s' % kwargs['uuid'])
+        results.add_custom_fields()
         if hasattr(results, 'Result'):
             return {'res': results.Result, 'raw_xml': results.tostring}
         return {'res': None}

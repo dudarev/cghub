@@ -12,16 +12,13 @@ from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-                                    table_header, table_row, file_size)
+                    table_header, table_row, file_size, details_table)
+from cghub.apps.core.utils import get_filters_string
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
-class CoreTests(TestCase):
-    cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
-    ]
-    query = "6d54*"
-
+class WithCacheTestCase(TestCase):
+    
     def setUp(self):
         """
         Copy cached files to default cache directory.
@@ -47,6 +44,21 @@ class CoreTests(TestCase):
     def tearDown(self):
         for f in self.cache_files:
             os.remove(os.path.join(CACHE_DIR, f))
+
+
+class CoreTests(WithCacheTestCase):
+    cache_files = [
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        '35d58c85ed93322dcaacadef5538a455.xml',
+        '5c4840476e9f1638af7e4ba9224c8689.xml',
+        '871693661c3a3ed7898913da0de0c952.xml',
+        '9824a6de49af620ba53c45c13ceccef0.xml',
+        '9ff0ad7159cf4c2c360cc8070576e08a.xml',
+        'aad96e9a8702634a40528d6280187da7.xml',
+        'f6d938fbf161765df8d8d7cd1ef87428.xml',
+        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
+    ]
+    query = "6d54*"
 
     def test_index(self):
         response = self.client.get('/')
@@ -77,34 +89,48 @@ class CoreTests(TestCase):
                 self.assertTrue(len(sample_type) == 2)
         self.assertTrue('Found' in response.content)
 
-    def test_item_datils_view(self):
+    def test_item_details_view(self):
         uuid = '12345678-1234-1234-1234-123456789abc'
-        r = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
-        self.assertEqual(r.status_code, 200)
-        self.assertContains(r, u'No data.')
+        response = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
         file_name = os.path.join(CACHE_DIR, self.cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
-        r = self.client.get(
+        response = self.client.get(
                         reverse('item_details',
                         kwargs={'uuid': results.Result.analysis_id}))
-        self.assertEqual(r.status_code, 200)
-        self.assertNotContains(r, u'No data.')
-        self.assertContains(r, results.Result.center_name)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, u'No data.')
+        self.assertContains(response, results.Result.center_name)
         # not ajax
-        self.assertContains(r, '<head>')
+        self.assertContains(response, '<head>')
         # try ajax request
-        r = self.client.get(
+        response = self.client.get(
                         reverse('item_details',
                         kwargs={'uuid': results.Result.analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(r.status_code, 200)
-        self.assertContains(r, results.Result.center_name)
-        self.assertNotContains(r, '<head>')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, results.Result.center_name)
+        self.assertNotContains(response, '<head>')
+        # test if response contains some of needed fields
+        self.assertContains(response, 'Last modified')
+        self.assertContains(response, 'Disease abbr')
+        self.assertContains(response, 'Disease Name')
+        self.assertContains(response, 'Sample Accession')
         # test raw_xml
-        self.assertTrue(r.context.get('raw_xml', False))
+        self.assertTrue(response.context.get('raw_xml', False))
+
+
+class CoreUtilsTests(TestCase):
+    def test_get_filters_string(self):
+        res = get_filters_string({
+                        'study': 'TGGA',
+                        'center_name': 'BCM',
+                        'bad_param': 'bad'})
+        self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
 
 class TestTemplateTags(TestCase):
@@ -259,38 +285,24 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find(RESULT['analysis_id']) != -1)
             self.assertTrue(res.find(RESULT['study']) == -1)
 
+    def test_details_table_tag(self):
+        FIELDS = ('UUID', 'Study')
+        RESULT = {
+                'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
+                'study': 'phs000178',
+                }
+        with self.settings(DETAILS_FIELDS = FIELDS):
+            res = details_table(RESULT)
+            self.assertTrue(res.find('<td') != -1)
+            for field in FIELDS:
+                self.assertTrue(res.find(field) != -1)
 
-class SearchViewPaginationTestCase(TestCase):
+
+class SearchViewPaginationTestCase(WithCacheTestCase):
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml'
     ]
     query = "6d54*"
-
-    def setUp(self):
-        """
-        Copy cached files to default cache directory.
-        """
-
-        # cache filenames are generated as following:
-        # >>> from wsapi.cache import get_cache_file_name
-        # >>> get_cache_file_name('xml_text=6d5%2A', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
-
-        TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        for f in self.cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
-            )
-        self.default_results = objectify.fromstring(
-            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
-
-    def tearDown(self):
-        for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -349,7 +361,7 @@ class PaginatorUnitTestCase(TestCase):
         paginator = Paginator({'num_results': 100, 'request': request})
         self.assertEqual(
             paginator.get_first(),
-            {'url': '?&offset=0&limit=10', 'page_number': 0}
+            {'url': '?offset=0&limit=10', 'page_number': 0}
         )
 
     def test_get_last_method(self):
@@ -357,5 +369,5 @@ class PaginatorUnitTestCase(TestCase):
         paginator = Paginator({'num_results': 100, 'request': request})
         self.assertEqual(
             paginator.get_last(),
-            {'url': '?&offset=90&limit=10', 'page_number': 9}
+            {'url': '?offset=90&limit=10', 'page_number': 9}
         )

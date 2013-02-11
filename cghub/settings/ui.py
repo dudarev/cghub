@@ -35,4 +35,29 @@ TABLE_COLUMNS = (
     ('Files Size', 'visible'),
 )
 
+DETAILS_FIELDS = (
+    'State',
+    'Last modified',
+    'Upload time',
+    'Published time',
+    'Center',
+    'Center Name',
+    'Experiment Type',
+    'Study',
+    'Aliquot id',
+    'Legasy sample id',
+    'Disease abbr',
+    'Disease Name',
+    'Assembly',
+    'TSS id',
+    'Participant id',
+    'Sample id',
+    'Sample Type',
+    'Sample Type Name',
+    'Library strategy',
+    'Sample Accession',
+    'Files Size',
+)
+
+
 DEFAULT_PAGINATOR_LIMIT = 10

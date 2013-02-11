@@ -17,6 +17,7 @@ jQuery(function ($) {
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
             cghub.search.$addFilesForm = $('form#id_add_files_form');
+            cghub.search.$addAllFilesButton = $('button.add-all-to-cart-btn');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             cghub.search.$resetFiltersButton = $('button#id_reset_filters');
             cghub.search.$selectAllLink = $('.select-all');
@@ -29,6 +30,7 @@ jQuery(function ($) {
             cghub.search.$addFilesForm.on('submit', cghub.search.addFilesFormSubmit);
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
+            cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -136,7 +138,7 @@ jQuery(function ($) {
                 preview += $(el).find('label').html() + '<br>';
                 countSelected++;
             });
-            if (countSelected == 0) {
+            if (countSelected === 0) {
                 countSelected = 1;
                 preview = 'Please select';
             }
@@ -162,12 +164,34 @@ jQuery(function ($) {
                 url:$(this).attr('action'),
                 success:function (data) {
                     window.location.href = data.redirect;
+                },
+                error:function (){
+                    $('#errorAddCartModal').modal();
                 }
             });
             return false;
         },
-        applyFilters:function () {
-            var href = URI(location.href);
+        addAllFilesClick:function () {
+            if($(this).hasClass('disabled')) return false;
+            $(this).addClass('disabled');
+            var $form = $(this).parents('form');
+            var attributes = $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data();
+            var filters = cghub.search.getFiltersValues()['filters'];
+            $.ajax({
+                data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
+                type:$form.attr('method'),
+                dataType:'json',
+                url:$form.attr('action'),
+                success:function (data) {
+                    window.location.href = data.redirect;
+                },
+                error:function (){
+                    $('#errorAddCartModal').modal();
+                }
+            });
+            return false;
+        },
+        getFiltersValues:function () {
             var new_search = URI.parseQuery(window.location.search);
             var is_error = false;
             var sections = $('select.filter-select:not(.date-filters)');
@@ -180,7 +204,7 @@ jQuery(function ($) {
                     query = '',
                     section_name = $(section).attr('section');
                 // Checked some boxes
-                if (!all_checked && dropContainer.find('input:checked').length != 0) {
+                if (!all_checked && dropContainer.find('input:checked').length !== 0) {
                     dropContainer.find('input:checked').each(function (j, checkbox) {
                         query += $(checkbox).val() + ' OR ';
                     });
@@ -198,15 +222,15 @@ jQuery(function ($) {
                 return false;
             });
             // add date filter
-            if (searchQuery == '' || window.location.search != '') {
+            if (searchQuery === '' || window.location.search !== '') {
                 $('.date-filters').each(function() {
                     var dateQuery = $(this).next().next().find('input[type = "radio"]:checked').val();
-                    if (dateQuery != ''){
+                    if (dateQuery !== ''){
                         new_search[$(this).attr('section')] = dateQuery;
                     } else {
                         delete new_search[$(this).attr('section')];
                     }
-                })
+                });
             }
             // check search input
             if (searchQuery !== '') {
@@ -215,18 +239,23 @@ jQuery(function ($) {
                 delete new_search['q'];
             }
             
-            delete new_search['limit']
-            delete new_search['offset']
+            delete new_search['limit'];
+            delete new_search['offset'];
             // redirect to the page with filtered results
-            if (!is_error){
-                window.location.href = href.search(new_search);
+            return {'is_error': is_error, 'filters': new_search};
+        },
+        applyFilters:function () {
+            var filters = cghub.search.getFiltersValues();
+            var href = URI(location.href);
+            if(!filters['is_error']) {
+                window.location.href = href.search(filters['filters']);
             }
             $(this).blur();
         },
         resetFilters:function() {
             window.location.href = "/";
             $(this).blur();
-        },
+        }
     };
     cghub.search.init();
 });
