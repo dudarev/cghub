@@ -8,6 +8,7 @@ class CheckInputTypeForm(forms.Form):
     attributes = forms.CharField()
 
     def clean(self):
+
         filters = self.cleaned_data.get('filters')
         attributes = self.cleaned_data.get('attributes')
         if filters:
