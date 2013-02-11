@@ -177,19 +177,26 @@ class CacheTestCase(TestCase):
         files = glob.glob(os.path.join(testdata_dir, '*'))
         for file in files:
             shutil.copy(file, os.path.join(api_results_cache_dir, os.path.basename(file)))
-        selected_files = ['file1', 'file2', 'file3']
-        self.client.post(reverse('cart_add_remove_files', args=['add']),
-                {'selected_files': selected_files,
+        url = reverse('cart_add_remove_files', args=['add'])
+        self.client.post(url,
+                {'selected_files': ['file1', 'file2', 'file3'],
                  'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
                                '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
                                '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
             })
-
         response = self.client.post(reverse('cart_download_files', args=['manifest']))
-        content_manifest = etree.fromstring(response.content)
-        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(content_manifest.getroottree().getroot().itertext()))
-        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(content_manifest.getroottree().getroot().itertext()))
-        self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(content_manifest.getroottree().getroot().itertext()))
+        manifest = etree.fromstring(response.content)
+        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(manifest.getroottree().getroot().itertext()))
+        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(manifest.getroottree().getroot().itertext()))
+        self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(manifest.getroottree().getroot().itertext()))
+
+        # leave only elements with state = 'bad_data'
+        url = reverse('cart_add_remove_files', args=['remove'])
+        self.client.post(url, {
+            'selected_files': ['4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
+                               '4b2235d6-ffe9-4664-9170-d9d2013b395f']})
+        response = self.client.post(reverse('cart_download_files', args=['manifest']))
+        self.assertContains(response, '<downloadable_file_count>0</downloadable_file_count>')
 
         files = glob.glob(os.path.join(api_results_cache_dir, '*'))
         for file in files:

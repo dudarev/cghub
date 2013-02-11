@@ -110,8 +110,11 @@ class CartDownloadFilesView(View):
     def manifest(self, cart):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=False, live_only=True)
+        if not results:
+            results= self._empty_results()
         mfio.write(results.tostring())
         mfio.seek(0)
+
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=manifest.xml'
         return response
@@ -124,3 +127,20 @@ class CartDownloadFilesView(View):
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=metadata.xml'
         return response
+
+    def _empty_results(self):
+        from lxml import objectify
+        from datetime import datetime
+        results = Results(objectify.fromstring('<ResultSet></ResultSet>'))
+        results.set('date', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        results.insert(0, objectify.fromstring('<Query></Query>'))
+        results.insert(1, objectify.fromstring('<Hits></Hits>'))
+        results.insert(2, objectify.fromstring(
+            '<ResultSummary>'
+            '<downloadable_file_count>0</downloadable_file_count>'
+            '<downloadable_file_size units="GB">0</downloadable_file_size>'
+            '<state_count>'
+            '<live>0</live>'
+            '</state_count>'
+            '</ResultSummary>'))
+        return results
