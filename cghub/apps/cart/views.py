@@ -12,6 +12,7 @@ from django.utils import simplejson as json
 from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
+from cghub.apps.core.forms import CheckInputTypeForm
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
@@ -41,32 +42,41 @@ class CartAddRemoveFilesView(View):
     """ Handles files added to cart """
 
     def post(self, request, action):
-        if not request.is_ajax():
-            raise Http404
         if 'add' == action:
+            if not request.is_ajax():
+                raise Http404
             filters = request.POST.get('filters')
-            if filters:
-                attributes = json.loads(request.POST.get('attributes'))
-                filters = json.loads(filters)
-                query = get_filters_string(filters)[1:]
-                results = api_request(query=query)
-                results.add_custom_fields()
-                for r in results.Result:
-                    r_attrs = dict(
-                        (attr, unicode(getattr(r, attr)))
-                        for attr in attributes if hasattr(r, attr))
-                    r_attrs['files_size'] = int(r.files_size)
-                    r_attrs['analysis_id'] = unicode(r.analysis_id)
-                    add_file_to_cart(request, r_attrs)
-                    cache_results(r_attrs)
+            attributes = request.POST.get('attributes')
+            type_form = CheckInputTypeForm(filters, attributes)
+            if type_form.is_valid():
+                attributes = type_form.cleaned_data['attributes']
+                filters = type_form.cleaned_data['filters']
+                if filters:
+                    attributes = json.loads(attributes)
+                    filters = json.loads(filters)
+                    query = get_filters_string(filters)[1:]
+                    results = api_request(query=query)
+                    results.add_custom_fields()
+                    for r in results.Result:
+                        r_attrs = dict(
+                            (attr, unicode(getattr(r, attr)))
+                            for attr in attributes if hasattr(r, attr))
+                        r_attrs['files_size'] = int(r.files_size)
+                        r_attrs['analysis_id'] = unicode(r.analysis_id)
+                        add_file_to_cart(request, r_attrs)
+                        cache_results(r_attrs)
+                else:
+                    attributes = json.loads(request.POST.get('attributes'))
+                    for f in request.POST.getlist('selected_files'):
+                        add_file_to_cart(request, attributes[f])
+                        cache_results(attributes[f])
+                return HttpResponse(
+                    json.dumps({"redirect": reverse('cart_page')}),
+                    mimetype="application/json")
             else:
-                attributes = json.loads(request.POST.get('attributes'))
-                for f in request.POST.getlist('selected_files'):
-                    add_file_to_cart(request, attributes[f])
-                    cache_results(attributes[f])
-            return HttpResponse(
-                json.dumps({"redirect": reverse('cart_page')}),
-                mimetype="application/json")
+                return HttpResponse(
+                    json.dumps({"success": "False"}),
+                    mimetype="application/json")
         if 'remove' == action:
             for f in request.POST.getlist('selected_files'):
                 # remove file from cart by sample id

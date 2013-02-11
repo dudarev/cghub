@@ -11,9 +11,11 @@ from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
 from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.forms import CheckInputTypeForm
 
 
 class HomeView(TemplateView):
+    form_class = CheckInputTypeForm
     template_name = 'core/search.html'
     default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]&state=(live)'
 
