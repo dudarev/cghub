@@ -81,14 +81,15 @@ class SearchView(TemplateView):
                 queries_list=queries_list, sort_by=sort_by,
                 offset=offset, limit=limit)
         else:
-            results = api_request(query=query, sort_by=sort_by, offset=offset, limit=limit)
+            results = api_request(query=query, sort_by=sort_by,
+                        offset=offset, limit=limit, use_api_light=True)
 
         # this function calculates files_size attribute
         # and adds refassem_short_name to Results
         results.add_custom_fields()
 
         if hasattr(results, 'Result'):
-            context['num_results'] = int(results.Hits.text)
+            context['num_results'] = results.length or int(results.Hits.text)
             context['results'] = results.Result
         else:
             context['num_results'] = 0

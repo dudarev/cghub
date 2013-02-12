@@ -3,6 +3,7 @@ import shutil
 from lxml import objectify
 
 from django.conf import settings
+from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
@@ -14,11 +15,12 @@ from apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
 from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
 class WithCacheTestCase(TestCase):
-    
+
     def setUp(self):
         """
         Copy cached files to default cache directory.
@@ -47,6 +49,7 @@ class WithCacheTestCase(TestCase):
 
 
 class CoreTests(WithCacheTestCase):
+
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         '35d58c85ed93322dcaacadef5538a455.xml',
@@ -125,6 +128,7 @@ class CoreTests(WithCacheTestCase):
 
 
 class CoreUtilsTests(TestCase):
+
     def test_get_filters_string(self):
         res = get_filters_string({
                         'study': 'TGGA',
@@ -134,6 +138,7 @@ class CoreUtilsTests(TestCase):
 
 
 class TestTemplateTags(TestCase):
+
     def test_sort_link_tag(self):
         test_request = HttpRequest()
         test_request.path = '/any_path/'
@@ -299,9 +304,9 @@ class TestTemplateTags(TestCase):
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
+
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml',
-        '87cf4c35a105874bcb38d0b563da5f16.xml',
+        'd35ccea87328742e26a8702dee596ee9.xml'
     ]
     query = "6d54*"
 
@@ -350,13 +355,14 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
         """
         response = self.client.get(
             reverse('search_page') +
-            '?upload_date=%5BNOW-1DAY+TO+NOW%5D&center_name={center_name}'.format(
-                            center_name='%28BCM%29'), follow=True)
+            '?center_name={center_name}'.format(center_name='%28BCM%29'),
+            follow=True)
         self.assertTrue('last_modified' in response.redirect_chain[0][0])
         self.assertTrue('1MONTH' in response.redirect_chain[0][0])
 
 
 class PaginatorUnitTestCase(TestCase):
+
     def test_get_first_method(self):
         request = HttpRequest()
         paginator = Paginator({'num_results': 100, 'request': request})
@@ -372,3 +378,67 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
+
+
+class CoreFormsTestCase(TestCase):
+
+    def test_selected_files_form(self):
+
+        test_data_set = [{
+            'attributes': json.dumps({
+                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
+            'is_valid': True,
+            }, {
+            'attributes': 123,
+            'is_valid': False,
+            }, {
+            'attributes': json.dumps({'study': 'TCGA', 'size': 10}),
+            'is_valid': False }]
+
+        for data in test_data_set:
+            form = SelectedFilesForm(data)
+            if not form.is_valid():
+                print form.errors
+            self.assertEqual(form.is_valid(), data['is_valid'])
+
+        form = SelectedFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
+            {'study': 'TCGA', 'size': 10})
+        self.assertEqual(
+            form.cleaned_data['selected_files'][0],
+            '7850f073-642a-40a8-b49d-e328f27cfd66')
+
+    def test_all_files_form(self):
+
+        test_data_set = [{
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': True,
+        }, {
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': 'bad_attributes',
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps(['bad', 'filters']),
+            'is_valid': False,
+        }]
+
+        for data in test_data_set:
+            form = AllFilesForm(data)
+            self.assertEqual(form.is_valid(), data['is_valid'])
+
+        form = AllFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes'],
+            ['size', 'center'])
+        self.assertEqual(
+            form.cleaned_data['filters'],
+            {'center': '(1,2)', 'state': '(live)'})
