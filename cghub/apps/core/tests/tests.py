@@ -20,7 +20,7 @@ from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
 class WithCacheTestCase(TestCase):
-    
+
     def setUp(self):
         """
         Copy cached files to default cache directory.
@@ -410,7 +410,6 @@ class CoreFormsTestCase(TestCase):
         self.assertEqual(
             form.cleaned_data['selected_files'][0],
             '7850f073-642a-40a8-b49d-e328f27cfd66')
-
 
     def test_all_files_form(self):
 
