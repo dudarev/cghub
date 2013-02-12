@@ -164,7 +164,7 @@ jQuery(function ($) {
                 url:$(this).attr('action'),
                 success:function (data) {
                     if (data.success == 'False') {
-                        alert('error');
+                        console.log('invalid data'); // add proper error handling here
                     } else {
                         window.location.href = data.redirect;
                     }
@@ -188,7 +188,7 @@ jQuery(function ($) {
                 url:$form.attr('action'),
                 success:function (data) {
                     if (data.success == 'False') {
-                        alert('error');
+                        console.log('invalid data'); // add proper error handling here
                     } else {
                         window.location.href = data.redirect;
                     }

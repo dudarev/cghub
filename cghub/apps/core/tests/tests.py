@@ -394,7 +394,7 @@ class CoreFormsTestCase(TestCase):
             'attributes': '["foo", "bar"]'}
         form = AllFilesForm(bad_post)
         self.assertFalse(form.is_valid())
-        
+
         bad_post = {
             'filters': '["foo", "bar"]',
             'attributes': 'foo0bar'}
@@ -417,10 +417,6 @@ class CoreFormsTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_selectedfiles_form_bad_input(self):
-        bad_post = {'attributes': '["foo", "bar"]'}
-        form = SelectedFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
-        
         bad_post = {'attributes': 'foo0bar'}
         form = SelectedFilesForm(bad_post)
         self.assertFalse(form.is_valid())
