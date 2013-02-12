@@ -3,6 +3,7 @@ import shutil
 from lxml import objectify
 
 from django.conf import settings
+from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
@@ -48,6 +49,7 @@ class WithCacheTestCase(TestCase):
 
 
 class CoreTests(WithCacheTestCase):
+
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         '35d58c85ed93322dcaacadef5538a455.xml',
@@ -126,6 +128,7 @@ class CoreTests(WithCacheTestCase):
 
 
 class CoreUtilsTests(TestCase):
+
     def test_get_filters_string(self):
         res = get_filters_string({
                         'study': 'TGGA',
@@ -135,6 +138,7 @@ class CoreUtilsTests(TestCase):
 
 
 class TestTemplateTags(TestCase):
+
     def test_sort_link_tag(self):
         test_request = HttpRequest()
         test_request.path = '/any_path/'
@@ -300,6 +304,7 @@ class TestTemplateTags(TestCase):
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
+
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml'
     ]
@@ -357,6 +362,7 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
 
 
 class PaginatorUnitTestCase(TestCase):
+
     def test_get_first_method(self):
         request = HttpRequest()
         paginator = Paginator({'num_results': 100, 'request': request})
@@ -375,52 +381,80 @@ class PaginatorUnitTestCase(TestCase):
 
 
 class CoreFormsTestCase(TestCase):
-    def test_allfiles_form_good_input(self):
-        good_post = {
-            'filters': '["foo", "bar"]',
-            'attributes': '{"foo": "bar"}'}
-        form = AllFilesForm(good_post)
-        self.assertTrue(form.is_valid())
 
-        good_post = {
-            'filters': '{"foo": "bar"}',
-            'attributes': '["foo", "bar"]'}
-        form = AllFilesForm(good_post)
-        self.assertTrue(form.is_valid())
+    def test_selected_files_form(self):
 
-    def test_allfiles_form_bad_input(self):
-        bad_post = {
-            'filters': 'foo0bar',
-            'attributes': '["foo", "bar"]'}
-        form = AllFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
+        test_data_set = [{
+            'attributes': json.dumps({
+                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
+            'selected_files': json.dumps([
+                    '7850f073-642a-40a8-b49d-e328f27cfd66',
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
+            'is_valid': True,
+            }, {
+            'attributes': 123,
+            'selected_files': json.dumps([
+                    '7850f073-642a-40a8-b49d-e328f27cfd66',
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
+            'is_valid': False,
+            }, {
+            'attributes': json.dumps(
+                    {'study': 'TCGA', 'size': 10}),
+            'selected_files': json.dumps([
+                    '7850f073-642a-40a8-b49d-e328f27cfd66',
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
+            'is_valid': False,
+            }, {
+            'attributes': json.dumps({
+                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
+            'selected_files': '7850f073-642a-40a8-b49d-e328f27cfd66',
+            'is_valid': False,
+            }]
 
-        bad_post = {
-            'filters': '["foo", "bar"]',
-            'attributes': 'foo0bar'}
-        form = AllFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
+        for data in test_data_set:
+            form = SelectedFilesForm(data)
+            self.assertEqual(form.is_valid(), data['is_valid'])
 
-        bad_post = {
-            'filters': '',
-            'attributes': ''}
-        form = AllFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
+        form = SelectedFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
+            {'study': 'TCGA', 'size': 10})
+        self.assertEqual(
+            form.cleaned_data['selected_files'][0],
+            '7850f073-642a-40a8-b49d-e328f27cfd66')
 
-    def test_selectedfiles_form_good_input(self):
-        good_post = {'attributes': '{"foo": "bar"}'}
-        form = SelectedFilesForm(good_post)
-        self.assertTrue(form.is_valid())
 
-        good_post = {'attributes': '["foo", "bar"]'}
-        form = SelectedFilesForm(good_post)
-        self.assertTrue(form.is_valid())
+    def test_all_files_form(self):
 
-    def test_selectedfiles_form_bad_input(self):
-        bad_post = {'attributes': 'foo0bar'}
-        form = SelectedFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
+        test_data_set = [{
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': True,
+        }, {
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': 'bad_attributes',
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps(['bad', 'filters']),
+            'is_valid': False,
+        }]
 
-        bad_post = {'attributes': ''}
-        form = SelectedFilesForm(bad_post)
-        self.assertFalse(form.is_valid())
+        for data in test_data_set:
+            form = AllFilesForm(data)
+            self.assertEqual(form.is_valid(), data['is_valid'])
+
+        form = AllFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes'],
+            ['size', 'center'])
+        self.assertEqual(
+            form.cleaned_data['filters'],
+            {'center': '(1,2)', 'state': '(live)'})

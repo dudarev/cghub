@@ -16,7 +16,7 @@ from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
-from datetime import datetime
+
 class CartView(TemplateView):
     """ Lists files in cart """
     template_name = 'cart/cart.html'
@@ -43,17 +43,15 @@ class CartAddRemoveFilesView(View):
 
     def post(self, request, action):
         if 'add' == action:
-            result = {"redirect": reverse('cart_page')}
+            result = {'success': True, 'redirect': reverse('cart_page')}
             if not request.is_ajax():
                 raise Http404
             filters = request.POST.get('filters')
             if filters:
                 form = AllFilesForm(request.POST)
                 if form.is_valid():
-                    attributes = form.cleaned_data.get('attributes')
-                    filters = form.cleaned_data.get('filters')
-                    attributes = json.loads(attributes)
-                    filters = json.loads(filters)
+                    attributes = form.cleaned_data['attributes']
+                    filters = form.cleaned_data['filters']
                     query = get_filters_string(filters)[1:]
                     results = api_request(query=query)
                     results.add_custom_fields()
@@ -66,17 +64,17 @@ class CartAddRemoveFilesView(View):
                         add_file_to_cart(request, r_attrs)
                         cache_results(r_attrs)
                 else:
-                    result['success'] = "False"
+                    result = {'success': False}
             else:
                 form = SelectedFilesForm(request.POST)
                 if form.is_valid():
-                    attributes = form.cleaned_data.get('attributes')
-                    attributes = json.loads(attributes)
-                    for f in request.POST.getlist('selected_files'):
+                    attributes = form.cleaned_data['attributes']
+                    selected_files = form.cleaned_data['selected_files']
+                    for f in selected_files:
                         add_file_to_cart(request, attributes[f])
                         cache_results(attributes[f])
                 else:
-                    result['success'] = "False"
+                    result = {'success': False}
             return HttpResponse(
                 json.dumps(result),
                 mimetype="application/json")
