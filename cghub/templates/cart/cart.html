@@ -23,7 +23,15 @@
                 <div class="btn-toolbar">
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
-                        <button class="btn cart-form-download-manifest">Download Manifest</button>
+
+                        <button class="btn dropdown-toggle" data-toggle="dropdown">
+                            Download Manifest
+                            <span class="caret" />
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="cart-form-download-manifest-xml">XML</button></li>
+                            <li><button class="cart-form-download-manifest-tsv">TSV</button></li>
+                        </ul>
                         <button class="btn cart-form-download-xml">Download metadata</button>
                     </div>
                 </div>

@@ -9,6 +9,8 @@ from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 
+from lxml import etree
+
 from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
 from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
@@ -117,7 +119,7 @@ class CartDownloadFilesView(View):
             results_counter += 1
         return results
 
-    def manifest(self, cart):
+    def manifest_xml(self, cart):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=False, live_only=True)
         if not results:
@@ -127,6 +129,27 @@ class CartDownloadFilesView(View):
 
         response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
         response['Content-Disposition'] = 'attachment; filename=manifest.xml'
+        return response
+
+    # TODO write function for TSV manifest
+    # not done yet
+    def manifest_tsv(self, cart):
+        mfio = StringIO()
+        results = self.get_results(cart, get_attributes=False, live_only=True)
+        if not results:
+            results= self._empty_results()
+
+        parser = etree.XMLParser()
+        tree = etree.XML(results.tostring(), parser)
+
+        mfio.write(tree.keys()[0])
+        mfio.write(tree.values()[0])
+        mfio.seek(0)
+
+        #import pdb; pdb.set_trace()
+
+        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
+        response['Content-Disposition'] = 'attachment; filename=manifest.tsv'
         return response
 
     def xml(self, cart):
