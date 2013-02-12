@@ -38,11 +38,13 @@ jQuery(function ($) {
             var btn = $(this);
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/(action|metadata|remove|manifest_tsv)/, 'manifest_xml'));
+            form.trigger('submit');
         },
         downloadManifestTsv:function () {
             var btn = $(this);
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/(action|metadata|remove|manifest_xml)/, 'manifest_tsv'));
+            form.trigger('submit');
         },
         downloadMetadata:function () {
             var btn = $(this);
