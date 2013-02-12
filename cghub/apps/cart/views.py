@@ -16,7 +16,7 @@ from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
-
+from datetime import datetime
 class CartView(TemplateView):
     """ Lists files in cart """
     template_name = 'cart/cart.html'
