@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
-from django.utils import simplejson as json
 
 from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
@@ -15,7 +14,7 @@ from apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
 from cghub.apps.core.utils import get_filters_string
-from cghub.apps.core.forms import CheckInputTypeForm
+from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -376,29 +375,56 @@ class PaginatorUnitTestCase(TestCase):
 
 
 class CoreFormsTestCase(TestCase):
-    def test_checkinput_form_good_input(self):
-        filters = '["foo", "bar"]'
-        attributes = '{"foo": "bar"}'
-        form = CheckInputTypeForm(filters, attributes)
+    def test_allfiles_form_good_input(self):
+        good_post = {
+            'filters': '["foo", "bar"]',
+            'attributes': '{"foo": "bar"}'}
+        form = AllFilesForm(good_post)
         self.assertTrue(form.is_valid())
 
-        filters = '{"foo": "bar"}'
-        attributes = '["foo", "bar"]'
-        form = CheckInputTypeForm(filters, attributes)
+        good_post = {
+            'filters': '{"foo": "bar"}',
+            'attributes': '["foo", "bar"]'}
+        form = AllFilesForm(good_post)
         self.assertTrue(form.is_valid())
 
-    def test_checkinput_form_bad_input(self):
-        filters = 'foo0bar'
-        attributes = '["foo", "bar"]'
-        form = CheckInputTypeForm(filters, attributes)
+    def test_allfiles_form_bad_input(self):
+        bad_post = {
+            'filters': 'foo0bar',
+            'attributes': '["foo", "bar"]'}
+        form = AllFilesForm(bad_post)
+        self.assertFalse(form.is_valid())
+        
+        bad_post = {
+            'filters': '["foo", "bar"]',
+            'attributes': 'foo0bar'}
+        form = AllFilesForm(bad_post)
         self.assertFalse(form.is_valid())
 
-        filters = '["foo", "bar"]'
-        attributes = 'foo0bar'
-        form = CheckInputTypeForm(filters, attributes)
+        bad_post = {
+            'filters': '',
+            'attributes': ''}
+        form = AllFilesForm(bad_post)
         self.assertFalse(form.is_valid())
 
-        filters = ''
-        attributes = ''
-        form = CheckInputTypeForm(filters, attributes)
+    def test_selectedfiles_form_good_input(self):
+        good_post = {'attributes': '{"foo": "bar"}'}
+        form = SelectedFilesForm(good_post)
+        self.assertTrue(form.is_valid())
+
+        good_post = {'attributes': '["foo", "bar"]'}
+        form = SelectedFilesForm(good_post)
+        self.assertTrue(form.is_valid())
+
+    def test_selectedfiles_form_bad_input(self):
+        bad_post = {'attributes': '["foo", "bar"]'}
+        form = SelectedFilesForm(bad_post)
+        self.assertFalse(form.is_valid())
+        
+        bad_post = {'attributes': 'foo0bar'}
+        form = SelectedFilesForm(bad_post)
+        self.assertFalse(form.is_valid())
+
+        bad_post = {'attributes': ''}
+        form = SelectedFilesForm(bad_post)
         self.assertFalse(form.is_valid())
