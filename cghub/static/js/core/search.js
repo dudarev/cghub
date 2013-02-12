@@ -163,7 +163,11 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$(this).attr('action'),
                 success:function (data) {
-                    window.location.href = data.redirect;
+                    if (!data['success']) {
+                        $('#errorAddCartModal').modal();
+                    } else {
+                        window.location.href = data['redirect'];
+                    }
                 },
                 error:function (){
                     $('#errorAddCartModal').modal();
@@ -183,7 +187,11 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
-                    window.location.href = data.redirect;
+                    if (!data['success']) {
+                        $('#errorAddCartModal').modal();
+                    } else {
+                        window.location.href = data['redirect'];
+                    }
                 },
                 error:function (){
                     $('#errorAddCartModal').modal();
