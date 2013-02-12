@@ -19,7 +19,7 @@ jQuery(function ($) {
             cghub.cart.$downloadManifestXml = $('.cart-form-download-manifest-xml');
             cghub.cart.$downloadManifestTsv = $('.cart-form-download-manifest-tsv');
             cghub.cart.$downloadMetadataBtn = $('.cart-form-download-metadata');
-            cghub.cart.$removeBtn = $('.btn.cart-form-remove');
+            cghub.cart.$removeBtn = $('.cart-form-remove');
         },
         bindEvents:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});

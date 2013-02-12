@@ -187,68 +187,70 @@ class CartAddItemsTests(WithCacheTestCase):
 
 
 class CacheTestCase(TestCase):
-    def test_cache_generate_manifest(self):
-        """
-        Test if manifest collects only data from files where state='live'
-        """
+    def setUp(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
-        api_results_cache_dir = settings.CART_CACHE_FOLDER
-        files = glob.glob(os.path.join(api_results_cache_dir, '*'))
+        self.api_results_cache_dir = settings.CART_CACHE_FOLDER
+        files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
         for file in files:
             os.remove(file)
         files = glob.glob(os.path.join(testdata_dir, '*'))
         for file in files:
-            shutil.copy(file, os.path.join(api_results_cache_dir, os.path.basename(file)))
+            shutil.copy(file, os.path.join(self.api_results_cache_dir, os.path.basename(file)))
 
         url = reverse('cart_add_remove_files', args=['add'])
         self.client.post(url,
-                {'selected_files': ['file1', 'file2', 'file3'],
-                 'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
-                               '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
-                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
+            {'selected_files': ['file1', 'file2', 'file3'],
+             'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
+                           '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
+                           '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
             },
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = self.client.post(reverse('cart_download_files', args=['manifest']))
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
+        for file in files:
+            os.remove(file)
+
+    def test_cache_generate_manifest_xml_live(self):
+        """
+        Test if manifest collects only data from files where state='live'
+        """
+        response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
         manifest = etree.fromstring(response.content)
         self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(manifest.getroottree().getroot().itertext()))
         self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(manifest.getroottree().getroot().itertext()))
         self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(manifest.getroottree().getroot().itertext()))
 
-        # leave only element with state = 'bad_data'
+    def test_cache_generate_manifest_xml_no_live(self):
+        """
+        Test if manifest is an empty template when only element with state = 'bad_data' in cart
+        """
+        # remove all 'live' elements from cart
         url = reverse('cart_add_remove_files', args=['remove'])
         self.client.post(url, {
             'selected_files': ['4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
                                '4b2235d6-ffe9-4664-9170-d9d2013b395f']},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = self.client.post(reverse('cart_download_files', args=['manifest']))
+        response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
         self.assertTrue('<downloadable_file_size units="GB">0</downloadable_file_size>' in response.content)
 
-        files = glob.glob(os.path.join(api_results_cache_dir, '*'))
-        for file in files:
-            os.remove(file)
+    def test_cache_generate_manifest_tsv(self):
+        """
+        Test generating manifest in TSV
+        """
+
+        response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
+        content = response.content
+        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
+        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
+        self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
 
     def test_cache_generate_xml(self):
-        testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
-        api_results_cache_dir = settings.CART_CACHE_FOLDER
-        files = glob.glob(os.path.join(api_results_cache_dir, '*'))
-        for file in files:
-            os.remove(file)
-        files = glob.glob(os.path.join(testdata_dir, '*'))
-        for file in files:
-            shutil.copy(file, os.path.join(api_results_cache_dir, os.path.basename(file)))
-        selected_files = ['file1', 'file2', 'file3']
-        self.client.post(
-                reverse('cart_add_remove_files', args=['add']),
-                {'selected_files': selected_files,
-                 'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
-                               '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
-                               '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'},
-                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         xml = None
         results_counter = 1
         for analysis_id in self.client.session.get('cart'):
             filename = "{0}_with_attributes".format(analysis_id)
-            with open(os.path.join(api_results_cache_dir, filename)) as f:
+            with open(os.path.join(self.api_results_cache_dir, filename)) as f:
                 result = objectify.fromstring(f.read())
             if xml is None:
                 xml = result
@@ -258,13 +260,10 @@ class CacheTestCase(TestCase):
                 result.Result.set('id', u'{0}'.format(results_counter))
                 xml.insert(results_counter + 1, result.Result)
             results_counter += 1
-        response = self.client.post(reverse('cart_download_files', args=['xml']))
+        response = self.client.post(reverse('cart_download_files', args=['metadata']))
         content_xml = etree.fromstring(response.content)
         self.assertEqual(set(xml.getroottree().getroot().itertext()),
             set(content_xml.getroottree().getroot().itertext()))
-        files = glob.glob(os.path.join(api_results_cache_dir, '*'))
-        for file in files:
-            os.remove(file)
 
     def test_cache_errors(self):
         """Testing caching cart is working when message broker is not running"""

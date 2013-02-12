@@ -19,7 +19,9 @@ from cghub.wsapi.api import Results
 
 
 class CartView(TemplateView):
-    """ Lists files in cart """
+    """
+    Lists files in cart
+    """
     template_name = 'cart/cart.html'
 
     def get_context_data(self, **kwargs):
@@ -40,11 +42,10 @@ class CartView(TemplateView):
 
 
 class CartAddRemoveFilesView(View):
-    """ Handles files added to cart """
-
+    """
+    Handles files added to cart
+    """
     def post(self, request, action):
-        if not request.is_ajax():
-            raise Http404
         if 'add' == action:
             filters = request.POST.get('filters')
             if filters:
@@ -178,12 +179,13 @@ class CartDownloadFilesView(View):
         if tree.getchildren()[2].tag == 'Result':
             res = tree.getchildren()[2]
             csvwriter.writerow([res.keys()[0]]+[c.tag for c in res.getchildren()])
-            for res in tree.getchildren()[2:-1]:
-                #import pdb; pdb.set_trace()
+        for res in tree.getchildren()[2:]:
+            if res.tag == 'Result':
                 csvwriter.writerow([res.values()[0]]+[c.text for c in res.getchildren()])
-            csvwriter.writerow('')
-            # ResultSummary
-        summary = tree.getchildren()[-1]
-        csvwriter.writerow([s.tag for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].tag])
-        csvwriter.writerow([s.text for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].text])
+        csvwriter.writerow('')
+        # ResultSummary
+        if tree.getchildren()[-1].tag == 'ResultSummary':
+            summary = tree.getchildren()[-1]
+            csvwriter.writerow([s.tag for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].tag])
+            csvwriter.writerow([s.text for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].text])
         return csvwriter
