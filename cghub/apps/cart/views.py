@@ -112,6 +112,8 @@ class CartDownloadFilesView(View):
         results = None
         results_counter = 1
         for analysis_id in cart:
+            if live_only and cart[analysis_id].get('state') != 'live':
+                continue
             filename = "{0}_with{1}_attributes".format(
                 analysis_id,
                 '' if get_attributes else 'out')
