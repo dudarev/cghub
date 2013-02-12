@@ -1,6 +1,8 @@
 import os
 from StringIO import StringIO
 from operator import itemgetter
+from lxml import etree
+import csv
 
 from django.conf import settings
 from django.views.generic.base import TemplateView, View
@@ -8,8 +10,6 @@ from django.core.urlresolvers import reverse
 from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
-
-from lxml import etree
 
 from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
@@ -86,14 +86,15 @@ class CartAddRemoveFilesView(View):
 class CartDownloadFilesView(View):
     def post(self, request, action):
         cart = request.session.get('cart')
-        if cart and hasattr(self, action):
-            download = getattr(self, action)
-            return download(cart)
-        else:
-            return HttpResponseRedirect(reverse('cart_page'))
+        if cart and action:
+            if action.startswith('manifest'):
+                return self.manifest(cart=cart, format=action.split('_')[1])
+            if action.startswith('metadata'):
+                return self.metadata(cart=cart)
+        return HttpResponseRedirect(reverse('cart_page'))
 
     @staticmethod
-    def get_results(cart, get_attributes, live_only=False):
+    def get_results(cart, get_attributes=False, live_only=False):
         results = None
         results_counter = 1
         for analysis_id in cart:
@@ -117,42 +118,32 @@ class CartDownloadFilesView(View):
                 # '+ 1' because the first two elements (0th and 1st) are Query and Hits
                 results.insert(results_counter + 1, result.Result)
             results_counter += 1
+
         return results
 
-    def manifest_xml(self, cart):
-        mfio = StringIO()
-        results = self.get_results(cart, get_attributes=False, live_only=True)
-        if not results:
-            results= self._empty_results()
-        mfio.write(results.tostring())
-        mfio.seek(0)
-
-        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
-        response['Content-Disposition'] = 'attachment; filename=manifest.xml'
-        return response
-
-    # TODO write function for TSV manifest
-    # not done yet
-    def manifest_tsv(self, cart):
-        mfio = StringIO()
-        results = self.get_results(cart, get_attributes=False, live_only=True)
+    def manifest(self, cart, format):
+        results = self.get_results(cart, live_only=True)
         if not results:
             results= self._empty_results()
 
-        parser = etree.XMLParser()
-        tree = etree.XML(results.tostring(), parser)
-
-        mfio.write(tree.keys()[0])
-        mfio.write(tree.values()[0])
+        mfio = StringIO()
+        if format == 'xml':
+            mfio.write(results.tostring())
+            content_type = 'text/xml'
+            filename = 'manifest.xml'
+        if format == 'tsv':
+            parser = etree.XMLParser()
+            tree = etree.XML(results.tostring(), parser)
+            csvwriter = self._write_csv(stringio=mfio, tree=tree, delimeter='\t')
+            content_type = 'text/tsv'
+            filename = 'manifest.tsv'
         mfio.seek(0)
 
-        #import pdb; pdb.set_trace()
-
-        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
-        response['Content-Disposition'] = 'attachment; filename=manifest.tsv'
+        response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
-    def xml(self, cart):
+    def metadata(self, cart):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=True)
         mfio.write(results.tostring())
@@ -177,3 +168,22 @@ class CartDownloadFilesView(View):
             '</state_count>'
             '</ResultSummary>'))
         return results
+
+    def _write_csv(self, stringio, tree, delimeter):
+        csvwriter = csv.writer(stringio, delimiter=delimeter)
+        # date
+        csvwriter.writerow(tree.items()[0])
+        csvwriter.writerow('')
+        # Result
+        if tree.getchildren()[2].tag == 'Result':
+            res = tree.getchildren()[2]
+            csvwriter.writerow([res.keys()[0]]+[c.tag for c in res.getchildren()])
+            for res in tree.getchildren()[2:-1]:
+                #import pdb; pdb.set_trace()
+                csvwriter.writerow([res.values()[0]]+[c.text for c in res.getchildren()])
+            csvwriter.writerow('')
+            # ResultSummary
+        summary = tree.getchildren()[-1]
+        csvwriter.writerow([s.tag for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].tag])
+        csvwriter.writerow([s.text for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].text])
+        return csvwriter

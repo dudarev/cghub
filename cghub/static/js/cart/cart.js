@@ -18,7 +18,7 @@ jQuery(function ($) {
             cghub.cart.$searchTable = $('table.data-table');
             cghub.cart.$downloadManifestXml = $('.cart-form-download-manifest-xml');
             cghub.cart.$downloadManifestTsv = $('.cart-form-download-manifest-tsv');
-            cghub.cart.$downloadXmlBtn = $('.btn.cart-form-download-xml');
+            cghub.cart.$downloadMetadataBtn = $('.cart-form-download-metadata');
             cghub.cart.$removeBtn = $('.btn.cart-form-remove');
         },
         bindEvents:function () {
@@ -26,28 +26,28 @@ jQuery(function ($) {
             $('.flexigrid .bDiv tr').contextmenu();
             cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifestXml);
             cghub.cart.$downloadManifestTsv.on('click', cghub.cart.downloadManifestTsv);
-            cghub.cart.$downloadXmlBtn.on('click', cghub.cart.downloadXml);
+            cghub.cart.$downloadMetadataBtn.on('click', cghub.cart.downloadMetadata);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
         },
         removeFromCart:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|xml|manifest_xml|manifest_tsv)/, 'remove'));
+            form.attr('action', form.attr('action').replace(/(action|metadata|manifest_xml|manifest_tsv)/, 'remove'));
         },
         downloadManifestXml:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|xml|remove|manifest_tsv)/, 'manifest_xml'));
+            form.attr('action', form.attr('action').replace(/(action|metadata|remove|manifest_tsv)/, 'manifest_xml'));
         },
         downloadManifestTsv:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|xml|remove|manifest_xml)/, 'manifest_tsv'));
+            form.attr('action', form.attr('action').replace(/(action|metadata|remove|manifest_xml)/, 'manifest_tsv'));
         },
-        downloadXml:function () {
+        downloadMetadata:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|remove|manifest_xml|manifest_tsv)/, 'xml'));
+            form.attr('action', form.attr('action').replace(/(action|remove|manifest_xml|manifest_tsv)/, 'metadata'));
         }
     };
     cghub.cart.init();
