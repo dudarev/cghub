@@ -9,7 +9,6 @@ class SelectedFilesForm(forms.Form):
     format to the form - format that can be loaded to json.
     """
     attributes = forms.CharField()
-    selected_files = forms.CharField()
 
     def clean_attributes(self):
         attributes = self.cleaned_data.get('attributes')
@@ -24,16 +23,6 @@ class SelectedFilesForm(forms.Form):
                 if not isinstance(attributes[a], dict):
                     raise forms.ValidationError('attributes has not valid value')
         return attributes
-
-    def clean_selected_files(self):
-        selected_files = self.cleaned_data.get('selected_files')
-        try:
-            selected_files = json.loads(selected_files)
-        except (TypeError, ValueError):
-            raise forms.ValidationError('selected_files value is not valid json')
-        if not isinstance(selected_files, list):
-            raise forms.ValidationError('selected_files has not valid value')
-        return selected_files
 
 
 class AllFilesForm(forms.Form):

@@ -32,7 +32,7 @@ class CartTests(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(
                         url,
-                        {'selected_files': json.dumps(selected_files),
+                        {'selected_files': selected_files,
                             'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
                             '"file2":{"analysis_id":"%s", "files_size": 1048576},'
                             '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
@@ -58,7 +58,7 @@ class CartTests(TestCase):
         selected_files = ['file1', 'file1', 'file1']
         response = self.client.post(
                         url,
-                        {'selected_files': json.dumps(selected_files),
+                        {'selected_files': selected_files,
                             'attributes': '{"file1":{"analysis_id":"%s"}, '
                             '"file1":{"analysis_id":"%s"}, '
                             '"file1":{"analysis_id":"%s"}}' % self.aids},
@@ -80,7 +80,7 @@ class CartTests(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(
                             url, 
-                            {'selected_files': json.dumps(selected_files),
+                            {'selected_files': selected_files,
                                     'attributes': '{"file1":{"analysis_id":"%s"},'
                                     '"file2":{"analysis_id":"%s"},'
                                     '"file3":{"analysis_id":"%s"}}' % self.aids},
@@ -122,7 +122,7 @@ class CartTests(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         response = self.client.post(
                                 url,
-                                {'selected_files': json.dumps(selected_files),
+                                {'selected_files': selected_files,
                                     'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
                                     '"file2":{"analysis_id":"%s", "files_size": 1048576},'
                                     '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
@@ -199,7 +199,7 @@ class CacheTestCase(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         self.client.post(
                 reverse('cart_add_remove_files', args=['add']),
-                {'selected_files': json.dumps(selected_files),
+                {'selected_files': selected_files,
                  'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
                                '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
                                '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'},
@@ -238,7 +238,7 @@ class CacheTestCase(TestCase):
         selected_files = ['file1', 'file2', 'file3']
         self.client.post(
                 reverse('cart_add_remove_files', args=['add']),
-                {'selected_files': json.dumps(selected_files),
+                {'selected_files': selected_files,
                  'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6"},'
                                '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f"},'
                                '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1"}}'},

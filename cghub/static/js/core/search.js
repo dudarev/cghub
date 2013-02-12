@@ -163,10 +163,10 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$(this).attr('action'),
                 success:function (data) {
-                    if (data.success == 'False') {
-                        console.log('invalid data'); // add proper error handling here
+                    if (!data['success']) {
+                        $('#errorAddCartModal').modal();
                     } else {
-                        window.location.href = data.redirect;
+                        window.location.href = data['redirect'];
                     }
                 },
                 error:function (){
@@ -187,10 +187,10 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
-                    if (data.success == 'False') {
-                        console.log('invalid data'); // add proper error handling here
+                    if (!data['success']) {
+                        $('#errorAddCartModal').modal();
                     } else {
-                        window.location.href = data.redirect;
+                        window.location.href = data['redirect'];
                     }
                 },
                 error:function (){

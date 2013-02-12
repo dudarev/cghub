@@ -69,7 +69,7 @@ class CartAddRemoveFilesView(View):
                 form = SelectedFilesForm(request.POST)
                 if form.is_valid():
                     attributes = form.cleaned_data['attributes']
-                    selected_files = form.cleaned_data['selected_files']
+                    selected_files = request.POST.getlist('selected_files')
                     for f in selected_files:
                         add_file_to_cart(request, attributes[f])
                         cache_results(attributes[f])

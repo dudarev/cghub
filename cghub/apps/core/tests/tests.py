@@ -388,33 +388,18 @@ class CoreFormsTestCase(TestCase):
             'attributes': json.dumps({
                     '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
                     '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
-            'selected_files': json.dumps([
-                    '7850f073-642a-40a8-b49d-e328f27cfd66',
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
             'is_valid': True,
             }, {
             'attributes': 123,
-            'selected_files': json.dumps([
-                    '7850f073-642a-40a8-b49d-e328f27cfd66',
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
             'is_valid': False,
             }, {
-            'attributes': json.dumps(
-                    {'study': 'TCGA', 'size': 10}),
-            'selected_files': json.dumps([
-                    '7850f073-642a-40a8-b49d-e328f27cfd66',
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
-            'is_valid': False,
-            }, {
-            'attributes': json.dumps({
-                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
-            'selected_files': '7850f073-642a-40a8-b49d-e328f27cfd66',
-            'is_valid': False,
-            }]
+            'attributes': json.dumps({'study': 'TCGA', 'size': 10}),
+            'is_valid': False }]
 
         for data in test_data_set:
             form = SelectedFilesForm(data)
+            if not form.is_valid():
+                print form.errors
             self.assertEqual(form.is_valid(), data['is_valid'])
 
         form = SelectedFilesForm(test_data_set[0])
