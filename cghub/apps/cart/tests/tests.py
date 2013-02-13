@@ -244,7 +244,7 @@ class CacheTestCase(TestCase):
         self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
 
-    def test_cache_generate_xml(self):
+    def test_cache_generate_metadata_xml(self):
         xml = None
         results_counter = 1
         for analysis_id in self.client.session.get('cart'):
@@ -259,7 +259,7 @@ class CacheTestCase(TestCase):
                 result.Result.set('id', u'{0}'.format(results_counter))
                 xml.insert(results_counter + 1, result.Result)
             results_counter += 1
-        response = self.client.post(reverse('cart_download_files', args=['metadata']))
+        response = self.client.post(reverse('cart_download_files', args=['metadata_xml']))
         content_xml = etree.fromstring(response.content)
         self.assertEqual(set(xml.getroottree().getroot().itertext()),
             set(content_xml.getroottree().getroot().itertext()))

@@ -105,7 +105,7 @@ class CartDownloadFilesView(View):
             if action.startswith('manifest'):
                 return self.manifest(cart=cart, format=action.split('_')[1])
             if action.startswith('metadata'):
-                return self.metadata(cart=cart)
+                return self.metadata(cart=cart, format=action.split('_')[1])
         return HttpResponseRedirect(reverse('cart_page'))
 
     @staticmethod
@@ -158,13 +158,22 @@ class CartDownloadFilesView(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
-    def metadata(self, cart):
+    def metadata(self, cart, format):
         mfio = StringIO()
         results = self.get_results(cart, get_attributes=True)
-        mfio.write(results.tostring())
+
+        if format == 'xml':
+            mfio.write(results.tostring())
+            content_type = 'text/xml'
+            filename = 'metadata.xml'
+        if format == 'tsv':
+            # TODO
+            content_type = 'text/tsv'
+            filename = 'metadata.tsv'
+
         mfio.seek(0)
-        response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
-        response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+        response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
     def _empty_results(self):
