@@ -49,6 +49,9 @@ class IDsParser(handler.ContentHandler):
 
 
 def get_cache_file_name(query):
+    """
+    Calculate cache file name
+    """
     # Prevent getting different file names because of 
     # percent escaping
     query = urllib2.unquote(query.encode("utf8"))
@@ -59,6 +62,9 @@ def get_cache_file_name(query):
     return cache_file_name
 
 def load_ids(query):
+    """
+    Load ids from CGHub server
+    """
     url = u'{0}{1}?{2}'.format(CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI, query)
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
@@ -68,6 +74,9 @@ def load_ids(query):
     parse(response, IDsParser(filename))
 
 def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
+    """
+    Get ids for specified query from cache or load from CGHub server
+    """
     q = query
     if sort_by and not sort_by in CALCULATED_FIELDS:
         q += '&sort_by=%s' % urllib2.quote(sort_by)
@@ -88,6 +97,9 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
     return items_count, items
 
 def load_attributes(ids, sort_by=None):
+    """
+    Load attributes for specified set of ids
+    """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
     if sort_by and not sort_by in CALCULATED_FIELDS:
         query += '&sort_by=%s' % urllib2.quote(sort_by)
@@ -99,7 +111,8 @@ def load_attributes(ids, sort_by=None):
 
 def request_light(query, offset, limit, sort_by=None, ignore_cache=False):
     """
-    Makes a request to CGHub web service or gets data from a file.
+    Makes a request to CGHub web service
+    or gets data from cache if exists.
     Returns results count and xml for specified page.
 
     :param query: a string with query to send to the server

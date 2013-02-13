@@ -37,6 +37,7 @@ class Results(object):
         """
         self._lxml_results = lxml_results
         self.is_custom_fields_calculated = False
+        # used by api_light to specify correct results count
         self.length = 0
 
     def __getattr__(self, attr):
@@ -230,6 +231,7 @@ def request(
     :param sort_by: sort by this attribute (specify it as ``-date_modified`` to reverse sorting order)
     :param get_attributes: boolean to get results with attributes or not (``True`` by default), see :ref:`wsi-api` for details
     :param file_name: only this parameter maybe specified, in this case results are obtained from a file
+    :param use_api_light: use api_light to obtain results, it works more efficient with large queries
     """
 
     if use_api_light and USE_API_LIGHT:
@@ -315,7 +317,7 @@ def multiple_request(
     if isinstance(queries_list, str):
         return request(
             queries_list, offset, limit, sort_by,
-            get_attributes, file_name, ignore_cache)
+            get_attributes, file_name, ignore_cache, use_api_light=True)
 
     if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
         raise Exception('The first argument must be tuple or list')

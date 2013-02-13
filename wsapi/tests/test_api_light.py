@@ -13,12 +13,18 @@ class SortingTest(unittest.TestCase):
     """Test functions that do sorting."""
 
     def test_get_cache_file_name(self):
+        """
+        Test that filenames calculated correctly
+        """
         filepath = get_cache_file_name(query='xml_text=6d51*')
         self.assertEqual(
                 filepath,
                 '%s47fc9c0916a570ed7970e98508a07a60_ids.xml' % CACHE_DIR)
 
     def test_get_ids(self):
+        """
+        Test get ids from cache if cache file exist
+        """
         TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
@@ -33,6 +39,9 @@ class SortingTest(unittest.TestCase):
         os.remove(os.path.join(CACHE_DIR, f))
 
     def test_request_light_no_results(self):
+        """
+        Test what returned in case when no results finded
+        """
         result = request_light('analysis_id=123-bad-id', 0, 10)
         self.assertEqual(result[0], 0)
 
