@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+wsapi.settings_local
+~~~~~~~~~~~~~~~~~~~~
+
+This module provides custom settings.
+
+Settings: see wsapi.settings
+
+"""
+
+USE_API_LIGHT = True
+CACHE_DIR = '/tmp/wsapi/'
