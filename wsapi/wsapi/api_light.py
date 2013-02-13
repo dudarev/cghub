@@ -83,7 +83,7 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
     filename = get_cache_file_name(q)
     # reload cache if ignore_cache
     if not os.path.exists(filename) or ignore_cache:
-        load_ids(query)
+        load_ids(q)
     try:
         items_count = int(linecache.getline(filename, 1))
     except ValueError:

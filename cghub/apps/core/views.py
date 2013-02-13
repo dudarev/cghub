@@ -28,7 +28,7 @@ class HomeView(TemplateView):
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
         results = api_request(query=self.default_query, sort_by='-last_modified',
-                              limit=limit)
+                                                            limit=limit)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             context['num_results'] = int(results.Hits.text)
