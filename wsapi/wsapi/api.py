@@ -242,6 +242,8 @@ def request(
                             sort_by=sort_by,
                             ignore_cache=ignore_cache)
         results = Results(results)
+        if sort_by:
+            results.sort(sort_by)
         results.length = hits
         return results
 

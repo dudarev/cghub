@@ -50,8 +50,8 @@ class IDsParser(handler.ContentHandler):
 
 def parse_sort_by(value):
     if value[0] == '-':
-        return '&sort_by=%s' % value[1:]
-    return '&sort_by=%s' % value
+        return '%s:desc' % value[1:]
+    return '%s:asc' % value
 
 def get_cache_file_name(query):
     """
@@ -84,7 +84,7 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
     """
     q = query
     if sort_by and not sort_by in CALCULATED_FIELDS:
-        q += parse_sort_by(sort_by)
+        q += '&sort_by=' + parse_sort_by(sort_by)
     filename = get_cache_file_name(q)
     # reload cache if ignore_cache
     if not os.path.exists(filename) or ignore_cache:
@@ -104,10 +104,9 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
 def load_attributes(ids, sort_by=None):
     """
     Load attributes for specified set of ids
+    Sorting not implemented for ANALYSIS_ATTRIBUTES uri
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
-    if sort_by and not sort_by in CALCULATED_FIELDS:
-        query += parse_sort_by(sort_by)
     url = u'{0}{1}?{2}'.format(CGHUB_SERVER, CGHUB_ANALYSIS_ATTRIBUTES_URI, query)
     request = urllib2.Request(url)
     response = urllib2.urlopen(request).read()
