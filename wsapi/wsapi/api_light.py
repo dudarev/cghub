@@ -48,6 +48,11 @@ class IDsParser(handler.ContentHandler):
         self.f.close()
 
 
+def parse_sort_by(value):
+    if value[0] == '-':
+        return '&sort_by=%s' % value[1:]
+    return '&sort_by=%s' % value
+
 def get_cache_file_name(query):
     """
     Calculate cache file name
@@ -79,7 +84,7 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
     """
     q = query
     if sort_by and not sort_by in CALCULATED_FIELDS:
-        q += '&sort_by=%s' % urllib2.quote(sort_by)
+        q += parse_sort_by(sort_by)
     filename = get_cache_file_name(q)
     # reload cache if ignore_cache
     if not os.path.exists(filename) or ignore_cache:
@@ -102,7 +107,7 @@ def load_attributes(ids, sort_by=None):
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
     if sort_by and not sort_by in CALCULATED_FIELDS:
-        query += '&sort_by=%s' % urllib2.quote(sort_by)
+        query += parse_sort_by(sort_by)
     url = u'{0}{1}?{2}'.format(CGHUB_SERVER, CGHUB_ANALYSIS_ATTRIBUTES_URI, query)
     request = urllib2.Request(url)
     response = urllib2.urlopen(request).read()
