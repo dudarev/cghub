@@ -237,32 +237,37 @@ class CacheTestCase(TestCase):
     def test_cache_generate_manifest_tsv(self):
         """
         Test generating manifest in TSV
+        metadata should contain only elements with state='live'
         """
         response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
         content = response.content
         self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
         self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
+        self.assertFalse('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
 
     def test_cache_generate_metadata_xml(self):
-        xml = None
-        results_counter = 1
-        for analysis_id in self.client.session.get('cart'):
-            filename = "{0}_with_attributes".format(analysis_id)
-            with open(os.path.join(self.api_results_cache_dir, filename)) as f:
-                result = objectify.fromstring(f.read())
-            if xml is None:
-                xml = result
-                xml.Query.clear()
-                xml.Hits.clear()
-            else:
-                result.Result.set('id', u'{0}'.format(results_counter))
-                xml.insert(results_counter + 1, result.Result)
-            results_counter += 1
+        """
+        Test generating metadata in xml
+        metadata should contain all elements
+        """
         response = self.client.post(reverse('cart_download_files', args=['metadata_xml']))
-        content_xml = etree.fromstring(response.content)
-        self.assertEqual(set(xml.getroottree().getroot().itertext()),
-            set(content_xml.getroottree().getroot().itertext()))
+        metadata = etree.fromstring(response.content)
+        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(metadata.getroottree().getroot().itertext()))
+        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(metadata.getroottree().getroot().itertext()))
+        self.assertTrue("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(metadata.getroottree().getroot().itertext()))
+
+    def test_cache_generate_metadata_tsv(self):
+        """
+        Test generating metadata in TSV
+        metadata should contain all elements
+        """
+        response = self.client.post(reverse('cart_download_files', args=['metadata_tsv']))
+        content = response.content
+        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
+        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
+        self.assertTrue('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
+        self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri', 'aliquot_id', 'filename']))
 
     def test_cache_errors(self):
         """Testing caching cart is working when message broker is not running"""
@@ -276,7 +281,6 @@ class CacheTestCase(TestCase):
             #   File "lxml.objectify.pyx", line 485, in lxml.objectify._lookupChildOrRaise (src/lxml/lxml.objectify.c:5428)
             # AttributeError: no such child: Result
             pass
-        import time
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             mail.outbox[0].subject,

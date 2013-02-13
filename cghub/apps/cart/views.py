@@ -149,7 +149,7 @@ class CartDownloadFilesView(View):
         if format == 'tsv':
             parser = etree.XMLParser()
             tree = etree.XML(results.tostring(), parser)
-            csvwriter = self._write_csv(stringio=mfio, tree=tree, delimeter='\t')
+            csvwriter = self._write_manifest_csv(stringio=mfio, tree=tree, delimeter='\t')
             content_type = 'text/tsv'
             filename = 'manifest.tsv'
         mfio.seek(0)
@@ -167,7 +167,9 @@ class CartDownloadFilesView(View):
             content_type = 'text/xml'
             filename = 'metadata.xml'
         if format == 'tsv':
-            # TODO
+            parser = etree.XMLParser()
+            tree = etree.XML(results.tostring(), parser)
+            csvwriter = self._write_metadata_csv(stringio=mfio, tree=tree, delimeter='\t')
             content_type = 'text/tsv'
             filename = 'metadata.tsv'
 
@@ -193,22 +195,77 @@ class CartDownloadFilesView(View):
             '</ResultSummary>'))
         return results
 
-    def _write_csv(self, stringio, tree, delimeter):
+    def _write_manifest_csv(self, stringio, tree, delimeter):
         csvwriter = csv.writer(stringio, delimiter=delimeter)
         # date
         csvwriter.writerow(tree.items()[0])
         csvwriter.writerow('')
         # Result
-        if tree.getchildren()[2].tag == 'Result':
-            res = tree.getchildren()[2]
-            csvwriter.writerow([res.keys()[0]]+[c.tag for c in res.getchildren()])
-        for res in tree.getchildren()[2:]:
-            if res.tag == 'Result':
-                csvwriter.writerow([res.values()[0]]+[c.text for c in res.getchildren()])
+        result = tree.find("Result")
+        csvwriter.writerow([result.keys()[0]]+
+                           [r.tag for r in result.iterchildren()])
+        for result in tree.iterfind("Result"):
+            csvwriter.writerow([result.values()[0]]+
+                               [r.text for r in result.iterchildren()])
         csvwriter.writerow('')
         # ResultSummary
-        if tree.getchildren()[-1].tag == 'ResultSummary':
-            summary = tree.getchildren()[-1]
-            csvwriter.writerow([s.tag for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].tag])
-            csvwriter.writerow([s.text for s in summary.getchildren()[:-1]]+[summary.getchildren()[-1].getchildren()[0].text])
+        summary = tree.find("ResultSummary")
+        if summary is not None:
+            state_count = summary.find("state_count")
+            csvwriter.writerow([s.tag for s in summary.iterchildren()
+                                if s.tag != "summary_count"]+
+                               [s.tag for s in state_count.iterchildren()])
+            csvwriter.writerow([s.text for s in summary.iterchildren()
+                                if s.tag != "summary_count"]+
+                               [s.text for s in state_count.iterchildren()])
+        return csvwriter
+
+    def _write_metadata_csv(self, stringio, tree, delimeter):
+        csvwriter = csv.writer(stringio, delimiter=delimeter)
+        # date
+        csvwriter.writerow(tree.items()[0])
+        csvwriter.writerow('')
+
+        # Result
+        # complex tags not included in table of Result
+        not_included_tags_set = set(['files', 'analysis_xml', 'experiment_xml', 'run_xml'])
+
+        for result in tree.iterfind("Result"):
+            csvwriter.writerow(["Result"])
+            csvwriter.writerow(result.items()[0])
+            # variant of a Result in table with 2 columns
+            for r in result.iterchildren():
+                if r.tag not in not_included_tags_set:
+                    csvwriter.writerow([r.tag, r.text])
+
+#           # variant of a Result in one row
+#            csvwriter.writerow([result.keys()[0]]+
+#                               [r.tag for r in result.iterchildren()
+#                                if r.tag not in not_included_tags_set])
+#            csvwriter.writerow([result.values()[0]]+
+#                               [r.text for r in result.iterchildren()
+#                                if r.tag not in not_included_tags_set])
+
+            csvwriter.writerow('')
+            # separate inner table for files in Result
+            file = result.find('.//file')
+            if file is not None:
+                csvwriter.writerow([f.tag for f in file.iterchildren()]+[file.find('checksum').keys()[0]])
+                for file in result.iterfind('.//file'):
+                    csvwriter.writerow([f.text for f in file.iterchildren()]+[file.find('checksum').values()[0]])
+                csvwriter.writerow('')
+            # TODO here might be separate tables for 'analysis_xml', 'experiment_xml', 'run_xml' tags
+            csvwriter.writerow('')
+
+        # ResultSummary
+        summary = tree.find("ResultSummary")
+        if summary is not None:
+            csvwriter.writerow(["ResultSummary"])
+            state_count = summary.find("state_count")
+            csvwriter.writerow([s.tag for s in summary.iterchildren()
+                                if s.tag != "summary_count"]+
+                               [s.tag for s in state_count.iterchildren()])
+            csvwriter.writerow([s.text for s in summary.iterchildren()
+                                if s.tag != "summary_count"]+
+                               [s.text for s in state_count.iterchildren()])
         return csvwriter
