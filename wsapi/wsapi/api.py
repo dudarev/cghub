@@ -15,9 +15,8 @@ from datetime import datetime
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
 
-CGHUB_SERVER = 'https://cghub.ucsc.edu'
-CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
-CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
+from settings import (CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI,
+                                    CGHUB_ANALYSIS_ATTRIBUTES_URI)
 
 
 class Results(object):
