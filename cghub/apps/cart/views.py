@@ -55,14 +55,15 @@ class CartAddRemoveFilesView(View):
                     query = get_filters_string(filters)[1:]
                     results = api_request(query=query)
                     results.add_custom_fields()
-                    for r in results.Result:
-                        r_attrs = dict(
-                            (attr, unicode(getattr(r, attr)))
-                            for attr in attributes if hasattr(r, attr))
-                        r_attrs['files_size'] = int(r.files_size)
-                        r_attrs['analysis_id'] = unicode(r.analysis_id)
-                        add_file_to_cart(request, r_attrs)
-                        cache_results(r_attrs)
+                    if hasattr(results, 'Result'):
+                        for r in results.Result:
+                            r_attrs = dict(
+                                (attr, unicode(getattr(r, attr)))
+                                for attr in attributes if hasattr(r, attr))
+                            r_attrs['files_size'] = int(r.files_size)
+                            r_attrs['analysis_id'] = unicode(r.analysis_id)
+                            add_file_to_cart(request, r_attrs)
+                            cache_results(r_attrs)
                 else:
                     result = {'success': False}
             else:
