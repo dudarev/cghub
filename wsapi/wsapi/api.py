@@ -16,7 +16,8 @@ from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
 
 from settings import (CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI,
-                                    CGHUB_ANALYSIS_ATTRIBUTES_URI)
+                                CGHUB_ANALYSIS_ATTRIBUTES_URI, USE_API_LIGHT)
+from api_light import request_light
 
 
 class Results(object):
@@ -36,6 +37,7 @@ class Results(object):
         """
         self._lxml_results = lxml_results
         self.is_custom_fields_calculated = False
+        self.length = 0
 
     def __getattr__(self, attr):
         if attr in self.__dict__:
@@ -211,7 +213,8 @@ def merge_results(xml_results):
 
 def request(
         query=None, offset=None, limit=None, sort_by=None,
-        get_attributes=True, file_name=None, ignore_cache=False):
+        get_attributes=True, file_name=None, ignore_cache=False,
+                                                use_api_light=False):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed :class:`wsapi.api.Results` object.
@@ -228,6 +231,17 @@ def request(
     :param get_attributes: boolean to get results with attributes or not (``True`` by default), see :ref:`wsi-api` for details
     :param file_name: only this parameter maybe specified, in this case results are obtained from a file
     """
+
+    if use_api_light and USE_API_LIGHT:
+        hits, results = request_light(
+                            query=query,
+                            offset=offset or 0,
+                            limit=limit or 10,
+                            sort_by=sort_by,
+                            ignore_cache=ignore_cache)
+        results = Results(results)
+        results.length = hits
+        return results
 
     results = []
     results_from_cache = True
