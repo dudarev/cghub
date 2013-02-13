@@ -179,7 +179,10 @@ jQuery(function ($) {
             if($(this).hasClass('disabled')) return false;
             $(this).addClass('disabled');
             var $form = $(this).parents('form');
-            var attributes = $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data();
+            var attributes = [];
+            for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
+                attributes.push(key);
+            }
             var filters = cghub.search.getFiltersValues()['filters'];
             $.ajax({
                 data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
