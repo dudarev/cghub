@@ -12,6 +12,14 @@ from wsapi.settings import CACHE_DIR
 class SortingTest(unittest.TestCase):
     """Test functions that do sorting."""
 
+    def test_parse_sort_by(self):
+        self.assertEqual(
+                    parse_sort_by('study'),
+                    'study:asc')
+        self.assertEqual(
+                    parse_sort_by('-study'),
+                    'study:desc')
+
     def test_get_cache_file_name(self):
         """
         Test that filenames calculated correctly

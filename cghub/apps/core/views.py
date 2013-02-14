@@ -13,9 +13,11 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.apps.core.utils import get_filters_string
 
 
+DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
+
+
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]&state=(live)'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -27,11 +29,11 @@ class HomeView(TemplateView):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
-        results = api_request(query=self.default_query, sort_by='-last_modified',
-                              limit=limit)
+        results = api_request(query=DEFAULT_QUERY, sort_by='-last_modified',
+                                                            limit=limit)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
-            context['num_results'] = int(results.Hits.text)
+            context['num_results'] = results.length or int(results.Hits.text)
             context['results'] = results.Result
         else:
             context['num_results'] = 0
@@ -40,22 +42,12 @@ class HomeView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         # populating GET with query for proper work of applied_filters templatetag
-        request.GET = QueryDict(self.default_query, mutable=True)
+        request.GET = QueryDict(DEFAULT_QUERY, mutable=True)
         return super(HomeView, self).get(request, *args, **kwargs)
 
 
 class SearchView(TemplateView):
     template_name = 'core/search.html'
-
-    # FIXME temporary: filters, if specified, don't restrict data range
-    date_no_limit_attributes = [
-        'q',
-        'last_modified',
-        'analyte_code',
-        'sample_type',
-        'library_strategy',
-        'disease_abbr',
-    ]
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
@@ -96,26 +88,11 @@ class SearchView(TemplateView):
             context['message'] = 'No results found.'
         return context
 
-    def __should_restrict_date(self, request):
-        # FIXME: this is temporary until GNOS has more support
-        # if there are no any `q` query parameters
-        # and now `last_modified` is specified
-        for attr in self.date_no_limit_attributes:
-            if request.GET.get(attr):
-                print "nolimit", request.GET
-                return False
-        print "limit", request.GET
-        return True
-
     def dispatch(self, request, *args, **kwargs):
-        # if results are not is not restricted by filters or search, then
-        # redirect to search page with last month results
-        if self.__should_restrict_date(request):
-            GET_parameters = request.GET.copy()
-            GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
-            return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
+        # set default query if no query specified
+        if not get_filters_string(request.GET) and not 'q' in request.GET:
+            return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
         return super(SearchView, self).dispatch(request, *args, **kwargs)
-
 
 class ItemDetailsView(TemplateView):
 

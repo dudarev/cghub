@@ -84,15 +84,15 @@ ALL_FILTERS = OrderedDict([
             }),
             ('[NOW-7DAY TO NOW]', {
                 'filter_id': 'id_date_week',
-                'filter_name': 'This week',
+                'filter_name': 'Last week',
             }),
             ('[NOW-1MONTH TO NOW]', {
                 'filter_id': 'id_date_month',
-                'filter_name': 'This month',
+                'filter_name': 'Last month',
             }),
             ('[NOW-1YEAR TO NOW]', {
                 'filter_id': 'id_date_year',
-                'filter_name': 'This year',
+                'filter_name': 'Last 12 months',
             }),
         ]),
         'title': 'By Upload Time',
@@ -109,15 +109,15 @@ ALL_FILTERS = OrderedDict([
             }),
             ('[NOW-7DAY TO NOW]', {
                 'filter_id': 'id_date_week',
-                'filter_name': 'This week',
+                'filter_name': 'Last week',
             }),
             ('[NOW-1MONTH TO NOW]', {
                 'filter_id': 'id_date_month',
-                'filter_name': 'This month',
+                'filter_name': 'Last month',
             }),
             ('[NOW-1YEAR TO NOW]', {
                 'filter_id': 'id_date_year',
-                'filter_name': 'This year',
+                'filter_name': 'Last 12 months',
             }),
         ]),
         'title': 'By Time Modified',
