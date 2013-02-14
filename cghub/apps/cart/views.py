@@ -68,7 +68,6 @@ class CartAddRemoveFilesView(View):
                             r_attrs['files_size'] = int(r.files_size)
                             r_attrs['analysis_id'] = unicode(r.analysis_id)
                             add_file_to_cart(request, r_attrs)
-                            cache_results(r_attrs)
                 else:
                     result = {'success': False}
             else:
@@ -78,7 +77,6 @@ class CartAddRemoveFilesView(View):
                     selected_files = request.POST.getlist('selected_files')
                     for f in selected_files:
                         add_file_to_cart(request, attributes[f])
-                        cache_results(attributes[f])
                 else:
                     result = {'success': False}
             return HttpResponse(
