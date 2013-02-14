@@ -95,7 +95,7 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
         return 0, []
     items = []
     for i in range(offset + 2, offset + limit + 2):
-        line = linecache.getline(filename, i)[:-1]
+        line = linecache.getline(filename, i).split('\n')[0]
         if line:
             items.append(line)
     linecache.clearcache()
