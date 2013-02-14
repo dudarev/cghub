@@ -238,7 +238,6 @@ class CacheTestCase(TestCase):
         """
         Test generating manifest in TSV
         """
-
         response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
         content = response.content
         self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)

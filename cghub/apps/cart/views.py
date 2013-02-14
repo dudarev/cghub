@@ -13,8 +13,8 @@ from django.utils import simplejson as json
 
 from cghub.apps.core.utils import get_filters_string
 from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
-from cghub.apps.cart.utils import add_file_to_cart, remove_file_from_cart, cache_results
-from cghub.apps.cart.utils import get_or_create_cart, get_cart_stats
+from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
+                    cache_results, get_or_create_cart, get_cart_stats)
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 
