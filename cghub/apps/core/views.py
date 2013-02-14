@@ -13,9 +13,11 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.apps.core.utils import get_filters_string
 
 
+DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
+
+
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -27,7 +29,7 @@ class HomeView(TemplateView):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
-        results = api_request(query=self.default_query, sort_by='-last_modified',
+        results = api_request(query=DEFAULT_QUERY, sort_by='-last_modified',
                                                             limit=limit)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
@@ -40,7 +42,7 @@ class HomeView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         # populating GET with query for proper work of applied_filters templatetag
-        request.GET = QueryDict(self.default_query, mutable=True)
+        request.GET = QueryDict(DEFAULT_QUERY, mutable=True)
         return super(HomeView, self).get(request, *args, **kwargs)
 
 
@@ -86,6 +88,11 @@ class SearchView(TemplateView):
             context['message'] = 'No results found.'
         return context
 
+    def dispatch(self, request, *args, **kwargs):
+        # set default query if no query specified
+        if not get_filters_string(request.GET) and not 'q' in request.GET:
+            return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
+        return super(SearchView, self).dispatch(request, *args, **kwargs)
 
 class ItemDetailsView(TemplateView):
 

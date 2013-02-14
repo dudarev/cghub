@@ -11,4 +11,4 @@ Settings:
 
 """
 
-USE_API_LIGHT = True
+USE_API_LIGHT = False

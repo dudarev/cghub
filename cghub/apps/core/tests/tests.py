@@ -58,8 +58,8 @@ class CoreTests(WithCacheTestCase):
         '9824a6de49af620ba53c45c13ceccef0.xml',
         '9ff0ad7159cf4c2c360cc8070576e08a.xml',
         'aad96e9a8702634a40528d6280187da7.xml',
-        'f6d938fbf161765df8d8d7cd1ef87428.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
+        '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
     ]
     query = "6d54*"
 
@@ -352,12 +352,9 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
         Test that if there is not q query, last_modified is substituted.
         Search with last month.
         """
-        response = self.client.get(
-            reverse('search_page') +
-            '?center_name={center_name}'.format(center_name='%28BCM%29'),
-            follow=True)
-        self.assertTrue('last_modified' in response.redirect_chain[0][0])
-        self.assertTrue('1MONTH' in response.redirect_chain[0][0])
+        response = self.client.get(reverse('search_page'), follow=True)
+        self.assertTrue('upload_date' in response.redirect_chain[0][0])
+        self.assertTrue('7DAY' in response.redirect_chain[0][0])
 
 
 class PaginatorUnitTestCase(TestCase):
