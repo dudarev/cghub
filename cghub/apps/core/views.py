@@ -15,7 +15,7 @@ from cghub.apps.core.utils import get_filters_string
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
-    default_query = 'last_modified=[NOW-1DAY%20TO%20NOW]&state=(live)'
+    default_query = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
 
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
@@ -31,7 +31,7 @@ class HomeView(TemplateView):
                                                             limit=limit)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
-            context['num_results'] = int(results.Hits.text)
+            context['num_results'] = results.length or int(results.Hits.text)
             context['results'] = results.Result
         else:
             context['num_results'] = 0
@@ -46,16 +46,6 @@ class HomeView(TemplateView):
 
 class SearchView(TemplateView):
     template_name = 'core/search.html'
-
-    # FIXME temporary: filters, if specified, don't restrict data range
-    date_no_limit_attributes = [
-        'q',
-        'last_modified',
-        'analyte_code',
-        'sample_type',
-        'library_strategy',
-        'disease_abbr',
-    ]
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
@@ -95,26 +85,6 @@ class SearchView(TemplateView):
             context['num_results'] = 0
             context['message'] = 'No results found.'
         return context
-
-    def __should_restrict_date(self, request):
-        # FIXME: this is temporary until GNOS has more support
-        # if there are no any `q` query parameters
-        # and now `last_modified` is specified
-        for attr in self.date_no_limit_attributes:
-            if request.GET.get(attr):
-                print "nolimit", request.GET
-                return False
-        print "limit", request.GET
-        return True
-
-    def dispatch(self, request, *args, **kwargs):
-        # if results are not is not restricted by filters or search, then
-        # redirect to search page with last month results
-        if self.__should_restrict_date(request):
-            GET_parameters = request.GET.copy()
-            GET_parameters['last_modified'] = '[NOW-1MONTH TO NOW]'
-            return HttpResponseRedirect(reverse('search_page') + '?' + GET_parameters.urlencode())
-        return super(SearchView, self).dispatch(request, *args, **kwargs)
 
 
 class ItemDetailsView(TemplateView):
