@@ -183,7 +183,7 @@ class CartUITests(LiveServerTestCase):
             assert False, "File manifest.tsv wasn't downloaded"
 
         # Download Metadata file
-        btn = driver.find_element_by_class_name('cart-form-download-metadata')
+        btn = driver.find_element_by_class_name('cart-form-download-metadata-xml')
         btn.click()
         driver.implicitly_wait(5)
         try:
