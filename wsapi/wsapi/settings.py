@@ -12,7 +12,7 @@ Settings:
     :CGHUB_ANALYSIS_ATTRIBUTES_URI: Analysis Attribute Query uri
     :CACHE_DIR: directory to store cache, ``/tmp/wsapi/`` by default
     :USE_CACHE: enables caching if equals True, False is the default
-    :USE_API_LIGHT: use api_light for large querires
+    :USE_API_LIGHT: use api_light to increase performance working with large queries
     :CACHE_BACKEND: determines cache type, for now available types are ('simple',)
 
 """
