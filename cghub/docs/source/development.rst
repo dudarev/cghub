@@ -38,29 +38,30 @@ Filters list can be edited in ``cghub/apps/core/filters_storage_full.py``:
 
 .. code-block:: python
 
-    ALL_FILTERS = OrderedDict([
-    ("study", {
-        "title": "By Study",
-        "filters": OrderedDict([
-            ("phs000178", "TCGA"),
-            ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
-        ])
-    }),
-    ("center_name", {
-        "title": "By Center",
+  "ALL_FILTERS": {
+    "study": {
+      "filters": {
+        "phs000178": "TCGA",
+        "TCGA_MUT_BENCHMARK_4": "TCGA Benchmark"
+      },
+      "title": "By Study"
+    },
+    "center_name": {
+      "filters": {
+        "BCM": "Baylor",
         ...
 
 In case of refassem_short_name, complex queries with "OR" are allowed:
 
 .. code-block:: python
 
-    ('refassem_short_name', {
-        'filters': OrderedDict([
-            ('NBCI36* OR HG18*', 'NBCI36/HG18'),
-            ('GRCh37* OR HG19*', 'GRCh37/HG19'),
-        ]),
-        'title': 'By Assembly',
-    }),
+    "refassem_short_name": {
+      "filters": {
+        "NCBI36* OR HG18*": "NCBI36/HG18",
+        "GRCh37* OR HG19*": "GRCh37/HG19"
+      },
+      "title": "By Assembly"
+    }
 
 ----------------------------
 Filters list shortening
@@ -72,7 +73,7 @@ There are many possible options for filters in the sidebar. Not all of them are 
 
     $ python manage.py selectfilters
 
-It takes file ``cghub/apps/core/filters_storage_full.py`` and for every filter stored there checks if results with such filter may be obtained for the API. First it queries for today, then last 7 days and keeps increasing time interval until results are found. If the results are found the filter is copied into ``cghub/apps/core/filters_storage_short.py``, otherwise it is ignored. Also the filters that are already queried are placed into a file, so that the command may be interrupted and started again.
+It takes file ``cghub/apps/core/filters_storage_full.json`` and for every filter stored there checks if results with such filter may be obtained for the API. First it queries for today, then last 7 days and keeps increasing time interval until results are found. If the results are found the filter is copied into ``cghub/apps/core/filters_storage.py``, otherwise it is ignored. Also the filters that are already queried are placed into a file, so that the command may be interrupted and started again.
 
 If it is necessary to erase information about filters that were ran use ``-c`` option:
 
@@ -80,7 +81,7 @@ If it is necessary to erase information about filters that were ran use ``-c`` o
 
     $ python manage.py selectfilters -c
 
-**Important:** after the command is ran you need to manually copy ``filters_storage_short.py`` to ``filters_storage.py`` which is used by the app.
+``filters_storage.py`` is used by the app.
 
 --------
 RabbitMQ

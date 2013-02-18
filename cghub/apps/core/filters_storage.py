@@ -1,217 +1,181 @@
-"""
-Storage file for filters
-
-{
-    'section_name': {
-        'title': 'section_title',
-        'filters': {
-            'filter_value': 'filter_title',
-        }
-    }
+DATE_FILTERS_HTML_IDS = {
+    u'': u'id_date_any',
+    u'[NOW-1MONTH TO NOW]': u'id_date_month',
+    u'[NOW-1YEAR TO NOW]': u'id_date_year',
+    u'[NOW-7DAY TO NOW]': u'id_date_week',
+    u'[NOW-1DAY TO NOW]': u'id_date_today',
 }
-
-'filters' above are OrderedDict
-
-For dates it has special format:
-
-{
-    'section_name': {
-        'title': 'section_title',
-        'filters': {
-            'filter_value': {
-                'filter_name': 'filter_title',
-                'filter_id': 'filter_id'
-            }
-        }
-    }
-}
-
-"""
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from celery.utils.compat import OrderedDict
-
-
-DATE_FILTERS_HTML_IDS = OrderedDict([
-    ("", "id_date_any"),
-    ("[NOW-1DAY TO NOW]", "id_date_today"),
-    ("[NOW-7DAY TO NOW]", "id_date_week"),
-    ("[NOW-1MONTH TO NOW]", "id_date_month"),
-    ("[NOW-1YEAR TO NOW]", "id_date_year"),
-])
-
-ALL_FILTERS = OrderedDict([
-    ('study', {
-        'filters': OrderedDict([
-            ('phs000178', 'TCGA'),
-            ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
-        ]),
-        'title': 'By Study',
-    }),
-    ('center_name', {
-        'filters': OrderedDict([
-            ('BCM', 'Baylor'),
-            ('BCCAGSC', 'BCCAGSC'),
-            ('BI', 'Broad Institute'),
-            ('HMS-RK', 'Harvard'),
-            ('UNC-LCCC', 'UNC-LCCC'),
-            ('USC-JHU', 'USC/Sidney K. B.'),
-            ('WUGSC', 'Washington U.'),
-        ]),
-        'title': 'By Center',
-    }),
-    ('analyte_code', {
-        'filters': OrderedDict([
-            ('D', 'DNA'),
-            ('H', 'mirVana RNA'),
-            ('R', 'RNA'),
-            ('T', 'Total RNA'),
-            ('W', 'WGA'),
-        ]),
-        'title': 'By Experiment Type',
-    }),
-    ('upload_date', {
-        'filters': OrderedDict([
-            ('', {
-                'filter_id': 'id_date_any',
-                'filter_name': 'Any date',
-            }),
-            ('[NOW-1DAY TO NOW]', {
-                'filter_id': 'id_date_today',
-                'filter_name': 'Today',
-            }),
-            ('[NOW-7DAY TO NOW]', {
-                'filter_id': 'id_date_week',
-                'filter_name': 'Last week',
-            }),
-            ('[NOW-1MONTH TO NOW]', {
-                'filter_id': 'id_date_month',
-                'filter_name': 'Last month',
-            }),
-            ('[NOW-1YEAR TO NOW]', {
-                'filter_id': 'id_date_year',
-                'filter_name': 'Last 12 months',
-            }),
-        ]),
-        'title': 'By Upload Time',
-    }),
-    ('last_modified', {
-        'filters': OrderedDict([
-            ('', {
-                'filter_id': 'id_date_any',
-                'filter_name': 'Any date',
-            }),
-            ('[NOW-1DAY TO NOW]', {
-                'filter_id': 'id_date_today',
-                'filter_name': 'Today',
-            }),
-            ('[NOW-7DAY TO NOW]', {
-                'filter_id': 'id_date_week',
-                'filter_name': 'Last week',
-            }),
-            ('[NOW-1MONTH TO NOW]', {
-                'filter_id': 'id_date_month',
-                'filter_name': 'Last month',
-            }),
-            ('[NOW-1YEAR TO NOW]', {
-                'filter_id': 'id_date_year',
-                'filter_name': 'Last 12 months',
-            }),
-        ]),
-        'title': 'By Time Modified',
-    }),
-    ('sample_type', {
-        'shortcuts': {
-            '02': 'TR',
-            '03': 'TB',
-            '13': 'NEBV',
-            '01': 'TP',
-            '06': 'TM',
-            '07': 'TAM',
-            '04': 'TRBM',
-            '05': 'TAP',
-            '08': 'THOC',
-            '09': 'TBM',
-            '50': 'CELL',
-            '40': 'TRB',
-            '60': 'XP',
-            '61': 'XCL',
-            '12': 'NBC',
-            '14': 'NBM',
-            '11': 'NT',
-            '20': 'CELLC',
-            '10': 'NB',
+ALL_FILTERS = {
+    u'upload_date': {
+        u'filters': {
+            u'': {
+                u'filter_id': u'id_date_any',
+                u'filter_name': u'Any date',
+            },
+            u'[NOW-1MONTH TO NOW]': {
+                u'filter_id': u'id_date_month',
+                u'filter_name': u'Last month',
+            },
+            u'[NOW-1YEAR TO NOW]': {
+                u'filter_id': u'id_date_year',
+                u'filter_name': u'Last 12 months',
+            },
+            u'[NOW-7DAY TO NOW]': {
+                u'filter_id': u'id_date_week',
+                u'filter_name': u'Last week',
+            },
+            u'[NOW-1DAY TO NOW]': {
+                u'filter_id': u'id_date_today',
+                u'filter_name': u'Today',
+            },
         },
-        'filters': OrderedDict([
-            ('10', 'Blood Derived Normal'),
-            ('12', 'Buccal Cell Normal'),
-            ('20', 'Control Analyte'),
-            ('06', 'Metastatic'),
-            ('03', 'Primary Blood Derived Cancer - Peripheral Blood'),
-            ('01', 'Primary solid Tumor'),
-            ('02', 'Recurrent Solid Tumor'),
-            ('11', 'Solid Tissue Normal'),
-        ]),
-        'title': 'By Sample Type',
-    }),
-    ('library_strategy', {
-        'filters': OrderedDict([
-            ('Bisulfite-Seq', 'Bisulfite-Seq'),
-            ('OTHER', 'OTHER'),
-            ('RNA-Seq', 'RNA-Seq'),
-            ('WGS', 'WGS'),
-            ('WXS', 'WXS'),
-        ]),
-        'title': 'By Run Type',
-    }),
-    ('refassem_short_name', {
-        'filters': OrderedDict([
-            ('NCBI36* OR HG18*', 'NCBI36/HG18'),
-            ('GRCh37* OR HG19*', 'GRCh37/HG19'),
-        ]),
-        'title': 'By Assembly',
-    }),
-    ('disease_abbr', {
-        'filters': OrderedDict([
-            ('LAML', 'Acute Myeloid Leukemia'),
-            ('BLCA', 'Bladder Urothelial Carcinoma'),
-            ('LGG', 'Brain Lower Grade Glioma'),
-            ('BRCA', 'Breast invasive carcinoma'),
-            ('CESC', 'Cervical squamous cell carcinoma and endocervical adenocarcinoma'),
-            ('COAD', 'Colon adenocarcinoma'),
-            ('CNTL', 'Controls'),
-            ('GBM', 'Glioblastoma multiforme'),
-            ('HNSC', 'Head and Neck squamous cell carcinoma'),
-            ('KIRC', 'Kidney renal clear cell carcinoma'),
-            ('KIRP', 'Kidney renal papillary cell carcinoma'),
-            ('LIHC', 'Liver hepatocellular carcinoma'),
-            ('LUAD', 'Lung adenocarcinoma'),
-            ('LUSC', 'Lung squamous cell carcinoma'),
-            ('OV', 'Ovarian serous cystadenocarcinoma'),
-            ('PAAD', 'Pancreatic adenocarcinoma'),
-            ('PRAD', 'Prostate adenocarcinoma'),
-            ('READ', 'Rectum adenocarcinoma'),
-            ('SKCM', 'Skin Cutaneous Melanoma'),
-            ('STAD', 'Stomach adenocarcinoma'),
-            ('THCA', 'Thyroid carcinoma'),
-            ('UCEC', 'Uterine Corpus Endometrioid Carcinoma'),
-        ]),
-        'title': 'By Disease',
-    }),
-    ("state", {
-        "filters": OrderedDict([
-            ("bad_data", "Bad data"),
-            ("live", "Live"),
-            ("submitted", "Submitted"),
-            ("supressed", "Supressed"),
-            ("uploading", "Uploading"),
-            ("validating_data", "Validating data"),
-            ("validating_sample", "Validating sample"),
-        ]),
-        "title": "By State",
-    })
-])
-# end of ALL_FILTERS
-# do not remove this comment, it is used in selectfilters
+        u'title': u'By Upload Time',
+    },
+    u'center_name': {
+        u'filters': {
+            u'BCM': u'Baylor',
+            u'WUGSC': u'Washington U.',
+            u'BCCAGSC': u'BCCAGSC',
+            u'BI': u'Broad Institute',
+            u'UNC-LCCC': u'UNC-LCCC',
+            u'HMS-RK': u'Harvard',
+            u'USC-JHU': u'USC/Sidney K. B.',
+        },
+        u'title': u'By Center',
+    },
+    u'study': {
+        u'filters': {
+            u'TCGA_MUT_BENCHMARK_4': u'TCGA Benchmark',
+            u'phs000178': u'TCGA',
+        },
+        u'title': u'By Study',
+    },
+    u'refassem_short_name': {
+        u'filters': {
+            u'GRCh37* OR HG19*': u'GRCh37/HG19',
+            u'NCBI36* OR HG18*': u'NCBI36/HG18',
+        },
+        u'title': u'By Assembly',
+    },
+    u'sample_type': {
+        u'shortcuts': {
+            u'02': u'TR',
+            u'03': u'TB',
+            u'13': u'NEBV',
+            u'01': u'TP',
+            u'06': u'TM',
+            u'07': u'TAM',
+            u'04': u'TRBM',
+            u'05': u'TAP',
+            u'10': u'NB',
+            u'08': u'THOC',
+            u'09': u'TBM',
+            u'50': u'CELL',
+            u'40': u'TRB',
+            u'60': u'XP',
+            u'61': u'XCL',
+            u'12': u'NBC',
+            u'11': u'NT',
+            u'20': u'CELLC',
+            u'14': u'NBM',
+        },
+        u'filters': {
+            u'02': u'Recurrent Solid Tumor',
+            u'10': u'Blood Derived Normal',
+            u'12': u'Buccal Cell Normal',
+            u'20': u'Control Analyte',
+            u'03': u'Primary Blood Derived Cancer - Peripheral Blood',
+            u'01': u'Primary solid Tumor',
+            u'11': u'Solid Tissue Normal',
+            u'06': u'Metastatic',
+        },
+        u'title': u'By Sample Type',
+    },
+    u'state': {
+        u'filters': {
+            u'validating_sample': u'Validating sample',
+            u'bad_data': u'Bad data',
+            u'uploading': u'Uploading',
+            u'submitted': u'Submitted',
+            u'live': u'Live',
+        },
+        u'title': u'By State',
+    },
+    u'last_modified': {
+        u'filters': {
+            u'': {
+                u'filter_name': u'Any date',
+                u'filter_id': u'id_date_any',
+            },
+            u'[NOW-1MONTH TO NOW]': {
+                u'filter_name': u'Last month',
+                u'filter_id': u'id_date_month',
+            },
+            u'[NOW-1YEAR TO NOW]': {
+                u'filter_name': u'Last 12 months',
+                u'filter_id': u'id_date_year',
+            },
+            u'[NOW-7DAY TO NOW]': {
+                u'filter_name': u'Last week',
+                u'filter_id': u'id_date_week',
+            },
+            u'[NOW-1DAY TO NOW]': {
+                u'filter_name': u'Today',
+                u'filter_id': u'id_date_today',
+            },
+        },
+        u'title': u'By Time Modified',
+    },
+    u'disease_abbr': {
+        u'filters': {
+            u'ESCA': u'Esophageal carcinoma',
+            u'DLBC': u'Lymphoid Neoplasm Diffuse Large B-cell Lymphoma',
+            u'READ': u'Rectum adenocarcinoma',
+            u'GBM': u'Glioblastoma multiforme',
+            u'BLCA': u'Bladder Urothelial Carcinoma',
+            u'UCEC': u'Uterine Corpus Endometrioid Carcinoma',
+            u'THCA': u'Thyroid carcinoma',
+            u'CESC': u'Cervical squamous cell carcinoma and endocervical adenocarcinoma',
+            u'LIHC': u'Liver hepatocellular carcinoma',
+            u'HNSC': u'Head and Neck squamous cell carcinoma',
+            u'STAD': u'Stomach adenocarcinoma',
+            u'SKCM': u'Skin Cutaneous Melanoma',
+            u'COAD': u'Colon adenocarcinoma',
+            u'LUAD': u'Lung adenocarcinoma',
+            u'LUSC': u'Lung squamous cell carcinoma',
+            u'CNTL': u'Controls',
+            u'OV': u'Ovarian serous cystadenocarcinoma',
+            u'LCLL': u'Chronic Lymphocytic Leukemia',
+            u'SARC': u'Sarcoma',
+            u'KIRP': u'Kidney renal papillary cell carcinoma',
+            u'LGG': u'Brain Lower Grade Glioma',
+            u'LAML': u'Acute Myeloid Leukemia',
+            u'PRAD': u'Prostate adenocarcinoma',
+            u'PAAD': u'Pancreatic adenocarcinoma',
+            u'BRCA': u'Breast invasive carcinoma',
+            u'KIRC': u'Kidney renal clear cell carcinoma',
+            u'KICH': u'Kidney Chromophobe',
+        },
+        u'title': u'By Disease',
+    },
+    u'analyte_code': {
+        u'filters': {
+            u'D': u'DNA',
+            u'H': u'miRNA',
+            u'R': u'RNA',
+            u'T': u'Total RNA',
+            u'W': u'WGA',
+        },
+        u'title': u'By Experiment Type',
+    },
+    u'library_strategy': {
+        u'filters': {
+            u'WGS': u'WGS',
+            u'WXS': u'WXS',
+            u'Bisulfite-Seq': u'Bisulfite-Seq',
+            u'OTHER': u'OTHER',
+            u'RNA-Seq': u'RNA-Seq',
+        },
+        u'title': u'By Run Type',
+    },
+}
