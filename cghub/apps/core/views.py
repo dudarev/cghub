@@ -14,6 +14,7 @@ from cghub.apps.core.utils import get_filters_string
 
 
 DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
+DEFAULT_SORT_BY = '-upload_date'
 
 
 class HomeView(TemplateView):
@@ -29,8 +30,8 @@ class HomeView(TemplateView):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
-        results = api_request(query=DEFAULT_QUERY, sort_by='-last_modified',
-                                                            limit=limit)
+        results = api_request(query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
+                                        limit=limit, use_api_light=True)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             context['num_results'] = results.length or int(results.Hits.text)
@@ -52,7 +53,7 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
-        sort_by = self.request.GET.get('sort_by')
+        sort_by = self.request.GET.get('sort_by', DEFAULT_SORT_BY)
         offset = self.request.GET.get('offset')
         offset = offset and offset.isdigit() and int(offset) or 0
         limit = self.request.GET.get('limit')

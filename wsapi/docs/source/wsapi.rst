@@ -28,6 +28,17 @@ wsapi.api
 
 .. _settings:
 
+wsapi.api_light
+~~~~~~~~~~~~~~~~~~~~
+
+Implementation of the lightweight way to obtain results from cghub server:
+    1. obtain ids list for specified query (from cache or
+load from CGHUB_ANALYSIS_ID_URI)
+    2. load attributes for specified page items (using
+CGHUB_ANALYSIS_ATTRIBUTES_URI)
+
+.. autofunction:: wsapi.api_light.request_light
+
 Settings
 --------------
 
@@ -37,7 +48,9 @@ CACHE_DIR - cache files are kept here
 USE_CACHE - boolean, enabling or disabling caching
 CACHE_BACKEND - string, name of the cache backend that will be used by app.
     For now only 'simple' backend is available(stores cache in files in the CACHE_DIR)
+Other available settings see in settings.py file.
 
+For settings customizing use settings_local.py.
 
 .. automodule:: wsapi.settings
     :members:

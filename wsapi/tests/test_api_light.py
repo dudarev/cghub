@@ -27,7 +27,7 @@ class SortingTest(unittest.TestCase):
         filepath = get_cache_file_name(query='xml_text=6d51*')
         self.assertEqual(
                 filepath,
-                '%s47fc9c0916a570ed7970e98508a07a60_ids.xml' % CACHE_DIR)
+                '%s47fc9c0916a570ed7970e98508a07a60_ids.cache' % CACHE_DIR)
 
     def test_get_ids(self):
         """
@@ -36,7 +36,7 @@ class SortingTest(unittest.TestCase):
         TEST_DATA_DIR = 'tests/test_data/'
         if not os.path.exists(CACHE_DIR):
             os.makedirs(CACHE_DIR)
-        f = '47fc9c0916a570ed7970e98508a07a60_ids.xml'
+        f = '47fc9c0916a570ed7970e98508a07a60_ids.cache'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(CACHE_DIR, f))
