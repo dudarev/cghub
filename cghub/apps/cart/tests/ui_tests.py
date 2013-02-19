@@ -164,8 +164,8 @@ class CartUITests(LiveServerTestCase):
             os.remove(CACHE_DIR + 'metadata.xml')
         except OSError:
             pass
-        # Download Manifest file
-        btn = driver.find_element_by_class_name('cart-form-download-manifest')
+        # Download Manifest in XML file
+        btn = driver.find_element_by_class_name('cart-form-download-manifest_xml')
         btn.click()
         driver.implicitly_wait(5)
         try:
@@ -173,8 +173,17 @@ class CartUITests(LiveServerTestCase):
         except OSError:
             assert False, "File manifest.xml wasn't downloaded"
 
+        # Download Manifest in TSV file
+        btn = driver.find_element_by_class_name('cart-form-download-manifest_tsv')
+        btn.click()
+        driver.implicitly_wait(5)
+        try:
+            os.remove(CACHE_DIR + 'manifest.tsv')
+        except OSError:
+            assert False, "File manifest.tsv wasn't downloaded"
+
         # Download Metadata file
-        btn = driver.find_element_by_class_name('cart-form-download-xml')
+        btn = driver.find_element_by_class_name('cart-form-download-metadata-xml')
         btn.click()
         driver.implicitly_wait(5)
         try:

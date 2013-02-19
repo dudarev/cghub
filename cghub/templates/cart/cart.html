@@ -23,8 +23,30 @@
                 <div class="btn-toolbar">
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
-                        <button class="btn cart-form-download-manifest">Download Manifest</button>
-                        <button class="btn cart-form-download-xml">Download metadata</button>
+
+
+                        <div class="btn btn-group">
+                            <div data-toggle="dropdown">
+                                Download Manifest
+                                <span class="caret" />
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a class="cart-form-download-manifest-xml">XML</a></li>
+                                <li><a class="cart-form-download-manifest-tsv">TSV</a></li>
+                            </ul>
+                        </div>
+
+
+                        <div class="btn btn-group">
+                            <div data-toggle="dropdown">
+                                Download metadata
+                                <span class="caret" />
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a class="cart-form-download-metadata-xml">XML</a></li>
+                                <li><a class="cart-form-download-metadata-tsv">TSV</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
@@ -38,8 +60,29 @@
                 <div class="btn-toolbar">
                     <div class="btn-group cart-btn-group">
                         <button class="btn cart-form-remove" type="submit">Remove from cart</button>
-                        <button class="btn cart-form-download-manifest">Download Manifest</button>
-                        <button class="btn cart-form-download-xml">Download metadata</button>
+
+                        <div class="btn btn-group">
+                            <div data-toggle="dropdown">
+                                Download Manifest
+                                <span class="caret" />
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a class="cart-form-download-manifest-xml">XML</a></li>
+                                <li><a class="cart-form-download-manifest-tsv">TSV</a></li>
+                            </ul>
+                        </div>
+
+
+                        <div class="btn btn-group">
+                            <div data-toggle="dropdown">
+                                Download metadata
+                                <span class="caret" />
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a class="cart-form-download-metadata-xml">XML</a></li>
+                                <li><a class="cart-form-download-metadata-tsv">TSV</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             {% else %}

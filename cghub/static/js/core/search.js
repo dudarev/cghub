@@ -59,9 +59,9 @@ jQuery(function ($) {
                         }
                     }
                 } else {
-                    if (section == 'last_modified' || section == 'upload_date') {
+                    if (section == 'upload_date') {
                         if (window.location.search === '') {
-                            select.find('option[value = "[NOW-1MONTH TO NOW]"]').attr('selected', 'selected');
+                            select.find('option[value = "[NOW-7DAY TO NOW]"]').attr('selected', 'selected');
                         } else {
                             select.find('option[value = ""]').attr('selected', 'selected');
                         }
@@ -71,13 +71,6 @@ jQuery(function ($) {
                         } else {
                             // default state to live
                             select.find('option[value = "live"]').attr('selected', 'selected');
-                        }
-                    } else if (section == 'study') {
-                        if (window.location.pathname.indexOf('search') > 0) {
-                            select.find('option[value = "(all)"]').attr('selected', 'selected');
-                        } else {
-                            // default state to study to TCGA for now
-                            select.find('option[value = "phs000178"]').attr('selected', 'selected');
                         }
                     } else {
                         select.find('option[value = "(all)"]').attr('selected', 'selected');
@@ -179,7 +172,10 @@ jQuery(function ($) {
             if($(this).hasClass('disabled')) return false;
             $(this).addClass('disabled');
             var $form = $(this).parents('form');
-            var attributes = $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data();
+            var attributes = [];
+            for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
+                attributes.push(key);
+            }
             var filters = cghub.search.getFiltersValues()['filters'];
             $.ajax({
                 data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
