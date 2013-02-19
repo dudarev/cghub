@@ -1,5 +1,6 @@
-import json
 import os.path
+
+from django.utils import simplejson as json
 
 try:
     from collections import OrderedDict

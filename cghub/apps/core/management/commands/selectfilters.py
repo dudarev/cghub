@@ -1,6 +1,5 @@
 import os
 import pickle
-import json
 from optparse import make_option
 
 try:
@@ -9,6 +8,7 @@ except ImportError:
     from celery.utils.compat import OrderedDict
 
 from django.core.management.base import BaseCommand
+from django.utils import simplejson as json
 
 from cghub.wsapi.api import request as api_request
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
