@@ -75,6 +75,7 @@ ALL_FILTERS = OrderedDict([
         ]),
     }),
     ('upload_date', {
+        'title': 'By Upload Time',
         'filters': OrderedDict([
             ('', {
                 'filter_id': 'id_date_any',
@@ -97,7 +98,6 @@ ALL_FILTERS = OrderedDict([
                 'filter_name': 'Last 12 months',
             }),
         ]),
-        'title': 'By Upload Time',
     }),
     ("last_modified", {
         "title": "By Time Modified",
@@ -190,12 +190,13 @@ ALL_FILTERS = OrderedDict([
         ]),
     }),
     ('refassem_short_name', {
+        'title': 'By Assembly',
         'filters': OrderedDict([
             ('NCBI36* OR HG18*', 'NCBI36/HG18'),
             ('GRCh37* OR HG19*', 'GRCh37/HG19'),
         ]),
-        'title': 'By Assembly',
     }),
+
     ("disease_abbr", {
         "title": "By Disease",
         "filters": OrderedDict([
@@ -228,6 +229,7 @@ ALL_FILTERS = OrderedDict([
             ("UCEC", "Uterine Corpus Endometrioid Carcinoma"),
         ]),
     }),
+
     ("state", {
         "title": "By State",
         "filters": OrderedDict([
