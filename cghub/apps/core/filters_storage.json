@@ -1,12 +1,12 @@
-{
-  "DATE_FILTERS_HTML_IDS": {
+[
+  {
     "": "id_date_any", 
     "[NOW-1DAY TO NOW]": "id_date_today", 
     "[NOW-7DAY TO NOW]": "id_date_week", 
     "[NOW-1MONTH TO NOW]": "id_date_month", 
     "[NOW-1YEAR TO NOW]": "id_date_year"
   }, 
-  "ALL_FILTERS": {
+  {
     "study": {
       "filters": {
         "phs000178": "TCGA", 
@@ -29,12 +29,10 @@
     "analyte_code": {
       "filters": {
         "D": "DNA", 
-        "G": "GenomePlex", 
         "H": "miRNA", 
         "R": "RNA", 
         "T": "Total RNA", 
-        "W": "WGA", 
-        "X": "WGA X"
+        "W": "WGA"
       }, 
       "title": "By Experiment Type"
     }, 
@@ -111,48 +109,22 @@
         "10": "NB"
       }, 
       "filters": {
-        "07": "Additional Metastatic", 
-        "05": "Additional - New Primary", 
         "10": "Blood Derived Normal", 
-        "14": "Bone Marrow Normal", 
         "12": "Buccal Cell Normal", 
-        "61": "Cell Line Derived Xenograft Tissue", 
-        "50": "Cell Lines", 
         "20": "Control Analyte", 
-        "13": "EBV Immortalized Normal", 
-        "08": "Human Tumor Original Cells", 
         "06": "Metastatic", 
-        "09": "Primary Blood Derived Cancer - Bone Marrow", 
         "03": "Primary Blood Derived Cancer - Peripheral Blood", 
         "01": "Primary solid Tumor", 
-        "60": "Primary Xenograft Tissue", 
         "02": "Recurrent Solid Tumor", 
-        "04": "Recurrent Blood Derived Cancer - Bone Marrow", 
-        "40": "Recurrent Blood Derived Cancer - Peripheral Blood", 
         "11": "Solid Tissue Normal"
       }, 
       "title": "By Sample Type"
     }, 
     "library_strategy": {
       "filters": {
-        "AMPLICON": "AMPLICON", 
         "Bisulfite-Seq": "Bisulfite-Seq", 
-        "ChIP-Seq": "ChIP-Seq", 
-        "CLONE": "CLONE", 
-        "CLONEEND": "CLONEEND", 
-        "CTS": "CTS", 
-        "DNase-Hypersensitivity": "DNase-Hypersensitivity", 
-        "EST": "EST", 
-        "FINISHING": "FINISHING", 
-        "FL-cDNA": "FL-cDNA", 
-        "MDB-Seq": "MDB-Seq", 
-        "MeDIP-Seq": "MeDIP-Seq", 
-        "MNase-Seq": "MNase-Seq", 
-        "MRE-Seq": "MRE-Seq", 
         "OTHER": "OTHER", 
-        "POOLCLONE": "POOLCLONE", 
         "RNA-Seq": "RNA-Seq", 
-        "WCS": "WCS", 
         "WGS": "WGS", 
         "WXS": "WXS"
       }, 
@@ -202,12 +174,10 @@
         "bad_data": "Bad data", 
         "live": "Live", 
         "submitted": "Submitted", 
-        "supressed": "Supressed", 
         "uploading": "Uploading", 
-        "validating_data": "Validating data", 
         "validating_sample": "Validating sample"
       }, 
       "title": "By State"
     }
   }
-}
+]

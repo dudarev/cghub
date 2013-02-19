@@ -27,10 +27,6 @@ For dates it has special format:
 }
 
 """
-"""
-This file is no longer used.
-File 'filters_storage_full.json' collects all the possible filters
-"""
 
 try:
     from collections import OrderedDict

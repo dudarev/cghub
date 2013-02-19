@@ -3,7 +3,6 @@ import pickle
 import json
 from optparse import make_option
 
-
 try:
     from collections import OrderedDict
 except ImportError:
@@ -12,9 +11,9 @@ except ImportError:
 from django.core.management.base import BaseCommand
 
 from cghub.wsapi.api import request as api_request
+from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
+from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
 
-JSON_FILTERS_FILE_NAME = 'cghub/apps/core/filters_storage_full.json'
-RESULT_FILTERS_FILE_NAME = 'cghub/apps/core/filters_storage.py'
 FILTERS_USED_FILE_NAME = 'cghub/apps/core/is_filter_used.pkl'
 DATE_RANGES = [
     'upload_date=[NOW-1DAY%20TO%20NOW]',
@@ -89,14 +88,14 @@ class Command(BaseCommand):
         else:
             is_filter_used = load_checked()
 
-        json_data_file = open(JSON_FILTERS_FILE_NAME, 'r')
-        json_data = json.load(json_data_file)
-        ALL_FILTERS = json_data['ALL_FILTERS']
-        DATE_FILTERS_HTML_IDS = json_data['DATE_FILTERS_HTML_IDS']
+#        json_data_file = open(JSON_FILTERS_FILE_NAME, 'r')
+#        json_data = json.load(json_data_file)
+#        ALL_FILTERS = json_data['ALL_FILTERS']
+#        DATE_FILTERS_HTML_IDS = json_data['DATE_FILTERS_HTML_IDS']
 
         # populate dict is_filter_used
         # { (filter_name, filter_value): True/False }
-        for key in ALL_FILTERS.keys():
+        for key in ALL_FILTERS:
             if key in ('last_modified', 'upload_date'):
                 continue
             self.stdout.write(key)
@@ -128,15 +127,13 @@ class Command(BaseCommand):
                 continue
             self.stdout.write(key)
             self.stdout.write('\n')
-            for filter in ALL_FILTERS[key]['filters'].keys():
+            for filter in ALL_FILTERS[key]['filters']:
                 if not is_filter_used[(key, filter)]:
                     self.stdout.write('  deleting %s\n' % filter)
                     del ALL_FILTERS[key]['filters'][filter]
 
-        filter = open(RESULT_FILTERS_FILE_NAME, 'w')
-        filter.write(''.join([
-            'DATE_FILTERS_HTML_IDS = ', format_dict(DATE_FILTERS_HTML_IDS),'\n',
-            'ALL_FILTERS = ', format_dict(ALL_FILTERS)
-        ]))
-        filter.close()
-        self.stdout.write('\n\nFile %s is created\n' % RESULT_FILTERS_FILE_NAME)
+        # write needed filters to json-file
+        json_filters = open(JSON_FILTERS_FILE_NAME, 'w')
+        json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], json_filters, indent=2)
+        json_filters.close()
+        self.stdout.write('\n\nFile %s is created\n' % JSON_FILTERS_FILE_NAME)
