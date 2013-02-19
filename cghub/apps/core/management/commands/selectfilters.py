@@ -88,11 +88,6 @@ class Command(BaseCommand):
         else:
             is_filter_used = load_checked()
 
-#        json_data_file = open(JSON_FILTERS_FILE_NAME, 'r')
-#        json_data = json.load(json_data_file)
-#        ALL_FILTERS = json_data['ALL_FILTERS']
-#        DATE_FILTERS_HTML_IDS = json_data['DATE_FILTERS_HTML_IDS']
-
         # populate dict is_filter_used
         # { (filter_name, filter_value): True/False }
         for key in ALL_FILTERS:
