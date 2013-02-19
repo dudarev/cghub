@@ -14,7 +14,10 @@ from cghub.wsapi.api import request as api_request
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
 
-FILTERS_USED_FILE_NAME = 'cghub/apps/core/is_filter_used.pkl'
+
+FILTERS_USED_FILE_NAME = os.path.join(
+                            os.path.dirname(__file__),
+                            '../../is_filter_used.pkl')
 DATE_RANGES = [
     'upload_date=[NOW-1DAY%20TO%20NOW]',
     'upload_date=[NOW-7DAY%20TO%20NOW]',

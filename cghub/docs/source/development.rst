@@ -80,7 +80,7 @@ If it is necessary to erase information about filters that were ran use ``-c`` o
 
     $ python manage.py selectfilters -c
 
-**Important:** ``filters_storage.json`` are converted into OrderedDict in ``filters_storage.py``.
+Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_TILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
 
 --------
 RabbitMQ
