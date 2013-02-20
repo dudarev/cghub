@@ -50,23 +50,23 @@ class LinksNavigationsTests(LiveServerTestCase):
 
 
 class CartUITests(LiveServerTestCase):
-    cache_files = ()
-    #             '0aab3523a4352c73abf8940e7c9ae7a5.xml',
-    #             '33b4441ffd0d7ab7ec21f0cff9a53d95.xml',
-    #             '427dcd2c78d4be27efe3d0cde008b1f9.xml',
-    #             '10fec8ea2505e24d4e5705b76461f649.xml',
-    #             '10fec8ea2505e24d4e5705b76461f649.xml-no-attr',
-    #             '72eaed3637a5d9aca2c36dc3c8db14b7.xml',
-    #             '72eaed3637a5d9aca2c36dc3c8db14b7.xml-no-attr',
-    #             '28e1cf619d26bdab58fcab5e7a2b9e6c.xml')
+    cache_files = (
+                    '3b687dc26053309770100fd85a0dcfe8.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml-no-attr',
+                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml-no-attr',
+                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
+                    )
     selected = [
-        '8a967042-55a0-44ce-92c7-c8c533e5bd3d',
-        '0a8d05e3-c410-4c14-83ba-e144b2615660'
+        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
+        '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58'
     ]
     unselected = [
-        '243c9523-9fb2-49c0-863e-8662baea7ecc',
+        'beddd009-4efb-471f-bc4e-d872b50daa0f',
     ]
-    query = "6d5*"
+    query = "6d50*"
 
     @classmethod
     def setUpClass(self):
@@ -82,9 +82,9 @@ class CartUITests(LiveServerTestCase):
         super(CartUITests, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
-        # lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
-        # uuids = lxml.xpath('/ResultSet/Result/analysis_id')
-        # self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
+        lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        uuids = lxml.xpath('/ResultSet/Result/analysis_id')
+        self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
     def tearDownClass(self):
@@ -97,22 +97,22 @@ class CartUITests(LiveServerTestCase):
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
-        # # Test Select all link in search results
-        # for uuid in self.page_uuids:
-        #     checkbox = driver.find_element_by_css_selector(
-        #         'input[value="%s"]' % uuid)
-        #     assert not checkbox.is_selected()
+        # Test Select all link in search results
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert not checkbox.is_selected()
 
-        # btn = driver.find_element_by_css_selector('input.js-select-all')
-        # btn.click()
+        btn = driver.find_element_by_css_selector('input.js-select-all')
+        btn.click()
 
-        # for uuid in self.page_uuids:
-        #     checkbox = driver.find_element_by_css_selector(
-        #         'input[value="%s"]' % uuid)
-        #     assert checkbox.is_selected()
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert checkbox.is_selected()
 
-        # btn = driver.find_element_by_css_selector('input.js-select-all')
-        # btn.click()
+        btn = driver.find_element_by_css_selector('input.js-select-all')
+        btn.click()
 
         # Select two items for adding to cart
         for uuid in self.selected:
@@ -137,7 +137,7 @@ class CartUITests(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (19.62 GB)'
+        assert stat.text == 'Files in your cart: 2 (9.68 GB)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
