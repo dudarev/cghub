@@ -15,7 +15,6 @@ from apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
 from cghub.apps.core.utils import get_filters_string
-from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -374,67 +373,3 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
-
-
-class CoreFormsTestCase(TestCase):
-
-    def test_selected_files_form(self):
-
-        test_data_set = [{
-            'attributes': json.dumps({
-                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
-            'is_valid': True,
-            }, {
-            'attributes': 123,
-            'is_valid': False,
-            }, {
-            'attributes': json.dumps({'study': 'TCGA', 'size': 10}),
-            'is_valid': False }]
-
-        for data in test_data_set:
-            form = SelectedFilesForm(data)
-            if not form.is_valid():
-                print form.errors
-            self.assertEqual(form.is_valid(), data['is_valid'])
-
-        form = SelectedFilesForm(test_data_set[0])
-        form.is_valid()
-        self.assertEqual(
-            form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
-            {'study': 'TCGA', 'size': 10})
-        self.assertEqual(
-            form.cleaned_data['selected_files'][0],
-            '7850f073-642a-40a8-b49d-e328f27cfd66')
-
-    def test_all_files_form(self):
-
-        test_data_set = [{
-            'attributes': json.dumps(['size', 'center']),
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': True,
-        }, {
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': 'bad_attributes',
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': json.dumps(['size', 'center']),
-            'filters': json.dumps(['bad', 'filters']),
-            'is_valid': False,
-        }]
-
-        for data in test_data_set:
-            form = AllFilesForm(data)
-            self.assertEqual(form.is_valid(), data['is_valid'])
-
-        form = AllFilesForm(test_data_set[0])
-        form.is_valid()
-        self.assertEqual(
-            form.cleaned_data['attributes'],
-            ['size', 'center'])
-        self.assertEqual(
-            form.cleaned_data['filters'],
-            {'center': '(1,2)', 'state': '(live)'})
