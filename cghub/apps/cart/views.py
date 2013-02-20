@@ -11,8 +11,8 @@ from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 
-from cghub.apps.core.utils import get_filters_string
-from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
+from cghub.apps.core.utils import get_filters_string, is_celery_alive
+from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
 from cghub.wsapi.api import request as api_request
@@ -52,6 +52,7 @@ class CartAddRemoveFilesView(View):
             if not request.is_ajax():
                 raise Http404
             filters = request.POST.get('filters')
+            celery_alive = is_celery_alive()
             if filters:
                 form = AllFilesForm(request.POST)
                 if form.is_valid():
@@ -68,6 +69,8 @@ class CartAddRemoveFilesView(View):
                             r_attrs['files_size'] = int(r.files_size)
                             r_attrs['analysis_id'] = unicode(r.analysis_id)
                             add_file_to_cart(request, r_attrs)
+                            if celery_alive:
+                                cache_results(r_attrs)
                 else:
                     result = {'success': False}
             else:
@@ -77,6 +80,8 @@ class CartAddRemoveFilesView(View):
                     selected_files = request.POST.getlist('selected_files')
                     for f in selected_files:
                         add_file_to_cart(request, attributes[f])
+                        if celery_alive:
+                            cache_results(attributes[f])
                 else:
                     result = {'success': False}
             return HttpResponse(

@@ -14,6 +14,7 @@ from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
 
 from cghub.apps.core.tests import WithCacheTestCase
+from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
 
 class CartTests(TestCase):
@@ -269,23 +270,66 @@ class CacheTestCase(TestCase):
         self.assertTrue('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri', 'aliquot_id', 'filename']))
 
-    def test_cache_errors(self):
-        """Testing caching cart is working when message broker is not running"""
-        broker_url = settings.BROKER_URL
-        settings.BROKER_URL = 'non_existent_url'
-        settings.ADMINS = (('admin', 'admin@admin.com'),)
-        try:
-            cache_results({})
-        except AttributeError:
-            #   File "lxml.objectify.pyx", line 226, in lxml.objectify.ObjectifiedElement.__getattr__ (src/lxml/lxml.objectify.c:2894)
-            #   File "lxml.objectify.pyx", line 485, in lxml.objectify._lookupChildOrRaise (src/lxml/lxml.objectify.c:5428)
-            # AttributeError: no such child: Result
-            pass
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            mail.outbox[0].subject,
-            settings.EMAIL_SUBJECT_PREFIX + '[ucsc-cghub] ERROR: Message broker not working'
-        )
 
-        settings.BROKER_URL = broker_url
-        settings.ADMINS = ()
+class CartFormsTestCase(TestCase):
+
+    def test_selected_files_form(self):
+
+        test_data_set = [{
+            'attributes': json.dumps({
+                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
+                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
+            'is_valid': True,
+            }, {
+            'attributes': 123,
+            'is_valid': False,
+            }, {
+            'attributes': json.dumps({'study': 'TCGA', 'size': 10}),
+            'is_valid': False }]
+
+        for data in test_data_set:
+            form = SelectedFilesForm(data)
+            if not form.is_valid():
+                print form.errors
+            self.assertEqual(form.is_valid(), data['is_valid'])
+
+        form = SelectedFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
+            {'study': 'TCGA', 'size': 10})
+        self.assertEqual(
+            form.cleaned_data['selected_files'][0],
+            '7850f073-642a-40a8-b49d-e328f27cfd66')
+
+    def test_all_files_form(self):
+
+        test_data_set = [{
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': True,
+        }, {
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': 'bad_attributes',
+            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
+            'is_valid': False,
+        }, {
+            'attributes': json.dumps(['size', 'center']),
+            'filters': json.dumps(['bad', 'filters']),
+            'is_valid': False,
+        }]
+
+        for data in test_data_set:
+            form = AllFilesForm(data)
+            self.assertEqual(form.is_valid(), data['is_valid'])
+
+        form = AllFilesForm(test_data_set[0])
+        form.is_valid()
+        self.assertEqual(
+            form.cleaned_data['attributes'],
+            ['size', 'center'])
+        self.assertEqual(
+            form.cleaned_data['filters'],
+            {'center': '(1,2)', 'state': '(live)'})
