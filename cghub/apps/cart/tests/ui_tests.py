@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 
 class LinksNavigationsTests(LiveServerTestCase):
-    cache_files = ('f6d938fbf161765df8d8d7cd1ef87428.xml',)
+    cache_files = ('28e1cf619d26bdab58fcab5e7a2b9e6c.xml',)
 
     @classmethod
     def setUpClass(self):
@@ -58,7 +58,7 @@ class CartUITests(LiveServerTestCase):
                 '10fec8ea2505e24d4e5705b76461f649.xml-no-attr',
                 '72eaed3637a5d9aca2c36dc3c8db14b7.xml',
                 '72eaed3637a5d9aca2c36dc3c8db14b7.xml-no-attr',
-                'f6d938fbf161765df8d8d7cd1ef87428.xml')
+                '28e1cf619d26bdab58fcab5e7a2b9e6c.xml')
     selected = [
         '49d8aaef-72e0-4165-9c1f-d21da1dc6107',
         'abf14d92-2bbe-4393-95a8-9f1f51d57f5d'
