@@ -10,12 +10,14 @@ from django.core.urlresolvers import reverse
 from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
+from django.utils.http import urlquote
 
 from cghub.apps.core.utils import get_filters_string, is_celery_alive
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
 from cghub.wsapi.api import request as api_request
+from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi.api import Results
 
 
@@ -30,8 +32,18 @@ def cart_add_files(request):
         if form.is_valid():
             attributes = form.cleaned_data['attributes']
             filters = form.cleaned_data['filters']
-            query = get_filters_string(filters)[1:]
-            results = api_request(query=query)
+            filter_str = get_filters_string(filters)
+            q = filters.get('q')
+            if q:
+                query = u"xml_text={0}".format(urlquote(q))
+                query += filter_str
+            else:
+                query = filter_str[1:]  # remove front ampersand
+            if 'xml_text' in query:
+                queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
+                results = api_multiple_request(queries_list=queries_list)
+            else:
+                results = api_request(query=query)
             results.add_custom_fields()
             if hasattr(results, 'Result'):
                 for r in results.Result:
