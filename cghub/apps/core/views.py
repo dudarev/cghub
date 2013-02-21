@@ -107,7 +107,7 @@ class ItemDetailsView(TemplateView):
                                     settings=WSAPI_SETTINGS)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
-            return {'res': results.Result, 'raw_xml': results.tostring}
+            return {'res': results.Result, 'raw_xml': repr(results.tostring())}
         return {'res': None}
 
     def get_template_names(self):

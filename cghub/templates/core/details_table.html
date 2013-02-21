@@ -1,10 +1,13 @@
 {% load search_tags %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/xmldisplay/XMLDisplay.css" media="all">
+<script type="text/javascript" src="{{ STATIC_URL }}js/libs/XMLDisplay.js"></script>
 {% if res %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
     <h4>Raw:</h4>
-    <pre class="xml-code">{{ raw_xml }}</pre>
+    <div id="XMLHolder"></div>
+    <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
 {% else %}
     No data.
 {% endif %}
