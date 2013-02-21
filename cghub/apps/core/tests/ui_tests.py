@@ -522,6 +522,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        time.sleep(3)
         self.select_columns(driver, 'cart')
 
 
@@ -597,6 +598,7 @@ class ColumnsFillTableWidthTestCase(LiveServerTestCase):
         self.select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        time.sleep(3)
         self.select_columns(driver, 'cart')
 
 

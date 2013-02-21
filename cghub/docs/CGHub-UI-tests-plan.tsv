@@ -29,3 +29,4 @@ CART-8	File download formats are in dropdown menu	Choice of file format to downl
 CART-9	Manifest may be downloaded in XML and TSV formats	When XML or TSV button in the 'Manifest' dropdown menu is clicked, manifest for all items in the cart is downloaded in chosen format.  
 CART-10	Metadata may be downloaded in XML and TSV formats	Similar to CART-9, but full  information is downloaded, when file format button is clicked. 
 CART-11	Fewer columns fill all space of the table.	Same as SEARCH-9 but in Cart. 
+CART-12	Add all to cart button add all files to cart.	Add all to cart button when clicked adds all files from search results to the cart. 

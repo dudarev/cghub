@@ -122,7 +122,7 @@ class CartUITests(LiveServerTestCase):
 
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
-        time.sleep(1)
+        time.sleep(7)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
         for uuid in self.selected:
@@ -321,3 +321,63 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), file_size(sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
+
+
+class AddAllToCartButtonTest(LiveServerTestCase):
+    cache_files = (
+                    '3b687dc26053309770100fd85a0dcfe8.xml',
+                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
+                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
+                    )
+    query = "6d50*"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(AddAllToCartButtonTest, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+        # Calculate uuid for items on the first page
+        lxml2 = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        uuids2 = lxml2.xpath('/ResultSet/Result/analysis_id')
+        self.page_uuids = uuids2[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(AddAllToCartButtonTest, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def test_addalltocart_button(self):
+        driver = self.selenium
+        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+
+        # Make sure no checkboxes are selected
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert not checkbox.is_selected()
+
+        # Get the number of results found
+        found_num = driver.find_element_by_css_selector(
+            'div.pagination-results').text.split(' ')[1]
+        # Make sure cart is empty
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        assert cart_link.text == 'Cart (0)'
+
+        driver.find_element_by_css_selector(
+            'button.add-all-to-cart-btn').click()
+        time.sleep(10)
+        assert driver.current_url == '%s/cart/' % self.live_server_url
+
+        # Make sure exact number of files was added to cart
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        self.assertTrue(found_num in cart_link.text)
+        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+        self.assertTrue(found_num in stat.text)
+
+        # Make sure all elements from first page are present
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert checkbox.is_displayed()
