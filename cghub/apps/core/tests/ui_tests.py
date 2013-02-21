@@ -48,9 +48,7 @@ def back_to_bytes(*args):
 
 
 class SidebarTests(LiveServerTestCase):
-    cache_files = (
-        '543044213d0b4057751b559589049cd2.xml',
-        'f6d938fbf161765df8d8d7cd1ef87428.xml')
+    cache_files = ('543044213d0b4057751b559589049cd2.xml',)
 
     @classmethod
     def setUpClass(self):
@@ -134,7 +132,7 @@ class SidebarTests(LiveServerTestCase):
         self.selenium.find_element_by_css_selector("#ddcl-11 > span:first-child > span").click()
         # study: phs000178
         driver.find_element_by_id("ddcl-11-i0").click()
-        driver.find_element_by_id("ddcl-11-i2").click()
+        driver.find_element_by_id("ddcl-11-i1").click()
         self.selenium.find_element_by_css_selector("#ddcl-11 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-10 > span:first-child > span").click()
         # center: BCM+OR+BCCAGSC+OR+BI
@@ -177,12 +175,12 @@ class SidebarTests(LiveServerTestCase):
         driver.find_element_by_id("ddcl-4-i1").click()
         self.selenium.find_element_by_css_selector("#ddcl-4 > span:last-child > span").click()
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:first-child > span").click()
-        # state: bad_data+OR+validating_sample+OR+live+OR+supressed
+        # state: bad_data+OR+live+OR+validating_sample
         driver.find_element_by_id("ddcl-2-i0").click()
         driver.find_element_by_id("ddcl-2-i0").click()
         driver.find_element_by_id("ddcl-2-i1").click()
         driver.find_element_by_id("ddcl-2-i2").click()
-        driver.find_element_by_id("ddcl-2-i7").click()
+        driver.find_element_by_id("ddcl-2-i5").click()
         self.selenium.find_element_by_css_selector("#ddcl-2 > span:last-child > span").click()
         driver.find_element_by_id("id_apply_filters").click()
 
@@ -232,7 +230,7 @@ class SidebarTests(LiveServerTestCase):
             re.match('.*refassem_short_name=[^&]*HG18*', url))
         self.assertFalse(
             re.match('.*refassem_short_name=[^&]*GRCh37*', url))
-        # state: bad_data+OR+validating_sample+OR+live+OR+supressed
+        # state: bad_data+OR+live+OR+validating_sample
         self.assertTrue(
             re.match('.*state=[^&]*bad_data', url) and
             re.match('.*state=[^&]*validating_sample', url) and
@@ -251,15 +249,14 @@ class SearchTests(LiveServerTestCase):
 
     cache_files = (
         '5c0d0328d8b134326b65f7664b4ca24e.xml', '76c362d1a1f7cf2bddbe62293303ad7e.xml',
-        'bb4d172f8ae244b8674e1d07466d3f55.xml', 'f6d938fbf161765df8d8d7cd1ef87428.xml',
-        '707395879d3c23366c5ec1642e69f7ad.xml', '91b007cb6807683c2e2ecfba09c24f7d.xml',
-        'ec658922e853a8c3741330af01bc405b.xml', 'aa06888ac2f625d8d3f84a5e30a34f39.xml',
-        '790aa376817fac025b17aa878fb86e9b.xml', 'cfbc5305b10bdb1bae5b420f0a371af6.xml',
-        '03dd7235eeb75bd19521e49b0da96604.xml', '8095ea0809a0074e8c415845115062b3.xml',
-        '0de87d39f79698685cbbe78b8dae8f54.xml', '13dd8ffefeee9a4bcca7b5f29ed6911f.xml',
-        '4c9983171c2b3b793d74d55ca49b980d.xml', '09e82ff3db65f0bf8cb36acb8e3a4d9b.xml',
-        '4160e2c5199163358e7e918eaf1b7986.xml', '6c34d043ca88ec8032f97eac592e33d9.xml',
-        'b5b52e9da30c9869530490533891e709.xml')
+        'bb4d172f8ae244b8674e1d07466d3f55.xml', '707395879d3c23366c5ec1642e69f7ad.xml',
+        '91b007cb6807683c2e2ecfba09c24f7d.xml', 'ec658922e853a8c3741330af01bc405b.xml',
+        'aa06888ac2f625d8d3f84a5e30a34f39.xml', '790aa376817fac025b17aa878fb86e9b.xml',
+        'cfbc5305b10bdb1bae5b420f0a371af6.xml', '03dd7235eeb75bd19521e49b0da96604.xml',
+        '8095ea0809a0074e8c415845115062b3.xml', '0de87d39f79698685cbbe78b8dae8f54.xml',
+        '13dd8ffefeee9a4bcca7b5f29ed6911f.xml', '4c9983171c2b3b793d74d55ca49b980d.xml',
+        '09e82ff3db65f0bf8cb36acb8e3a4d9b.xml', '4160e2c5199163358e7e918eaf1b7986.xml',
+        '6c34d043ca88ec8032f97eac592e33d9.xml', 'b5b52e9da30c9869530490533891e709.xml')
     query = "6d5*"
 
     @classmethod
@@ -525,6 +522,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        time.sleep(3)
         self.select_columns(driver, 'cart')
 
 
@@ -600,13 +598,12 @@ class ColumnsFillTableWidthTestCase(LiveServerTestCase):
         self.select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+        time.sleep(3)
         self.select_columns(driver, 'cart')
 
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
-    cache_files = (
-                'f6d938fbf161765df8d8d7cd1ef87428.xml',
-                'f0824accdea06f55a22de5be6e2db752.xml')
+    cache_files = ('f0824accdea06f55a22de5be6e2db752.xml', )
 
     @classmethod
     def setUpClass(self):
@@ -646,7 +643,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
 
         # Make sure filters are applied.
         applied_filters1 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
-        applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[3]")
+        applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
         filter1 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i4']" % CENTER_NAME_ID)
         filter2 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i1']" % SAMPLE_TYPE_ID)
         self.assertTrue(filter1.text in applied_filters1.text)

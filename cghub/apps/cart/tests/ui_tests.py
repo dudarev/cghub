@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 
 class LinksNavigationsTests(LiveServerTestCase):
-    cache_files = ('f6d938fbf161765df8d8d7cd1ef87428.xml',)
+    cache_files = ('28e1cf619d26bdab58fcab5e7a2b9e6c.xml',)
 
     @classmethod
     def setUpClass(self):
@@ -51,22 +51,22 @@ class LinksNavigationsTests(LiveServerTestCase):
 
 class CartUITests(LiveServerTestCase):
     cache_files = (
-                '0aab3523a4352c73abf8940e7c9ae7a5.xml',
-                '33b4441ffd0d7ab7ec21f0cff9a53d95.xml',
-                '427dcd2c78d4be27efe3d0cde008b1f9.xml',
-                '10fec8ea2505e24d4e5705b76461f649.xml',
-                '10fec8ea2505e24d4e5705b76461f649.xml-no-attr',
-                '72eaed3637a5d9aca2c36dc3c8db14b7.xml',
-                '72eaed3637a5d9aca2c36dc3c8db14b7.xml-no-attr',
-                'f6d938fbf161765df8d8d7cd1ef87428.xml')
+                    '3b687dc26053309770100fd85a0dcfe8.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml-no-attr',
+                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml-no-attr',
+                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
+                    )
     selected = [
-        '49d8aaef-72e0-4165-9c1f-d21da1dc6107',
-        'abf14d92-2bbe-4393-95a8-9f1f51d57f5d'
+        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
+        '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58'
     ]
     unselected = [
-        '4bd7ad2f-d72d-443c-88f1-bd921fd0c5c8',
+        'beddd009-4efb-471f-bc4e-d872b50daa0f',
     ]
-    query = "6d5*"
+    query = "6d50*"
 
     @classmethod
     def setUpClass(self):
@@ -75,7 +75,7 @@ class CartUITests(LiveServerTestCase):
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
         fp.set_preference("browser.download.dir", CACHE_DIR)
-        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
@@ -122,7 +122,7 @@ class CartUITests(LiveServerTestCase):
 
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
-        time.sleep(1)
+        time.sleep(7)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
         for uuid in self.selected:
@@ -137,7 +137,7 @@ class CartUITests(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (26.44 GB)'
+        assert stat.text == 'Files in your cart: 2 (9.68 GB)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
@@ -161,11 +161,26 @@ class CartUITests(LiveServerTestCase):
         # Check there are no pre-existed files in /tmp/wsapi/
         try:
             os.remove(CACHE_DIR + 'manifest.xml')
+            os.remove(CACHE_DIR + 'manifest.tsv')
             os.remove(CACHE_DIR + 'metadata.xml')
+            os.remove(CACHE_DIR + 'metadata.tsv')
         except OSError:
             pass
+
+        # Check dropdown menus are hidden
+        btn1 = driver.find_element_by_class_name('cart-form-download-manifest-xml')
+        btn2 = driver.find_element_by_class_name('cart-form-download-manifest-tsv')
+        btn3 = driver.find_element_by_class_name('cart-form-download-metadata-xml')
+        btn4 = driver.find_element_by_class_name('cart-form-download-metadata-tsv')
+        assert not (
+            btn1.is_displayed() and btn2.is_displayed() and
+            btn3.is_displayed() and btn4.is_displayed()
+        )
+
         # Download Manifest in XML file
-        btn = driver.find_element_by_class_name('cart-form-download-manifest_xml')
+        driver.find_element_by_xpath("//div[2]/div/div/div").click()
+        btn = driver.find_element_by_class_name('cart-form-download-manifest-xml')
+        assert btn.is_displayed()
         btn.click()
         driver.implicitly_wait(5)
         try:
@@ -174,7 +189,9 @@ class CartUITests(LiveServerTestCase):
             assert False, "File manifest.xml wasn't downloaded"
 
         # Download Manifest in TSV file
-        btn = driver.find_element_by_class_name('cart-form-download-manifest_tsv')
+        driver.find_element_by_xpath("//div[2]/div/div/div").click()
+        btn = driver.find_element_by_class_name('cart-form-download-manifest-tsv')
+        assert btn.is_displayed()
         btn.click()
         driver.implicitly_wait(5)
         try:
@@ -182,14 +199,27 @@ class CartUITests(LiveServerTestCase):
         except OSError:
             assert False, "File manifest.tsv wasn't downloaded"
 
-        # Download Metadata file
+        # Download Metadata XML file
+        driver.find_element_by_xpath("//div/div[2]/div").click()
         btn = driver.find_element_by_class_name('cart-form-download-metadata-xml')
+        assert btn.is_displayed()
         btn.click()
         driver.implicitly_wait(5)
         try:
             os.remove(CACHE_DIR + 'metadata.xml')
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
+
+        # Download Metadata TSV file
+        driver.find_element_by_xpath("//div/div[2]/div").click()
+        btn = driver.find_element_by_class_name('cart-form-download-metadata-tsv')
+        assert btn.is_displayed()
+        btn.click()
+        driver.implicitly_wait(5)
+        try:
+            os.remove(CACHE_DIR + 'metadata.tsv')
+        except OSError:
+            assert False, "File metadata.tsv wasn't downloaded"
 
         # Remove selected from cart
         btn = driver.find_element_by_class_name('cart-form-remove')
@@ -291,3 +321,63 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), file_size(sorted_attr[j]))
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
+
+
+class AddAllToCartButtonTest(LiveServerTestCase):
+    cache_files = (
+                    '3b687dc26053309770100fd85a0dcfe8.xml',
+                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
+                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
+                    )
+    query = "6d50*"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(AddAllToCartButtonTest, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+        # Calculate uuid for items on the first page
+        lxml2 = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        uuids2 = lxml2.xpath('/ResultSet/Result/analysis_id')
+        self.page_uuids = uuids2[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(AddAllToCartButtonTest, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def test_addalltocart_button(self):
+        driver = self.selenium
+        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+
+        # Make sure no checkboxes are selected
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert not checkbox.is_selected()
+
+        # Get the number of results found
+        found_num = driver.find_element_by_css_selector(
+            'div.pagination-results').text.split(' ')[1]
+        # Make sure cart is empty
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        assert cart_link.text == 'Cart (0)'
+
+        driver.find_element_by_css_selector(
+            'button.add-all-to-cart-btn').click()
+        time.sleep(10)
+        assert driver.current_url == '%s/cart/' % self.live_server_url
+
+        # Make sure exact number of files was added to cart
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        self.assertTrue(found_num in cart_link.text)
+        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+        self.assertTrue(found_num in stat.text)
+
+        # Make sure all elements from first page are present
+        for uuid in self.page_uuids:
+            checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % uuid)
+            assert checkbox.is_displayed()
