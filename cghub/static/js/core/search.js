@@ -176,7 +176,10 @@ jQuery(function ($) {
             for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
                 attributes.push(key);
             }
-            var filters = cghub.search.getFiltersValues()['filters'];
+            var filters = URI.parseQuery(window.location.search);
+            if(jQuery.isEmptyObject(filters)) {
+                filters = cghub.search.getFiltersValues()['filters'];
+            }
             $.ajax({
                 data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
                 type:$form.attr('method'),
