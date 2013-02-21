@@ -1,13 +1,30 @@
+{% extends 'base.html' %}
+
 {% load search_tags %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/xmldisplay/XMLDisplay.css" media="all">
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/XMLDisplay.js"></script>
+
+{% block extra_content %}
 {% if res %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
     <h4>Raw:</h4>
-    <div id="XMLHolder"></div>
-    <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
+    <div id="XMLHolder" class="XmlContainer"></div>
 {% else %}
-    No data.
+No data.
 {% endif %}
+{% endblock %}
+
+
+{% block extra_body_js %}
+<script>
+    LoadXMLString('XMLHolder', {{ raw_xml|safe }});
+    jQuery(function ($) {
+        var visibleElements = $(".Element:visible");
+        var visibleClickables = $("div.Element:visible > span.Clickable:contains('-')");
+
+        visibleClickables.each(function(){
+            $(this).click()
+        });
+    });
+</script>
+{% endblock %}

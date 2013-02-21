@@ -5,33 +5,33 @@
 }	
 .NodeName {
 	font-weight:bold;
-	color: #800080;	
+	color: #800080;
 }
-.AttributeName 
-{
+.AttributeName {
 	font-weight:bold;
 	color: black;
 }
-.AttributeValue
-{
+.AttributeValue {
 	color:blue;
 }
-.NodeValue
-{
+.NodeValue {
 	color: black;
 }
 .Element {
-	border-left-color:#00FF66;
+	border-left-color: #d8d8d8;
 	border-left-width:thin;
 	border-left-style:solid;
 	padding-top:0px;
-	margin-top:10px;
+	margin-top:0px;
 }
 .Clickable {	
 	font-weight:900;
 	font-size:large;
 	color: #800080;	
 	cursor:pointer;
-
 	vertical-align:middle;
+}
+
+.XmlContainer {
+    margin-bottom: 20px;
 }
