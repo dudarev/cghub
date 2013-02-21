@@ -288,7 +288,7 @@ def table_header(request):
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th width="%d" data-ds="%s">%s</th>' % (
+        html += '<th width="%d" data-ds="%s"><span class="js-tooltip-help" data-tooltip="some help text">%s</span></th>' % (
                             col['width'],
                             ds,
                             sort_link(request, col['attr'], c))
