@@ -11,12 +11,52 @@ from django.core.servers import basehttp
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 
-from cghub.apps.core.utils import get_filters_string
-from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
+from cghub.apps.core.utils import get_filters_string, is_celery_alive
+from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
+
+
+def cart_add_files(request):
+    result = {'success': True, 'redirect': reverse('cart_page')}
+    if not request.is_ajax():
+        raise Http404
+    filters = request.POST.get('filters')
+    celery_alive = is_celery_alive()
+    if filters:
+        form = AllFilesForm(request.POST)
+        if form.is_valid():
+            attributes = form.cleaned_data['attributes']
+            filters = form.cleaned_data['filters']
+            query = get_filters_string(filters)[1:]
+            results = api_request(query=query)
+            results.add_custom_fields()
+            if hasattr(results, 'Result'):
+                for r in results.Result:
+                    r_attrs = dict(
+                        (attr, unicode(getattr(r, attr)))
+                        for attr in attributes if hasattr(r, attr))
+                    r_attrs['files_size'] = int(r.files_size)
+                    r_attrs['analysis_id'] = unicode(r.analysis_id)
+                    add_file_to_cart(request, r_attrs)
+                    if celery_alive:
+                        cache_results(r_attrs)
+        else:
+            result = {'success': False}
+    else:
+        form = SelectedFilesForm(request.POST)
+        if form.is_valid():
+            attributes = form.cleaned_data['attributes']
+            selected_files = request.POST.getlist('selected_files')
+            for f in selected_files:
+                add_file_to_cart(request, attributes[f])
+                if celery_alive:
+                    cache_results(attributes[f])
+        else:
+            result = {'success': False}
+    return HttpResponse(json.dumps(result), mimetype="application/json")
 
 
 class CartView(TemplateView):
@@ -48,40 +88,7 @@ class CartAddRemoveFilesView(View):
     """
     def post(self, request, action):
         if 'add' == action:
-            result = {'success': True, 'redirect': reverse('cart_page')}
-            if not request.is_ajax():
-                raise Http404
-            filters = request.POST.get('filters')
-            if filters:
-                form = AllFilesForm(request.POST)
-                if form.is_valid():
-                    attributes = form.cleaned_data['attributes']
-                    filters = form.cleaned_data['filters']
-                    query = get_filters_string(filters)[1:]
-                    results = api_request(query=query)
-                    results.add_custom_fields()
-                    if hasattr(results, 'Result'):
-                        for r in results.Result:
-                            r_attrs = dict(
-                                (attr, unicode(getattr(r, attr)))
-                                for attr in attributes if hasattr(r, attr))
-                            r_attrs['files_size'] = int(r.files_size)
-                            r_attrs['analysis_id'] = unicode(r.analysis_id)
-                            add_file_to_cart(request, r_attrs)
-                else:
-                    result = {'success': False}
-            else:
-                form = SelectedFilesForm(request.POST)
-                if form.is_valid():
-                    attributes = form.cleaned_data['attributes']
-                    selected_files = request.POST.getlist('selected_files')
-                    for f in selected_files:
-                        add_file_to_cart(request, attributes[f])
-                else:
-                    result = {'success': False}
-            return HttpResponse(
-                json.dumps(result),
-                mimetype="application/json")
+            return cart_add_files(request)
         if 'remove' == action:
             for f in request.POST.getlist('selected_files'):
                 # remove file from cart by sample id
