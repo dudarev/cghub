@@ -20,7 +20,7 @@ No data.
 {% endif %}
 {% endblock %}
 
-{% block extra_header_js %}
+{% block extra_body_js %}
     <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/details.js"></script>
 {% endblock %}

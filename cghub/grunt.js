@@ -90,7 +90,7 @@ module.exports = function (grunt) {
                 src:[jsStaticFolder + 'libs/flexigrid.js',
                     jsStaticFolder + 'libs/bootstrap-contextmenu.js'],
                 dest:jsStaticFolder + 'libs/flexigrid.min.js'
-            },
+            }
         }
     });
 };
