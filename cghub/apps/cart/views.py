@@ -142,7 +142,7 @@ class CartDownloadFilesView(View):
                 '' if get_attributes else 'out')
             try:
                 result = Results.from_file(
-                        os.path.join(settings.CART_CACHE_FOLDER, filename),
+                        os.path.join(settings.CART_CACHE_DIR, filename),
                         settings=WSAPI_SETTINGS)
             except IOError:
                 result = api_request(

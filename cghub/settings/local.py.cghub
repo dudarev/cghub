@@ -9,9 +9,8 @@ ADMINS = (
   ('Mark Diekhans', 'markd@soe.ucsc.edu'),
 )
 
-# should match wsapi/wsapi/settings.py
-CART_CACHE_FOLDER = '/scratch/var/cache/cghub-data-browser'
 WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser'
+CART_CACHE_DIR = WSAPI_CACHE_DIR
 
 # rabbitmq server
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"

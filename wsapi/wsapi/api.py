@@ -29,6 +29,7 @@ class Results(object):
     def __init__(self, lxml_results, settings):
         """
         :param lxml_results: needs to be converted with lxml.objectify
+        :param settings: wsapi settings dict, see `wsapi.settings.py`
 
         .. code-block :: python
 
@@ -217,7 +218,7 @@ def merge_results(xml_results):
 def request(
         query=None, offset=None, limit=None, sort_by=None,
         get_attributes=True, file_name=None, ignore_cache=False,
-        settings={}, use_api_light=False):
+        use_api_light=False, settings={}):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed :class:`wsapi.api.Results` object.
