@@ -10,12 +10,12 @@ from django.views.generic.base import TemplateView
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
-from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.utils import get_filters_string, get_wsapi_settings
 
 
 DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
 DEFAULT_SORT_BY = '-upload_date'
-
+WSAPI_SETTINGS = get_wsapi_settings()
 
 class HomeView(TemplateView):
     template_name = 'core/search.html'
@@ -31,7 +31,8 @@ class HomeView(TemplateView):
 
         limit = settings.DEFAULT_PAGINATOR_LIMIT
         results = api_request(query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
-                                        limit=limit, use_api_light=True)
+                                limit=limit, use_api_light=True,
+                                settings=WSAPI_SETTINGS)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             context['num_results'] = results.length or int(results.Hits.text)
@@ -75,7 +76,8 @@ class SearchView(TemplateView):
                 offset=offset, limit=limit)
         else:
             results = api_request(query=query, sort_by=sort_by,
-                        offset=offset, limit=limit, use_api_light=True)
+                        offset=offset, limit=limit, use_api_light=True,
+                        settings=WSAPI_SETTINGS)
 
         # this function calculates files_size attribute
         # and adds refassem_short_name to Results
@@ -101,7 +103,8 @@ class ItemDetailsView(TemplateView):
     ajax_template_name = 'core/details_table.html'
 
     def get_context_data(self, **kwargs):
-        results = api_request(query='analysis_id=%s' % kwargs['uuid'])
+        results = api_request(query='analysis_id=%s' % kwargs['uuid'],
+                                    settings=WSAPI_SETTINGS)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             return {'res': results.Result, 'raw_xml': results.tostring}

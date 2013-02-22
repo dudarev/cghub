@@ -5,6 +5,10 @@ import os
 from django.conf import settings
 from celery.task import task
 from cghub.wsapi.api import request as api_request
+from cghub.apps.core.utils import get_wsapi_settings
+
+
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
@@ -16,7 +20,9 @@ def cache_results_task(file_dict):
         "{0}_without_attributes".format(analysis_id))
     if os.path.isfile(filename_with_attributes) and os.path.isfile(filename_without_attributes):
         return
-    result = api_request(query='analysis_id={0}'.format(analysis_id))
+    result = api_request(
+                query='analysis_id={0}'.format(analysis_id),
+                settings=WSAPI_SETTINGS)
     with open(filename_with_attributes, 'w') as f:
         f.write(result.tostring())
     with open(filename_without_attributes, 'w') as f:

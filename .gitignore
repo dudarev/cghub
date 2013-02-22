@@ -35,7 +35,7 @@ cghub/media/api_results_cache
 progress.*
 
 cghub/apps/core/is_filter_used.pkl
-cghub/apps/core/filters_storage_short.py
+cghub/apps/core/filters_storage.json
 
 #
 # Included objects

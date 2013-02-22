@@ -9,13 +9,12 @@ from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
-from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
-from cghub.apps.core.utils import get_filters_string
-from cghub.apps.core.forms import SelectedFilesForm, AllFilesForm
+from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
+                                                    WSAPI_SETTINGS_LIST)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -32,20 +31,20 @@ class WithCacheTestCase(TestCase):
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
+        if not os.path.exists(settings.WSAPI_CACHE_DIR):
+            os.makedirs(settings.WSAPI_CACHE_DIR)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
             )
         self.default_results = objectify.fromstring(
-            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
+            os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
 
 
 class CoreTests(WithCacheTestCase):
@@ -99,7 +98,7 @@ class CoreTests(WithCacheTestCase):
         self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(CACHE_DIR, self.cache_files[0])
+        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
@@ -136,6 +135,12 @@ class CoreUtilsTests(TestCase):
                         'bad_param': 'bad'})
         self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
+    def test_get_wsapi_settings(self):
+        value = 'somesetting'
+        key = WSAPI_SETTINGS_LIST[0]
+        with self.settings(**{'WSAPI_%s' % key: value}):
+            self.assertEqual(
+                get_wsapi_settings()[key], value)
 
 class TestTemplateTags(TestCase):
 
@@ -374,67 +379,3 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
-
-
-class CoreFormsTestCase(TestCase):
-
-    def test_selected_files_form(self):
-
-        test_data_set = [{
-            'attributes': json.dumps({
-                    '7850f073-642a-40a8-b49d-e328f27cfd66': {'study': 'TCGA', 'size': 10},
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec': {'study': 'TCGA', 'size': 10}}),
-            'is_valid': True,
-            }, {
-            'attributes': 123,
-            'is_valid': False,
-            }, {
-            'attributes': json.dumps({'study': 'TCGA', 'size': 10}),
-            'is_valid': False }]
-
-        for data in test_data_set:
-            form = SelectedFilesForm(data)
-            if not form.is_valid():
-                print form.errors
-            self.assertEqual(form.is_valid(), data['is_valid'])
-
-        form = SelectedFilesForm(test_data_set[0])
-        form.is_valid()
-        self.assertEqual(
-            form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
-            {'study': 'TCGA', 'size': 10})
-        self.assertEqual(
-            form.cleaned_data['selected_files'][0],
-            '7850f073-642a-40a8-b49d-e328f27cfd66')
-
-    def test_all_files_form(self):
-
-        test_data_set = [{
-            'attributes': json.dumps(['size', 'center']),
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': True,
-        }, {
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': 'bad_attributes',
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': json.dumps(['size', 'center']),
-            'filters': json.dumps(['bad', 'filters']),
-            'is_valid': False,
-        }]
-
-        for data in test_data_set:
-            form = AllFilesForm(data)
-            self.assertEqual(form.is_valid(), data['is_valid'])
-
-        form = AllFilesForm(test_data_set[0])
-        form.is_valid()
-        self.assertEqual(
-            form.cleaned_data['attributes'],
-            ['size', 'center'])
-        self.assertEqual(
-            form.cleaned_data['filters'],
-            {'center': '(1,2)', 'state': '(live)'})

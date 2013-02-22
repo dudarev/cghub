@@ -9,6 +9,7 @@ from .template import *
 from .apps import *
 from .cart_cache import *
 from .api_cache import *
+from .wsapi import *
 from .ui import *
 from .debug_toolbar_settings import *
 from .celery_settings import *
