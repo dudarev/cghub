@@ -13,7 +13,8 @@ from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
-from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
+                                                    WSAPI_SETTINGS_LIST)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -134,6 +135,12 @@ class CoreUtilsTests(TestCase):
                         'bad_param': 'bad'})
         self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
+    def test_get_wsapi_settings(self):
+        value = 'somesetting'
+        key = WSAPI_SETTINGS_LIST[0]
+        with self.settings(**{'WSAPI_%s' % key: value}):
+            self.assertEqual(
+                get_wsapi_settings()[key], value)
 
 class TestTemplateTags(TestCase):
 

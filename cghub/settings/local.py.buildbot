@@ -5,3 +5,4 @@ DATABASES = {
         }
 }
 
+WSAPI_CACHE_DIR = '/tmp/wsapi/'
