@@ -4,7 +4,7 @@ from datetime import timedelta
 from cghub.settings.utils import root
 
 MEDIA_ROOT = root('media')
-CART_CACHE_FOLDER = '/tmp/wsapi/'
+CART_CACHE_DIR = '/tmp/wsapi/'
 MEDIA_URL = ''
 
 TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)

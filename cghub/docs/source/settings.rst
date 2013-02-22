@@ -1,6 +1,22 @@
 Settings
 =================
 
+WSAPI
+----------
+
+It is possible to set some settings for wsapi app.
+
+``settings/wsapi.py``:
+
+.. code-block:: python
+
+    WSAPI_CGHUB_SERVER = 'https://cghub.ucsc.edu'
+    WSAPI_CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
+    WSAPI_CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
+    WSAPI_USE_CACHE = True
+    WSAPI_CACHE_BACKEND = 'simple'
+    WSAPI_CACHE_DIR = '/tmp/wsapi/'
+
 Celery
 ----------
 
@@ -81,7 +97,7 @@ API does not clean cache automatically. Celery task to do so is scheduled to run
     TIME_CHECK_API_CACHE_INTERVAL = timedelta(hours=1)
 
 They control how often the task is ran (1 hour above) and how old files are kept (2 hours). 
-The directory where the cache is kept is defined in the API settings (``/tmp/wsapi/`` by default).
+The directory where the cache is kept is defined in the cghub settings ``cghub/settings/wsapi.py`` - `WSAPI_CACHE_DIR` (``/tmp/wsapi/`` by default).
 
 Cart cache
 ~~~~~~~~~~~~~~~
@@ -94,7 +110,7 @@ to keep files is also specified.
 
     # cart_cache.py
 
-    CART_CACHE_FOLDER = '/tmp/wsapi/'
+    CART_CACHE_DIR = '/tmp/wsapi/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
 

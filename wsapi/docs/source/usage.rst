@@ -78,22 +78,22 @@ Here is an example of using it with a periodic Celery task:
 .. code-block:: python
 
     import datetime
-    from datetime import timedelta
 
+    from django.conf import settings
     from celery.task import task
 
-    from wsapi.utils import clear_cache
+    from cghub.wsapi.utils import clear_cache
 
-    TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
 
     @task(ignore_result=True)
     def api_cache_clear_task():
         """
-        Task to clear API cache which is by default is stored in
-        ``/tmp/wsapi/``.
+        Task to clear API cache.
         """
         now = datetime.datetime.now()
-        clear_cache(now - TIME_DELETE_API_CACHE_FILES_OLDER)
+        clear_cache(
+                cache_dir=settings.WSAPI_CACHE_DIR,
+                older_than=now - settings.TIME_DELETE_API_CACHE_FILES_OLDER)
 
 An example of :file:`celeryconfig` :
 

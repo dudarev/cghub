@@ -6,3 +6,4 @@ DATABASES = {
 }
 
 WSAPI_CACHE_DIR = '/tmp/wsapi/'
+CART_CACHE_DIR = WSAPI_CACHE_DIR
