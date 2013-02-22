@@ -18,8 +18,8 @@ from lxml import objectify, etree
 from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
-from settings import (CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI,
-                                CGHUB_ANALYSIS_ATTRIBUTES_URI, CACHE_DIR)
+
+from utils import get_setting
 
 
 # we unable to sort results by this fields at server side
@@ -60,7 +60,7 @@ def parse_sort_by(value):
         return '%s:desc' % value[1:]
     return '%s:asc' % value
 
-def get_cache_file_name(query):
+def get_cache_file_name(query, settings):
     """
     Calculate cache file name.
     IDs cache files ends with _ids.cache.
@@ -71,32 +71,38 @@ def get_cache_file_name(query):
     query = urllib2.quote(query)
     md5 = hashlib.md5(query)
     cache_file_name = u'{0}_ids.cache'.format(md5.hexdigest())
-    cache_file_name = os.path.join(CACHE_DIR, cache_file_name)
+    cache_file_name = os.path.join(
+                get_setting('CACHE_DIR', settings),
+                cache_file_name)
     return cache_file_name
 
-def load_ids(query):
+def load_ids(query, settings):
     """
     Load ids from CGHub server.
     """
-    url = u'{0}{1}?{2}'.format(CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI, query)
+    url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_ID_URI', settings),
+            query)
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
-    filename = get_cache_file_name(query)
-    if not os.path.exists(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
+    filename = get_cache_file_name(query, settings)
+    cache_dir = get_setting('CACHE_DIR', settings)
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
     parse(response, IDsParser(filename))
 
-def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
+def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     """
     Get ids for specified query from cache or load from CGHub server.
     """
     q = query
     if sort_by and not sort_by in CALCULATED_FIELDS:
         q += '&sort_by=' + parse_sort_by(sort_by)
-    filename = get_cache_file_name(q)
+    filename = get_cache_file_name(q, settings)
     # reload cache if ignore_cache
     if not os.path.exists(filename) or ignore_cache:
-        load_ids(q)
+        load_ids(q, settings=settings)
     try:
         items_count = int(linecache.getline(filename, 1))
     except ValueError:
@@ -109,19 +115,22 @@ def get_ids(query, offset, limit, sort_by=None, ignore_cache=False):
     linecache.clearcache()
     return items_count, items
 
-def load_attributes(ids):
+def load_attributes(ids, settings):
     """
     Load attributes for specified set of ids.
     Sorting not implemented for ANALYSIS_ATTRIBUTES uri.
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
-    url = u'{0}{1}?{2}'.format(CGHUB_SERVER, CGHUB_ANALYSIS_ATTRIBUTES_URI, query)
+    url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_ATTRIBUTES_URI', settings),
+            query)
     request = urllib2.Request(url)
     response = urllib2.urlopen(request).read()
     results = objectify.fromstring(response)
     return results
 
-def request_light(query, offset, limit, sort_by=None, ignore_cache=False):
+def request_light(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     """
     Makes a request to CGHub web service
     or gets data from cache if exists.
@@ -132,12 +141,14 @@ def request_light(query, offset, limit, sort_by=None, ignore_cache=False):
     :param limit: limit (also for paging)
     :param sort_by: sort by this attribute (specify it as ``-date_modified`` to reverse sorting order)
     :param ignore_cache: set to True, to restrict using cached ids
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
 
-    ids = get_ids(query, offset, limit, sort_by=sort_by, ignore_cache=ignore_cache)
+    ids = get_ids(query, offset, limit, sort_by=sort_by,
+                            ignore_cache=ignore_cache, settings=settings)
     if ids[0] == 0:
         return ids[0], objectify.fromstring(
             "<ResultSet><Query>%s</Query>"
             "<Hits>0</Hits></ResultSet>" % urllib2.quote(query))
-    attributes = load_attributes(ids=ids[1])
+    attributes = load_attributes(ids=ids[1], settings=settings)
     return ids[0], attributes

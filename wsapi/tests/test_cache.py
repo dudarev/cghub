@@ -6,8 +6,7 @@ import unittest
 import datetime, time
 
 from wsapi.api import request, Results
-from wsapi.utils import clear_cache
-from wsapi.settings import CACHE_DIR
+from wsapi.utils import clear_cache, get_setting
 
 
 TEST_DATA_DIR = 'tests/test_data/'
@@ -29,24 +28,25 @@ class CacheTest(unittest.TestCase):
         Copy cached files to default cache directory.
         """
 
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
+        cache_dir = get_setting('CACHE_DIR')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
         for f in self.cache_files + self.bad_cache_file:
             shutil.copy(
                     os.path.join(TEST_DATA_DIR, f),
-                    os.path.join(CACHE_DIR, f)
+                    os.path.join(cache_dir, f)
                     )
 
     def tearDown(self):
         for f in self.cache_files + self.bad_cache_file:
             try:
-                os.remove(os.path.join(CACHE_DIR, f))
+                os.remove(os.path.join(get_setting('CACHE_DIR'), f))
             except OSError:
                 pass
 
     def test_from_file_method(self):
         for f in self.cache_files:
-            results = Results.from_file(os.path.join(TEST_DATA_DIR, f))
+            results = Results.from_file(os.path.join(TEST_DATA_DIR, f), settings={})
             self.assertFalse(results.Result[0].reason == None)
 
     def test_data_is_from_cache(self):
@@ -70,15 +70,18 @@ class CacheTest(unittest.TestCase):
         """
         TEN_DAYS_AGO = datetime.datetime.now() - datetime.timedelta(days=10)
         TEN_DAYS_AGO= time.mktime(TEN_DAYS_AGO.timetuple())
+        cache_dir = get_setting('CACHE_DIR')
 
         for f in self.cache_files:
-            os.utime(os.path.join(CACHE_DIR, f), (TEN_DAYS_AGO, TEN_DAYS_AGO))
+            os.utime(os.path.join(cache_dir, f), (TEN_DAYS_AGO, TEN_DAYS_AGO))
 
         # clear cache older than a day
-        clear_cache(datetime.datetime.now() - datetime.timedelta(days=1))
+        clear_cache(
+                cache_dir=get_setting('CACHE_DIR'),
+                older_than=datetime.datetime.now() - datetime.timedelta(days=1))
 
         for f in self.cache_files:
-            self.failIf(os.path.exists(os.path.join(CACHE_DIR, f)))
+            self.failIf(os.path.exists(os.path.join(cache_dir, f)))
 
 
 if __name__ == '__main__':

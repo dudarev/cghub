@@ -9,7 +9,7 @@ from lxml import objectify
 from wsapi.exceptions import QueryRequired
 from wsapi.api import request, multiple_request
 from wsapi.cache import get_cache_file_name
-from wsapi.settings import CACHE_DIR
+from wsapi.utils import get_setting
 
 
 class RequestTest(unittest.TestCase):
@@ -78,8 +78,8 @@ class RequestTest(unittest.TestCase):
         the escaped query string
         """
         self.assertEqual(
-            get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True),
-            get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D', True)
+            get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True, settings={}),
+            get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D', True, settings={})
         )
 
 
@@ -96,20 +96,21 @@ class MultipleRequestTestCase(unittest.TestCase):
         """
 
         TEST_DATA_DIR = 'tests/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
+        cache_dir = get_setting('CACHE_DIR')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
+                os.path.join(cache_dir, f)
             )
-        self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+        self.default_results = objectify.fromstring(open(os.path.join(cache_dir, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
-        os.remove(os.path.join(CACHE_DIR, self.extra_cache_file))
+            os.remove(os.path.join(get_setting('CACHE_DIR'), f))
+        os.remove(os.path.join(get_setting('CACHE_DIR'), self.extra_cache_file))
 
     def test_multiple_request(self):
         queries_list = ['xml_text=6d5%2A', 'xml_text=6d8%2A']

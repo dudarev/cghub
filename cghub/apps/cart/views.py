@@ -41,9 +41,10 @@ def cart_add_files(request):
                 query = filter_str[1:]  # remove front ampersand
             if 'xml_text' in query:
                 queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
-                results = api_multiple_request(queries_list=queries_list)
+                results = api_multiple_request(queries_list=queries_list,
+                                    settings=settings.WSAPI_SETTINGS)
             else:
-                results = api_request(query=query)
+                results = api_request(query=query, settings=settings.WSAPI_SETTINGS)
             results.add_custom_fields()
             if hasattr(results, 'Result'):
                 for r in results.Result:
@@ -136,11 +137,13 @@ class CartDownloadFilesView(View):
                 analysis_id,
                 '' if get_attributes else 'out')
             try:
-                result = Results.from_file(os.path.join(settings.CART_CACHE_FOLDER, filename))
+                result = Results.from_file(
+                        os.path.join(settings.CART_CACHE_FOLDER, filename),
+                        settings=settings.WSAPI_SETTINGS)
             except IOError:
                 result = api_request(
                     query='analysis_id={0}'.format(analysis_id),
-                    get_attributes=get_attributes)
+                    get_attributes=get_attributes, settings=settings.WSAPI_SETTINGS)
             if results is None:
                 results = result
                 results.Query.clear()
@@ -198,7 +201,9 @@ class CartDownloadFilesView(View):
     def _empty_results(self):
         from lxml import objectify
         from datetime import datetime
-        results = Results(objectify.fromstring('<ResultSet></ResultSet>'))
+        results = Results(
+                    objectify.fromstring('<ResultSet></ResultSet>'),
+                    settings=settings.WSAPI_SETTINGS)
         results.set('date', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         results.insert(0, objectify.fromstring('<Query></Query>'))
         results.insert(1, objectify.fromstring('<Hits></Hits>'))

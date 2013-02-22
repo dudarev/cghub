@@ -1,9 +1,12 @@
-from django.test import LiveServerTestCase
-from selenium.webdriver.firefox.webdriver import WebDriver
 import time
 import re
 import os, shutil
-from wsapi.settings import CACHE_DIR
+
+from selenium.webdriver.firefox.webdriver import WebDriver
+
+from django.test import LiveServerTestCase
+from django.conf import settings
+
 from wsapi.api import request as api_request
 
 
@@ -12,12 +15,12 @@ def wsapi_cache_copy(cache_files):
     copy cache_files from TEST_DATA_DIR to CACHE_DIR
     """
     TEST_DATA_DIR = 'cghub/test_data/'
-    if not os.path.exists(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
+    if not os.path.exists(settings.WSAPI_CACHE_DIR):
+        os.makedirs(settings.WSAPI_CACHE_DIR)
     for f in cache_files:
         shutil.copy(
             os.path.join(TEST_DATA_DIR, f),
-            os.path.join(CACHE_DIR, f)
+            os.path.join(settings.WSAPI_CACHE_DIR, f)
         )
 
 
@@ -26,7 +29,7 @@ def wsapi_cache_remove(cache_files):
     remove cache_files from CACHE_DIR
     """
     for f in cache_files:
-        os.remove(os.path.join(CACHE_DIR, f))
+        os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
 
 
 def back_to_bytes(*args):
@@ -468,7 +471,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(ColumnSelectTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
-        lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
