@@ -8,23 +8,19 @@
         {% details_table res %}
     </table>
     <h4>Raw:</h4>
+    <div class="btn-toolbar">
+        <div class="btn-group">
+            <a id="id-collapse-all-button" class="btn">Collapse all</a>
+            <a id="id-expand-all-button" class="btn">Expand all</a>
+        </div>
+    </div>
     <div id="XMLHolder" class="XmlContainer"></div>
 {% else %}
 No data.
 {% endif %}
 {% endblock %}
 
-
-{% block extra_body_js %}
-<script>
-    LoadXMLString('XMLHolder', {{ raw_xml|safe }});
-    jQuery(function ($) {
-        var visibleElements = $(".Element:visible");
-        var visibleClickables = $("div.Element:visible > span.Clickable:contains('-')");
-
-        visibleClickables.each(function(){
-            $(this).click()
-        });
-    });
-</script>
+{% block extra_header_js %}
+    <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/details.js"></script>
 {% endblock %}

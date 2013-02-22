@@ -106,84 +106,91 @@ function ShowXML(xmlHolderElement,RootNode,indent)
 	TagEmptyElement.style.position = 'relative';
 	TagEmptyElement.style.left = NestingIndent+'px';
 	if (RootNode.childNodes.length==0) { 
-    var ClickableElement = AddTextNode(TagEmptyElement,'','Clickable') ;
-    ClickableElement.id = 'div_empty_' + IDCounter;	  
-    AddTextNode(TagEmptyElement,'<','Utility') ;
-    AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName') 
-    for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-      CurrentAttribute  = RootNode.attributes.item(i);
-      AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-      AddTextNode(TagEmptyElement,'=','Utility') ;
-      AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
-    }
-    AddTextNode(TagEmptyElement,' />') ;
-    xmlHolderElement.appendChild(TagEmptyElement);	
-    //SetVisibility(TagEmptyElement,true);    
-	}
-	else { // mo child nodes
-    
-    var ClickableElement = AddTextNode(TagEmptyElement,'+','Clickable') ;
-    ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
-    ClickableElement.id = 'div_empty_' + IDCounter;	
-		
-    AddTextNode(TagEmptyElement,'<','Utility') ;
-    AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName') 
-    for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-      CurrentAttribute  = RootNode.attributes.item(i);
-      AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-      AddTextNode(TagEmptyElement,'=','Utility') ;
-      AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
-    }
+        var ClickableElement = AddTextNode(TagEmptyElement,'','Clickable') ;
 
-    AddTextNode(TagEmptyElement,'>  </','Utility') ;
-    AddTextNode(TagEmptyElement,RootNode.nodeName,'NodeName') ;
-    AddTextNode(TagEmptyElement,'>','Utility') ;
-    xmlHolderElement.appendChild(TagEmptyElement);	
-    SetVisibility(TagEmptyElement,false);
-    //----------------------------------------------
-    
-    var TagElement = document.createElement('div');
-    TagElement.className = 'Element';
-    TagElement.style.position = 'relative';
-    TagElement.style.left = NestingIndent+'px';
-    ClickableElement = AddTextNode(TagElement,'-','Clickable') ;
-    ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
-    ClickableElement.id = 'div_content_' + IDCounter;		
-    ++IDCounter;
-    AddTextNode(TagElement,'<','Utility') ;
-    AddTextNode(TagElement,RootNode.nodeName ,'NodeName') ;
-    
-    for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-        CurrentAttribute  = RootNode.attributes.item(i);
-        AddTextNode(TagElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-        AddTextNode(TagElement,'=','Utility') ;
-        AddTextNode(TagElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
-    }
-    AddTextNode(TagElement,'>','Utility') ;
-    TagElement.appendChild(document.createElement('br'));
-    var NodeContent = null;
-    for (var i = 0; RootNode.childNodes && i < RootNode.childNodes.length; ++i) {
-      if (RootNode.childNodes.item(i).nodeName != '#text') {
-        Result &= ShowXML(TagElement,RootNode.childNodes.item(i),indent+1);
-      }
-      else {
-        NodeContent =RootNode.childNodes.item(i).nodeValue;
-      }					
-    }			
-    if (RootNode.nodeValue) {
-      NodeContent = RootNode.nodeValue;
-    }
-    if (NodeContent) {	
-      var ContentElement = document.createElement('div');
-      ContentElement.style.position = 'relative';
-      ContentElement.style.left = NestingIndent+'px';			
-      AddTextNode(ContentElement,NodeContent ,'NodeValue') ;
-      TagElement.appendChild(ContentElement);
-    }			
-    AddTextNode(TagElement,'  </','Utility') ;
-    AddTextNode(TagElement,RootNode.nodeName,'NodeName') ;
-    AddTextNode(TagElement,'>','Utility') ;
-    xmlHolderElement.appendChild(TagElement);	
+        /* PROBLEM WAS: if node is without children and it's clickable has id 'div_empty_#',
+         *  then the next node with children will have same id 'div_empty_#'.
+         *  No need to give id to elements that have no children.
+         *  This row corrupted collapsing. Please, NEVER uncomment this
+         *  or use this row and increment IDCounter after
+         */
+        //ClickableElement.id = 'div_empty_' + IDCounter;
+
+        AddTextNode(TagEmptyElement,'<','Utility') ;
+        AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName')
+        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
+          CurrentAttribute  = RootNode.attributes.item(i);
+          AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
+          AddTextNode(TagEmptyElement,'=','Utility') ;
+          AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
+        }
+        AddTextNode(TagEmptyElement,' />') ;
+        xmlHolderElement.appendChild(TagEmptyElement);
+        //SetVisibility(TagEmptyElement,true);
+	}
+	else { // nodes with children
+        var ClickableElement = AddTextNode(TagEmptyElement,'+','Clickable') ;
+        ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
+        ClickableElement.id = 'div_empty_' + IDCounter;
+
+        AddTextNode(TagEmptyElement,'<','Utility') ;
+        AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName')
+        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
+            CurrentAttribute  = RootNode.attributes.item(i);
+            AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
+            AddTextNode(TagEmptyElement,'=','Utility') ;
+            AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
+        }
+
+        AddTextNode(TagEmptyElement,'>  </','Utility') ;
+        AddTextNode(TagEmptyElement,RootNode.nodeName,'NodeName') ;
+        AddTextNode(TagEmptyElement,'>','Utility') ;
+        xmlHolderElement.appendChild(TagEmptyElement);
+        SetVisibility(TagEmptyElement,false);
+        //----------------------------------------------
+
+        var TagElement = document.createElement('div');
+        TagElement.className = 'Element';
+        TagElement.style.position = 'relative';
+        TagElement.style.left = NestingIndent+'px';
+        ClickableElement = AddTextNode(TagElement,'-','Clickable') ;
+        ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
+        ClickableElement.id = 'div_content_' + IDCounter;
+        ++IDCounter;
+        AddTextNode(TagElement,'<','Utility') ;
+        AddTextNode(TagElement,RootNode.nodeName ,'NodeName') ;
+
+        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
+            CurrentAttribute  = RootNode.attributes.item(i);
+            AddTextNode(TagElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
+            AddTextNode(TagElement,'=','Utility') ;
+            AddTextNode(TagElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
+        }
+        AddTextNode(TagElement,'>','Utility') ;
+        TagElement.appendChild(document.createElement('br'));
+        var NodeContent = null;
+        for (var i = 0; RootNode.childNodes && i < RootNode.childNodes.length; ++i) {
+          if (RootNode.childNodes.item(i).nodeName != '#text') {
+            Result &= ShowXML(TagElement,RootNode.childNodes.item(i),indent+1);
+          }
+          else {
+            NodeContent =RootNode.childNodes.item(i).nodeValue;
+          }
+        }
+        if (RootNode.nodeValue) {
+          NodeContent = RootNode.nodeValue;
+        }
+        if (NodeContent) {
+          var ContentElement = document.createElement('div');
+          ContentElement.style.position = 'relative';
+          ContentElement.style.left = NestingIndent+'px';
+          AddTextNode(ContentElement,NodeContent ,'NodeValue') ;
+          TagElement.appendChild(ContentElement);
+        }
+        AddTextNode(TagElement,'  </','Utility') ;
+        AddTextNode(TagElement,RootNode.nodeName,'NodeName') ;
+        AddTextNode(TagElement,'>','Utility') ;
+        xmlHolderElement.appendChild(TagElement);
   }
 	
 	// if (indent==0) { ToggleElementVisibility(TagElement.childNodes(0)); } - uncomment to collapse the external element
@@ -217,7 +224,7 @@ function SetVisibility(HTMLElement,Visible)
 	if (!HTMLElement) { return; }
 	var VisibilityStr  = (Visible) ? 'block' : 'none';
 	if (document.getElementById) { // DOM3 = IE5, NS6
-		HTMLElement.style.display =VisibilityStr; 
+		HTMLElement.style.display = VisibilityStr;
 	}
 	else {
 		if (document.layers) { // Netscape 4
@@ -243,7 +250,7 @@ function ToggleElementVisibility(Element)
 		ElementToShow = 'div_empty_' + ElementID;
 	}
 	else if (ElementType=='div_empty_') {
-		ElementToShow= 'div_content_' + ElementID;
+		ElementToShow = 'div_content_' + ElementID;
 		ElementToHide  = 'div_empty_' + ElementID;
 	}
 	ElementToHide = CompatibleGetElementByID(ElementToHide);

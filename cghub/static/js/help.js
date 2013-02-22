@@ -58,7 +58,7 @@ jQuery(function ($) {
             $(window).scroll(function(){
                 cghub.help.removeTooltips()
             });
-        },
+        }
     };
     cghub.help.init();
 });
