@@ -6,11 +6,11 @@ from django.utils.http import urlquote
 from django.core.urlresolvers import reverse
 
 
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
-from cghub.apps.core.utils import get_filters_string, get_wsapi_settings
+from cghub.apps.core.utils import get_filters_string, get_wsapi_settings, metadata
 
 
 DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
@@ -141,3 +141,8 @@ class CeleryTasksStatus(TemplateView):
             return task
 
         return {"tasks": map(prettify_task, tasks)}
+
+
+class MetadataView(View):
+    def post(self, request, uuid):
+        return metadata(ids=[uuid], format='xml')
