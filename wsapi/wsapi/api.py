@@ -14,9 +14,8 @@ from datetime import datetime
 
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
+from utils import get_setting
 
-from settings import (CGHUB_SERVER, CGHUB_ANALYSIS_ID_URI,
-                                CGHUB_ANALYSIS_ATTRIBUTES_URI, USE_API_LIGHT)
 from api_light import request_light
 
 
@@ -27,15 +26,17 @@ class Results(object):
 
     CALCULATED_FIELDS = ('files_size', 'refassem_short_name',)
 
-    def __init__(self, lxml_results):
+    def __init__(self, lxml_results, settings):
         """
         :param lxml_results: needs to be converted with lxml.objectify
+        :param settings: wsapi settings dict, see `wsapi.settings.py`
 
         .. code-block :: python
 
             results = objectify.fromstring(open(cache_file_name, 'r').read())
         """
         self._lxml_results = lxml_results
+        self.settings = settings
         self.is_custom_fields_calculated = False
         # used by api_light to specify correct results count
         self.length = 0
@@ -49,7 +50,7 @@ class Results(object):
         return self[item]
 
     @classmethod
-    def from_file(cls, file_name):
+    def from_file(cls, file_name, settings):
         """
         Initialize :class:`Results <Results>` from a file.
         """
@@ -57,7 +58,8 @@ class Results(object):
             return cls(
                 objectify.fromstring(
                     f.read()
-                )
+                ),
+                settings=settings
             )
 
     def add_custom_fields(self):
@@ -151,8 +153,9 @@ class Results(object):
         for r in self.Result:
             for a in attributes_to_remove:
                 r.remove(r.find(a))
-            r.analysis_attribute_uri = \
-                CGHUB_SERVER + CGHUB_ANALYSIS_ATTRIBUTES_URI + '/' + r.analysis_id
+            r.analysis_attribute_uri = (get_setting('CGHUB_SERVER', self.settings) +
+                    get_setting('CGHUB_ANALYSIS_ATTRIBUTES_URI', self.settings) +
+                    '/' + r.analysis_id)
             objectify.deannotate(r.analysis_attribute_uri)
             etree.cleanup_namespaces(r)
 
@@ -215,7 +218,7 @@ def merge_results(xml_results):
 def request(
         query=None, offset=None, limit=None, sort_by=None,
         get_attributes=True, file_name=None, ignore_cache=False,
-                                                use_api_light=False):
+        use_api_light=False, settings={}):
     """
     Makes a request to CGHub web service or gets data from a file.
     Returns parsed :class:`wsapi.api.Results` object.
@@ -232,16 +235,18 @@ def request(
     :param get_attributes: boolean to get results with attributes or not (``True`` by default), see :ref:`wsi-api` for details
     :param file_name: only this parameter maybe specified, in this case results are obtained from a file
     :param use_api_light: use api_light to obtain results, it works more efficient with large queries
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
 
-    if use_api_light and USE_API_LIGHT:
+    if use_api_light:
         hits, results = request_light(
                             query=query,
                             offset=offset or 0,
                             limit=limit or 10,
                             sort_by=sort_by,
-                            ignore_cache=ignore_cache)
-        results = Results(results)
+                            ignore_cache=ignore_cache,
+                            settings=settings)
+        results = Results(results, settings)
         if sort_by:
             results.sort(sort_by)
         results.length = hits
@@ -259,16 +264,16 @@ def request(
     # Getting results from the cache
     if not len(results) and not ignore_cache:
         results, cache_errors = get_from_cache(
-            query=query, get_attributes=get_attributes)
+            query=query, get_attributes=get_attributes, settings=settings)
 
     # Getting results from the server
     if not len(results):
         results_from_cache = False
-        server = CGHUB_SERVER
+        server = get_setting('CGHUB_SERVER')
         if get_attributes:
-            uri = CGHUB_ANALYSIS_ATTRIBUTES_URI
+            uri = get_setting('CGHUB_ANALYSIS_ATTRIBUTES_URI')
         else:
-            uri = CGHUB_ANALYSIS_ID_URI
+            uri = get_setting('CGHUB_ANALYSIS_ID_URI')
         if not '=' in query:
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
         url = u'{0}{1}?{2}'.format(server, uri, query)
@@ -277,11 +282,12 @@ def request(
         results = objectify.fromstring(response)
 
     # wrap result with extra methods
-    results = Results(results)
+    results = Results(results, settings)
 
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
-        save_to_cache(query=query, get_attributes=get_attributes, data=results)
+        save_to_cache(query=query, get_attributes=get_attributes,
+                                        data=results, settings=settings)
 
     # Sort and slice if needed
     if hasattr(results, 'Result'):
@@ -306,7 +312,8 @@ def request(
 
 def multiple_request(
         queries_list=None, offset=None, limit=None, sort_by=None,
-        get_attributes=True, file_name=None, ignore_cache=False):
+        get_attributes=True, file_name=None, ignore_cache=False,
+        settings={}):
     """
     The only difference from wsapi.api.request is that the first argument can be
     iterable(tuple or list) with many queries.
@@ -319,7 +326,8 @@ def multiple_request(
     if isinstance(queries_list, str):
         return request(
             queries_list, offset, limit, sort_by,
-            get_attributes, file_name, ignore_cache, use_api_light=True)
+            get_attributes, file_name, ignore_cache, use_api_light=True,
+            settings=settings)
 
     if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
         raise Exception('The first argument must be tuple or list')
@@ -336,7 +344,9 @@ def multiple_request(
     # Getting results from the cache
     if not len(results) and not ignore_cache:
         results, cache_errors = get_from_cache(
-            query=str(list(queries_list)), get_attributes=get_attributes)
+                query=str(list(queries_list)),
+                get_attributes=get_attributes,
+                settings=settings)
 
     if not len(results):
         results_from_cache = False
@@ -345,14 +355,19 @@ def multiple_request(
             results_list.append(
                 request(
                     query=query, offset=None, limit=None, sort_by=None,
-                    get_attributes=get_attributes, file_name=file_name, ignore_cache=ignore_cache))
+                    get_attributes=get_attributes, file_name=file_name,
+                    ignore_cache=ignore_cache, settings=settings))
         results = merge_results(results_list)
 
-    results = Results(results)
+    results = Results(results, settings)
 
     # Saving results to the cache
     if not ignore_cache and not results_from_cache:
-        save_to_cache(query=str(list(queries_list)), get_attributes=get_attributes, data=results)
+        save_to_cache(
+                    query=str(list(queries_list)),
+                    get_attributes=get_attributes,
+                    data=results,
+                    settings=settings)
 
     # Sort and slice if needed
     if hasattr(results, 'Result'):

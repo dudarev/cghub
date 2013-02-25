@@ -42,15 +42,24 @@ CGHUB_ANALYSIS_ATTRIBUTES_URI)
 Settings
 --------------
 
+Settings dict can be passed to ``request`` or ``multiple_request`` function:
+
+.. code-block:: python
+
+    results = api_request(query=query,
+                        settings={
+                            'CGHUB_SERVER': 'https://cghub.ucsc.edu',
+                            'CGHUB_ANALYSIS_ID_URI': '/cghub/metadata/analysisId'})
+
+In case, when some settings not specified, will be used default settings, specified in `wsapi/settings.py`.
+
 Available settings:
-
-CACHE_DIR - cache files are kept here
-USE_CACHE - boolean, enabling or disabling caching
-CACHE_BACKEND - string, name of the cache backend that will be used by app.
-    For now only 'simple' backend is available(stores cache in files in the CACHE_DIR)
-Other available settings see in settings.py file.
-
-For settings customizing use settings_local.py.
+    - CGHUB_SERVER: CGHub server url
+    - CGHUB_ANALYSIS_ID_URI: Analysis Object Identification uri
+    - CGHUB_ANALYSIS_ATTRIBUTES_URI: Analysis Attribute Query uri
+    - CACHE_DIR: directory to store cache, ``/tmp/wsapi/`` by default
+    - USE_CACHE: enables caching if equals True, False is the default
+    - CACHE_BACKEND: determines cache type, for now available types are ('simple',)
 
 .. automodule:: wsapi.settings
     :members:

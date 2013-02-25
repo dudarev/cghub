@@ -76,14 +76,14 @@ class Paginator(object):
     def next_page(self):
         return {
             'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=self.offset),
+                                 limit=self.limit, offset=(self.offset + self.limit)),
             'page_number': self.offset / self.limit + 1
         }
 
     def prev_page(self):
         return {
             'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=self.offset),
+                                 limit=self.limit, offset=(self.offset - self.limit)),
             'page_number': self.offset / self.limit - 1
         }
 

@@ -3,7 +3,7 @@ import shutil
 import os
 from django.utils import unittest
 from wsapi.api import request
-from wsapi.settings import CACHE_DIR
+from wsapi.utils import get_setting
 
 
 class PaginationTestCase(unittest.TestCase):
@@ -22,19 +22,20 @@ class PaginationTestCase(unittest.TestCase):
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'tests/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
+        cache_dir = get_setting('CACHE_DIR')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
+                os.path.join(cache_dir, f)
             )
-        self.default_results = objectify.fromstring(open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+        self.default_results = objectify.fromstring(open(os.path.join(cache_dir, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
+            os.remove(os.path.join(get_setting('CACHE_DIR'), f))
 
     def test_pagination_offset_and_limit_are_none(self):
         results = request(query='xml_text=6d5*')

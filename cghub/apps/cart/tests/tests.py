@@ -190,7 +190,7 @@ class CartAddItemsTests(WithCacheTestCase):
 class CacheTestCase(TestCase):
     def setUp(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
-        self.api_results_cache_dir = settings.CART_CACHE_FOLDER
+        self.api_results_cache_dir = settings.CART_CACHE_DIR
         files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
         for file in files:
             os.remove(file)
