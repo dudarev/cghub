@@ -60,8 +60,8 @@ DETAILS_FIELDS = (
 )
 
 COLUMN_HELP_HINTS = {
-    'UUID': 'Help text for UUID, and this is <a href="#">link</a>, click to view help page!',
-    'Study': 'Help text for Study, and this is <a href="#">link</a>, click to view help page!',
+    'UUID': 'Help for UUID, and this is <a href="#">link</a>, click to view help page!',
+    'Study': 'Help for Study, and this is <a href="#">link</a>, click to view help page!',
 }
 
 DEFAULT_PAGINATOR_LIMIT = 10
