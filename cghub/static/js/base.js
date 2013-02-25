@@ -12,7 +12,6 @@ jQuery(function ($) {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
             cghub.base.highlightCode('pre.xml-code');
-            cghub.base.activateTooltipHelp();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -77,57 +76,6 @@ jQuery(function ($) {
                 window.open($tr.attr('data-details-url'), '_blank');
                 window.focus();
                 return false;
-            });
-        },
-        activateTooltipHelp:function () {
-            $(document).on('mouseenter', '.js-tooltip-help', function(e){
-                cghub.base.tooltipShowTimeout = setTimeout(function() {
-                    var $target = $(e.target); 
-                    var posX = $(e.target).offset().left - $(window).scrollLeft();
-                    var posY = $(e.target).offset().top - $(window).scrollTop();
-                    var content = $(e.target).attr('data-tooltip');
-                    if(!$target.hasClass('js-tooltip-help')) {
-                        content = $target.parents('.js-tooltip-help').attr('data-tooltip');
-                    }
-                    if(!content) {
-                        content = 'Click to view <a href="#">help</a> for ' + $(e.target).text();
-                    }
-                    if(cghub.base.tooltipShowTimeout) {
-                        clearTimeout(cghub.base.tooltipShowTimeout);
-                    }
-                    if(cghub.base.tooltipHideTimeout) {
-                        clearTimeout(cghub.base.tooltipHideTimeout);
-                    }
-                    $('.js-tooltip').remove();
-                    var tooltip = $('<div class="tooltip js-tooltip"></div>').html(content).appendTo($('body'));
-                    tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
-                }, 1500);
-            });
-            $(document).on('mouseenter', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(){
-                if(cghub.base.tooltipHideTimeout) {
-                    clearTimeout(cghub.base.tooltipHideTimeout);
-                }
-            });
-            $(document).on('mouseout', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(obj){
-                if($(obj.target).parents('.js-tooltip').length)return;
-                if(cghub.base.tooltipShowTimeout) {
-                    clearTimeout(cghub.base.tooltipShowTimeout);
-                }
-                cghub.base.tooltipHideTimeout = setTimeout(function() {
-                    if(cghub.base.tooltipHideTimeout) {
-                        clearTimeout(cghub.base.tooltipHideTimeout);
-                        $('.tooltip').remove();
-                    }
-                }, 0);
-            });
-            $(window).scroll(function(){
-                if(cghub.base.tooltipShowTimeout) {
-                    clearTimeout(cghub.base.tooltipShowTimeout);
-                }
-                if(cghub.base.tooltipHideTimeout) {
-                    clearTimeout(cghub.base.tooltipHideTimeout);
-                }
-                $('.js-tooltip').remove();
             });
         },
         highlightCode:function(element) {

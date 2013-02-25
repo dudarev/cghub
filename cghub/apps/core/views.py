@@ -73,7 +73,7 @@ class SearchView(TemplateView):
             queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
             results = api_multiple_request(
                 queries_list=queries_list, sort_by=sort_by,
-                offset=offset, limit=limit)
+                offset=offset, limit=limit, settings=WSAPI_SETTINGS)
         else:
             results = api_request(query=query, sort_by=sort_by,
                         offset=offset, limit=limit, use_api_light=True,
