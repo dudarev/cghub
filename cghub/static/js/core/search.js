@@ -13,6 +13,7 @@ jQuery(function ($) {
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
             cghub.search.initDdcl();
+            cghub.search.customPeriodDatepickers();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -262,6 +263,13 @@ jQuery(function ($) {
         resetFilters:function() {
             window.location.href = "/";
             $(this).blur();
+        },
+        customPeriodDatepickers:function() {
+            $("input#ddcl-8-i1").daterangepicker({
+                presetRanges: [
+                    {text: 'Period', dateStart: '01/01/10', dateEnd: 'Today' }
+                ]
+             });
         }
     };
     cghub.search.init();
