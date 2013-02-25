@@ -15,6 +15,7 @@ Contents:
     testing.rst
     deployment.rst
     settings.rst
+    help.rst
     static.rst
     docs.rst
     future.rst
