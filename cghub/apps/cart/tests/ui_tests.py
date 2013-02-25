@@ -1,7 +1,6 @@
 import time, os
 
 from wsapi.api import request as api_request
-from wsapi.settings import CACHE_DIR
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -74,7 +73,7 @@ class CartUITests(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", CACHE_DIR)
+        fp.set_preference("browser.download.dir", settings.WSAPI_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
@@ -82,7 +81,7 @@ class CartUITests(LiveServerTestCase):
         super(CartUITests, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
-        lxml = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
         uuids = lxml.xpath('/ResultSet/Result/analysis_id')
         self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
@@ -160,10 +159,10 @@ class CartUITests(LiveServerTestCase):
         # Checking file downloading
         # Check there are no pre-existed files in /tmp/wsapi/
         try:
-            os.remove(CACHE_DIR + 'manifest.xml')
-            os.remove(CACHE_DIR + 'manifest.tsv')
-            os.remove(CACHE_DIR + 'metadata.xml')
-            os.remove(CACHE_DIR + 'metadata.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
+            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.tsv')
         except OSError:
             pass
 
@@ -184,7 +183,7 @@ class CartUITests(LiveServerTestCase):
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(CACHE_DIR + 'manifest.xml')
+            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
         except OSError:
             assert False, "File manifest.xml wasn't downloaded"
 
@@ -195,7 +194,7 @@ class CartUITests(LiveServerTestCase):
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(CACHE_DIR + 'manifest.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.tsv')
         except OSError:
             assert False, "File manifest.tsv wasn't downloaded"
 
@@ -206,7 +205,7 @@ class CartUITests(LiveServerTestCase):
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(CACHE_DIR + 'metadata.xml')
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
 
@@ -217,7 +216,7 @@ class CartUITests(LiveServerTestCase):
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(CACHE_DIR + 'metadata.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.tsv')
         except OSError:
             assert False, "File metadata.tsv wasn't downloaded"
 
@@ -249,7 +248,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
-        lxml = api_request(file_name=CACHE_DIR + self.cache_files[1])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
@@ -287,7 +286,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
             # Getting list with sorted attributes
-            results = api_request(file_name=CACHE_DIR + self.cache_files[1], sort_by=attr).Result
+            results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1], sort_by=attr).Result
             sorted_attr = [getattr(r, attr) for r in results]
 
             for j in range(self.items_count):
@@ -338,7 +337,7 @@ class AddAllToCartButtonTest(LiveServerTestCase):
         super(AddAllToCartButtonTest, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
-        lxml2 = api_request(file_name=CACHE_DIR + self.cache_files[0])._lxml_results
+        lxml2 = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
         uuids2 = lxml2.xpath('/ResultSet/Result/analysis_id')
         self.page_uuids = uuids2[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 

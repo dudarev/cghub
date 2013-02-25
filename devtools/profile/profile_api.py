@@ -17,9 +17,10 @@ import sys
 from profiler import profile
 import time
 from wsapi.api import request as api_request
-from wsapi.settings import CACHE_DIR
+from wsapi.settings import SETTINGS_DEFAULT
 
 
+CACHE_DIR = SETTINGS_DEFAULT['CACHE_DIR']
 STATS_DIR = 'stats'
 
 good_three_pos_queries = (

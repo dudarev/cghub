@@ -9,8 +9,9 @@ from cghub.wsapi.utils import clear_cache
 @task(ignore_result=True)
 def api_cache_clear_task():
     """
-    Task to clear API cache which is by default is stored in
-    `/tmp/wsapi/`.
+    Task to clear API cache.
     """
     now = datetime.datetime.now()
-    clear_cache(now - settings.TIME_DELETE_API_CACHE_FILES_OLDER)
+    clear_cache(
+            cache_dir=settings.WSAPI_CACHE_DIR,
+            older_than=now - settings.TIME_DELETE_API_CACHE_FILES_OLDER)

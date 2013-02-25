@@ -72,7 +72,7 @@ There are many possible options for filters in the sidebar. Not all of them are 
 
     $ python manage.py selectfilters
 
-It takes file ``cghub/apps/core/filters_storage_full.py`` and for every filter stored there checks if results with such filter may be obtained for the API. First it queries for today, then last 7 days and keeps increasing time interval until results are found. If the results are found the filter is copied into ``cghub/apps/core/filters_storage.json``, otherwise it is ignored. Also the filters that are already queried are placed into a file, so that the command may be interrupted and started again.
+It takes file ``cghub/apps/core/filters_storage_full.py`` and for every filter stored there checks if results with such filter may be obtained for the API. First it queries for today, then last 7 days and keeps increasing time interval until results are found. If the results are found the filter is copied into ``cghub/apps/core/filters_storage.json``, otherwise it is ignored. Also the filters that are already queried are placed into a temporary file ``is_filter_used.pkl``, so that the command may be interrupted and started again.
 
 If it is necessary to erase information about filters that were ran use ``-c`` option:
 

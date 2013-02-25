@@ -9,12 +9,12 @@ from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
-from wsapi.settings import CACHE_DIR
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table)
-from cghub.apps.core.utils import get_filters_string
+from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
+                                                    WSAPI_SETTINGS_LIST)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -31,20 +31,20 @@ class WithCacheTestCase(TestCase):
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         TEST_DATA_DIR = 'cghub/test_data/'
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
+        if not os.path.exists(settings.WSAPI_CACHE_DIR):
+            os.makedirs(settings.WSAPI_CACHE_DIR)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
-                os.path.join(CACHE_DIR, f)
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
             )
         self.default_results = objectify.fromstring(
-            open(os.path.join(CACHE_DIR, self.cache_files[0])).read())
+            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
-            os.remove(os.path.join(CACHE_DIR, f))
+            os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
 
 
 class CoreTests(WithCacheTestCase):
@@ -98,7 +98,7 @@ class CoreTests(WithCacheTestCase):
         self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(CACHE_DIR, self.cache_files[0])
+        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
@@ -135,6 +135,12 @@ class CoreUtilsTests(TestCase):
                         'bad_param': 'bad'})
         self.assertEqual(res, '&study=TGGA&center_name=BCM')
 
+    def test_get_wsapi_settings(self):
+        value = 'somesetting'
+        key = WSAPI_SETTINGS_LIST[0]
+        with self.settings(**{'WSAPI_%s' % key: value}):
+            self.assertEqual(
+                get_wsapi_settings()[key], value)
 
 class TestTemplateTags(TestCase):
 

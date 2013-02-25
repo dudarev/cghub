@@ -2,9 +2,10 @@ import urllib
 import traceback
 
 from django.core.mail import mail_admins
+from django.conf import settings
 
 
-ALLOWED_ATTRIBUTES = [
+ALLOWED_ATTRIBUTES = (
         'study',
         'center_name',
         'last_modified',
@@ -15,7 +16,17 @@ ALLOWED_ATTRIBUTES = [
         'disease_abbr',
         'state',
         'refassem_short_name',
-    ]
+    )
+
+WSAPI_SETTINGS_LIST = (
+        'CGHUB_SERVER',
+        'CGHUB_ANALYSIS_ID_URI',
+        'CGHUB_ANALYSIS_ATTRIBUTES_URI',
+        'USE_CACHE',
+        'CACHE_BACKEND',
+        'CACHE_DIR',
+    )
+
 
 def get_filters_string(attributes):
     filter_str = ''
@@ -26,6 +37,14 @@ def get_filters_string(attributes):
                     urllib.quote(attributes.get(attr))
                 )
     return filter_str
+
+def get_wsapi_settings():
+    wsapi_settings = {}
+    for name in WSAPI_SETTINGS_LIST:
+        setting = getattr(settings, 'WSAPI_%s' % name, None)
+        if setting != None:
+            wsapi_settings[name] = setting
+    return wsapi_settings
 
 def is_celery_alive():
     """
