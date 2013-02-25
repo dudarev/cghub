@@ -8,12 +8,12 @@ jQuery(function ($) {
     }
     cghub.search = {
         init:function () {
+            cghub.search.createPeriodDatepickers();
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
             cghub.search.initDdcl();
-            cghub.search.customPeriodDatepickers();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -32,6 +32,7 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
+            $('input[value=custom_period]').live('click', function() {console.log('test')});
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -264,12 +265,17 @@ jQuery(function ($) {
             window.location.href = "/";
             $(this).blur();
         },
-        customPeriodDatepickers:function() {
-            $("input#ddcl-8-i1").daterangepicker({
-                presetRanges: [
-                    {text: 'Period', dateStart: '01/01/10', dateEnd: 'Today' }
-                ]
-             });
+        createPeriodDatepickers:function() {
+            var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container');
+            var $start_date = $('<input/>').attr('type', 'text').attr('placeholder', 'From').appendTo($dp_container);
+            var $end_date = $('<input/>').attr('type', 'text').attr('placeholder', 'To').appendTo($dp_container);
+            $dp_container.append('<br/>')
+            var $btn_submit = $('<button/>').addClass('btnSubmit btn').attr('type', 'submit').text('Submit').appendTo($dp_container);
+            var $btn_cancel = $('<button/>').addClass('btnCancel btn').text('Cancel').appendTo($dp_container);
+            $start_date.datepicker({changeMonth: true,changeYear: true,yearRange: "-5y:2013"});
+            $end_date.datepicker({changeMonth: true,changeYear: true,yearRange: "-5y:2013"});
+            $('.sidebar').append($dp_container);
+            $('.btnCancel').on('click', function(){ $dp_container.fadeOut()});
         }
     };
     cghub.search.init();
