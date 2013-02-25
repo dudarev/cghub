@@ -59,5 +59,11 @@ DETAILS_FIELDS = (
     'Files Size',
 )
 
+COLUMN_HELP_HINTS = {
+    'UUID': 'Help for UUID, and this is <a href="#">link</a>, click to view help page!',
+    'State': 'State help',
+    'Last modified': 'Last modified help',
+    'Upload time': 'Upload time help',
+}
 
 DEFAULT_PAGINATOR_LIMIT = 10

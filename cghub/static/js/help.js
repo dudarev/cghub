@@ -26,14 +26,14 @@ jQuery(function ($) {
                     var $target = $(e.target); 
                     var posX = $(e.target).offset().left - $(window).scrollLeft();
                     var posY = $(e.target).offset().top - $(window).scrollTop();
-                    var content = $(e.target).attr('data-tooltip');
-                    if(!$target.hasClass('js-tooltip-help')) {
-                        content = $target.parents('.js-tooltip-help').attr('data-tooltip');
-                    }
-                    if(!content) {
-                        content = 'Click to view <a href="#">help</a> for ' + $(e.target).text();
+                    var content = '';
+                    if($target.hasClass('js-tooltip-help')) {
+                        content = $target.find('.js-tooltip-text').html();
+                    } else {
+                        content = $target.parents('.js-tooltip-help').find('.js-tooltip-text').html();
                     }
                     cghub.help.removeTooltips();
+                    if(!content) return;
                     var tooltip = $('<div class="tooltip js-tooltip"></div>').html(content).appendTo($('body'));
                     tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
                 }, 1500);

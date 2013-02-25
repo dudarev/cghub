@@ -288,10 +288,16 @@ def table_header(request):
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th width="%d" data-ds="%s"><span class="js-tooltip-help" data-tooltip="some help text">%s</span></th>' % (
-                            col['width'],
-                            ds,
-                            sort_link(request, col['attr'], c))
+        help_hint = settings.COLUMN_HELP_HINTS.get(c, None)
+        if help_hint:
+            html += '<th width="{width}" data-ds="{defaultstate}"><span class="js-tooltip-help"><span class="js-tooltip-text" style="display: none;">{helphint}</span>{link}</span></th>'
+        else:
+            html += '<th width="{width}" data-ds="{defaultstate}">{link}</th>'
+        html = html.format(
+                    width=col['width'],
+                    defaultstate=ds,
+                    link=sort_link(request, col['attr'], c),
+                    helphint=help_hint)
     return html
 
 
