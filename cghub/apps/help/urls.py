@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from cghub.apps.help.views import HelpView
+from cghub.apps.help.views import HelpView, HelpHintView
 
 
 urlpatterns = patterns(
@@ -28,4 +28,5 @@ urlpatterns = patterns(
     url(r'^search/$',
         HelpView.as_view(template_name='help/search.html'),
         name='help_search_page'),
+    url(r'^hint/$', HelpHintView.as_view(), name='help_hint'),
 )

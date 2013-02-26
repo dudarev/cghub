@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.utils import simplejson as json
 
 from cghub.apps.help.urls import urlpatterns
 
@@ -22,3 +23,24 @@ class HelpTest(TestCase):
         self.assertContains(response, '/help/', 3)
         response = self.client.get(reverse('help_search_page'))
         self.assertContains(response, '/help/', 3)
+
+    def test_help_hint_text(self):
+        """
+        ajax view for obtaining help hints text
+        """
+        ajax_attrs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        help_hint_key = 'UUID'
+        help_hint_text = 'Some hint text'
+        with self.settings(HELP_HINTS = {help_hint_key: help_hint_text}):
+            url = reverse('help_hint')
+            # test not ajax
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 404)
+            r = self.client.get(url, {}, **ajax_attrs)
+            self.assertFalse(json.loads(r.content)['success'])
+            r = self.client.get(url, {'key': 'badkey'}, **ajax_attrs)
+            self.assertFalse(json.loads(r.content)['success'])
+            r = self.client.get(url, {'key': help_hint_key}, **ajax_attrs)
+            data = json.loads(r.content)
+            self.assertTrue(data['success'])
+            self.assertEqual(data['text'], help_hint_text)

@@ -1,6 +1,8 @@
 from django.core.urlresolvers import reverse
-from django.views.generic.base import TemplateView
-from django.http import HttpResponseRedirect
+from django.utils import simplejson as json
+from django.views.generic.base import View, TemplateView
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.conf import settings
 
 
 class HelpView(TemplateView):
@@ -16,3 +18,30 @@ class HelpView(TemplateView):
                 return HttpResponseRedirect(reverse('help_cart_page'))
             return HttpResponseRedirect(reverse('help_page'))
         return super(HelpView, self).dispatch(request, *args, **kwargs)
+
+
+class HelpHintView(View):
+
+    http_method_names = ['get']
+    response_class = HttpResponse
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        response_kwargs['content_type'] = 'application/json'
+        return self.response_class(json.dumps(context), **response_kwargs)
+
+    def get_context_data(self, key):
+        text = settings.HELP_HINTS.get(key)
+        if text:
+            return {'success': True, 'text': text}
+        else:
+            return {'success': False}
+
+    def get(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404
+        key = request.GET.get('key')
+        context = self.get_context_data(key)
+        return self.render_to_response(context)
