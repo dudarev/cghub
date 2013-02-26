@@ -47,7 +47,13 @@ jQuery(function ($) {
                 if (section in filters) {
                     if (section == 'last_modified' || section == 'upload_date') {
                         var value = filters[section];
-                        select.find('option[value = "' + value + '"]').attr('selected', 'selected');
+                        var time_filter = select.find('option[value = "' + value + '"]');
+                        if (time_filter.length > 0) {
+                            time_filter.attr('selected', 'selected');
+                        } else {
+                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value});
+                            $('select[section=' + section + ']').append($new_opt);
+                        }
                     } else {
                         var values = filters[section].slice(1, -1).split(' OR ');
                         if(section == 'refassem_short_name') {
@@ -303,23 +309,28 @@ jQuery(function ($) {
                 var start_to_now = Math.floor(( current_parsed - start_parsed) / ms);
                 var start_str = '[NOW-' + start_to_now + 'DAY';
                 var end_str = 'NOW-' + now_to_end + 'DAY]';
-                if ((current_parsed - start_parsed)/ms < 0.6) { start_str = '[NOW' };
-                if ((current_parsed - end_parsed)/ms < 0.6) { end_str = 'NOW]' };
+                if ((current_parsed - start_parsed)/ms < 1) { start_str = '[NOW' };
+                if ((current_parsed - end_parsed)/ms < 1) { end_str = 'NOW]' };
                 var result = start_str + ' TO ' + end_str;
                 return result;
             }
         },
-        createNewMenuItem:function(item) {
+        createNewMenuItem:function(item, query, start_date, end_date) {
             var $dp_container = $('.dp-container');
-            var $start_date = $('#dp-start').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
-            var $end_date = $('#dp-end').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
+            if (!start_date && !end_date) {
+                var $start_date = $('#dp-start').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
+                var $end_date = $('#dp-end').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
+            };
             var $new_container = $('<div class="ui-dropdownchecklist-item ui-state-default" style="white-space: nowrap;">');
 
             var new_name = item.attr('id').slice(0, -3);
             var new_index = item.parent().siblings().length;
             var new_id = item.attr('id').slice(0, -1) + new_index;
-            var date_query = cghub.search.convertCustomPeriod($start_date, $end_date);
-
+            if (!query) {
+                var date_query = cghub.search.convertCustomPeriod($start_date, $end_date);
+            } else {
+                var date_query = query;
+            }
             if (date_query) {
                 var $new_input = $('<input class="active" type="radio" tabindex="0" disabled=""/>')
                     .attr({
