@@ -8,12 +8,13 @@ jQuery(function ($) {
     }
     cghub.search = {
         init:function () {
-            cghub.search.createPeriodDatepickers();
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
             cghub.search.initDdcl();
+            cghub.search.createPeriodDatepickers();
+            cghub.search.customPeriodEvents();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -32,7 +33,6 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
-            $('input[value=custom_period]').live('click', function() {console.log('test')});
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -266,16 +266,40 @@ jQuery(function ($) {
             $(this).blur();
         },
         createPeriodDatepickers:function() {
-            var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container');
-            var $start_date = $('<input/>').attr('type', 'text').attr('placeholder', 'From').appendTo($dp_container);
-            var $end_date = $('<input/>').attr('type', 'text').attr('placeholder', 'To').appendTo($dp_container);
-            $dp_container.append('<br/>')
-            var $btn_submit = $('<button/>').addClass('btnSubmit btn').attr('type', 'submit').text('Submit').appendTo($dp_container);
-            var $btn_cancel = $('<button/>').addClass('btnCancel btn').text('Cancel').appendTo($dp_container);
-            $start_date.datepicker({changeMonth: true,changeYear: true,yearRange: "-5y:2013"});
-            $end_date.datepicker({changeMonth: true,changeYear: true,yearRange: "-5y:2013"});
+            var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container well');
+            var $start_input = $('<input type="text" name="startdate" id="startdate"/>').css('display', 'none');
+            var $end_input = $('<input type="text" name="enddate" id="enddate"/>').css('display', 'none');
+            var $block_label = $('<h6/>').text('Please select the period.');
+            var $start_div = $('<div class="dp-date" data-altfield="#startdate" data-defaultdate="-1y">');
+            var $end_div = $('<div class="dp-date" data-altfield="#enddate" data-defaultdate="+0d">');
+            var $btn_submit = $('<button/>').addClass('btnSubmit btn').attr('type', 'submit').text('Submit');
+            var $btn_cancel = $('<button/>').addClass('btnCancel btn').text('Cancel');
+
+            $.each([$start_input, $end_input, $block_label, $start_div, $end_div, $('<br/>'), $btn_submit, $btn_cancel], function(i,e) {
+                $(this).appendTo($dp_container)
+            });
+            $.each(([$start_div, $end_div]), function(i,e){
+                var $d = $(this);
+                $d.datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    altField: $d.data('altfield'),
+                    defaultDate: $d.data('defaultdate'),
+                    yearRange: "-5y:2013",
+                });
+            });
             $('.sidebar').append($dp_container);
-            $('.btnCancel').on('click', function(){ $dp_container.fadeOut()});
+        },
+        customPeriodEvents:function() {
+            var $dp_container = $('.dp-container');
+            var $custom_period =  $('input[value=custom_period]');
+
+            $custom_period.on('change', function() {
+                $dp_container.fadeIn();
+            });
+            $('.btnCancel').on('click', function(){
+                $dp_container.fadeOut();
+            });
         }
     };
     cghub.search.init();
