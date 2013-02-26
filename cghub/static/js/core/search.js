@@ -288,13 +288,45 @@ jQuery(function ($) {
             $('.sidebar').append($dp_container);
         },
         convertCustomPeriod:function(start_date, end_date) {
+            var ms = 86400000;
             var current = new Date();
             $('.dp-container > .text-error').remove();
             if (start_date > end_date || end_date > current || start_date > current) {
-                $('.dp-container').append($('<span/>').addClass('text-error').text('Period range is incorrect!'));
+                $('.dp-container').append($('<span/>').addClass('text-error').text('Selected range is incorrect.'));
+                return false;
             } else {
-                var now_to_end = Math.floor(( Date.parse(end_date) - Date.parse(current)) / 86400000) + 1 ;
-                var start_to_now = Math.floor(( Date.parse(current) - Date.parse(start_date)) / 86400000);
+                var now_to_end = Math.floor(( Date.parse(current) - Date.parse(end_date)) / ms);
+                var start_to_now = Math.floor(( Date.parse(current) - Date.parse(start_date)) / ms);
+                var start_str = '[NOW-' + start_to_now + 'DAY';
+                var end_str = 'NOW-' + now_to_end + 'DAY]';
+                if ((current - start_date)/ms < 0.6) { start_str = '[NOW' };
+                if ((current - end_date)/ms < 0.6) { end_str = 'NOW]' };
+                var result = start_str + ' TO ' + end_str;
+                return result;
+            }
+        },
+        createNewMenuItem:function(item) {
+            var $dp_container = $('.dp-container');
+
+            var $start_date = $('#dp-start').datepicker("getDate");
+            var $end_date = $('#dp-end').datepicker("getDate");
+                    
+            var new_id = item.attr('id');
+            var new_name = new_id.slice(0, -3);
+            var new_index = parseInt(item.parent().siblings().last().prev().attr('index')) + 1;
+            var $new_container = $('<div class="ui-dropdownchecklist-item ui-state-default" style="white-space: nowrap;">');
+            var date_query = cghub.search.convertCustomPeriod($start_date, $end_date);
+            if (date_query) {
+                var $new_input = $('<input class="active" type="radio" tabindex="0" disabled=""/>').attr('value', date_query);
+                $new_input.attr('id', new_id);
+                $new_input.attr('name', new_name);
+                $new_input.attr('index', new_index);
+                var $new_label = $('<label class="ui-dropdownchecklist-text" style="cursor: default;"></label>').attr('for', new_id).text($start_date + ' - ' + $end_date);
+                $new_input.appendTo($new_container);
+                $new_label.appendTo($new_container);
+                // Next line is broken (posts to both filters)
+                $new_container.insertBefore(item.parent('.ui-dropdownchecklist-item').siblings().last());
+                $dp_container.fadeOut();
             }
         },
         customPeriodEvents:function() {
@@ -304,12 +336,8 @@ jQuery(function ($) {
             $custom_period.on('change', function() {
                 var $item = $(this); // Menu item that is being clicked
                 $dp_container.fadeIn();
-                $('.btn-cancel').on('click', function() {$dp_container.fadeOut();});
-                $('.btn-submit').on('click', function() {
-                    var $start_date = $('#dp-start').datepicker("getDate");
-                    var $end_date = $('#dp-end').datepicker("getDate");
-                    cghub.search.convertCustomPeriod($start_date, $end_date);
-                });
+                $('.btn-cancel').on('click', function() { $dp_container.fadeOut(); });
+                $('.btn-submit').on('click', function() {cghub.search.createNewMenuItem($item)});
             });
         }
     };
