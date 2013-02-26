@@ -267,38 +267,49 @@ jQuery(function ($) {
         },
         createPeriodDatepickers:function() {
             var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container well');
-            var $start_input = $('<input type="text" name="startdate" id="startdate"/>').css('display', 'none');
-            var $end_input = $('<input type="text" name="enddate" id="enddate"/>').css('display', 'none');
             var $block_label = $('<h6/>').text('Please select the period.');
-            var $start_div = $('<div class="dp-date" data-altfield="#startdate" data-defaultdate="-1y">');
-            var $end_div = $('<div class="dp-date" data-altfield="#enddate" data-defaultdate="+0d">');
-            var $btn_submit = $('<button/>').addClass('btnSubmit btn').attr('type', 'submit').text('Submit');
-            var $btn_cancel = $('<button/>').addClass('btnCancel btn').text('Cancel');
+            var $start_dp = $('<div class="dp-date" id="dp-start" data-defaultdate="-1y">');
+            var $end_dp = $('<div class="dp-date" id="dp-end" data-defaultdate="+0d">');
+            var $btn_submit = $('<button/>').addClass('btn-submit btn').attr('type', 'submit').text('Submit');
+            var $btn_cancel = $('<button/>').addClass('btn-cancel btn').text('Cancel');
 
-            $.each([$start_input, $end_input, $block_label, $start_div, $end_div, $('<br/>'), $btn_submit, $btn_cancel], function(i,e) {
+            $.each([$block_label, $start_dp, $end_dp, $('<br/>'), $btn_submit, $btn_cancel], function(i,e) {
                 $(this).appendTo($dp_container)
             });
-            $.each(([$start_div, $end_div]), function(i,e){
+            $.each(([$start_dp, $end_dp]), function(i,e){
                 var $d = $(this);
                 $d.datepicker({
                     changeMonth: true,
                     changeYear: true,
-                    altField: $d.data('altfield'),
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "-5y:2013",
                 });
             });
             $('.sidebar').append($dp_container);
         },
+        convertCustomPeriod:function(start_date, end_date) {
+            var current = new Date();
+            $('.dp-container > .text-error').remove();
+            if (start_date > end_date || end_date > current || start_date > current) {
+                $('.dp-container').append($('<span/>').addClass('text-error').text('Period range is incorrect!'));
+            } else {
+                var now_to_end = Math.floor(( Date.parse(end_date) - Date.parse(current)) / 86400000) + 1 ;
+                var start_to_now = Math.floor(( Date.parse(current) - Date.parse(start_date)) / 86400000);
+            }
+        },
         customPeriodEvents:function() {
             var $dp_container = $('.dp-container');
             var $custom_period =  $('input[value=custom_period]');
 
             $custom_period.on('change', function() {
+                var $item = $(this); // Menu item that is being clicked
                 $dp_container.fadeIn();
-            });
-            $('.btnCancel').on('click', function(){
-                $dp_container.fadeOut();
+                $('.btn-cancel').on('click', function() {$dp_container.fadeOut();});
+                $('.btn-submit').on('click', function() {
+                    var $start_date = $('#dp-start').datepicker("getDate");
+                    var $end_date = $('#dp-end').datepicker("getDate");
+                    cghub.search.convertCustomPeriod($start_date, $end_date);
+                });
             });
         }
     };
