@@ -9,7 +9,9 @@ jQuery(function ($) {
     }
     cghub.help = {
         init:function () {
-            cghub.help.activateTooltipHelp();
+            cghub.help.hintShow = false;
+            cghub.help.bindEvents();
+            cghub.help.activateTableHeaderTooltipHelp();
         },
         removeTooltips:function() {
             if(cghub.help.tooltipShowTimeout) {
@@ -18,32 +20,46 @@ jQuery(function ($) {
             if(cghub.help.tooltipHideTimeout) {
                 clearTimeout(cghub.help.tooltipHideTimeout);
             }
+            cghub.help.hintShow = false;
             $('.js-tooltip').remove();
         },
-        activateTooltipHelp:function () {
-            $(document).on('mouseenter', '.js-tooltip-help', function(e){
-                cghub.help.tooltipShowTimeout = setTimeout(function() {
-                    var $target = $(e.target); 
-                    var posX = $(e.target).offset().left - $(window).scrollLeft();
-                    var posY = $(e.target).offset().top - $(window).scrollTop();
-                    var content = '';
-                    if($target.hasClass('js-tooltip-help')) {
-                        content = $target.find('.js-tooltip-text').html();
-                    } else {
-                        content = $target.parents('.js-tooltip-help').find('.js-tooltip-text').html();
-                    }
+        showToolTip:function($target, key) {
+            $.ajax({
+                url: "/help/hint/",
+                dataType: "json",
+                data: {'key': key},
+                type: 'GET',
+                success: function (data) {
+                    if(!cghub.help.hintShow) return;
                     cghub.help.removeTooltips();
-                    if(!content) return;
-                    var tooltip = $('<div class="tooltip js-tooltip"></div>').html(content).appendTo($('body'));
-                    tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                    if(data['success']) {
+                        var posX = $target.offset().left - $(window).scrollLeft();
+                        var posY = $target.offset().top - $(window).scrollTop();
+                        var tooltip = $('<div class="tooltip js-tooltip"></div>').html(data['text']).appendTo($('body'));
+                        tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                    }
+                }
+            });
+        },
+        bindEvents:function () {
+            $(window).scroll(function(){
+                cghub.help.removeTooltips()
+            });
+        },
+        activateTooltipsForSelector:function (selector, find_key) {
+            $(document).on('mouseenter', selector, function(e){
+                cghub.help.tooltipShowTimeout = setTimeout(function() {
+                    var $target = $(e.target);
+                    cghub.help.hintShow = true;
+                    cghub.help.showToolTip($target, find_key($target));
                 }, 1500);
             });
-            $(document).on('mouseenter', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(){
+            $(document).on('mouseenter', selector + ', .js-tooltip, .js-tooltip > *', function(){
                 if(cghub.help.tooltipHideTimeout) {
                     clearTimeout(cghub.help.tooltipHideTimeout);
                 }
             });
-            $(document).on('mouseout', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(obj){
+            $(document).on('mouseout', selector + ', .js-tooltip, .js-tooltip > *', function(obj){
                 if($(obj.target).parents('.js-tooltip').length)return;
                 if(cghub.help.tooltipShowTimeout) {
                     clearTimeout(cghub.help.tooltipShowTimeout);
@@ -52,11 +68,14 @@ jQuery(function ($) {
                     if(cghub.help.tooltipHideTimeout) {
                         clearTimeout(cghub.help.tooltipHideTimeout);
                         $('.tooltip').remove();
+                        cghub.help.hintShow = false;
                     }
                 }, 0);
             });
-            $(window).scroll(function(){
-                cghub.help.removeTooltips()
+        },
+        activateTableHeaderTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
+                    return $target.text();
             });
         },
     };
