@@ -20,6 +20,32 @@
 
 .base-sidebar {
     padding-left: 10px;
+    /* datepickers container */
+    .dp-container {
+        z-index: 99;
+        position: absolute;
+        top: 0;
+        left: 235px;
+        padding: 9px 9px 19px 19px;
+        .dp-date {
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            vertical-align: top;
+        }
+        .text-error {
+            color: #ff0000;
+            margin-left: 10px;
+        }
+        .btn-cancel {
+            margin-left: 10px;
+        }
+    }
+    .sidebar {
+        padding-left: 15px;        
+    }
+    #id_reset_filters {
+        margin-left: 12px;
+    }
 }
 
 .base-content {
