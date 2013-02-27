@@ -292,6 +292,7 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
+                    dateFormat: 'yy/mm/dd',
                 });
             });
             return $dp_container;
@@ -306,7 +307,22 @@ jQuery(function ($) {
                 }).click(function() {
                     var $datepickers = cghub.search.createCustomDatepickers().css('top', $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper').offset().top - 40).appendTo('.sidebar');
                     $datepickers.find('.btn-cancel').click(function() {
-                        $(this).parents('.dp-container').remove();
+                        $datepickers.remove();
+                        return false;
+                    });
+                    $datepickers.find('.btn-submit').click(function() {
+                        var $start_date = $datepickers.find('#dp-start').datepicker({ dateFormat: 'yy/mm/dd' }).val();
+                        var $end_date = $datepickers.find('#dp-end').datepicker({ dateFormat: 'yy/mm/dd' }).val();
+                        var date_query = cghub.search.convertPeriodToValue($start_date, $end_date);
+                        var $block = $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper');
+                        $block.find('input').prop('checked', false);
+                        $block.prev().find('.ui-dropdownchecklist-text').text($start_date + ' - ' + $end_date);
+                        var $select = $block.prev().prev();
+                        $select.find('.js-custom-option').remove();
+                        $select.append($('<option/>').attr({'value': date_query,'selected': 'selected'})
+                                .text('Custom period').addClass('js-custom-option'));
+                        $datepickers.remove();
+                        return false;
                     });
                 }));
             });
@@ -344,31 +360,11 @@ jQuery(function ($) {
             isNaN(end_now) ? end_now = 0 : end_now = end_now * MS;
             var start_date = new Date(current_parsed - start_now);
             var end_date = new Date(current_parsed - end_now);
-            start_date = $.datepicker.formatDate('dd/mm/yy', start_date);
-            end_date = $.datepicker.formatDate('dd/mm/yy', end_date);
+            start_date = $.datepicker.formatDate('yy/mm/dd', start_date);
+            end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
 
             var result = start_date + '-' + end_date;
             return result;
-        },
-        createNewMenuItem:function(item) {
-            var $dp_container = $('.dp-container');
-            var $start_date = $('#dp-start').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
-            var $end_date = $('#dp-end').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
-            var date_query = cghub.search.convertPeriodToValue($start_date, $end_date);
-            if (date_query) {
-                var $new_option = $('<option/>').attr({'value': date_query,'selected': 'selected'})
-                    .text($start_date + '-' + $end_date)
-                if (item.attr('value').slice(14) == 'upload') {
-                    var $section = $('select.date-filters[section=upload_date]');
-                } else {
-                    var $section = $('select.date-filters[section=last_modified]');
-                }
-                $section.dropdownchecklist("destroy");
-                $section.append($new_option);
-                $section.dropdownchecklist({width: 180, explicitClose: 'close'});
-                $dp_container.fadeOut();
-                cghub.search.bindCustomPeriodEvents();
-            }
         },
         bindCustomPeriodEvents:function() {
             var $dp_container = $('.dp-container');
