@@ -8,10 +8,13 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
+        hintShow: false,
+        keysIgnore: ['UUID', 'Upload time', 'Last modified', 'Barcode', 'Files Size'],
+        hintUrl: '/help/hint/',
         init:function () {
-            cghub.help.hintShow = false;
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
+            cghub.help.activateTableCellTooltipHelp();
         },
         removeTooltips:function() {
             if(cghub.help.tooltipShowTimeout) {
@@ -24,8 +27,10 @@ jQuery(function ($) {
             $('.js-tooltip').remove();
         },
         showToolTip:function($target, key) {
+            if(!key.length) return;
+            console.log(key);
             $.ajax({
-                url: "/help/hint/",
+                url: cghub.help.hintUrl,
                 dataType: "json",
                 data: {'key': key},
                 type: 'GET',
@@ -75,7 +80,15 @@ jQuery(function ($) {
         },
         activateTableHeaderTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
-                    return $target.text();
+                return $target.text();
+            });
+        },
+        activateTableCellTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
+                var index = $target.parent().index();
+                var column = $('.hDivBox table').find('tr').eq(0).find('th').eq(index).text();
+                if($.inArray(column, cghub.help.keysIgnore) != -1) return '';
+                return column + ':' + $target.text();
             });
         },
     };
