@@ -299,7 +299,8 @@ jQuery(function ($) {
         },
         initCustomPeriodButtons:function() {
             $('.sidebar input[value="[NOW-1YEAR TO NOW]"]').each(function(n, obj){
-                $(obj).parent().after($('<div class="ui-state-default ui-dropdownchecklist-item js-pick-period" style="text-align: center">' +
+                $(obj).parent().parent().find('.ui-dropdownchecklist-close')
+                .before($('<div class="ui-state-default ui-dropdownchecklist-item js-pick-period" style="text-align: center">' +
                 '<span class="ui-dropdownchecklist-text">Pick period</span></div>').hover(function() {
                     $(this).addClass('ui-state-hover');
                 }, function() {
