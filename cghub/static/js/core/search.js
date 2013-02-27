@@ -13,7 +13,6 @@ jQuery(function ($) {
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
             cghub.search.initDdcl();
-            cghub.search.bindCustomPeriodEvents();
             cghub.search.initCustomPeriodButtons();
         },
         cacheElements:function () {
@@ -298,6 +297,7 @@ jQuery(function ($) {
             return $dp_container;
         },
         initCustomPeriodButtons:function() {
+            /* add 'Pick period' buttons before 'close' button */
             $('.sidebar input[value="[NOW-1YEAR TO NOW]"]').each(function(n, obj){
                 $(obj).parent().parent().find('.ui-dropdownchecklist-close')
                 .before($('<div class="ui-state-default ui-dropdownchecklist-item js-pick-period" style="text-align: center">' +
@@ -323,8 +323,10 @@ jQuery(function ($) {
                         });
                         $select.find('option').attr('selected', false);
                         $select.find('.js-custom-option').remove();
-                        $select.append($('<option/>').attr({'value': date_query,'selected': 'selected'})
-                                .text($start_date + ' - ' + $end_date).addClass('js-custom-option'));
+                        $select.append($('<option/>')
+                                .attr({'value': date_query,'selected': 'selected'})
+                                .text(cghub.search.convertValueToPeriod(date_query))
+                                .addClass('js-custom-option'));
                         $select.dropdownchecklist("refresh");
                         $datepickers.remove();
                         return false;
@@ -339,18 +341,22 @@ jQuery(function ($) {
             var end_parsed = Date.parse(end_date);
             var start_parsed = Date.parse(start_date);
             $('.dp-container > .text-error').remove();
-            if (start_parsed > end_parsed || end_parsed > current_parsed || start_parsed > current_parsed) {
-                $('.dp-container').append($('<span/>').addClass('text-error').text('Selected range is incorrect.'));
-                return false;
-            } else {
-                var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
-                var start_to_now = Math.floor(( current_parsed - start_parsed) / MS) + 1;
-                var start_str = '[NOW-' + start_to_now + 'DAY';
-                var end_str = 'NOW-' + now_to_end + 'DAY]';
-                if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
-                var result = start_str + ' TO ' + end_str;
-                return result;
+            if (start_parsed > current_parsed) {
+                start_parsed = current_parsed;
             }
+            if (end_parsed > current_parsed) {
+                end_parsed = current_parsed;
+            }
+            var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
+            var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
+            if(start_to_now == now_to_end) {start_to_now += 1};
+            var start_str = '[NOW-' + start_to_now + 'DAY';
+            var end_str = 'NOW-' + now_to_end + 'DAY]';
+            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
+            if (end_parsed < start_parsed) {
+                return end_str + ' TO ' + start_str;
+            }
+            return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
             var MS = 86400000;
@@ -367,20 +373,7 @@ jQuery(function ($) {
             var end_date = new Date(current_parsed - end_now);
             start_date = $.datepicker.formatDate('yy/mm/dd', start_date);
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
-
-            var result = start_date + '-' + end_date;
-            return result;
-        },
-        bindCustomPeriodEvents:function() {
-            var $dp_container = $('.dp-container');
-            var $custom_period =  $('input[value^=custom_period]');
-
-            $custom_period.on('change', function() {
-                var $item = $(this); // Menu item that is being clicked
-                $dp_container.fadeIn();
-                $('.btn-cancel').unbind('click').on('click', function() { $dp_container.fadeOut(); });
-                $('.btn-submit').unbind('click').on('click', function() { cghub.search.createNewMenuItem($item); });
-            });
+            return start_date + ' - ' + end_date;
         },
     };
     cghub.search.init();

@@ -247,7 +247,7 @@ def request(
                             ignore_cache=ignore_cache,
                             settings=settings)
         results = Results(results, settings)
-        if sort_by:
+        if sort_by and hasattr(results, 'Result'):
             results.sort(sort_by)
         results.length = hits
         return results
