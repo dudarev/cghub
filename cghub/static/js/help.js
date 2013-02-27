@@ -9,12 +9,14 @@ jQuery(function ($) {
     }
     cghub.help = {
         hintShow: false,
-        keysIgnore: ['UUID', 'Upload time', 'Last modified', 'Barcode', 'Files Size'],
+        keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
         hintUrl: '/help/hint/',
         init:function () {
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
+            cghub.help.activateFilterTooltipHelp();
+            cghub.help.activateFilterItemTooltipHelp();
         },
         removeTooltips:function() {
             if(cghub.help.tooltipShowTimeout) {
@@ -87,11 +89,23 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
                 var index = $target.parent().index();
                 var column = $('.hDivBox table').find('tr').eq(0).find('th').eq(index).text();
-                if($.inArray(column, cghub.help.keysIgnore) != -1) return '';
+                if($.inArray(column.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return column + ':' + $target.text();
+            });
+        },
+        activateFilterTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
+                return $target.text().replace(':', '').replace('By ', '');
+            });
+        },
+        activateFilterItemTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
+                var filter = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
+                filter = filter.replace(':', '').replace('By ', '');
+                if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return filter + ':' + $target.text();
             });
         },
     };
     cghub.help.init();
 });
-
