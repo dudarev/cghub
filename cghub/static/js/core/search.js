@@ -241,7 +241,7 @@ jQuery(function ($) {
             // add date filter
             if (searchQuery === '' || window.location.search !== '') {
                 $('.date-filters').each(function() {
-                    var dateQuery = $(this).next().next().find('input[type = "radio"]:checked').val();
+                    var dateQuery = $(this).find('option:selected').val();
                     if (dateQuery !== ''){
                         new_search[$(this).attr('section')] = dateQuery;
                     } else {
@@ -315,12 +315,16 @@ jQuery(function ($) {
                         var $end_date = $datepickers.find('#dp-end').datepicker({ dateFormat: 'yy/mm/dd' }).val();
                         var date_query = cghub.search.convertPeriodToValue($start_date, $end_date);
                         var $block = $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper');
-                        $block.find('input').prop('checked', false);
-                        $block.prev().find('.ui-dropdownchecklist-text').text($start_date + ' - ' + $end_date);
                         var $select = $block.prev().prev();
+                        $block.find('input').prop('checked', false).change(function() {
+                            $select.find('.js-custom-option').remove();
+                            $select.dropdownchecklist("refresh");
+                        });
+                        $select.find('option').attr('selected', false);
                         $select.find('.js-custom-option').remove();
                         $select.append($('<option/>').attr({'value': date_query,'selected': 'selected'})
-                                .text('Custom period').addClass('js-custom-option'));
+                                .text($start_date + ' - ' + $end_date).addClass('js-custom-option'));
+                        $select.dropdownchecklist("refresh");
                         $datepickers.remove();
                         return false;
                     });
