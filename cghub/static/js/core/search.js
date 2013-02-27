@@ -12,9 +12,9 @@ jQuery(function ($) {
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
-            cghub.search.createCustomDatepickers();
             cghub.search.initDdcl();
             cghub.search.bindCustomPeriodEvents();
+            cghub.search.initCustomPeriodButtons();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -274,8 +274,9 @@ jQuery(function ($) {
             $(this).blur();
         },
         createCustomDatepickers:function() {
-            var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container well');
-            var $block_label = $('<h6/>').text('Please select the period.');
+            $('.dp-container').remove();
+            var $dp_container = $('<div/>').addClass('dp-container well');
+            var $block_label = $('<h6/>').text('Please select the period');
             var $start_dp = $('<div class="dp-date" id="dp-start" data-defaultdate="+0d">');
             var $end_dp = $('<div class="dp-date" id="dp-end" data-defaultdate="+0d">');
             var $btn_submit = $('<button/>').addClass('btn-submit btn').attr('type', 'submit').text('Submit');
@@ -284,16 +285,31 @@ jQuery(function ($) {
             $.each([$block_label, $start_dp, $end_dp, $('<br/>'), $btn_submit, $btn_cancel], function(i,e) {
                 $(this).appendTo($dp_container)
             });
-            $.each(([$start_dp, $end_dp]), function(i,e){
+            $.each([$start_dp, $end_dp], function(i,e){
                 var $d = $(this);
                 $d.datepicker({
                     changeMonth: true,
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
-                    yearRange: "-2y:2013",
+                    yearRange: "c-2y:c",
                 });
             });
-            $('.sidebar').append($dp_container);
+            return $dp_container;
+        },
+        initCustomPeriodButtons:function() {
+            $('.sidebar input[value="[NOW-1YEAR TO NOW]"]').each(function(n, obj){
+                $(obj).parent().after($('<div class="ui-state-default ui-dropdownchecklist-item js-pick-period" style="text-align: center">' +
+                '<span class="ui-dropdownchecklist-text">Pick period</span></div>').hover(function() {
+                    $(this).addClass('ui-state-hover');
+                }, function() {
+                    $(this).removeClass('ui-state-hover');
+                }).click(function() {
+                    var $datepickers = cghub.search.createCustomDatepickers().css('top', $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper').offset().top - 40).appendTo('.sidebar');
+                    $datepickers.find('.btn-cancel').click(function() {
+                        $(this).parents('.dp-container').remove();
+                    });
+                }));
+            });
         },
         convertPeriodToValue:function(start_date, end_date) {
             var MS = 86400000; // ms in one day
@@ -364,7 +380,7 @@ jQuery(function ($) {
                 $('.btn-cancel').unbind('click').on('click', function() { $dp_container.fadeOut(); });
                 $('.btn-submit').unbind('click').on('click', function() { cghub.search.createNewMenuItem($item); });
             });
-        }
+        },
     };
     cghub.search.init();
 });

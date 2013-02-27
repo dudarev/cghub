@@ -36,7 +36,6 @@ except ImportError:
 
 DATE_FILTERS_HTML_IDS = OrderedDict([
     ("", "id_date_any"),
-    ("custom_period", "id_custom_period"),
     ("[NOW-1DAY TO NOW]", "id_date_today"),
     ("[NOW-7DAY TO NOW]", "id_date_week"),
     ("[NOW-1MONTH TO NOW]", "id_date_month"),
@@ -82,10 +81,6 @@ ALL_FILTERS = OrderedDict([
                 'filter_id': 'id_date_any',
                 'filter_name': 'Any date',
             }),
-            ('custom_period_upload', {
-                'filter_id': 'id_custom_period_upload',
-                'filter_name': 'Custom period',
-            }),
             ('[NOW-1DAY TO NOW]', {
                 'filter_id': 'id_date_today',
                 'filter_name': 'Today',
@@ -110,9 +105,6 @@ ALL_FILTERS = OrderedDict([
             ("", {
                 'filter_name': "Any date",
                 'filter_id': "id_date_any"}),
-            ("custom_period_modified", {
-                'filter_name': 'Custom period',
-                'filter_id': 'id_custom_period_modified'}),
             ("[NOW-1DAY TO NOW]", {
                 "filter_name": "Today",
                 "filter_id": "id_date_today"}),
