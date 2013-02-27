@@ -12,9 +12,9 @@ jQuery(function ($) {
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
             cghub.search.parseFiltersFromHref();
+            cghub.search.createCustomDatepickers();
             cghub.search.initDdcl();
-            cghub.search.createPeriodDatepickers();
-            cghub.search.customPeriodEvents();
+            cghub.search.bindCustomPeriodEvents();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -51,8 +51,10 @@ jQuery(function ($) {
                         if (time_filter.length > 0) {
                             time_filter.attr('selected', 'selected');
                         } else {
-                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value});
-                            $('select[section=' + section + ']').append($new_opt);
+                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value})
+                                .text(cghub.search.convertValueToPeriod(value));
+                            var $current_select = $('select[section=' + section + ']');
+                            $current_select.append($new_opt);
                         }
                     } else {
                         var values = filters[section].slice(1, -1).split(' OR ');
@@ -105,13 +107,13 @@ jQuery(function ($) {
                 var select = cghub.search.$filterSelects[i];
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
-                        width: 170,
+                        width: 180,
                         explicitClose: 'close'
                     });
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
-                        width: 170,
+                        width: 180,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
@@ -122,7 +124,7 @@ jQuery(function ($) {
                     });
                     // Fixing width bug
                     var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 20);
+                    $(select).next().next().width(width + 10);
                     cghub.search.ddclOnComplete(select);
                 }
             }
@@ -271,10 +273,10 @@ jQuery(function ($) {
             window.location.href = "/";
             $(this).blur();
         },
-        createPeriodDatepickers:function() {
+        createCustomDatepickers:function() {
             var $dp_container = $('<div/>').css('display', 'none').addClass('dp-container well');
             var $block_label = $('<h6/>').text('Please select the period.');
-            var $start_dp = $('<div class="dp-date" id="dp-start" data-defaultdate="-1y">');
+            var $start_dp = $('<div class="dp-date" id="dp-start" data-defaultdate="+0d">');
             var $end_dp = $('<div class="dp-date" id="dp-end" data-defaultdate="+0d">');
             var $btn_submit = $('<button/>').addClass('btn-submit btn').attr('type', 'submit').text('Submit');
             var $btn_cancel = $('<button/>').addClass('btn-cancel btn').text('Cancel');
@@ -288,69 +290,73 @@ jQuery(function ($) {
                     changeMonth: true,
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
-                    yearRange: "-5y:2013",
+                    yearRange: "-2y:2013",
                 });
             });
             $('.sidebar').append($dp_container);
         },
-        convertCustomPeriod:function(start_date, end_date) {
-            var ms = 86400000;
+        convertPeriodToValue:function(start_date, end_date) {
+            var MS = 86400000; // ms in one day
             var current = new Date();
             var current_parsed = Date.parse(current);
             var end_parsed = Date.parse(end_date);
             var start_parsed = Date.parse(start_date);
-
             $('.dp-container > .text-error').remove();
             if (start_parsed > end_parsed || end_parsed > current_parsed || start_parsed > current_parsed) {
                 $('.dp-container').append($('<span/>').addClass('text-error').text('Selected range is incorrect.'));
                 return false;
             } else {
-                var now_to_end = Math.floor(( current_parsed - end_parsed) / ms);
-                var start_to_now = Math.floor(( current_parsed - start_parsed) / ms);
+                var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
+                var start_to_now = Math.floor(( current_parsed - start_parsed) / MS) + 1;
                 var start_str = '[NOW-' + start_to_now + 'DAY';
                 var end_str = 'NOW-' + now_to_end + 'DAY]';
-                if ((current_parsed - start_parsed)/ms < 1) { start_str = '[NOW' };
-                if ((current_parsed - end_parsed)/ms < 1) { end_str = 'NOW]' };
+                if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
                 var result = start_str + ' TO ' + end_str;
                 return result;
             }
         },
-        createNewMenuItem:function(item, query, start_date, end_date) {
-            var $dp_container = $('.dp-container');
-            if (!start_date && !end_date) {
-                var $start_date = $('#dp-start').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
-                var $end_date = $('#dp-end').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
-            };
-            var $new_container = $('<div class="ui-dropdownchecklist-item ui-state-default" style="white-space: nowrap;">');
+        convertValueToPeriod:function(value) {
+            var MS = 86400000;
+            var current = new Date();
+            var current_parsed = Date.parse(current);
+            // Get the number of days
+            var values = value.slice(1, -1).split(' TO ')
+            var start_now = parseInt(values[0].split('-').reverse()[0].slice(0, -3));
+            var end_now = parseInt(values[1].split('-').reverse()[0].slice(0, -3));
+            // Convert each to date objects
+            isNaN(start_now) ? start_now = 0 : start_now = start_now * MS;
+            isNaN(end_now) ? end_now = 0 : end_now = end_now * MS;
+            var start_date = new Date(current_parsed - start_now);
+            var end_date = new Date(current_parsed - end_now);
+            start_date = $.datepicker.formatDate('dd/mm/yy', start_date);
+            end_date = $.datepicker.formatDate('dd/mm/yy', end_date);
 
-            var new_name = item.attr('id').slice(0, -3);
-            var new_index = item.parent().siblings().length;
-            var new_id = item.attr('id').slice(0, -1) + new_index;
-            if (!query) {
-                var date_query = cghub.search.convertCustomPeriod($start_date, $end_date);
-            } else {
-                var date_query = query;
-            }
+            var result = start_date + '-' + end_date;
+            return result;
+        },
+        createNewMenuItem:function(item) {
+            var $dp_container = $('.dp-container');
+            var $start_date = $('#dp-start').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
+            var $end_date = $('#dp-end').datepicker({ dateFormat: 'dd/mm/yyyy' }).val();
+            var date_query = cghub.search.convertPeriodToValue($start_date, $end_date);
             if (date_query) {
-                var $new_input = $('<input class="active" type="radio" tabindex="0" disabled=""/>')
-                    .attr({
-                        'value': date_query,
-                        'id': new_id,
-                        'name': new_name,
-                        'index': new_index,
-                        'checked': 'checked'
-                    });
-                var $new_label = $('<label class="ui-dropdownchecklist-text" style="cursor: default;"></label>').attr('for', new_id).text($start_date + ' -');
-                $new_label.append($('<br/>')).append($('<span/>').text($end_date));
-                $new_input.appendTo($new_container);
-                $new_label.appendTo($new_container);
-                $new_container.insertBefore(item.parent('.ui-dropdownchecklist-item').siblings().last());
+                var $new_option = $('<option/>').attr({'value': date_query,'selected': 'selected'})
+                    .text($start_date + '-' + $end_date)
+                if (item.attr('value').slice(14) == 'upload') {
+                    var $section = $('select.date-filters[section=upload_date]');
+                } else {
+                    var $section = $('select.date-filters[section=last_modified]');
+                }
+                $section.dropdownchecklist("destroy");
+                $section.append($new_option);
+                $section.dropdownchecklist({width: 180, explicitClose: 'close'});
                 $dp_container.fadeOut();
+                cghub.search.bindCustomPeriodEvents();
             }
         },
-        customPeriodEvents:function() {
+        bindCustomPeriodEvents:function() {
             var $dp_container = $('.dp-container');
-            var $custom_period =  $('input[value=custom_period]');
+            var $custom_period =  $('input[value^=custom_period]');
 
             $custom_period.on('change', function() {
                 var $item = $(this); // Menu item that is being clicked
