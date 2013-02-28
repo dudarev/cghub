@@ -11,7 +11,6 @@ jQuery(function ($) {
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
-            cghub.base.highlightCode('pre.xml-code');
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -54,7 +53,6 @@ jQuery(function ($) {
                             if (status == "error") {
                                 modal.find('.modal-body').html('There was an error loading data. Please contact admin.');
                             } else {
-                                cghub.base.highlightCode('.modal-body pre.xml-code');
                                 loaded = true;
                             }
                         });
@@ -78,13 +76,6 @@ jQuery(function ($) {
                 return false;
             });
         },
-        highlightCode:function(element) {
-            var xmlcontainer = $(element);
-            if (xmlcontainer.length) {
-                xmlcontainer.text(vkbeautify.xml(xmlcontainer.text(), 2));
-                hljs.highlightBlock(xmlcontainer[0]);
-            }
-        }
     };
     cghub.base.init();
 });

@@ -1,10 +1,23 @@
 {% load search_tags %}
+
 {% if res %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
-    <h4>Raw:</h4>
-    <pre class="xml-code">{{ raw_xml }}</pre>
+    {% if request.is_ajax %}
+        {% comment %} This will be shown in popup {% endcomment %}
+        <i class="icon-share"></i> <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show raw xml</a>
+    {% else %}
+        <a name="raw-xml"></a>
+        <h4>Raw:</h4>
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <a id="id-collapse-all-button" class="btn">Collapse all</a>
+                <a id="id-expand-all-button" class="btn">Expand all</a>
+            </div>
+        </div>
+        <div id="XMLHolder" class="XmlContainer"></div>
+    {% endif %}
 {% else %}
-    No data.
+No data.
 {% endif %}

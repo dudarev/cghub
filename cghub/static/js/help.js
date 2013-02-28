@@ -130,7 +130,7 @@ jQuery(function ($) {
                 if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return filter + ':' + $target.text();
             });
-        },
+        }
     };
     cghub.help.init();
 });
