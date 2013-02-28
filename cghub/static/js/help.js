@@ -110,7 +110,7 @@ jQuery(function ($) {
         },
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
-                if($target.text().length) return '';
+                if(!$target.text().length) return '';
                 var index = $target.parent().index();
                 var column = $('.hDivBox table').find('tr').eq(0).find('th')
                 .eq(index).text().replace(decodeURI('%C2%A0%E2%86%93'), '');
