@@ -11,6 +11,7 @@ from .cart_cache import *
 from .api_cache import *
 from .wsapi import *
 from .ui import *
+from .help import *
 from .debug_toolbar_settings import *
 from .celery_settings import *
 from .logging_settings import *

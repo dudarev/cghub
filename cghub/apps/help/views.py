@@ -1,6 +1,29 @@
+import logging
+
 from django.core.urlresolvers import reverse
-from django.views.generic.base import TemplateView
-from django.http import HttpResponseRedirect
+from django.utils import simplejson as json
+from django.views.generic.base import View, TemplateView
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.conf import settings
+
+from .models import HelpText
+
+
+missing_hints_logger = logging.getLogger('help.missed_hints')
+missing_hints_logger.addHandler(logging.FileHandler(settings.HELP_LOGGING_FILE))
+
+
+class AjaxView(View):
+
+    http_method_names = ['get']
+    response_class = HttpResponse
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        response_kwargs['content_type'] = 'application/json'
+        return self.response_class(json.dumps(context), **response_kwargs)
 
 
 class HelpView(TemplateView):
@@ -16,3 +39,41 @@ class HelpView(TemplateView):
                 return HttpResponseRedirect(reverse('help_cart_page'))
             return HttpResponseRedirect(reverse('help_page'))
         return super(HelpView, self).dispatch(request, *args, **kwargs)
+
+
+class HelpHintView(AjaxView):
+
+    def get_context_data(self, key):
+        text = settings.HELP_HINTS.get(key)
+        if text:
+            return {'success': True, 'text': text}
+        else:
+            missing_hints_logger.info('%s key is missing' % key)
+            return {'success': False}
+
+    def get(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404
+        key = request.GET.get('key')
+        context = self.get_context_data(key)
+        return self.render_to_response(context)
+
+
+class HelpTextView(AjaxView):
+
+    def get_context_data(self, slug):
+        try:
+            help_text = HelpText.objects.get(slug=slug)
+        except HelpText.DoesNotExist:
+            return {'success': False}
+        return {
+                'success': True,
+                'title': help_text.title,
+                'content': help_text.content}
+
+    def get(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404
+        slug = request.GET.get('slug')
+        context = self.get_context_data(slug)
+        return self.render_to_response(context)

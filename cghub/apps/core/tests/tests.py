@@ -304,9 +304,7 @@ class TestTemplateTags(TestCase):
         COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
                                                 ('Study', 'visible'))
         request = HttpRequest()
-        with self.settings(
-                        TABLE_COLUMNS = COLUMNS[:2],
-                        COLUMN_HELP_HINTS = {}):
+        with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_header(request)
             self.assertTrue(res.find('<th') != -1)
             self.assertTrue(res.find(COLUMNS[0][0]) != -1)
@@ -314,17 +312,6 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find('visible') != -1)
             self.assertTrue(res.find('hidden') != -1)
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
-            self.assertTrue(res.find('js-tooltip-help') == -1)
-
-        # test help hints
-        help_text = 'Some help text'
-        with self.settings(
-                        TABLE_COLUMNS = COLUMNS[:2],
-                        COLUMN_HELP_HINTS = {COLUMNS[0][0]: help_text}):
-            res = table_header(request)
-            self.assertTrue(res.find('js-tooltip-help') != -1)
-            self.assertTrue(res.find('js-tooltip-text') != -1)
-            self.assertTrue(res.find(help_text) != -1)
 
     def test_table_row_tag(self):
         COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
