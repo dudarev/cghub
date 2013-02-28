@@ -46,6 +46,39 @@ class HelpViewsTestCase(TestCase):
             self.assertTrue(data['success'])
             self.assertEqual(data['text'], help_hint_text)
 
+    def test_help_text(self):
+        """
+        Should return title and content for specified slug
+        """
+        ajax_attrs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        test_data = {
+            'slug': 'some-slug',
+            'title': 'Some title',
+            'content': 'Some content'
+        }
+        # try not ajax
+        r = self.client.get(reverse('help_text'), {'slug': test_data['slug']})
+        self.assertEqual(r.status_code, 404)
+        # try to get not existing text
+        r = self.client.get(
+                        reverse('help_text'),
+                        {'slug': test_data['slug']},
+                        **ajax_attrs)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.content)
+        self.assertEqual(data, {'success': False})
+        # create record and try again
+        HelpText.objects.create(**test_data)
+        r = self.client.get(
+                        reverse('help_text'),
+                        {'slug': test_data['slug']},
+                        **ajax_attrs)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.content)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['title'], test_data['title'])
+        self.assertEqual(data['content'], test_data['content'])
+
 
 class HelpModelsTestCase(TestCase):
 
