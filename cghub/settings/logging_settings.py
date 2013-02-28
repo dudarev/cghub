@@ -1,3 +1,5 @@
+from utils import proj
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -21,3 +23,5 @@ LOGGING = {
             },
         }
 }
+
+HELP_LOGGING_FILE = proj('logs/help.log')

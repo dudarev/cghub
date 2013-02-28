@@ -1,8 +1,14 @@
+import logging
+
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 from django.views.generic.base import View, TemplateView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.conf import settings
+
+
+missing_hints_logger = logging.getLogger('help.missed_hints')
+missing_hints_logger.addHandler(logging.FileHandler(settings.HELP_LOGGING_FILE))
 
 
 class HelpView(TemplateView):
@@ -37,6 +43,7 @@ class HelpHintView(View):
         if text:
             return {'success': True, 'text': text}
         else:
+            missing_hints_logger.info('%s key is missing' % key)
             return {'success': False}
 
     def get(self, request, *args, **kwargs):
