@@ -1,4 +1,5 @@
 import urllib
+import datetime
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape
@@ -9,6 +10,30 @@ from django.template.loader import select_template
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 
 register = template.Library()
+
+
+def period_from_query(query):
+    """
+    examples:
+    '[NOW-2DAY TO NOW]' -> '2013/02/25 - 2013/02/27'
+    '[NOW-5DAY TO NOW-2]' -> '2013/02/22 - 2013/02/25'
+    """
+    try:
+        start, stop = query[1:-1].split(' TO ')
+        for c in ('NOW', 'DAY', '-',):
+            start = start.replace(c, '')
+            stop = stop.replace(c, '')
+        start = datetime.datetime.now() - datetime.timedelta(int(start))
+        start = datetime.datetime.strftime(start, '%Y/%m/%d')
+        if not stop:
+            stop = datetime.datetime.now()
+        else:
+            stop = datetime.datetime.now() - datetime.timedelta(int(stop))
+        stop = datetime.datetime.strftime(stop, '%Y/%m/%d')
+        period = '%s - %s' % (start, stop)
+    except ValueError:
+        return ''
+    return period
 
 
 @register.filter
@@ -129,13 +154,17 @@ def applied_filters(request):
             continue
 
         # Date filters differ from other filters, they should be parsed differently
-        if f == 'last_modified':
-            filtered_by_str += '<li id="modified-filter-applied" data="' + filters + '"><b>Modified</b>: '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
-            continue
-        if f == 'upload_date':
-            filtered_by_str += '<li id="uploaded-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
-            filtered_by_str += ALL_FILTERS[f]['filters'][filters]['filter_name'].lower() + '</li>'
+        if f in ('last_modified', 'upload_date',):
+            applied_filter = ALL_FILTERS[f]['filters'].get(filters)
+            if applied_filter:
+                filter_name = applied_filter['filter_name']
+            else:
+                filter_name = period_from_query(filters)
+            if f == 'last_modified':
+                filtered_by_str += '<li id="modified-filter-applied" data="' + filters + '"><b>Modified</b>: '
+            else:
+                filtered_by_str += '<li id="uploaded-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
+            filtered_by_str += filter_name.lower() + '</li>'
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'

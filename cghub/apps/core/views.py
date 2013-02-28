@@ -17,6 +17,7 @@ DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
 DEFAULT_SORT_BY = '-upload_date'
 WSAPI_SETTINGS = get_wsapi_settings()
 
+
 class HomeView(TemplateView):
     template_name = 'core/search.html'
 

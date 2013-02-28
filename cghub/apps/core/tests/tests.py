@@ -1,5 +1,7 @@
 import os
 import shutil
+import contextlib
+import datetime
 from lxml import objectify
 
 from django.conf import settings
@@ -12,10 +14,37 @@ from django.http import HttpRequest, QueryDict
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-                    table_header, table_row, file_size, details_table)
+                    table_header, table_row, file_size, details_table,
+                    period_from_query)
 from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
                                                     WSAPI_SETTINGS_LIST)
 from cghub.apps.core.filters_storage import ALL_FILTERS
+
+
+@contextlib.contextmanager
+def mock_now(dt_value):
+    """Context manager for mocking out datetime.now() in unit tests.
+
+    Example:
+    with mock_now(datetime.datetime(2011, 2, 3, 10, 11)):
+        assert datetime.datetime.now() == datetime.datetime(2011, 2, 3, 10, 11)
+
+    """
+    class MockDateTime(datetime.datetime):
+        @classmethod
+        def now(cls):
+            # Create a copy of dt_value.
+            return datetime.datetime(
+                dt_value.year, dt_value.month, dt_value.day,
+                dt_value.hour, dt_value.minute, dt_value.second, dt_value.microsecond,
+                dt_value.tzinfo
+            )
+    real_datetime = datetime.datetime
+    datetime.datetime = MockDateTime
+    try:
+        yield datetime.datetime
+    finally:
+        datetime.datetime = real_datetime
 
 
 class WithCacheTestCase(TestCase):
@@ -143,6 +172,7 @@ class CoreUtilsTests(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(
                 get_wsapi_settings()[key], value)
+            
 
 class TestTemplateTags(TestCase):
 
@@ -320,6 +350,30 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find('<td') != -1)
             for field in FIELDS:
                 self.assertTrue(res.find(field) != -1)
+
+    def test_period_from_query(self):
+        test_data = (
+            {
+                'query': '[NOW-2DAY TO NOW]',
+                'result': '2013/02/25 - 2013/02/27'},
+            {
+                'query': '[NOW-20DAY TO NOW]',
+                'result': '2013/02/07 - 2013/02/27'},
+            {
+                'query': '[NOW-5DAY TO NOW-2]',
+                'result': '2013/02/22 - 2013/02/25'},
+            {
+                'query': '[BAD TO NOW-2]',
+                'result': ''},
+            {
+                'query': '',
+                'result': ''},
+        )
+        with mock_now(datetime.datetime(2013, 2, 27)):
+            for data in test_data:
+                self.assertEqual(
+                        period_from_query(data['query']),
+                        data['result'])
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
