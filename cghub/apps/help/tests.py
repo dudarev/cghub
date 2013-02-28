@@ -3,9 +3,10 @@ from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 
 from cghub.apps.help.urls import urlpatterns
+from cghub.apps.help.models import HelpText
 
 
-class HelpTest(TestCase):
+class HelpViewsTestCase(TestCase):
 
     def test_help_views(self):
         for pattern in urlpatterns:
@@ -44,3 +45,15 @@ class HelpTest(TestCase):
             data = json.loads(r.content)
             self.assertTrue(data['success'])
             self.assertEqual(data['text'], help_hint_text)
+
+
+class HelpModelsTestCase(TestCase):
+
+    def test_help_text_unicode(self):
+        test_data = {
+            'slug': 'some-slug',
+            'title': 'Some title',
+            'content': 'Some content'
+        }
+        help_text = HelpText(**test_data)
+        self.assertEqual(unicode(help_text), test_data['title'])

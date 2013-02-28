@@ -1,3 +1,4 @@
+import sys
 from utils import proj
 
 LOGGING = {
@@ -25,3 +26,6 @@ LOGGING = {
 }
 
 HELP_LOGGING_FILE = proj('logs/help.log')
+
+if 'test' in sys.argv:
+    HELP_LOGGING_FILE = '/tmp/test_cghub_help_log.log'
