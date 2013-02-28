@@ -11,12 +11,14 @@ jQuery(function ($) {
         hintShow: false,
         keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
         hintUrl: '/help/hint/',
+        textUrl: '/help/text/',
         init:function () {
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
             cghub.help.activateFilterTooltipHelp();
             cghub.help.activateFilterItemTooltipHelp();
+            cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
             if(cghub.help.tooltipShowTimeout) {
@@ -30,7 +32,6 @@ jQuery(function ($) {
         },
         showToolTip:function($target, key) {
             if(!key.length) return;
-            console.log(key);
             $.ajax({
                 url: cghub.help.hintUrl,
                 dataType: "json",
@@ -53,6 +54,28 @@ jQuery(function ($) {
                 cghub.help.removeTooltips()
             });
         },
+        activateHelpLinks:function () {
+            $(document).on('click', '.js-help-link', function(){
+                var modal = $('#helpTextModal');
+                if(!modal.length) return;
+                var slug = $(this).data('slug');
+                $.ajax({
+                    url: cghub.help.textUrl,
+                    dataType: "json",
+                    data: {'slug': slug},
+                    type: 'GET',
+                    success: function (data) {
+                        if(data['success']) {
+                            cghub.help.removeTooltips();
+                            modal.find('.modal-label').text(data['title']);
+                            modal.find('.modal-body').html(data['content']);
+                            modal.modal();
+                        }
+                    }
+                });
+                return false;
+            });
+        },
         activateTooltipsForSelector:function (selector, find_key) {
             $(document).on('mouseenter', selector, function(e){
                 cghub.help.tooltipShowTimeout = setTimeout(function() {
@@ -61,13 +84,13 @@ jQuery(function ($) {
                     cghub.help.showToolTip($target, find_key($target));
                 }, 1500);
             });
-            $(document).on('mouseenter', selector + ', .js-tooltip, .js-tooltip > *', function(){
+            $(document).on('mouseenter', '.js-tooltip, .js-tooltip > *', function(){
                 if(cghub.help.tooltipHideTimeout) {
                     clearTimeout(cghub.help.tooltipHideTimeout);
                 }
             });
             $(document).on('mouseout', selector + ', .js-tooltip, .js-tooltip > *', function(obj){
-                if($(obj.target).parents('.js-tooltip').length)return;
+                if($(obj.relatedTarget).parents('.js-tooltip').length) return;
                 if(cghub.help.tooltipShowTimeout) {
                     clearTimeout(cghub.help.tooltipShowTimeout);
                 }
@@ -82,13 +105,14 @@ jQuery(function ($) {
         },
         activateTableHeaderTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
-                return $target.text();
+                return $target.text().replace(decodeURI('%C2%A0%E2%86%93'), '');
             });
         },
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
                 var index = $target.parent().index();
-                var column = $('.hDivBox table').find('tr').eq(0).find('th').eq(index).text();
+                var column = $('.hDivBox table').find('tr').eq(0).find('th')
+                .eq(index).text().replace(decodeURI('%C2%A0%E2%86%93'), '');
                 if($.inArray(column.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return column + ':' + $target.text();
             });
