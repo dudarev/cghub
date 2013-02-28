@@ -9,14 +9,14 @@ $(function () {
     function collapseAll() {
         var visibleMinuses = $("div.Element:visible > span.Clickable:contains('-')");
         visibleMinuses.each(function(){
-            $(this).click()
+            ToggleElementVisibility(this);
         });
     }
 
     function expandAll() {
         var pluses = $("div.Element > span.Clickable:contains('+')");
         pluses.each(function(){
-            $(this).click()
+            ToggleElementVisibility(this);
         });
     }
 });

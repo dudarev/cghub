@@ -1,26 +1,23 @@
-{% extends 'base.html' %}
-
 {% load search_tags %}
 
-{% block extra_content %}
 {% if res %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
-    <h4>Raw:</h4>
-    <div class="btn-toolbar">
-        <div class="btn-group">
-            <a id="id-collapse-all-button" class="btn">Collapse all</a>
-            <a id="id-expand-all-button" class="btn">Expand all</a>
+    {% if request.is_ajax %}
+        {% comment %} This will be shown in popup {% endcomment %}
+        <i class="icon-share"></i> <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show raw xml</a>
+    {% else %}
+        <a name="raw-xml"></a>
+        <h4>Raw:</h4>
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <a id="id-collapse-all-button" class="btn">Collapse all</a>
+                <a id="id-expand-all-button" class="btn">Expand all</a>
+            </div>
         </div>
-    </div>
-    <div id="XMLHolder" class="XmlContainer"></div>
+        <div id="XMLHolder" class="XmlContainer"></div>
+    {% endif %}
 {% else %}
 No data.
 {% endif %}
-{% endblock %}
-
-{% block extra_body_js %}
-    <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/details.js"></script>
-{% endblock %}

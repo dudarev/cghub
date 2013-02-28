@@ -6,6 +6,7 @@
     {% else %}
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/details.css" media="all">
     {% endif %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/xmldisplay/XMLDisplay.css" media="all">
 {% endblock %}
 
 {% block extra_content %}
@@ -15,4 +16,14 @@
         </div>
         {% include "core/details_table.html" %}
     </div>
+{% endblock %}
+
+{% block extra_body_js %}
+    {% if debug %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/details.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/libs/XMLDisplay.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/details.min.js"></script>
+    {% endif %}
+    <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
 {% endblock %}

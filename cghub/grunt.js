@@ -71,7 +71,9 @@ module.exports = function (grunt) {
                 dest:jsStaticFolder + 'base.min.js'
             },
             details:{
-                src:[jsStaticFolder + 'details.js'],
+                src:[
+                    jsStaticFolder + 'details.js',
+                    jsStaticFolder + 'libs/XMLDisplay.js'],
                 dest:jsStaticFolder + 'details.min.js'
             },
             cart:{
