@@ -138,6 +138,8 @@ class CoreTests(WithCacheTestCase):
         self.assertContains(response, results.Result.center_name)
         # not ajax
         self.assertContains(response, '<head>')
+        self.assertContains(response, 'Collapse all')
+        self.assertContains(response, 'Expand all')
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
@@ -145,9 +147,9 @@ class CoreTests(WithCacheTestCase):
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, results.Result.center_name)
-        # test if response contains buttons
-        self.assertContains(response, 'Collapse all')
-        self.assertContains(response, 'Expand all')
+        self.assertNotContains(response, 'Collapse all')
+        self.assertNotContains(response, 'Expand all')
+        self.assertContains(response, 'Show raw xml')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
         self.assertContains(response, 'Disease abbr')
