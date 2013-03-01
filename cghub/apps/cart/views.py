@@ -34,9 +34,16 @@ def cart_add_files(request):
     if filters:
         form = AllFilesForm(request.POST)
         if form.is_valid():
-            add_files_to_cart_by_query(
-                    form.cleaned_data,
-                    request.session.session_key)
+            if celery_alive:
+                # files will be added later by celery task
+                add_files_to_cart_by_query.delay(
+                        form.cleaned_data,
+                        request.session.session_key)
+            else:
+                # files will be added immediately
+                add_files_to_cart_by_query(
+                        form.cleaned_data,
+                        request.session.session_key)
         else:
             result = {'success': False}
     else:

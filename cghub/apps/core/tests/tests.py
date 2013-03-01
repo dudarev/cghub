@@ -17,7 +17,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query)
 from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
-                                                    WSAPI_SETTINGS_LIST)
+                            generate_task_uuid, WSAPI_SETTINGS_LIST)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -159,7 +159,7 @@ class CoreTests(WithCacheTestCase):
         self.assertTrue(response.context['raw_xml'])
 
 
-class CoreUtilsTests(TestCase):
+class CoreUtilsTestCase(TestCase):
 
     def test_get_filters_string(self):
         res = get_filters_string({
@@ -174,7 +174,22 @@ class CoreUtilsTests(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(
                 get_wsapi_settings()[key], value)
-            
+
+    def test_generate_task_uuid(self):
+        test_data = [
+            {
+                'dict': {'some': 'dict', '1': 2},
+                'result': '971bf776baa021181f4cc5cf2d621967'},
+            {
+                'dict': {'another': 'dict', '1': 2},
+                'result': '971bf776baa021181f4cc5cf2d621967'},
+            {
+                'dict': {'another': 'dict', '1': 2, '123': 'Some text'},
+                'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
+        ]
+        for data in test_data:
+            self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
+
 
 class TestTemplateTags(TestCase):
 

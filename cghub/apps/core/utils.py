@@ -1,5 +1,6 @@
 import urllib
 import traceback
+import hashlib
 
 from django.core.mail import mail_admins
 from django.conf import settings
@@ -38,6 +39,7 @@ def get_filters_string(attributes):
                 )
     return filter_str
 
+
 def get_wsapi_settings():
     wsapi_settings = {}
     for name in WSAPI_SETTINGS_LIST:
@@ -45,6 +47,17 @@ def get_wsapi_settings():
         if setting != None:
             wsapi_settings[name] = setting
     return wsapi_settings
+
+
+def generate_task_uuid(**d):
+    """
+    Generate uuid from dict
+    """
+    result = [str(v) for v in d.values()]
+    result.sort()
+    md5 = hashlib.md5(''.join(result))
+    return md5.hexdigest()
+
 
 def is_celery_alive():
     """
