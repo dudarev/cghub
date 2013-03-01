@@ -12,7 +12,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils.http import urlquote
 
-from cghub.apps.core.utils import is_celery_alive, get_wsapi_settings
+from cghub.apps.core.utils import (is_celery_alive, get_wsapi_settings,
+                                                    generate_task_uuid)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
@@ -36,9 +37,12 @@ def cart_add_files(request):
         if form.is_valid():
             if celery_alive:
                 # files will be added later by celery task
-                add_files_to_cart_by_query.delay(
-                        form.cleaned_data,
-                        request.session.session_key)
+                kwargs = {
+                        'data': form.cleaned_data,
+                        'session_key': request.session.session_key}
+                add_files_to_cart_by_query.apply_async(
+                        kwargs=kwargs,
+                        task_id=generate_task_uuid(**kwargs))
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query(
