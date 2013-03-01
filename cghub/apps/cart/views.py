@@ -12,13 +12,13 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils.http import urlquote
 
-from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
-                                                    get_wsapi_settings)
+from cghub.apps.core.utils import is_celery_alive, get_wsapi_settings
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
+from cghub.apps.cart.tasks import add_files_to_cart_by_query
+
 from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi.api import Results
 
 
@@ -34,32 +34,9 @@ def cart_add_files(request):
     if filters:
         form = AllFilesForm(request.POST)
         if form.is_valid():
-            attributes = form.cleaned_data['attributes']
-            filters = form.cleaned_data['filters']
-            filter_str = get_filters_string(filters)
-            q = filters.get('q')
-            if q:
-                query = u"xml_text={0}".format(urlquote(q))
-                query += filter_str
-            else:
-                query = filter_str[1:]  # remove front ampersand
-            if 'xml_text' in query:
-                queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
-                results = api_multiple_request(queries_list=queries_list,
-                                    settings=WSAPI_SETTINGS)
-            else:
-                results = api_request(query=query, settings=WSAPI_SETTINGS)
-            results.add_custom_fields()
-            if hasattr(results, 'Result'):
-                for r in results.Result:
-                    r_attrs = dict(
-                        (attr, unicode(getattr(r, attr)))
-                        for attr in attributes if hasattr(r, attr))
-                    r_attrs['files_size'] = int(r.files_size)
-                    r_attrs['analysis_id'] = unicode(r.analysis_id)
-                    add_file_to_cart(request, r_attrs)
-                    if celery_alive:
-                        cache_results(r_attrs)
+            add_files_to_cart_by_query(
+                    form.cleaned_data,
+                    request.session.session_key)
         else:
             result = {'success': False}
     else:

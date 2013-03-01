@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+import datetime
 from lxml import etree, objectify
 
 from django.core import mail
@@ -9,12 +10,14 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
+from django.contrib.sessions.models import Session
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
+from cghub.apps.cart.tasks import add_files_to_cart_by_query
+from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
 from cghub.apps.core.tests import WithCacheTestCase
-from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
 
 class CartTests(TestCase):
@@ -160,31 +163,36 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class CartAddItemsTests(WithCacheTestCase):
+class CartAddItemsTestCase(WithCacheTestCase):
 
     cache_files = [
         '32aca6fc099abe3ce91e88422edc0a20.xml'
     ]
 
-    def test_add_all_items(self):
-        attributes = ['study', 'center_name', 'analyte_code']
-        filters = {
-                'state': '(live)',
-                'last_modified': '[NOW-1DAY TO NOW]',
-                'analyte_code': '(D)'
-                }
-        url = reverse('cart_add_remove_files', args=['add'])
-        response = self.client.post(
-                    url,
-                    {'attributes': json.dumps(attributes),
-                    'filters': json.dumps(filters)},
-                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data, 'redirect')
-        # check resultes was added to cart
-        response = self.client.get(reverse('cart_page'))
-        self.assertContains(response, 'Cart (14)')
+    def test_add_files_to_cart_by_query(self):
+        """
+        Celery task.
+        Used by cart_add_files.
+        Obtains files for specified query and adds them to cart.
+        """
+        data = {
+            'attributes': ['study', 'center_name', 'analyte_code'],
+            'filters': {
+                        'state': '(live)',
+                        'last_modified': '[NOW-1DAY TO NOW]',
+                        'analyte_code': '(D)'}}
+        # check do nothing when session not exists
+        session_key = 'some-bad-session-key'
+        add_files_to_cart_by_query(data, session_key)
+        self.assertFalse(Session.objects.filter(session_key=session_key).exists())
+        # Create session and check one more time
+        s = Session(
+            expire_date=datetime.datetime.now() + datetime.timedelta(days=7))
+        s.save()
+        add_files_to_cart_by_query(data, s.session_key)
+        session = Session.objects.get(session_key=s.session_key)
+        cart = session.get_decoded()['cart']
+        self.assertEqual(len(cart), 14)
 
 
 class CacheTestCase(TestCase):
