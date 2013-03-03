@@ -3,6 +3,7 @@ $(function () {
 
     var collapseButton = $("#id-collapse-all-button");
     var expandButton = $("#id-expand-all-button");
+
     collapseButton.click(collapseAll);
     expandButton.click(expandAll);
 

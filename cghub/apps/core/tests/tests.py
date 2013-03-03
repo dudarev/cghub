@@ -16,8 +16,9 @@ from apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query)
-from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
-                            generate_task_uuid, WSAPI_SETTINGS_LIST)
+from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
+                    get_wsapi_settings, generate_task_uuid,
+                    manifest, metadata)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -159,7 +160,11 @@ class CoreTests(WithCacheTestCase):
         self.assertTrue(response.context['raw_xml'])
 
 
-class CoreUtilsTestCase(TestCase):
+class CoreUtilsTests(TestCase):
+    IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
+                   "4b2235d6-ffe9-4664-9170-d9d2013b395f"]
+    FILES_IN_CART = {IDS_IN_CART[0]: {"state": "live"},
+                     IDS_IN_CART[1]: {"state": "bad_data"}}
 
     def test_get_filters_string(self):
         res = get_filters_string({
@@ -172,8 +177,7 @@ class CoreUtilsTestCase(TestCase):
         value = 'somesetting'
         key = WSAPI_SETTINGS_LIST[0]
         with self.settings(**{'WSAPI_%s' % key: value}):
-            self.assertEqual(
-                get_wsapi_settings()[key], value)
+            self.assertEqual(get_wsapi_settings()[key], value)
 
     def test_generate_task_uuid(self):
         test_data = [
@@ -189,6 +193,38 @@ class CoreUtilsTestCase(TestCase):
         ]
         for data in test_data:
             self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
+
+    def test_manifest_xml(self):
+        response = manifest(self.FILES_IN_CART, format='xml')
+        man = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
+        self.assertFalse(self.IDS_IN_CART[1] in man)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
+
+    def test_manifest_tsv(self):
+        response = manifest(self.FILES_IN_CART, format='tsv')
+        man = response.content
+        self.assertTrue(self.IDS_IN_CART[0] in man)
+        self.assertFalse(self.IDS_IN_CART[1] in man)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='manifest.tsv')
+
+    def test_metadata_xml(self):
+        response = metadata(self.FILES_IN_CART, format='xml')
+        met = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
+
+    def test_metadata_tvs(self):
+        response = metadata(self.FILES_IN_CART, format='tsv')
+        met = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue(id in met)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='metadata.tsv')
+
+    def _check_content_type_and_disposition(self, response, type, filename):
+        self.assertEqual(response['Content-Type'], type)
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
 
 
 class TestTemplateTags(TestCase):
@@ -452,3 +488,14 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
+
+
+class MetadataViewTestCase(TestCase):
+    ID_DETAILS = "4b2235d6-ffe9-4664-9170-d9d2013b395f"
+
+    def test_metadata(self):
+        response = self.client.post(reverse('metadata', args=[self.ID_DETAILS]))
+        metadata = response.content
+        self.assertTrue(self.ID_DETAILS in metadata)
+        self.assertEqual(response['Content-Type'], 'text/xml')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')

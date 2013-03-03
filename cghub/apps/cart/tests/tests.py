@@ -2,7 +2,6 @@ import os
 import glob
 import shutil
 import datetime
-from lxml import etree, objectify
 
 from django.core import mail
 from django.conf import settings
@@ -22,8 +21,7 @@ from cghub.apps.core.tests import WithCacheTestCase
 
 class CartTests(TestCase):
 
-    aids = (
-            '12345678-1234-1234-1234-123456789abc',
+    aids = ('12345678-1234-1234-1234-123456789abc',
             '12345678-4321-1234-1234-123456789abc',
             '87654321-1234-1234-1234-123456789abc')
 
@@ -37,9 +35,9 @@ class CartTests(TestCase):
         response = self.client.post(
                         url,
                         {'selected_files': selected_files,
-                            'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                            '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                            '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                         'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -127,9 +125,9 @@ class CartTests(TestCase):
         response = self.client.post(
                                 url,
                                 {'selected_files': selected_files,
-                                    'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                    '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                    '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                                 'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                                '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                                '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -196,6 +194,9 @@ class CartAddItemsTestCase(WithCacheTestCase):
 
 
 class CacheTestCase(TestCase):
+    IDS_IN_CART = ("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
+                   "4b2235d6-ffe9-4664-9170-d9d2013b395f",
+                   "7be92e1e-33b6-4d15-a868-59d5a513fca1")
     def setUp(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
         self.api_results_cache_dir = settings.CART_CACHE_DIR
@@ -207,13 +208,11 @@ class CacheTestCase(TestCase):
             shutil.copy(file, os.path.join(self.api_results_cache_dir, os.path.basename(file)))
 
         url = reverse('cart_add_remove_files', args=['add'])
-        self.client.post(url,
-            {'selected_files': ['file1', 'file2', 'file3'],
-             'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
-                           '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
-                           '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.client.post(url, {'selected_files': ['file1', 'file2', 'file3'],
+                               'attributes': '{"file1":{"analysis_id":"%s", "state": "live"},'
+                                              '"file2":{"analysis_id":"%s", "state": "live"},'
+                                              '"file3":{"analysis_id":"%s", "state": "bad_data"}}' % self.IDS_IN_CART},
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def tearDown(self):
         files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
@@ -225,10 +224,10 @@ class CacheTestCase(TestCase):
         Test if manifest collects only data from files where state='live'
         """
         response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
-        manifest = etree.fromstring(response.content)
-        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(manifest.getroottree().getroot().itertext()))
-        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(manifest.getroottree().getroot().itertext()))
-        self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(manifest.getroottree().getroot().itertext()))
+        manifest = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in manifest)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[1] in manifest)
+        self.assertFalse(self.IDS_IN_CART[2] in manifest)
 
     def test_cache_generate_manifest_xml_no_live(self):
         """
@@ -236,9 +235,8 @@ class CacheTestCase(TestCase):
         """
         # remove all 'live' elements from cart
         url = reverse('cart_add_remove_files', args=['remove'])
-        self.client.post(url, {
-            'selected_files': ['4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
-                               '4b2235d6-ffe9-4664-9170-d9d2013b395f']},
+        self.client.post(url,
+            {'selected_files': [self.IDS_IN_CART[0], self.IDS_IN_CART[1]]},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
         self.assertTrue('<downloadable_file_size units="GB">0</downloadable_file_size>' in response.content)
@@ -250,9 +248,9 @@ class CacheTestCase(TestCase):
         """
         response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
         content = response.content
-        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
-        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
-        self.assertFalse('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
+        self.assertTrue(self.IDS_IN_CART[0] in content)
+        self.assertTrue(self.IDS_IN_CART[1] in content)
+        self.assertFalse(self.IDS_IN_CART[2] in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
 
     def test_cache_generate_metadata_xml(self):
@@ -261,10 +259,9 @@ class CacheTestCase(TestCase):
         metadata should contain all elements
         """
         response = self.client.post(reverse('cart_download_files', args=['metadata_xml']))
-        metadata = etree.fromstring(response.content)
-        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(metadata.getroottree().getroot().itertext()))
-        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(metadata.getroottree().getroot().itertext()))
-        self.assertTrue("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(metadata.getroottree().getroot().itertext()))
+        metadata = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue('<analysis_id>%s</analysis_id>' % id in metadata)
 
     def test_cache_generate_metadata_tsv(self):
         """
@@ -273,9 +270,8 @@ class CacheTestCase(TestCase):
         """
         response = self.client.post(reverse('cart_download_files', args=['metadata_tsv']))
         content = response.content
-        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
-        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
-        self.assertTrue('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
+        for id in self.IDS_IN_CART:
+            self.assertTrue(id in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri', 'aliquot_id', 'filename']))
 
 
