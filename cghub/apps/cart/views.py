@@ -1,10 +1,15 @@
+import datetime
 from operator import itemgetter
+
+from celery import states
+from djcelery.models import TaskState
 
 from django.conf import settings
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
+from django.utils import timezone
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
@@ -23,7 +28,9 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def cart_add_files(request):
-    result = {'success': True, 'redirect': reverse('cart_page')}
+    WILL_BE_ADDED_SOON_CONTENT = 'Files will be added to your cart soon.'
+    WILL_BE_ADDED_SOON_TITLE = 'Message'
+    result = {'action': 'error'}
     if not request.is_ajax():
         raise Http404
     filters = request.POST.get('filters')
@@ -32,20 +39,36 @@ def cart_add_files(request):
         form = AllFilesForm(request.POST)
         if form.is_valid():
             if celery_alive:
-                # files will be added later by celery task
+                # check task is already exists
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
-                add_files_to_cart_by_query.apply_async(
-                        kwargs=kwargs,
-                        task_id=generate_task_uuid(**kwargs))
+                task_id = generate_task_uuid(**kwargs)
+                try:
+                    task = TaskState.objects.get(task_id=task_id)
+                    # if task was done more thant hour ago
+                    # than restart task
+                    hour_ago = timezone.now() - datetime.timedelta(hours=1)
+                    if task.state == states.FAILURE or (
+                        task.state == states.SUCCESS and task.tstamp < hour_ago):
+                        add_files_to_cart_by_query.apply_async(
+                            kwargs=kwargs,
+                            task_id=task_id)
+                except TaskState.DoesNotExist:
+                    # files will be added later by celery task
+                    add_files_to_cart_by_query.apply_async(
+                            kwargs=kwargs,
+                            task_id=task_id)
+                result = {
+                            'action': 'message',
+                            'content': WILL_BE_ADDED_SOON_CONTENT,
+                            'title': WILL_BE_ADDED_SOON_TITLE}
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query(
                         form.cleaned_data,
                         request.session.session_key)
-        else:
-            result = {'success': False}
+                result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
         form = SelectedFilesForm(request.POST)
         if form.is_valid():
@@ -55,8 +78,7 @@ def cart_add_files(request):
                 add_file_to_cart(request, attributes[f])
                 if celery_alive:
                     cache_results(attributes[f])
-        else:
-            result = {'success': False}
+            result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     return HttpResponse(json.dumps(result), mimetype="application/json")
 
 

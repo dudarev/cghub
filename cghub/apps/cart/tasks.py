@@ -75,10 +75,11 @@ def add_files_to_cart_by_query(data, session_key):
             r_attrs = dict(
                 (attr, unicode(getattr(r, attr)))
                 for attr in attributes if hasattr(r, attr))
+            analysis_id = unicode(r.analysis_id)
             r_attrs['files_size'] = int(r.files_size)
-            r_attrs['analysis_id'] = unicode(r.analysis_id)
-            if r.analysis_id not in cart:
-                cart[r.analysis_id] = r_attrs
+            r_attrs['analysis_id'] = analysis_id
+            if analysis_id not in cart:
+                cart[analysis_id] = r_attrs
     s['cart'] = cart
     s.save()
 

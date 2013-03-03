@@ -7,6 +7,8 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.search = {
+        addToCartErrorTile: 'Error Adding to Cart',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -25,6 +27,7 @@ jQuery(function ($) {
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
             cghub.search.$navbarSearchForm = $('form.navbar-search');
+            cghub.search.$messageModal = $('#messageModal');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -36,6 +39,11 @@ jQuery(function ($) {
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
             return false;
+        },
+        showMessage: function (title, content) {
+            cghub.search.$messageModal.find('.modal-label').text(title);
+            cghub.search.$messageModal.find('.modal-body').html(content);
+            cghub.search.$messageModal.modal();
         },
         parseFiltersFromHref: function () {
             var filters = URI.parseQuery(window.location.search);
@@ -165,14 +173,14 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$(this).attr('action'),
                 success:function (data) {
-                    if (!data['success']) {
-                        $('#errorAddCartModal').modal();
-                    } else {
+                    if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
+                    } else {
+                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    $('#errorAddCartModal').modal();
+                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                 }
             });
             return false;
@@ -195,14 +203,18 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
-                    if (!data['success']) {
-                        $('#errorAddCartModal').modal();
-                    } else {
+                    if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
+                    }
+                    if (data['action']=='message') {
+                        cghub.search.showMessage(data['title'], data['content']);
+                    }
+                    if (data['action']=='error') {
+                       cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    $('#errorAddCartModal').modal();
+                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                 }
             });
             return false;
