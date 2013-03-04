@@ -54,7 +54,7 @@ def add_files_to_cart_by_query(data, session_key):
         return
     # modify session
     s = SessionStore(session_key=session_key)
-    cart = s.get('cart', None)
+    cart = s.get('cart', {})
     attributes = data['attributes']
     filters = data['filters']
     filter_str = get_filters_string(filters)
