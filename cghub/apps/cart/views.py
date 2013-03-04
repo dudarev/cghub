@@ -40,6 +40,8 @@ def cart_add_files(request):
         if form.is_valid():
             if celery_alive:
                 # check task is already exists
+                if request.session.session_key == None:
+                    request.session.save()
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
