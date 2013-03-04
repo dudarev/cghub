@@ -55,9 +55,6 @@ def add_files_to_cart_by_query(data, session_key):
     # modify session
     s = SessionStore(session_key=session_key)
     cart = s.get('cart', None)
-    if cart == None:
-        s['cart'] = {}
-        cart = s['cart']
     attributes = data['attributes']
     filters = data['filters']
     filter_str = get_filters_string(filters)
@@ -85,7 +82,6 @@ def add_files_to_cart_by_query(data, session_key):
             if analysis_id not in cart:
                 cart[analysis_id] = r_attrs
     s['cart'] = cart
-    s.modified = True
     s.save()
 
 
