@@ -186,9 +186,10 @@ jQuery(function ($) {
             return false;
         },
         addAllFilesClick:function () {
-            if($(this).hasClass('disabled')) return false;
-            $(this).addClass('disabled');
-            var $form = $(this).parents('form');
+            var $button = $(this);
+            if($button.hasClass('disabled')) return false;
+            $($button).addClass('disabled');
+            var $form = $button.parents('form');
             var attributes = [];
             for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
                 attributes.push(key);
@@ -212,9 +213,11 @@ jQuery(function ($) {
                     if (data['action']=='error') {
                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                     }
+                    $($button).removeClass('disabled');
                 },
                 error:function (){
                     cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    $($button).removeClass('disabled');
                 }
             });
             return false;
