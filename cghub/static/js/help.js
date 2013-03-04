@@ -91,6 +91,7 @@ jQuery(function ($) {
             });
             $(document).on('mouseout', selector + ', .js-tooltip, .js-tooltip > *', function(obj){
                 if($(obj.relatedTarget).parents('.js-tooltip').length) return;
+                if($(obj.target).parents('.js-tooltip').length) return;
                 if(cghub.help.tooltipShowTimeout) {
                     clearTimeout(cghub.help.tooltipShowTimeout);
                 }

@@ -1,19 +1,26 @@
+import datetime
 from operator import itemgetter
+
+from celery import states
+from djcelery.models import TaskState
 
 from django.conf import settings
 from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
+from django.utils import timezone
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
-                                   get_wsapi_settings, manifest, metadata)
+                    generate_task_uuid, get_wsapi_settings, manifest,
+                    metadata)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                     cache_results, get_or_create_cart, get_cart_stats)
+from cghub.apps.cart.tasks import add_files_to_cart_by_query
+
 from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi.api import Results
 
 
@@ -21,7 +28,9 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def cart_add_files(request):
-    result = {'success': True, 'redirect': reverse('cart_page')}
+    WILL_BE_ADDED_SOON_CONTENT = 'Files will be added to your cart soon.'
+    WILL_BE_ADDED_SOON_TITLE = 'Message'
+    result = {'action': 'error'}
     if not request.is_ajax():
         raise Http404
     filters = request.POST.get('filters')
@@ -29,34 +38,39 @@ def cart_add_files(request):
     if filters:
         form = AllFilesForm(request.POST)
         if form.is_valid():
-            attributes = form.cleaned_data['attributes']
-            filters = form.cleaned_data['filters']
-            filter_str = get_filters_string(filters)
-            q = filters.get('q')
-            if q:
-                query = u"xml_text={0}".format(urlquote(q))
-                query += filter_str
+            if celery_alive:
+                # check task is already exists
+                if request.session.session_key == None:
+                    request.session.save()
+                kwargs = {
+                        'data': form.cleaned_data,
+                        'session_key': request.session.session_key}
+                task_id = generate_task_uuid(**kwargs)
+                try:
+                    task = TaskState.objects.get(task_id=task_id)
+                    # if task was done more thant hour ago
+                    # than restart task
+                    hour_ago = timezone.now() - datetime.timedelta(hours=1)
+                    if task.state == states.FAILURE or (
+                        task.state == states.SUCCESS and task.tstamp < hour_ago):
+                        add_files_to_cart_by_query.apply_async(
+                            kwargs=kwargs,
+                            task_id=task_id)
+                except TaskState.DoesNotExist:
+                    # files will be added later by celery task
+                    add_files_to_cart_by_query.apply_async(
+                            kwargs=kwargs,
+                            task_id=task_id)
+                result = {
+                            'action': 'message',
+                            'content': WILL_BE_ADDED_SOON_CONTENT,
+                            'title': WILL_BE_ADDED_SOON_TITLE}
             else:
-                query = filter_str[1:]  # remove front ampersand
-            if 'xml_text' in query:
-                queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
-                results = api_multiple_request(queries_list=queries_list,
-                                    settings=WSAPI_SETTINGS)
-            else:
-                results = api_request(query=query, settings=WSAPI_SETTINGS)
-            results.add_custom_fields()
-            if hasattr(results, 'Result'):
-                for r in results.Result:
-                    r_attrs = dict(
-                        (attr, unicode(getattr(r, attr)))
-                        for attr in attributes if hasattr(r, attr))
-                    r_attrs['files_size'] = int(r.files_size)
-                    r_attrs['analysis_id'] = unicode(r.analysis_id)
-                    add_file_to_cart(request, r_attrs)
-                    if celery_alive:
-                        cache_results(r_attrs)
-        else:
-            result = {'success': False}
+                # files will be added immediately
+                add_files_to_cart_by_query(
+                        form.cleaned_data,
+                        request.session.session_key)
+                result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
         form = SelectedFilesForm(request.POST)
         if form.is_valid():
@@ -66,8 +80,7 @@ def cart_add_files(request):
                 add_file_to_cart(request, attributes[f])
                 if celery_alive:
                     cache_results(attributes[f])
-        else:
-            result = {'success': False}
+            result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     return HttpResponse(json.dumps(result), mimetype="application/json")
 
 

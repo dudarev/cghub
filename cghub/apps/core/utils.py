@@ -1,8 +1,10 @@
-import os
-from StringIO import StringIO
+import os, sys
 import urllib
 import traceback
+import hashlib
 import csv
+
+from StringIO import StringIO
 from lxml import etree, objectify
 from datetime import datetime
 
@@ -10,6 +12,7 @@ from django.core.mail import mail_admins
 from django.core.servers import basehttp
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils import timezone
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
@@ -58,10 +61,22 @@ def get_wsapi_settings():
     return wsapi_settings
 
 
+def generate_task_uuid(**d):
+    """
+    Generate uuid from dict
+    """
+    result = [str(v) for v in d.values()]
+    result.sort()
+    md5 = hashlib.md5(''.join(result))
+    return md5.hexdigest()
+
+
 def is_celery_alive():
     """
     Return 'True' if celery works properly
     """
+    if 'test' in sys.argv:
+        return True
     try:
         from celery.task.control import inspect
         insp = inspect()
@@ -154,7 +169,7 @@ def _empty_results():
     results = Results(
         objectify.fromstring('<ResultSet></ResultSet>'),
         settings=get_wsapi_settings())
-    results.set('date', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    results.set('date', timezone.now().strftime("%Y-%m-%d %H:%M:%S"))
     results.insert(0, objectify.fromstring('<Query></Query>'))
     results.insert(1, objectify.fromstring('<Hits></Hits>'))
     results.insert(2, objectify.fromstring(

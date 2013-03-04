@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+import datetime
 
 from django.core import mail
 from django.conf import settings
@@ -8,15 +9,19 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
+from django.utils import timezone
+from django.utils.importlib import import_module
+from django.contrib.sessions.models import Session
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
-
-from cghub.apps.core.tests import WithCacheTestCase
+from cghub.apps.cart.tasks import add_files_to_cart_by_query
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
+from cghub.apps.core.tests import WithCacheTestCase
 
-class CartTests(TestCase):
+
+class CartTestCase(TestCase):
 
     aids = ('12345678-1234-1234-1234-123456789abc',
             '12345678-4321-1234-1234-123456789abc',
@@ -158,31 +163,40 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class CartAddItemsTests(WithCacheTestCase):
+class CartAddItemsTestCase(WithCacheTestCase):
 
     cache_files = [
         '32aca6fc099abe3ce91e88422edc0a20.xml'
     ]
 
-    def test_add_all_items(self):
-        attributes = ['study', 'center_name', 'analyte_code']
-        filters = {
-                'state': '(live)',
-                'last_modified': '[NOW-1DAY TO NOW]',
-                'analyte_code': '(D)'
-                }
-        url = reverse('cart_add_remove_files', args=['add'])
-        response = self.client.post(
-                    url,
-                    {'attributes': json.dumps(attributes),
-                    'filters': json.dumps(filters)},
-                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data, 'redirect')
-        # check resultes was added to cart
-        response = self.client.get(reverse('cart_page'))
-        self.assertContains(response, 'Cart (14)')
+    def cart_add_files(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        data = {
+            'attributes': json.dumps(['study', 'center_name', 'analyte_code']),
+            'filters': json.dumps({
+                        'state': '(live)',
+                        'last_modified': '[NOW-1DAY TO NOW]',
+                        'analyte_code': '(D)'})}
+        url = reverse('cart_add_remove_files', args=('add',))
+        r = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(json.loads(r.content)['action'], 'message')
+        self.assertTrue(self.client.session.session_key)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        self.assertEqual(len(session_data['cart']), 14)
 
 
 class CacheTestCase(TestCase):
@@ -285,8 +299,6 @@ class CartFormsTestCase(TestCase):
 
         for data in test_data_set:
             form = SelectedFilesForm(data)
-            if not form.is_valid():
-                print form.errors
             self.assertEqual(form.is_valid(), data['is_valid'])
 
         form = SelectedFilesForm(test_data_set[0])
@@ -294,9 +306,6 @@ class CartFormsTestCase(TestCase):
         self.assertEqual(
             form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
             {'study': 'TCGA', 'size': 10})
-        self.assertEqual(
-            form.cleaned_data['selected_files'][0],
-            '7850f073-642a-40a8-b49d-e328f27cfd66')
 
     def test_all_files_form(self):
 

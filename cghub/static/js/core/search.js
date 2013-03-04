@@ -7,6 +7,8 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.search = {
+        addToCartErrorTile: 'Error Adding to Cart',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -25,6 +27,7 @@ jQuery(function ($) {
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
             cghub.search.$navbarSearchForm = $('form.navbar-search');
+            cghub.search.$messageModal = $('#messageModal');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -36,6 +39,11 @@ jQuery(function ($) {
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
             return false;
+        },
+        showMessage: function (title, content) {
+            cghub.search.$messageModal.find('.modal-label').text(title);
+            cghub.search.$messageModal.find('.modal-body').html(content);
+            cghub.search.$messageModal.modal();
         },
         parseFiltersFromHref: function () {
             var filters = URI.parseQuery(window.location.search);
@@ -165,22 +173,23 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$(this).attr('action'),
                 success:function (data) {
-                    if (!data['success']) {
-                        $('#errorAddCartModal').modal();
-                    } else {
+                    if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
+                    } else {
+                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    $('#errorAddCartModal').modal();
+                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                 }
             });
             return false;
         },
         addAllFilesClick:function () {
-            if($(this).hasClass('disabled')) return false;
-            $(this).addClass('disabled');
-            var $form = $(this).parents('form');
+            var $button = $(this);
+            if($button.hasClass('disabled')) return false;
+            $($button).addClass('disabled');
+            var $form = $button.parents('form');
             var attributes = [];
             for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
                 attributes.push(key);
@@ -195,14 +204,20 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
-                    if (!data['success']) {
-                        $('#errorAddCartModal').modal();
-                    } else {
+                    if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     }
+                    if (data['action']=='message') {
+                        cghub.search.showMessage(data['title'], data['content']);
+                    }
+                    if (data['action']=='error') {
+                       cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    }
+                    $($button).removeClass('disabled');
                 },
                 error:function (){
-                    $('#errorAddCartModal').modal();
+                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    $($button).removeClass('disabled');
                 }
             });
             return false;
@@ -347,15 +362,17 @@ jQuery(function ($) {
             if (end_parsed > current_parsed) {
                 end_parsed = current_parsed;
             }
+            if (end_parsed < start_parsed) {
+                var buf = start_parsed;
+                start_parsed = end_parsed;
+                end_parsed = buf;
+            }
             var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
             var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
             if(start_to_now == now_to_end) {start_to_now += 1};
             var start_str = '[NOW-' + start_to_now + 'DAY';
             var end_str = 'NOW-' + now_to_end + 'DAY]';
             if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
-            if (end_parsed < start_parsed) {
-                return end_str + ' TO ' + start_str;
-            }
             return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
