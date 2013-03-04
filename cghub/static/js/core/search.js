@@ -362,15 +362,17 @@ jQuery(function ($) {
             if (end_parsed > current_parsed) {
                 end_parsed = current_parsed;
             }
+            if (end_parsed < start_parsed) {
+                var buf = start_parsed;
+                start_parsed = end_parsed;
+                end_parsed = buf;
+            }
             var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
             var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
             if(start_to_now == now_to_end) {start_to_now += 1};
             var start_str = '[NOW-' + start_to_now + 'DAY';
             var end_str = 'NOW-' + now_to_end + 'DAY]';
             if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
-            if (end_parsed < start_parsed) {
-                return end_str + ' TO ' + start_str;
-            }
             return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
