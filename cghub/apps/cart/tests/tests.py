@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
+from django.utils import timezone
 from django.contrib.sessions.models import Session
 
 from cghub.settings.utils import PROJECT_ROOT
@@ -19,7 +20,7 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.core.tests import WithCacheTestCase
 
 
-class CartTests(TestCase):
+class CartTestCase(TestCase):
 
     aids = ('12345678-1234-1234-1234-123456789abc',
             '12345678-4321-1234-1234-123456789abc',
@@ -185,7 +186,7 @@ class CartAddItemsTestCase(WithCacheTestCase):
         self.assertFalse(Session.objects.filter(session_key=session_key).exists())
         # Create session and check one more time
         s = Session(
-            expire_date=datetime.datetime.now() + datetime.timedelta(days=7))
+            expire_date=timezone.now() + datetime.timedelta(days=7))
         s.save()
         add_files_to_cart_by_query(data, s.session_key)
         session = Session.objects.get(session_key=s.session_key)
@@ -293,8 +294,6 @@ class CartFormsTestCase(TestCase):
 
         for data in test_data_set:
             form = SelectedFilesForm(data)
-            if not form.is_valid():
-                print form.errors
             self.assertEqual(form.is_valid(), data['is_valid'])
 
         form = SelectedFilesForm(test_data_set[0])
@@ -302,9 +301,6 @@ class CartFormsTestCase(TestCase):
         self.assertEqual(
             form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
             {'study': 'TCGA', 'size': 10})
-        self.assertEqual(
-            form.cleaned_data['selected_files'][0],
-            '7850f073-642a-40a8-b49d-e328f27cfd66')
 
     def test_all_files_form(self):
 

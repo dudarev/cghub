@@ -3,6 +3,7 @@ import datetime
 import os
 
 from django.conf import settings
+from django.utils import timezone
 from celery.task import task
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
@@ -87,7 +88,7 @@ def add_files_to_cart_by_query(data, session_key):
 @task(ignore_result=True)
 def cache_clear_task():
     files = glob.glob(os.path.join(settings.CART_CACHE_DIR, '*'))
-    now = datetime.datetime.now()
+    now = timezone.now()
     for file in files:
         time_file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file))
         if now - time_file_modified > settings.TIME_DELETE_CART_CACHE_FILES_OLDER:

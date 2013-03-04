@@ -12,6 +12,7 @@ from django.core.mail import mail_admins
 from django.core.servers import basehttp
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils import timezone
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
@@ -166,7 +167,7 @@ def _empty_results():
     results = Results(
         objectify.fromstring('<ResultSet></ResultSet>'),
         settings=get_wsapi_settings())
-    results.set('date', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    results.set('date', timezone.now().strftime("%Y-%m-%d %H:%M:%S"))
     results.insert(0, objectify.fromstring('<Query></Query>'))
     results.insert(1, objectify.fromstring('<Hits></Hits>'))
     results.insert(2, objectify.fromstring(

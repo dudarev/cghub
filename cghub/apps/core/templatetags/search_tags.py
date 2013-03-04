@@ -3,6 +3,7 @@ import datetime
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape
+from django.utils import timezone
 from django.conf import settings
 from django.template import Context
 from django.template.loader import select_template
@@ -23,12 +24,12 @@ def period_from_query(query):
         for c in ('NOW', 'DAY', '-',):
             start = start.replace(c, '')
             stop = stop.replace(c, '')
-        start = datetime.datetime.now() - datetime.timedelta(int(start))
+        start = timezone.now() - datetime.timedelta(int(start))
         start = datetime.datetime.strftime(start, '%Y/%m/%d')
         if not stop:
-            stop = datetime.datetime.now()
+            stop = timezone.now()
         else:
-            stop = datetime.datetime.now() - datetime.timedelta(int(stop))
+            stop = timezone.now() - datetime.timedelta(int(stop))
         stop = datetime.datetime.strftime(stop, '%Y/%m/%d')
         period = '%s - %s' % (start, stop)
     except ValueError:

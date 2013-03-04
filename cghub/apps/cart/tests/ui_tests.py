@@ -18,7 +18,7 @@ from cghub.apps.core.templatetags.search_tags import (
                             file_size)
 
 
-class LinksNavigationsTests(LiveServerTestCase):
+class LinksNavigationsTestCase(LiveServerTestCase):
     cache_files = ('28e1cf619d26bdab58fcab5e7a2b9e6c.xml',)
 
     @classmethod
@@ -48,7 +48,7 @@ class LinksNavigationsTests(LiveServerTestCase):
         self.selenium.find_element_by_partial_link_text("Help").click()
 
 
-class CartUITests(LiveServerTestCase):
+class CartUITestCase(LiveServerTestCase):
     cache_files = (
                     '3b687dc26053309770100fd85a0dcfe8.xml',
                     '4d3fee9f8557fc0de585af248b598c44.xml',
@@ -322,7 +322,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
 
 
-class AddAllToCartButtonTest(LiveServerTestCase):
+class AddAllToCartButtonTestCase(LiveServerTestCase):
     cache_files = (
                     '3b687dc26053309770100fd85a0dcfe8.xml',
                     '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
