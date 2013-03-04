@@ -190,6 +190,8 @@ class CartAddItemsTestCase(WithCacheTestCase):
                         'analyte_code': '(D)'})}
         url = reverse('cart_add_remove_files', args=('add',))
         r = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(json.loads(r.content)['action'], 'message')
         self.assertTrue(self.client.session.session_key)
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
