@@ -374,6 +374,8 @@ def table_row(result):
     html = ''
     for field_name, default_state in settings.TABLE_COLUMNS:
         value = FIELD_VALUES.get(field_name, None)
+        if field_name in settings.VALUE_RESOLVERS:
+            value = settings.VALUE_RESOLVERS[field_name](value)
         if value == None:
             continue
         html += '<td>%s</td>' % value
@@ -426,6 +428,8 @@ def details_table(result):
     html = ''
     for field_name in settings.DETAILS_FIELDS:
         value = FIELD_VALUES.get(field_name, None)
+        if field_name in settings.VALUE_RESOLVERS:
+            value = settings.VALUE_RESOLVERS[field_name](value)
         if value == None:
             continue
         html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)

@@ -59,4 +59,13 @@ DETAILS_FIELDS = (
     'Files Size',
 )
 
+def study_resolver(val):
+    if val.find('Other_Sequencing_Multiisolate') != -1:
+        return 'CCLE'
+    return val
+
+VALUE_RESOLVERS = {
+    'Study': study_resolver,
+}
+
 DEFAULT_PAGINATOR_LIMIT = 10
