@@ -144,7 +144,7 @@ Default configuration is located in ``settings/ui.py``:
 Allowed default states: 'visible', 'hidden'.
 
 Details list ordering
-----------------
+---------------------
 Details list ordering can be specified in project settings.
 Default configuration is located in ``settings/ui.py``:
 
@@ -157,6 +157,24 @@ Default configuration is located in ``settings/ui.py``:
     'Study',
     'Disease',
     ...
+
+Change values displayed in table
+--------------------------------
+
+Some column values can has an absurd names. To map them to something a human would understand can be used VALUE_RESOLVERS variable.
+
+``settings/ui.py``:
+
+.. code-block:: python
+
+    def study_resolver(val):
+        if val.find('Other_Sequencing_Multiisolate') != -1:
+            return 'CCLE'
+        return val
+
+    VALUE_RESOLVERS = {
+        'Study': study_resolver,
+    }
 
 Logging
 --------------
