@@ -36,20 +36,27 @@
 #             'filters': ['require_debug_false'],
 #             'class': 'django.utils.log.AdminEmailHandler'
 #         },
-#         'syslog':{ 
-#         	  'address': '/dev/log',
-#             'level':'ERROR', 
-#             'class': 'logging.handlers.SysLogHandler', 
+#         'syslog': {
+#             'level':'INFO',
+#             'class':'logging.handlers.SysLogHandler',
 #             'formatter': 'verbose',
+#             'facility': SysLogHandler.LOG_LOCAL2,
+#             # uncomment to save logs to /dev/log/syslog
+#             'address': '/dev/log',
 #         },
 #     },
 #     'loggers': {
 #         'django.request': {
-#             'handlers': ['syslog',],
+#             'handlers': ['syslog'],
 #             'level': 'ERROR',
 #             'propagate': True,
-#             },
-#         }
+#         },
+#         'help.hints': {
+#             'handlers': ['syslog'],
+#             'level': 'INFO',
+#             'propagate': True,
+#         },
+#     },
 # }
 
 # Email settings

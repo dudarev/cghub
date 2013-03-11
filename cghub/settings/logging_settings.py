@@ -7,7 +7,10 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
         },
     },
     'filters': {
@@ -27,12 +30,12 @@ LOGGING = {
             'formatter': 'verbose',
             'facility': SysLogHandler.LOG_LOCAL2,
             # uncomment to save logs to /dev/log/syslog
-            # 'address': '/dev/log',
+            'address': '/dev/log',
         },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['syslog'],
             'level': 'ERROR',
             'propagate': True,
         },
