@@ -8,8 +8,17 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
+        hintShow: false,
+        keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
+        hintUrl: '/help/hint/',
+        textUrl: '/help/text/',
         init:function () {
-            cghub.help.activateTooltipHelp();
+            cghub.help.bindEvents();
+            cghub.help.activateTableHeaderTooltipHelp();
+            cghub.help.activateTableCellTooltipHelp();
+            cghub.help.activateFilterTooltipHelp();
+            cghub.help.activateFilterItemTooltipHelp();
+            cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
             if(cghub.help.tooltipShowTimeout) {
@@ -18,33 +27,71 @@ jQuery(function ($) {
             if(cghub.help.tooltipHideTimeout) {
                 clearTimeout(cghub.help.tooltipHideTimeout);
             }
+            cghub.help.hintShow = false;
             $('.js-tooltip').remove();
         },
-        activateTooltipHelp:function () {
-            $(document).on('mouseenter', '.js-tooltip-help', function(e){
-                cghub.help.tooltipShowTimeout = setTimeout(function() {
-                    var $target = $(e.target); 
-                    var posX = $(e.target).offset().left - $(window).scrollLeft();
-                    var posY = $(e.target).offset().top - $(window).scrollTop();
-                    var content = '';
-                    if($target.hasClass('js-tooltip-help')) {
-                        content = $target.find('.js-tooltip-text').html();
-                    } else {
-                        content = $target.parents('.js-tooltip-help').find('.js-tooltip-text').html();
-                    }
+        showToolTip:function($target, key) {
+            if(!key.length) return;
+            $.ajax({
+                url: cghub.help.hintUrl,
+                dataType: "json",
+                data: {'key': key},
+                type: 'GET',
+                success: function (data) {
+                    if(!cghub.help.hintShow) return;
                     cghub.help.removeTooltips();
-                    if(!content) return;
-                    var tooltip = $('<div class="tooltip js-tooltip"></div>').html(content).appendTo($('body'));
-                    tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                    if(data['success']) {
+                        var posX = $target.offset().left - $(window).scrollLeft();
+                        var posY = $target.offset().top - $(window).scrollTop();
+                        var tooltip = $('<div class="tooltip js-tooltip"></div>').html(data['text']).appendTo($('body'));
+                        tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                    }
+                }
+            });
+        },
+        bindEvents:function () {
+            $(window).scroll(function(){
+                cghub.help.removeTooltips()
+            });
+        },
+        activateHelpLinks:function () {
+            $(document).on('click', '.js-help-link', function(){
+                var modal = $('#helpTextModal');
+                if(!modal.length) return;
+                var slug = $(this).data('slug');
+                $.ajax({
+                    url: cghub.help.textUrl,
+                    dataType: "json",
+                    data: {'slug': slug},
+                    type: 'GET',
+                    success: function (data) {
+                        if(data['success']) {
+                            cghub.help.removeTooltips();
+                            modal.find('.modal-label').text(data['title']);
+                            modal.find('.modal-body').html(data['content']);
+                            modal.modal();
+                        }
+                    }
+                });
+                return false;
+            });
+        },
+        activateTooltipsForSelector:function (selector, find_key) {
+            $(document).on('mouseenter', selector, function(e){
+                cghub.help.tooltipShowTimeout = setTimeout(function() {
+                    var $target = $(e.target);
+                    cghub.help.hintShow = true;
+                    cghub.help.showToolTip($target, find_key($target));
                 }, 1500);
             });
-            $(document).on('mouseenter', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(){
+            $(document).on('mouseenter', '.js-tooltip, .js-tooltip > *', function(){
                 if(cghub.help.tooltipHideTimeout) {
                     clearTimeout(cghub.help.tooltipHideTimeout);
                 }
             });
-            $(document).on('mouseout', '.js-tooltip-help, .js-tooltip, .js-tooltip > *', function(obj){
-                if($(obj.target).parents('.js-tooltip').length)return;
+            $(document).on('mouseout', selector + ', .js-tooltip, .js-tooltip > *', function(obj){
+                if($(obj.relatedTarget).parents('.js-tooltip').length) return;
+                if($(obj.target).parents('.js-tooltip').length) return;
                 if(cghub.help.tooltipShowTimeout) {
                     clearTimeout(cghub.help.tooltipShowTimeout);
                 }
@@ -52,14 +99,39 @@ jQuery(function ($) {
                     if(cghub.help.tooltipHideTimeout) {
                         clearTimeout(cghub.help.tooltipHideTimeout);
                         $('.tooltip').remove();
+                        cghub.help.hintShow = false;
                     }
                 }, 0);
             });
-            $(window).scroll(function(){
-                cghub.help.removeTooltips()
+        },
+        activateTableHeaderTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
+                return $target.text().replace(decodeURI('%C2%A0%E2%86%93'), '');
             });
         },
+        activateTableCellTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
+                if(!$target.text().length) return '';
+                var index = $target.parent().index();
+                var column = $('.hDivBox table').find('tr').eq(0).find('th')
+                .eq(index).text().replace(decodeURI('%C2%A0%E2%86%93'), '');
+                if($.inArray(column.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return column + ':' + $target.text();
+            });
+        },
+        activateFilterTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
+                return $target.text().replace(':', '').replace('By ', '');
+            });
+        },
+        activateFilterItemTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
+                var filter = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
+                filter = filter.replace(':', '').replace('By ', '');
+                if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return filter + ':' + $target.text();
+            });
+        }
     };
     cghub.help.init();
 });
-

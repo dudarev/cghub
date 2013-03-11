@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from cghub.apps.core.views import (HomeView, SearchView, ItemDetailsView,
-	CeleryTasksStatus)
+	CeleryTasksStatus, MetadataView)
 
 
 admin.autodiscover()
@@ -14,6 +14,9 @@ urlpatterns = patterns(
     url(r'^details/(?P<uuid>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         ItemDetailsView.as_view(), name='item_details'),
+    url(r'^metadata/(?P<uuid>'
+        '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        MetadataView.as_view(), name='metadata'),
     url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^help/', include('cghub.apps.help.urls')),
     url(r'^admin/', include(admin.site.urls)),

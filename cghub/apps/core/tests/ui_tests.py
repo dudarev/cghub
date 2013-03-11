@@ -50,7 +50,7 @@ def back_to_bytes(*args):
     return result[0], result[1]
 
 
-class SidebarTests(LiveServerTestCase):
+class SidebarTestCase(LiveServerTestCase):
     cache_files = ('543044213d0b4057751b559589049cd2.xml',)
 
     @classmethod
@@ -248,7 +248,7 @@ class SidebarTests(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
 
-class SearchTests(LiveServerTestCase):
+class SearchTestCase(LiveServerTestCase):
 
     cache_files = (
         '5c0d0328d8b134326b65f7664b4ca24e.xml', '76c362d1a1f7cf2bddbe62293303ad7e.xml',

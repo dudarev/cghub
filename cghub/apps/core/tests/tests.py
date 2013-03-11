@@ -1,9 +1,13 @@
 import os
 import shutil
+import contextlib
+import datetime
 from lxml import objectify
+from mock import patch
 
 from django.conf import settings
 from django.utils import simplejson as json
+from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
@@ -12,9 +16,11 @@ from django.http import HttpRequest, QueryDict
 from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
-                    table_header, table_row, file_size, details_table)
-from cghub.apps.core.utils import (get_filters_string, get_wsapi_settings,
-                                                    WSAPI_SETTINGS_LIST)
+                    table_header, table_row, file_size, details_table,
+                    period_from_query)
+from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
+                    get_wsapi_settings, generate_task_uuid,
+                    manifest, metadata)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -47,7 +53,7 @@ class WithCacheTestCase(TestCase):
             os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
 
 
-class CoreTests(WithCacheTestCase):
+class CoreTestCase(WithCacheTestCase):
 
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
@@ -109,6 +115,8 @@ class CoreTests(WithCacheTestCase):
         self.assertContains(response, results.Result.center_name)
         # not ajax
         self.assertContains(response, '<head>')
+        self.assertContains(response, 'Collapse all')
+        self.assertContains(response, 'Expand all')
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
@@ -116,17 +124,23 @@ class CoreTests(WithCacheTestCase):
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, results.Result.center_name)
-        self.assertNotContains(response, '<head>')
+        self.assertNotContains(response, 'Collapse all')
+        self.assertNotContains(response, 'Expand all')
+        self.assertContains(response, 'Show raw xml')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
         self.assertContains(response, 'Disease abbr')
         self.assertContains(response, 'Disease Name')
         self.assertContains(response, 'Sample Accession')
         # test raw_xml
-        self.assertTrue(response.context.get('raw_xml', False))
+        self.assertTrue(response.context['raw_xml'])
 
 
-class CoreUtilsTests(TestCase):
+class UtilsTestCase(TestCase):
+    IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
+                   "4b2235d6-ffe9-4664-9170-d9d2013b395f"]
+    FILES_IN_CART = {IDS_IN_CART[0]: {"state": "live"},
+                     IDS_IN_CART[1]: {"state": "bad_data"}}
 
     def test_get_filters_string(self):
         res = get_filters_string({
@@ -139,10 +153,57 @@ class CoreUtilsTests(TestCase):
         value = 'somesetting'
         key = WSAPI_SETTINGS_LIST[0]
         with self.settings(**{'WSAPI_%s' % key: value}):
-            self.assertEqual(
-                get_wsapi_settings()[key], value)
+            self.assertEqual(get_wsapi_settings()[key], value)
 
-class TestTemplateTags(TestCase):
+    def test_generate_task_uuid(self):
+        test_data = [
+            {
+                'dict': {'some': 'dict', '1': 2},
+                'result': '971bf776baa021181f4cc5cf2d621967'},
+            {
+                'dict': {'another': 'dict', '1': 2},
+                'result': '971bf776baa021181f4cc5cf2d621967'},
+            {
+                'dict': {'another': 'dict', '1': 2, '123': 'Some text'},
+                'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
+        ]
+        for data in test_data:
+            self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
+
+    def test_manifest_xml(self):
+        response = manifest(self.FILES_IN_CART, format='xml')
+        man = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
+        self.assertFalse(self.IDS_IN_CART[1] in man)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
+
+    def test_manifest_tsv(self):
+        response = manifest(self.FILES_IN_CART, format='tsv')
+        man = response.content
+        self.assertTrue(self.IDS_IN_CART[0] in man)
+        self.assertFalse(self.IDS_IN_CART[1] in man)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='manifest.tsv')
+
+    def test_metadata_xml(self):
+        response = metadata(self.FILES_IN_CART, format='xml')
+        met = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
+
+    def test_metadata_tvs(self):
+        response = metadata(self.FILES_IN_CART, format='tsv')
+        met = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue(id in met)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='metadata.tsv')
+
+    def _check_content_type_and_disposition(self, response, type, filename):
+        self.assertEqual(response['Content-Type'], type)
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+
+
+class TemplateTagsTestCase(TestCase):
 
     def test_sort_link_tag(self):
         test_request = HttpRequest()
@@ -270,9 +331,7 @@ class TestTemplateTags(TestCase):
         COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
                                                 ('Study', 'visible'))
         request = HttpRequest()
-        with self.settings(
-                        TABLE_COLUMNS = COLUMNS[:2],
-                        COLUMN_HELP_HINTS = {}):
+        with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_header(request)
             self.assertTrue(res.find('<th') != -1)
             self.assertTrue(res.find(COLUMNS[0][0]) != -1)
@@ -280,17 +339,6 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find('visible') != -1)
             self.assertTrue(res.find('hidden') != -1)
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
-            self.assertTrue(res.find('js-tooltip-help') == -1)
-
-        # test help hints
-        help_text = 'Some help text'
-        with self.settings(
-                        TABLE_COLUMNS = COLUMNS[:2],
-                        COLUMN_HELP_HINTS = {COLUMNS[0][0]: help_text}):
-            res = table_header(request)
-            self.assertTrue(res.find('js-tooltip-help') != -1)
-            self.assertTrue(res.find('js-tooltip-text') != -1)
-            self.assertTrue(res.find(help_text) != -1)
 
     def test_table_row_tag(self):
         COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
@@ -318,6 +366,30 @@ class TestTemplateTags(TestCase):
             self.assertTrue(res.find('<td') != -1)
             for field in FIELDS:
                 self.assertTrue(res.find(field) != -1)
+
+    def test_period_from_query(self):
+        test_data = (
+            {
+                'query': '[NOW-2DAY TO NOW]',
+                'result': '2013/02/25 - 2013/02/27'},
+            {
+                'query': '[NOW-20DAY TO NOW]',
+                'result': '2013/02/07 - 2013/02/27'},
+            {
+                'query': '[NOW-5DAY TO NOW-2]',
+                'result': '2013/02/22 - 2013/02/25'},
+            {
+                'query': '[BAD TO NOW-2]',
+                'result': ''},
+            {
+                'query': '',
+                'result': ''},
+        )
+        with patch.object(timezone, 'now', return_value=datetime.datetime(2013, 2, 27)) as mock_now:
+            for data in test_data:
+                self.assertEqual(
+                        period_from_query(data['query']),
+                        data['result'])
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
@@ -392,3 +464,14 @@ class PaginatorUnitTestCase(TestCase):
             paginator.get_last(),
             {'url': '?offset=90&limit=10', 'page_number': 9}
         )
+
+
+class MetadataViewTestCase(TestCase):
+    ID_DETAILS = "4b2235d6-ffe9-4664-9170-d9d2013b395f"
+
+    def test_metadata(self):
+        response = self.client.post(reverse('metadata', args=[self.ID_DETAILS]))
+        metadata = response.content
+        self.assertTrue(self.ID_DETAILS in metadata)
+        self.assertEqual(response['Content-Type'], 'text/xml')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')

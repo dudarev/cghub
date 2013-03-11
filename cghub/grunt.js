@@ -70,6 +70,12 @@ module.exports = function (grunt) {
                     jsStaticFolder + 'help.js'],
                 dest:jsStaticFolder + 'base.min.js'
             },
+            details:{
+                src:[
+                    jsStaticFolder + 'details.js',
+                    jsStaticFolder + 'libs/XMLDisplay.js'],
+                dest:jsStaticFolder + 'details.min.js'
+            },
             cart:{
                 src:[jsStaticFolder + 'cart/cart.js'],
                 dest:jsStaticFolder + 'cart/cart.min.js'
@@ -86,7 +92,7 @@ module.exports = function (grunt) {
                 src:[jsStaticFolder + 'libs/flexigrid.js',
                     jsStaticFolder + 'libs/bootstrap-contextmenu.js'],
                 dest:jsStaticFolder + 'libs/flexigrid.min.js'
-            },
+            }
         }
     });
 };

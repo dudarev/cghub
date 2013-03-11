@@ -1,7 +1,7 @@
 import os
 import glob
 import shutil
-from lxml import etree, objectify
+import datetime
 
 from django.core import mail
 from django.conf import settings
@@ -9,18 +9,21 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
+from django.utils import timezone
+from django.utils.importlib import import_module
+from django.contrib.sessions.models import Session
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import cache_results
-
-from cghub.apps.core.tests import WithCacheTestCase
+from cghub.apps.cart.tasks import add_files_to_cart_by_query
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
+from cghub.apps.core.tests import WithCacheTestCase
 
-class CartTests(TestCase):
 
-    aids = (
-            '12345678-1234-1234-1234-123456789abc',
+class CartTestCase(TestCase):
+
+    aids = ('12345678-1234-1234-1234-123456789abc',
             '12345678-4321-1234-1234-123456789abc',
             '87654321-1234-1234-1234-123456789abc')
 
@@ -34,9 +37,9 @@ class CartTests(TestCase):
         response = self.client.post(
                         url,
                         {'selected_files': selected_files,
-                            'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                            '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                            '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                         'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -124,9 +127,9 @@ class CartTests(TestCase):
         response = self.client.post(
                                 url,
                                 {'selected_files': selected_files,
-                                    'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                    '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                    '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
+                                 'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
+                                                '"file2":{"analysis_id":"%s", "files_size": 1048576},'
+                                                '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -160,34 +163,46 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class CartAddItemsTests(WithCacheTestCase):
+class CartAddItemsTestCase(WithCacheTestCase):
 
     cache_files = [
         '32aca6fc099abe3ce91e88422edc0a20.xml'
     ]
 
-    def test_add_all_items(self):
-        attributes = ['study', 'center_name', 'analyte_code']
-        filters = {
-                'state': '(live)',
-                'last_modified': '[NOW-1DAY TO NOW]',
-                'analyte_code': '(D)'
-                }
-        url = reverse('cart_add_remove_files', args=['add'])
-        response = self.client.post(
-                    url,
-                    {'attributes': json.dumps(attributes),
-                    'filters': json.dumps(filters)},
-                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertTrue(data, 'redirect')
-        # check resultes was added to cart
-        response = self.client.get(reverse('cart_page'))
-        self.assertContains(response, 'Cart (14)')
+    def cart_add_files(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        data = {
+            'attributes': json.dumps(['study', 'center_name', 'analyte_code']),
+            'filters': json.dumps({
+                        'state': '(live)',
+                        'last_modified': '[NOW-1DAY TO NOW]',
+                        'analyte_code': '(D)'})}
+        url = reverse('cart_add_remove_files', args=('add',))
+        r = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(json.loads(r.content)['action'], 'message')
+        self.assertTrue(self.client.session.session_key)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        self.assertEqual(len(session_data['cart']), 14)
 
 
 class CacheTestCase(TestCase):
+    IDS_IN_CART = ("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
+                   "4b2235d6-ffe9-4664-9170-d9d2013b395f",
+                   "7be92e1e-33b6-4d15-a868-59d5a513fca1")
     def setUp(self):
         testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
         self.api_results_cache_dir = settings.CART_CACHE_DIR
@@ -199,13 +214,11 @@ class CacheTestCase(TestCase):
             shutil.copy(file, os.path.join(self.api_results_cache_dir, os.path.basename(file)))
 
         url = reverse('cart_add_remove_files', args=['add'])
-        self.client.post(url,
-            {'selected_files': ['file1', 'file2', 'file3'],
-             'attributes': '{"file1":{"analysis_id":"4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6", "state": "live"},'
-                           '"file2":{"analysis_id":"4b2235d6-ffe9-4664-9170-d9d2013b395f", "state": "live"},'
-                           '"file3":{"analysis_id":"7be92e1e-33b6-4d15-a868-59d5a513fca1", "state": "bad_data"}}'
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.client.post(url, {'selected_files': ['file1', 'file2', 'file3'],
+                               'attributes': '{"file1":{"analysis_id":"%s", "state": "live"},'
+                                              '"file2":{"analysis_id":"%s", "state": "live"},'
+                                              '"file3":{"analysis_id":"%s", "state": "bad_data"}}' % self.IDS_IN_CART},
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def tearDown(self):
         files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
@@ -217,10 +230,10 @@ class CacheTestCase(TestCase):
         Test if manifest collects only data from files where state='live'
         """
         response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
-        manifest = etree.fromstring(response.content)
-        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(manifest.getroottree().getroot().itertext()))
-        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(manifest.getroottree().getroot().itertext()))
-        self.assertFalse("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(manifest.getroottree().getroot().itertext()))
+        manifest = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in manifest)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[1] in manifest)
+        self.assertFalse(self.IDS_IN_CART[2] in manifest)
 
     def test_cache_generate_manifest_xml_no_live(self):
         """
@@ -228,9 +241,8 @@ class CacheTestCase(TestCase):
         """
         # remove all 'live' elements from cart
         url = reverse('cart_add_remove_files', args=['remove'])
-        self.client.post(url, {
-            'selected_files': ['4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
-                               '4b2235d6-ffe9-4664-9170-d9d2013b395f']},
+        self.client.post(url,
+            {'selected_files': [self.IDS_IN_CART[0], self.IDS_IN_CART[1]]},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
         self.assertTrue('<downloadable_file_size units="GB">0</downloadable_file_size>' in response.content)
@@ -242,9 +254,9 @@ class CacheTestCase(TestCase):
         """
         response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
         content = response.content
-        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
-        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
-        self.assertFalse('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
+        self.assertTrue(self.IDS_IN_CART[0] in content)
+        self.assertTrue(self.IDS_IN_CART[1] in content)
+        self.assertFalse(self.IDS_IN_CART[2] in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
 
     def test_cache_generate_metadata_xml(self):
@@ -253,10 +265,9 @@ class CacheTestCase(TestCase):
         metadata should contain all elements
         """
         response = self.client.post(reverse('cart_download_files', args=['metadata_xml']))
-        metadata = etree.fromstring(response.content)
-        self.assertTrue("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6" in set(metadata.getroottree().getroot().itertext()))
-        self.assertTrue("4b2235d6-ffe9-4664-9170-d9d2013b395f" in set(metadata.getroottree().getroot().itertext()))
-        self.assertTrue("7be92e1e-33b6-4d15-a868-59d5a513fca1" in set(metadata.getroottree().getroot().itertext()))
+        metadata = response.content
+        for id in self.IDS_IN_CART:
+            self.assertTrue('<analysis_id>%s</analysis_id>' % id in metadata)
 
     def test_cache_generate_metadata_tsv(self):
         """
@@ -265,9 +276,8 @@ class CacheTestCase(TestCase):
         """
         response = self.client.post(reverse('cart_download_files', args=['metadata_tsv']))
         content = response.content
-        self.assertTrue('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6' in content)
-        self.assertTrue('4b2235d6-ffe9-4664-9170-d9d2013b395f' in content)
-        self.assertTrue('7be92e1e-33b6-4d15-a868-59d5a513fca1' in content)
+        for id in self.IDS_IN_CART:
+            self.assertTrue(id in content)
         self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri', 'aliquot_id', 'filename']))
 
 
@@ -289,8 +299,6 @@ class CartFormsTestCase(TestCase):
 
         for data in test_data_set:
             form = SelectedFilesForm(data)
-            if not form.is_valid():
-                print form.errors
             self.assertEqual(form.is_valid(), data['is_valid'])
 
         form = SelectedFilesForm(test_data_set[0])
@@ -298,9 +306,6 @@ class CartFormsTestCase(TestCase):
         self.assertEqual(
             form.cleaned_data['attributes']['7850f073-642a-40a8-b49d-e328f27cfd66'],
             {'study': 'TCGA', 'size': 10})
-        self.assertEqual(
-            form.cleaned_data['selected_files'][0],
-            '7850f073-642a-40a8-b49d-e328f27cfd66')
 
     def test_all_files_form(self):
 

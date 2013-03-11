@@ -12,3 +12,6 @@ DATABASES = {
 
 # skip migrations while testing
 SOUTH_TESTS_MIGRATE = True
+
+# according to http://docs.celeryproject.org/en/latest/django/unit-testing.html#testing-with-django:
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
