@@ -1,11 +1,14 @@
 """
 TABLE_COLUMNS
+-------------
 
 Format:
-(
-(column_name, default_state),
-...
-)
+
+::
+    (
+        (column_name, default_state),
+        ...
+    )
 
 Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
@@ -13,6 +16,27 @@ Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Sample Type Name', 'State', 'Study', 'Upload time', 'UUID'.
 
 Available default_states: 'visible', 'hidden'.
+
+VALUE_RESOLVERS
+---------------
+
+Some column values can has an absurd names.
+This variable used to map them to something a human would understand.
+
+Format:
+dict <Column name>:<function>
+
+function obtains value and should return new value, for example:
+
+::
+    def study_resolver(val):
+        if val.find('Other_Sequencing_Multiisolate') != -1:
+            return 'CCLE'
+        return val
+
+    VALUE_RESOLVERS = {
+        'Study': study_resolver,
+    }
 """
 
 TABLE_COLUMNS = (
@@ -58,5 +82,14 @@ DETAILS_FIELDS = (
     'Sample Accession',
     'Files Size',
 )
+
+def study_resolver(val):
+    if val.find('Other_Sequencing_Multiisolate') != -1:
+        return 'CCLE'
+    return val
+
+VALUE_RESOLVERS = {
+    'Study': study_resolver,
+}
 
 DEFAULT_PAGINATOR_LIMIT = 10
