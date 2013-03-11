@@ -185,27 +185,14 @@ def _empty_results():
 
 def _write_manifest_csv(stringio, tree):
     csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
-    # date
-    csvwriter.writerow(tree.items()[0])
-    csvwriter.writerow('')
-    # Result
+
     result = tree.find("Result")
     csvwriter.writerow([result.keys()[0]]+
-                       [r.tag for r in result.iterchildren()])
+                       [r.tag.lower().replace(' ', '_') for r in result.iterchildren()])
     for result in tree.iterfind("Result"):
         csvwriter.writerow([result.values()[0]]+
                            [r.text for r in result.iterchildren()])
     csvwriter.writerow('')
-    # ResultSummary
-    summary = tree.find("ResultSummary")
-    if summary is not None:
-        state_count = summary.find("state_count")
-        csvwriter.writerow([s.tag for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.tag for s in state_count.iterchildren()])
-        csvwriter.writerow([s.text for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.text for s in state_count.iterchildren()])
     return csvwriter
 
 
