@@ -161,49 +161,56 @@ Default configuration is located in ``settings/ui.py``:
 Logging
 --------------
 
-:file:`cghub.setting.local.py.default` contains the example of a SysLogHadler usage.
+:file:`cghub/setting/local.py.default` contains the example of a SysLogHadler usage. Default configuration located in :file:`cghub/setting/logging_settings.py`.
 
 .. code-block:: python
 
 	from logging.handlers import SysLogHandler
 
 	LOGGING = {
-	    'version': 1,
-	    'disable_existing_loggers': False,
-	    'formatters': {
-	        'verbose': {
-	            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-	        },
-	        'simple': {
-	            'format': '%(levelname)s %(message)s'
-	        },
-	    },
-	    'filters': {
-	        'require_debug_false': {
-	            '()': 'django.utils.log.RequireDebugFalse'
-	        }
-	    },
-	    'handlers': {
-	        'mail_admins': {
-	            'level': 'ERROR',
-	            'filters': ['require_debug_false'],
-	            'class': 'django.utils.log.AdminEmailHandler'
-	        },
-	        'syslog':{ 
-	            'address': '/dev/log',
-	            'level':'ERROR', 
-	            'class': 'logging.handlers.SysLogHandler', 
-	            'formatter': 'verbose',
-	        },
-	    },
-	    'loggers': {
-	        'django.request': {
-	            'handlers': ['syslog',],
-	            'level': 'ERROR',
-	            'propagate': True,
-	            },
-	        }
-	}
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s'
+            },
+        },
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+            }
+        },
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            },
+            'syslog': {
+                'level':'INFO',
+                'class':'logging.handlers.SysLogHandler',
+                'formatter': 'verbose',
+                'facility': SysLogHandler.LOG_LOCAL2,
+                # uncomment to save logs to /dev/log/syslog
+                'address': '/dev/log',
+            },
+        },
+        'loggers': {
+            'django.request': {
+                'handlers': ['syslog'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'help.hints': {
+                'handlers': ['syslog'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+        },
+    }
 
 .. code-block:: bash
 
