@@ -9,8 +9,7 @@ from django.conf import settings
 from .models import HelpText
 
 
-missing_hints_logger = logging.getLogger('help.missed_hints')
-missing_hints_logger.addHandler(logging.FileHandler(settings.HELP_LOGGING_FILE))
+hints_logger = logging.getLogger('help.hints')
 
 
 class AjaxView(View):
@@ -48,7 +47,7 @@ class HelpHintView(AjaxView):
         if text:
             return {'success': True, 'text': text}
         else:
-            missing_hints_logger.info('%s key is missing' % key)
+            hints_logger.info('%s key is missing' % key)
             return {'success': False}
 
     def get(self, request, *args, **kwargs):
