@@ -140,7 +140,10 @@
                         sx: e.pageX,
                         hgo: hgo
                     };
-                } else if (dragtype == 'colMove') {//column header drag
+                } 
+                    /* column dragging disable */
+                    /*
+                    else if (dragtype == 'colMove') {//column header drag
                     $(g.nDiv).hide();
                     $(g.nBtn).hide();
                     this.hset = $(this.hDiv).offset();
@@ -162,7 +165,7 @@
                     });
                     $('body').append(this.colCopy);
                     $(this.cDrag).hide();
-                }
+                } */
                 $('body').noSelect();
             },
             dragMove: function (e) {
