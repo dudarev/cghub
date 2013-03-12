@@ -162,9 +162,11 @@ def applied_filters(request):
             else:
                 filter_name = period_from_query(filters)
             if f == 'last_modified':
-                filtered_by_str += '<li id="modified-filter-applied" data="' + filters + '"><b>Modified</b>: '
+                filtered_by_str += '<li id="' + f + '-applied" data-filters="' + \
+                                        filters + '"><b>Modified</b>: '
             else:
-                filtered_by_str += '<li id="uploaded-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
+                filtered_by_str += '<li id="' + f + '-applied" data-filters="' + \
+                                        filters + '"><b>Uploaded</b>: '
             filtered_by_str += filter_name.lower() + '</li>'
             continue
 
@@ -180,7 +182,9 @@ def applied_filters(request):
                     if value.find(i) != -1:
                         filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
                         break
-            filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+            filtered_by_str += '<li id="' + f + '-applied" data-filters="' + \
+                    ' '.join(filters) + '"><b>%s</b>: %s</li>' % (
+                                                title, filters_str[2:])
             continue
 
         for value in filters:
@@ -191,7 +195,9 @@ def applied_filters(request):
             else:
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
-        filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+        filtered_by_str += '<li id="' + f + '-applied" data-filters="' + \
+                    ' '.join(filters) + '"><b>%s</b>: %s</li>' % (
+                                                title, filters_str[2:])
 
     filtered_by_str += '</ul>'
     return filtered_by_str
