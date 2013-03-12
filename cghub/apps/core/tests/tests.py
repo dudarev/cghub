@@ -270,13 +270,13 @@ class TemplateTagsTestCase(TestCase):
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            u'Applied filter(s): <ul><li id="center_name-applied" data-filters="HMS-RK">'
+            u'Applied filter(s): <ul><li data-name="center_name" data-filters="HMS-RK">'
             '<b>Center</b>: Harvard (HMS-RK)</li>'
-            '<li id="last_modified-applied" data-filters="[NOW-7DAY TO NOW]">'
-            '<b>Modified</b>: last week</li><li id="disease_abbr-applied" data-filters="CNTL COAD">'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li id="study-applied" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
-            '<li id="library_strategy-applied" data-filters="WGS WXS">'
+            '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
+            '<li data-name="library_strategy" data-filters="WGS&WXS">'
             '<b>Run Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):

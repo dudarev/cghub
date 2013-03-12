@@ -13,7 +13,7 @@ jQuery(function ($) {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
-            cghub.search.parseFiltersFromHref();
+            cghub.search.parseAppliedFilters();
             cghub.search.initDdcl();
             cghub.search.initCustomPeriodButtons();
         },
@@ -45,63 +45,32 @@ jQuery(function ($) {
             cghub.search.$messageModal.find('.modal-body').html(content);
             cghub.search.$messageModal.modal();
         },
-        parseFiltersFromHref: function () {
-            var filters = URI.parseQuery(window.location.search);
-            // parsing for filters
+        parseAppliedFilters: function () {
+            var filters = {};
+            $('.applied-filters ul li').each(function() {
+                filters[$(this).data('name')] = $(this).data('filters').split('&');
+            });
             cghub.search.$filterSelects.each(function (i, el) {
-                var select = $(el),
-                    section = select.attr('section');
-                if (section in filters) {
-                    if (section == 'last_modified' || section == 'upload_date') {
-                        var value = filters[section];
-                        var time_filter = select.find('option[value = "' + value + '"]');
-                        if (time_filter.length > 0) {
-                            time_filter.attr('selected', 'selected');
-                        } else {
-                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value})
-                                .text(cghub.search.convertValueToPeriod(value));
-                            var $current_select = $('select[section=' + section + ']');
-                            $current_select.append($new_opt);
+                var select = $(el);
+                var section = select.attr('section');
+                if(section in filters) {
+                    if(section == 'refassem_short_name') {
+                        for(var i=0; i<filters[section].length; i++) {
+                            select.find('option[value*="' + filters[section][i] + '"]').attr('selected', 'selected');
                         }
                     } else {
-                        var values = filters[section].slice(1, -1).split(' OR ');
-                        if(section == 'refassem_short_name') {
-                            for (var i = values.length - 1; i >= 0; i--) {
-                                select.find('option[value *= "' + values[i] + '"]').attr('selected', 'selected');
-                            }
-                        } else {
-                            for (var i = values.length - 1; i >= 0; i--) {
-                                select.find('option[value = "' + values[i] + '"]').attr('selected', 'selected');
-                            }
+                        for(var i=0; i<filters[section].length; i++) {
+                            select.find('option[value="' + filters[section][i] + '"]').attr('selected', 'selected');
                         }
                     }
                 } else {
-                    if (section == 'upload_date') {
-                        if (window.location.search === '') {
-                            select.find('option[value = "[NOW-7DAY TO NOW]"]').attr('selected', 'selected');
-                        } else {
-                            select.find('option[value = ""]').attr('selected', 'selected');
-                        }
-                    } else if (section == 'state') {
-                        if (window.location.pathname.indexOf('search') > 0) {
-                            select.find('option[value = "(all)"]').attr('selected', 'selected');
-                        } else {
-                            // default state to live
-                            select.find('option[value = "live"]').attr('selected', 'selected');
-                        }
-                    } else {
-                        select.find('option[value = "(all)"]').attr('selected', 'selected');
-                    }
+                    /* for date filters */
+                    select.find('option[value=""]').attr('selected', 'selected');
+                    /* for other filters */
+                    select.find('option[value="(all)"]').attr('selected', 'selected');
                 }
             });
-
-            var modified_filter_applied = $('#modified-filter-applied').attr('data');
-            $(".date-filters[section='last_modified']").find('option[value = "' + modified_filter_applied + '"]').attr('selected', 'selected');
-            var uploaded_filter_applied = $('#uploaded-filter-applied').attr('data');
-            $(".date-filters[section='upload_date']").find('option[value = "' + uploaded_filter_applied + '"]').attr('selected', 'selected');
-
-            // checking for search query
-            if ('q' in filters) {
+            if('q' in filters) {
                 $('input.search-query').val(filters['q']);
             }
         },
@@ -110,7 +79,7 @@ jQuery(function ($) {
             $('.flexigrid .bDiv tr').contextmenu();
         },
         initDdcl: function() {
-            for (var i = cghub.search.$filterSelects.length - 1; i >= 0; i--) {
+            for (var i=0; i<cghub.search.$filterSelects.length; i++) {
                 var select = cghub.search.$filterSelects[i];
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
