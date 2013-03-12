@@ -6,10 +6,10 @@
     </table>
     {% if request.is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
-        <i class="icon-share"></i> <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show raw xml</a>
+        <i class="icon-share"></i> <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% else %}
         <a name="raw-xml"></a>
-        <h4>Raw:</h4>
+        <h4>Metadata XML:</h4>
         <form action="{% url metadata uuid %}" method="POST">
             {% csrf_token %}
             <div class="btn-toolbar">

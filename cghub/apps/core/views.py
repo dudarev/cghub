@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 
 
 from django.views.generic.base import TemplateView, View
+from lxml import etree
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
@@ -110,7 +111,7 @@ class ItemDetailsView(TemplateView):
         if hasattr(results, 'Result'):
             return {
                 'res': results.Result,
-                'raw_xml': repr(results.tostring()),
+                'raw_xml': repr(etree.tostring(results.Result).replace(' id="1"', '')),
                 'uuid': kwargs['uuid']}
         return {'res': None}
 
