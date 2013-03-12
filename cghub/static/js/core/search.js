@@ -51,23 +51,33 @@ jQuery(function ($) {
                 filters[$(this).data('name')] = $(this).data('filters').split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
-                var select = $(el);
-                var section = select.attr('section');
+                var $select = $(el);
+                var section = $select.attr('section');
                 if(section in filters) {
                     if(section == 'refassem_short_name') {
                         for(var i=0; i<filters[section].length; i++) {
-                            select.find('option[value*="' + filters[section][i] + '"]').attr('selected', 'selected');
+                            $select.find('option[value*="' + filters[section][i] + '"]').attr('selected', 'selected');
+                        }
+                    } else if (section == 'last_modified' || section == 'upload_date') {
+                        var value = filters[section][0];
+                        var time_filter = $select.find('option[value = "' + value + '"]');
+                        if (time_filter.length > 0) {
+                            time_filter.attr('selected', 'selected');
+                        } else {
+                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value})
+                                .text(cghub.search.convertValueToPeriod(value));
+                            $select.append($new_opt);
                         }
                     } else {
                         for(var i=0; i<filters[section].length; i++) {
-                            select.find('option[value="' + filters[section][i] + '"]').attr('selected', 'selected');
+                            $select.find('option[value="' + filters[section][i] + '"]').attr('selected', 'selected');
                         }
                     }
                 } else {
                     /* for date filters */
-                    select.find('option[value=""]').attr('selected', 'selected');
+                    $select.find('option[value=""]').attr('selected', 'selected');
                     /* for other filters */
-                    select.find('option[value="(all)"]').attr('selected', 'selected');
+                    $select.find('option[value="(all)"]').attr('selected', 'selected');
                 }
             });
             if('q' in filters) {

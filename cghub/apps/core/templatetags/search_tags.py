@@ -143,7 +143,8 @@ def applied_filters(request):
     # query is mentioned first
     if applied_filters.get('q', None):
         # Text query from search input
-        filtered_by_str += '<li><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
+        filtered_by_str += '<li data-name="q" data-filters="' + applied_filters['q'] + \
+                    '"><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
 
     for f in applied_filters:
         if not applied_filters[f]:
