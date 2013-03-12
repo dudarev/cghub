@@ -93,3 +93,8 @@ VALUE_RESOLVERS = {
 }
 
 DEFAULT_PAGINATOR_LIMIT = 10
+
+DEFAULT_FILTERS = {
+    'state': '(live)',
+    'upload_date': '[NOW-7DAY+TO+NOW]',
+}
