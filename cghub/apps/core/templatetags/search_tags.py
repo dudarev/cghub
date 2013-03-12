@@ -241,7 +241,7 @@ def sort_link(request, attribute, link_anchor):
 @register.simple_tag
 def table_header(request):
     """
-    Return table header ordered accoreding to settings.TABLE_COLUNS
+    Return table header ordered accoreding to settings.TABLE_COLUMNS
     """
     COLS = {
         'Assembly': {
@@ -333,68 +333,15 @@ def get_result_attr(result, attr):
     return ''
 
 
-@register.simple_tag
-def table_row(result):
-    """
-    Return table row ordered according to settings.TABLE_COLUMNS
-    """
-    FIELD_VALUES = {
+def field_values(result):
+    return {
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
         'Center Name': get_name_by_code(
-                    'center_name',
-                    get_result_attr(result, 'center_name')),
-        'Disease': get_result_attr(result, 'disease_abbr'),
-        'Disease Name': get_name_by_code(
-                    'disease_abbr',
-                    get_result_attr(result, 'disease_abbr')),
-        'Experiment Type': get_name_by_code(
-                    'analyte_code',
-                    get_result_attr(result, 'analyte_code')),
-        'Files Size': file_size(get_result_attr(result, 'files_size')
-                    or get_result_attr(result, 'files')
-                    and get_result_attr(result, 'files').file[0].filesize),
-        'Last modified': get_result_attr(result, 'last_modified'),
-        'Run Type': get_result_attr(result, 'library_strategy'),
-        'Sample Accession': get_result_attr(result, 'sample_accession'),
-        'Sample Type': get_sample_type_by_code(
-                    get_result_attr(result, 'sample_type'),
-                    format='shortcut'),
-        'Sample Type Name': get_sample_type_by_code(
-                    get_result_attr(result, 'sample_type'),
-                    format='full'),
-        'State': get_name_by_code(
-                    'state', get_result_attr(result, 'state')),
-        'Study': get_name_by_code(
-                    'study', get_result_attr(result, 'study')),
-        'Upload time': get_result_attr(result, 'upload_date'),
-        'UUID': get_result_attr(result, 'analysis_id'),
-    }
-    html = ''
-    for field_name, default_state in settings.TABLE_COLUMNS:
-        value = FIELD_VALUES.get(field_name, None)
-        if field_name in settings.VALUE_RESOLVERS:
-            value = settings.VALUE_RESOLVERS[field_name](value)
-        if value == None:
-            continue
-        html += '<td>%s</td>' % value
-    return html
-
-
-@register.simple_tag
-def details_table(result):
-    """
-    Return table with details
-    """
-    FIELD_VALUES = {
-        'Assembly': get_result_attr(result, 'refassem_short_name'),
-        'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
-        'Center': get_result_attr(result, 'center_name'),
-        'Center Name': get_name_by_code(
             'center_name',
             get_result_attr(result, 'center_name')),
-        'Disease abbr': get_result_attr(result, 'disease_abbr'),
+        'Disease': get_result_attr(result, 'disease_abbr'),
         'Disease Name': get_name_by_code(
             'disease_abbr',
             get_result_attr(result, 'disease_abbr')),
@@ -402,10 +349,10 @@ def details_table(result):
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
         'Files Size': file_size(get_result_attr(result, 'files_size')
-            or get_result_attr(result, 'files')
-            and get_result_attr(result, 'files').file[0].filesize),
+                                or get_result_attr(result, 'files')
+                                and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
-        'Library strategy': get_result_attr(result, 'library_strategy'),
+        'Run Type': get_result_attr(result, 'library_strategy'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
@@ -419,15 +366,45 @@ def details_table(result):
             'study', get_result_attr(result, 'study')),
         'Upload time': get_result_attr(result, 'upload_date'),
         'UUID': get_result_attr(result, 'analysis_id'),
-        'Published time': get_result_attr(result, 'published_date'),
+
+        # additional fields for details
         'Aliquot id': get_result_attr(result, 'aliquot_id'),
-        'TSS id': get_result_attr(result, 'tss_id'),
+        'Disease abbr': get_result_attr(result, 'disease_abbr'),
+        'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
+        'Library strategy': get_result_attr(result, 'library_strategy'),
+        'Published time': get_result_attr(result, 'published_date'),
         'Participant id': get_result_attr(result, 'participant_id'),
         'Sample id': get_result_attr(result, 'sample_id'),
+        'TSS id': get_result_attr(result, 'tss_id'),
     }
+
+
+@register.simple_tag
+def table_row(result):
+    """
+    Return table row ordered according to settings.TABLE_COLUMNS
+    """
+    fields = field_values(result)
+    html = ''
+    for field_name, default_state in settings.TABLE_COLUMNS:
+        value = fields.get(field_name, None)
+        if field_name in settings.VALUE_RESOLVERS:
+            value = settings.VALUE_RESOLVERS[field_name](value)
+        if value == None:
+            continue
+        html += '<td>%s</td>' % value
+    return html
+
+
+@register.simple_tag
+def details_table(result):
+    """
+    Return table with details
+    """
+    fields = field_values(result)
     html = ''
     for field_name in settings.DETAILS_FIELDS:
-        value = FIELD_VALUES.get(field_name, None)
+        value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value == None:
