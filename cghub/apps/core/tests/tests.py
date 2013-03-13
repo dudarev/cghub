@@ -354,6 +354,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
             self.assertTrue(res.find(RESULT['analysis_id']) != -1)
             self.assertTrue(res.find(RESULT['study']) == -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
         FIELDS = ('UUID', 'Study')
@@ -366,6 +374,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find('<td') != -1)
             for field in FIELDS:
                 self.assertTrue(res.find(field) != -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_period_from_query(self):
         test_data = (

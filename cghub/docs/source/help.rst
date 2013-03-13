@@ -26,16 +26,21 @@ In case, when help hint for specified key was not found, a new record will be ad
 
 ::
 
-    Disease:BLCA key is missing
-    Disease Name:Lung adenocarcinoma key is missing
+    INFO 2013-03-11 16:32:25,441 views 12187 47019968759552 Assembly key is missing
+    INFO 2013-03-11 16:32:28,110 views 12187 47019968759552 Center key is missing
+    INFO 2013-03-11 16:32:30,200 views 12187 47019968759552 Center:UNC-LCCC key is missing
 
-This log file located in logs folder by default.
+Logging can be configured in :file:`cghub/setting/logging_settings.py`. SysLog handler used by default.
 
 settings/logging_settings.py:
 
 .. code-block:: python
 
-    HELP_LOGGING_FILE = proj('logs/help.log')
+    'help.hints': {
+        'handlers': ['syslog'],
+        'level': 'INFO',
+        'propagate': True,
+    },
 
 
 Popups with help text
