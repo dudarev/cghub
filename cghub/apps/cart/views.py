@@ -9,7 +9,6 @@ from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
-from django.utils import timezone
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
