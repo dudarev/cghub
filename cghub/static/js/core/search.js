@@ -48,7 +48,7 @@ jQuery(function ($) {
         parseAppliedFilters: function () {
             var filters = {};
             $('.applied-filters ul li').each(function() {
-                filters[$(this).data('name')] = $(this).data('filters').split('&');
+                filters[$(this).data('name')] = $(this).data('filters').toString().split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
