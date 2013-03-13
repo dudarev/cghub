@@ -65,6 +65,7 @@ class CoreTestCase(WithCacheTestCase):
         'aad96e9a8702634a40528d6280187da7.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
+        '71411da734e90beda34360fa47d88b99_ids.cache',
     ]
     query = "6d54*"
 
@@ -417,7 +418,10 @@ class TemplateTagsTestCase(TestCase):
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache',
+        '5c4840476e9f1638af7e4ba9224c8689.xml',
+        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
     query = "6d54*"
 
