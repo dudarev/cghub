@@ -265,12 +265,15 @@ class TemplateTagsTestCase(TestCase):
             'center_name': '(HMS-RK)',
             'library_strategy': '(WGS OR WXS)',
             'last_modified': '[NOW-7DAY TO NOW]',
-            'disease_abbr': '(CNTL OR COAD)', })
+            'disease_abbr': '(CNTL OR COAD)',
+            'q': 'Some text'})
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            u'Applied filter(s): <ul><li data-name="center_name" data-filters="HMS-RK">'
+            u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
+            '<b>Text query</b>: "Some text"</li>'
+            '<li data-name="center_name" data-filters="HMS-RK">'
             '<b>Center</b>: Harvard (HMS-RK)</li>'
             '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
             '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
