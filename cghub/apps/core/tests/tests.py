@@ -65,6 +65,7 @@ class CoreTestCase(WithCacheTestCase):
         'aad96e9a8702634a40528d6280187da7.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
+        '71411da734e90beda34360fa47d88b99_ids.cache',
     ]
     query = "6d54*"
 
@@ -126,7 +127,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, results.Result.center_name)
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
-        self.assertContains(response, 'Show raw xml')
+        self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
         self.assertContains(response, 'Disease abbr')
@@ -265,16 +266,22 @@ class TemplateTagsTestCase(TestCase):
             'center_name': '(HMS-RK)',
             'library_strategy': '(WGS OR WXS)',
             'last_modified': '[NOW-7DAY TO NOW]',
-            'disease_abbr': '(CNTL OR COAD)', })
+            'disease_abbr': '(CNTL OR COAD)',
+            'q': 'Some text'})
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            'Applied filter(s): <ul><li><b>Center</b>: Harvard (HMS-RK)</li>'
-            '<li id="modified-filter-applied" data="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
-            '<li><b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li><b>Study</b>: TCGA (phs000178)</li>'
-            '<li><b>Run Type</b>: WGS, WXS</li></ul>')
+            u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
+            '<b>Text query</b>: "Some text"</li>'
+            '<li data-name="center_name" data-filters="HMS-RK">'
+            '<b>Center</b>: Harvard (HMS-RK)</li>'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
+            '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
+            '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
+            '<li data-name="library_strategy" data-filters="WGS&WXS">'
+            '<b>Run Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -354,6 +361,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
             self.assertTrue(res.find(RESULT['analysis_id']) != -1)
             self.assertTrue(res.find(RESULT['study']) == -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
         FIELDS = ('UUID', 'Study')
@@ -366,6 +381,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find('<td') != -1)
             for field in FIELDS:
                 self.assertTrue(res.find(field) != -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_period_from_query(self):
         test_data = (
@@ -395,7 +418,10 @@ class TemplateTagsTestCase(TestCase):
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache',
+        '5c4840476e9f1638af7e4ba9224c8689.xml',
+        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
     query = "6d54*"
 

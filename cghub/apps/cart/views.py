@@ -9,7 +9,6 @@ from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
-from django.utils import timezone
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
@@ -50,9 +49,7 @@ def cart_add_files(request):
                     task = TaskState.objects.get(task_id=task_id)
                     # if task was done more thant hour ago
                     # than restart task
-                    hour_ago = timezone.now() - datetime.timedelta(hours=1)
-                    if task.state == states.FAILURE or (
-                        task.state == states.SUCCESS and task.tstamp < hour_ago):
+                    if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)

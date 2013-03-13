@@ -7,13 +7,14 @@ from django.core.urlresolvers import reverse
 
 
 from django.views.generic.base import TemplateView, View
+from lxml import etree
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
 from cghub.apps.core.utils import get_filters_string, get_wsapi_settings, metadata
 
 
-DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
+DEFAULT_QUERY = urllib.unquote(get_filters_string(settings.DEFAULT_FILTERS)[1:])
 DEFAULT_SORT_BY = '-upload_date'
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -110,7 +111,7 @@ class ItemDetailsView(TemplateView):
         if hasattr(results, 'Result'):
             return {
                 'res': results.Result,
-                'raw_xml': repr(results.tostring()),
+                'raw_xml': repr(etree.tostring(results.Result).replace(' id="1"', '')),
                 'uuid': kwargs['uuid']}
         return {'res': None}
 

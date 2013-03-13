@@ -7,8 +7,7 @@ from .static import *
 from .middleware import *
 from .template import *
 from .apps import *
-from .cart_cache import *
-from .api_cache import *
+from .cache import *
 from .wsapi import *
 from .ui import *
 from .help import *

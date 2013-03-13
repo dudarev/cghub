@@ -278,7 +278,8 @@ class CacheTestCase(TestCase):
         content = response.content
         for id in self.IDS_IN_CART:
             self.assertTrue(id in content)
-        self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri', 'aliquot_id', 'filename']))
+        self.assertTrue(all(field.lower().replace(' ', '_') in content
+                            for field, visibility in settings.TABLE_COLUMNS))
 
 
 class CartFormsTestCase(TestCase):
