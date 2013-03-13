@@ -44,8 +44,7 @@ In ``local.py`` define BROKER_URL
 	import sys
 	import djcelery
 
-	from cart_cache import TIME_CHECK_CART_CACHE_INTERVAL
-	from api_cache import TIME_CHECK_API_CACHE_INTERVAL
+	from .cache import TIME_CHECK_CART_CACHE_INTERVAL, TIME_CHECK_API_CACHE_INTERVAL
 
 	djcelery.setup_loader()
 
