@@ -50,10 +50,7 @@ def cart_add_files(request):
                     task = TaskState.objects.get(task_id=task_id)
                     # if task was done more thant hour ago
                     # than restart task
-                    hour_ago = timezone.now() - datetime.timedelta(hours=1)
-                    if (task.state not in (states.SUCCESS, states.FAILURE)) or (
-                        task.state == states.FAILURE) or (
-                        task.state == states.SUCCESS and task.tstamp < hour_ago):
+                    if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)
