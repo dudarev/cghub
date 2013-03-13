@@ -14,7 +14,7 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.apps.core.utils import get_filters_string, get_wsapi_settings, metadata
 
 
-DEFAULT_QUERY = 'upload_date=[NOW-7DAY%20TO%20NOW]&state=(live)'
+DEFAULT_QUERY = urllib.unquote(get_filters_string(settings.DEFAULT_FILTERS)[1:])
 DEFAULT_SORT_BY = '-upload_date'
 WSAPI_SETTINGS = get_wsapi_settings()
 

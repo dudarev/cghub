@@ -44,8 +44,7 @@ In ``local.py`` define BROKER_URL
 	import sys
 	import djcelery
 
-	from cart_cache import TIME_CHECK_CART_CACHE_INTERVAL
-	from api_cache import TIME_CHECK_API_CACHE_INTERVAL
+	from .cache import TIME_CHECK_CART_CACHE_INTERVAL, TIME_CHECK_API_CACHE_INTERVAL
 
 	djcelery.setup_loader()
 
@@ -87,11 +86,11 @@ Two types of caching is used:
 API cache
 ~~~~~~~~~~~~~
 
-API does not clean cache automatically. Celery task to do so is scheduled to run. Its parameters are stored in ``settings/api_cache.py``:
+API does not clean cache automatically. Celery task to do so is scheduled to run. Its parameters are stored in ``settings/cache.py``:
 
 .. code-block:: python
 
-    # api_cache.py
+    # cache.py
 
     TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_API_CACHE_INTERVAL = timedelta(hours=1)
@@ -108,7 +107,7 @@ to keep files is also specified.
 
 .. code-block:: python
 
-    # cart_cache.py
+    # cache.py
 
     CART_CACHE_DIR = '/tmp/wsapi/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
@@ -174,6 +173,21 @@ Some column values can has an absurd names. To map them to something a human wou
 
     VALUE_RESOLVERS = {
         'Study': study_resolver,
+    }
+
+
+Default filters
+---------------
+
+Default filters can be specified in settings. For example:
+
+.. code-block:: python
+
+    # ui.py
+
+    DEFAULT_FILTERS = {
+        'state': '(live)',
+        'upload_date': '[NOW-7DAY+TO+NOW]',
     }
 
 Logging

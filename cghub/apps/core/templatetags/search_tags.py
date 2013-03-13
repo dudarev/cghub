@@ -143,7 +143,8 @@ def applied_filters(request):
     # query is mentioned first
     if applied_filters.get('q', None):
         # Text query from search input
-        filtered_by_str += '<li><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
+        filtered_by_str += '<li data-name="q" data-filters="' + applied_filters['q'] + \
+                    '"><b>Text query</b>: "' + applied_filters['q'] + '"</li>'
 
     for f in applied_filters:
         if not applied_filters[f]:
@@ -162,9 +163,11 @@ def applied_filters(request):
             else:
                 filter_name = period_from_query(filters)
             if f == 'last_modified':
-                filtered_by_str += '<li id="modified-filter-applied" data="' + filters + '"><b>Modified</b>: '
+                filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
+                                        filters + '"><b>Modified</b>: '
             else:
-                filtered_by_str += '<li id="uploaded-filter-applied" data="' + filters + '"><b>Uploaded</b>: '
+                filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
+                                        filters + '"><b>Uploaded</b>: '
             filtered_by_str += filter_name.lower() + '</li>'
             continue
 
@@ -180,7 +183,9 @@ def applied_filters(request):
                     if value.find(i) != -1:
                         filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
                         break
-            filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+            filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
+                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                                                title, filters_str[2:])
             continue
 
         for value in filters:
@@ -191,7 +196,9 @@ def applied_filters(request):
             else:
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
-        filtered_by_str += '<li><b>%s</b>: %s</li>' % (title, filters_str[2:])
+        filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
+                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                                                title, filters_str[2:])
 
     filtered_by_str += '</ul>'
     return filtered_by_str
