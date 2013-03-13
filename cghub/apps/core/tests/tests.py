@@ -126,7 +126,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, results.Result.center_name)
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
-        self.assertContains(response, 'Show raw xml')
+        self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
         self.assertContains(response, 'Disease abbr')
