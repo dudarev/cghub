@@ -36,8 +36,9 @@ def get_cart_stats(request):
 
 
 def clear_cart(request):
-    request.session.get('cart').clear()
-    request.session.modified = True
+    if 'cart' in request.session:
+        request.session['cart'].clear()
+        request.session.modified = True
 
 
 def cache_results(file_dict):

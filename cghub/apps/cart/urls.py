@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from cghub.apps.cart.views import (CartView, CartAddRemoveFilesView,
-                                   CartDownloadFilesView, ClearCartView)
+                                   CartDownloadFilesView, CartClearView)
 
 
 urlpatterns = patterns('',
@@ -10,7 +10,7 @@ urlpatterns = patterns('',
         name='cart_add_remove_files'),
     url(
         r'^clear/$',
-        ClearCartView.as_view(),
+        CartClearView.as_view(),
         name='clear_cart'),
     url(
         r'^(?P<action>manifest_xml|manifest_tsv|metadata_xml|metadata_tsv)/$',

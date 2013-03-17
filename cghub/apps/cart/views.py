@@ -125,7 +125,7 @@ class CartAddRemoveFilesView(View):
     def get(self, request, action):
         raise Http404
 
-class ClearCartView(View):
+class CartClearView(View):
     """
     Handels clearing cart
     """
