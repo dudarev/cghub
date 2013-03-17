@@ -1,28 +1,16 @@
 import logging
 
 from django.core.urlresolvers import reverse
-from django.utils import simplejson as json
 from django.views.generic.base import View, TemplateView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.conf import settings
+
+from cghub.apps.core.views import AjaxView
 
 from .models import HelpText
 
 
 hints_logger = logging.getLogger('help.hints')
-
-
-class AjaxView(View):
-
-    http_method_names = ['get']
-    response_class = HttpResponse
-
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Returns a JSON response, transforming 'context' to make the payload.
-        """
-        response_kwargs['content_type'] = 'application/json'
-        return self.response_class(json.dumps(context), **response_kwargs)
 
 
 class HelpView(TemplateView):
