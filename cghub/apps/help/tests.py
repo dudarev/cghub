@@ -21,9 +21,9 @@ class HelpViewsTestCase(TestCase):
         response = self.client.get(reverse('help_cart_page'))
         # two occurances in navigation bar /help/?from=/help/
         # one in text
-        self.assertContains(response, '/help/', 3)
+        self.assertContains(response, '/help/', 5)
         response = self.client.get(reverse('help_search_page'))
-        self.assertContains(response, '/help/', 3)
+        self.assertContains(response, '/help/', 5)
 
     def test_help_hint_text(self):
         """

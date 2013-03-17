@@ -14,10 +14,11 @@ from django.views.generic.base import TemplateView, View
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
-from cghub.apps.core.utils import get_filters_string, get_wsapi_settings, metadata
+from cghub.apps.core.utils import (get_filters_string, get_default_query,
+                                            get_wsapi_settings, metadata)
 
 
-DEFAULT_QUERY = urllib.unquote(get_filters_string(settings.DEFAULT_FILTERS)[1:])
+DEFAULT_QUERY = get_default_query()
 DEFAULT_SORT_BY = '-upload_date'
 WSAPI_SETTINGS = get_wsapi_settings()
 

@@ -21,7 +21,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, generate_task_uuid,
+                    get_wsapi_settings, get_default_query, generate_task_uuid,
                     manifest, metadata)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -204,6 +204,25 @@ class UtilsTestCase(TestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+
+    def test_get_default_query(self):
+        with self.settings(
+            DEFAULT_FILTERS = {
+                'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY TO NOW]'}):
+            self.assertEqual(
+                get_default_query(),
+                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)')
+        # if not existing filter keys
+        with self.settings(
+            DEFAULT_FILTERS = {
+                'study': ('phs000178', 'bad_key'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY TO NOW]'}):
+            self.assertEqual(
+                get_default_query(),
+                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178)&state=(live)')
 
 
 class TemplateTagsTestCase(TestCase):

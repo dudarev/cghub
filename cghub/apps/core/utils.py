@@ -17,19 +17,14 @@ from django.utils import timezone
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
 from cghub.apps.core.templatetags.search_tags import field_values
+from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
-ALLOWED_ATTRIBUTES = (
-        'study',
-        'center_name',
+ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
+
+DATE_ATTRIBUTES = (
         'last_modified',
         'upload_date',
-        'analyte_code',
-        'sample_type',
-        'library_strategy',
-        'disease_abbr',
-        'state',
-        'refassem_short_name',
     )
 
 WSAPI_SETTINGS_LIST = (
@@ -51,6 +46,33 @@ def get_filters_string(attributes):
                     urllib.quote(attributes.get(attr))
                 )
     return filter_str
+
+
+def get_default_query():
+    """
+    Taking in mind settings.DEFAULT_FILTERS returns query string.
+    For example:
+    DEFAULT_FILTERS = {
+        'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
+        'state': ('live',),
+        'upload_date': '[NOW-7DAY TO NOW]',
+    }
+    result should be:
+    upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)
+    """
+    filters_list = []
+    DEFAULT_FILTERS = settings.DEFAULT_FILTERS
+    for f in DEFAULT_FILTERS:
+        if f in ALLOWED_ATTRIBUTES:
+            if f in DATE_ATTRIBUTES:
+                filters_list.append('%s=%s' % (f, DEFAULT_FILTERS[f]))
+            else:
+                allowed_keys = ALL_FILTERS[f]['filters'].keys()
+                filters_list.append('%s=(%s)' % (
+                        f,
+                        ' OR '.join([v for v in DEFAULT_FILTERS[f] if v in allowed_keys])
+                ))
+    return '&'.join(filters_list).replace(' ', '+')
 
 
 def get_wsapi_settings():
