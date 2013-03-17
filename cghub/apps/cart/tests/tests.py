@@ -14,18 +14,22 @@ from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
 from cghub.settings.utils import PROJECT_ROOT
-from cghub.apps.cart.utils import cache_results
-from cghub.apps.cart.tasks import add_files_to_cart_by_query
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 
 from cghub.apps.core.tests import WithCacheTestCase
 
 
-class CartTestCase(TestCase):
+def add_files_to_cart_dict(ids, selected_files=['file1', 'file2', 'file3']):
+    return {'selected_files': selected_files,
+            'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576, "state": "live"},'
+                           '"file2":{"analysis_id":"%s", "files_size": 1048576, "state": "live"},'
+                           '"file3":{"analysis_id":"%s", "files_size": 1048576, "state": "bad_data"}}' % ids}
 
-    aids = ('12345678-1234-1234-1234-123456789abc',
-            '12345678-4321-1234-1234-123456789abc',
-            '87654321-1234-1234-1234-123456789abc')
+
+class CartTestCase(TestCase):
+    RANDOM_IDS = ('12345678-1234-1234-1234-123456789abc',
+                  '12345678-4321-1234-1234-123456789abc',
+                  '87654321-1234-1234-1234-123456789abc')
 
     def setUp(self):
         self.client = Client()
@@ -33,14 +37,9 @@ class CartTestCase(TestCase):
 
     def test_cart_add_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
-        selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(
-                        url,
-                        {'selected_files': selected_files,
-                         'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                        '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                        '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.client.post(url, add_files_to_cart_dict(ids=self.RANDOM_IDS),
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
@@ -54,18 +53,16 @@ class CartTestCase(TestCase):
         self.assertEqual(len(response.context['results']), 3)
 
         # make sure we have files we've posted
-        for f in self.aids:
+        for f in self.RANDOM_IDS:
             self.assertEqual(f in response.content, True)
 
     def test_card_add_duplicate_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
-        selected_files = ['file1', 'file1', 'file1']
-        response = self.client.post(
-                        url,
-                        {'selected_files': selected_files,
-                            'attributes': '{"file1":{"analysis_id":"%s"}, '
-                            '"file1":{"analysis_id":"%s"}, '
-                            '"file1":{"analysis_id":"%s"}}' % self.aids},
+        self.client.post(url,
+                         add_files_to_cart_dict(
+                             ids=self.RANDOM_IDS,
+                             selected_files=['file1', 'file1', 'file1']
+                         ),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -81,21 +78,13 @@ class CartTestCase(TestCase):
     def test_cart_remove_files(self):
         # add files
         url = reverse('cart_add_remove_files', args=['add'])
-        selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(
-                            url, 
-                            {'selected_files': selected_files,
-                                    'attributes': '{"file1":{"analysis_id":"%s"},'
-                                    '"file2":{"analysis_id":"%s"},'
-                                    '"file3":{"analysis_id":"%s"}}' % self.aids},
-                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.client.post(url, add_files_to_cart_dict(ids=self.RANDOM_IDS),
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # remove files
-        rm_selected_files = [self.aids[0], self.aids[1]]
+        rm_selected_files = [self.RANDOM_IDS[0], self.RANDOM_IDS[1]]
         url = reverse('cart_add_remove_files', args=['remove'])
-        response = self.client.post(
-                        url,
-                        {'selected_files': rm_selected_files},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.client.post(url, {'selected_files': rm_selected_files},
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # go to cart page
         response = self.client.get(self.cart_page_url)
@@ -110,7 +99,7 @@ class CartTestCase(TestCase):
             self.assertEqual(f in response.content, False)
 
         # test removing doesn't loses sorting
-        rm_selected_files = [self.aids[2]]
+        rm_selected_files = [self.RANDOM_IDS[2]]
         params = '?sort_by=analysis_id'
         url = reverse('cart_add_remove_files', args=['remove']) + params
         response = self.client.post(
@@ -123,14 +112,8 @@ class CartTestCase(TestCase):
     def test_cart_pagination(self):
         # add 3 files to cart
         url = reverse('cart_add_remove_files', args=['add'])
-        selected_files = ['file1', 'file2', 'file3']
-        response = self.client.post(
-                                url,
-                                {'selected_files': selected_files,
-                                 'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576},'
-                                                '"file2":{"analysis_id":"%s", "files_size": 1048576},'
-                                                '"file3":{"analysis_id":"%s", "files_size": 1048576}}' % self.aids},
-                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.client.post(url, add_files_to_cart_dict(ids=self.RANDOM_IDS),
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
@@ -138,8 +121,8 @@ class CartTestCase(TestCase):
 
         # 2 items per page
         response = self.client.get(reverse('cart_page') +
-                                       '?offset={offset}&limit={limit}'.format(
-                                          offset=0, limit=2))
+                                   '?offset={offset}&limit={limit}'.format(
+                                       offset=0, limit=2))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '1')
         self.assertContains(response, '2')
@@ -157,14 +140,29 @@ class CartTestCase(TestCase):
         """
         Only POST method allowed for 'cart_add_remove_files' url
         """
-        response = self.client.get(reverse(
-                                'cart_add_remove_files',
-                                args=['add']))
+        url = reverse('cart_add_remove_files', args=['add'])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
 
-class CartAddItemsTestCase(WithCacheTestCase):
+class ClearCartTestCase(TestCase):
+    IDS_IN_CART = ('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
+                   '4b2235d6-ffe9-4664-9170-d9d2013b395f',
+                   '7be92e1e-33b6-4d15-a868-59d5a513fca1')
+    def setUp(self):
+        url = reverse('cart_add_remove_files', args=['add'])
+        self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
+                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
+    def test_clear_cart(self):
+        url = reverse('clear_cart')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
+        self.assertContains(response, "Your cart is empty!")
+
+
+class CartAddItemsTestCase(WithCacheTestCase):
     cache_files = [
         '32aca6fc099abe3ce91e88422edc0a20.xml'
     ]
@@ -189,9 +187,9 @@ class CartAddItemsTestCase(WithCacheTestCase):
                         'last_modified': '[NOW-1DAY TO NOW]',
                         'analyte_code': '(D)'})}
         url = reverse('cart_add_remove_files', args=('add',))
-        r = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(json.loads(r.content)['action'], 'message')
+        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['action'], 'message')
         self.assertTrue(self.client.session.session_key)
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
@@ -214,10 +212,7 @@ class CacheTestCase(TestCase):
             shutil.copy(file, os.path.join(self.api_results_cache_dir, os.path.basename(file)))
 
         url = reverse('cart_add_remove_files', args=['add'])
-        self.client.post(url, {'selected_files': ['file1', 'file2', 'file3'],
-                               'attributes': '{"file1":{"analysis_id":"%s", "state": "live"},'
-                                              '"file2":{"analysis_id":"%s", "state": "live"},'
-                                              '"file3":{"analysis_id":"%s", "state": "bad_data"}}' % self.IDS_IN_CART},
+        self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def tearDown(self):

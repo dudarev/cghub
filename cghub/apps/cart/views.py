@@ -16,7 +16,8 @@ from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
                     metadata)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                    cache_results, get_or_create_cart, get_cart_stats)
+                                   cache_results, get_or_create_cart,
+                                   get_cart_stats, clear_cart)
 from cghub.apps.cart.tasks import add_files_to_cart_by_query
 
 from cghub.wsapi.api import request as api_request
@@ -123,6 +124,15 @@ class CartAddRemoveFilesView(View):
 
     def get(self, request, action):
         raise Http404
+
+class CartClearView(View):
+    """
+    Handels clearing cart
+    """
+    def post(self, request):
+        clear_cart(request)
+        url = reverse('cart_page')
+        return HttpResponseRedirect(url)
 
 
 class CartDownloadFilesView(View):
