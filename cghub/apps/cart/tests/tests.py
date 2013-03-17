@@ -164,7 +164,7 @@ class ClearCartTestCase(TestCase):
 
 class CartAddItemsTestCase(WithCacheTestCase):
     cache_files = [
-        '32aca6fc099abe3ce91e88422edc0a20.xml'
+        'c0fc7dd542430ce04e8c6e0d065cfd71.xml'
     ]
 
     def test_cart_add_files(self):

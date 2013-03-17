@@ -95,7 +95,6 @@ VALUE_RESOLVERS = {
 DEFAULT_PAGINATOR_LIMIT = 10
 
 DEFAULT_FILTERS = {
-    'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
     'state': ('live',),
     'upload_date': '[NOW-7DAY TO NOW]',
 }
