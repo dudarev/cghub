@@ -188,6 +188,16 @@ jQuery(function ($) {
                     }
                     if (data['action']=='message') {
                         cghub.search.showMessage(data['title'], data['content']);
+                        if('task_id' in data) {
+                            var tasks = $.cookie('active_tasks');
+                            if(tasks) {
+                                tasks = tasks.split(',');
+                                tasks.push(data['task_id']);
+                                $.cookie('active_tasks', tasks.join(','), { path: '/' });
+                            } else {
+                                $.cookie('active_tasks', data['task_id'], { path: '/' });
+                            }
+                        }
                     }
                     if (data['action']=='error') {
                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
@@ -300,7 +310,9 @@ jQuery(function ($) {
                 }, function() {
                     $(this).removeClass('ui-state-hover');
                 }).click(function() {
-                    var $datepickers = cghub.search.createCustomDatepickers().css('top', $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper').offset().top - 40).appendTo('.sidebar');
+                    var $datepickers = cghub.search.createCustomDatepickers()
+                        .css('top', $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper')
+                        .offset().top - 40).appendTo('.sidebar');
                     $datepickers.find('.btn-cancel').click(function() {
                         $datepickers.remove();
                         return false;
