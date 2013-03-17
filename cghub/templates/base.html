@@ -31,7 +31,7 @@
     {% endif %}
     {% block extra_header_js %} {% endblock %}
 </head>
-<body>
+<body data-help-hint-url="{% url help_hint %}" data-help-text-url="{% url help_text %}" data-task-status-url="{% url celery_task_status %}">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
