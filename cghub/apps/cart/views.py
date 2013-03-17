@@ -48,8 +48,7 @@ def cart_add_files(request):
                 task_id = generate_task_uuid(**kwargs)
                 try:
                     task = TaskState.objects.get(task_id=task_id)
-                    # if task was done more thant hour ago
-                    # than restart task
+                    # task already done, reexecute task
                     if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query.apply_async(
                             kwargs=kwargs,
@@ -61,6 +60,7 @@ def cart_add_files(request):
                             task_id=task_id)
                 result = {
                             'action': 'message',
+                            'task_id': task_id,
                             'content': WILL_BE_ADDED_SOON_CONTENT,
                             'title': WILL_BE_ADDED_SOON_TITLE}
             else:
