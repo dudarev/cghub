@@ -263,7 +263,7 @@ jQuery(function ($) {
             $(this).blur();
         },
         resetFilters:function() {
-            window.location.href = "/";
+            window.location.href = $(this).data('url');
             $(this).blur();
         },
         createCustomDatepickers:function() {
