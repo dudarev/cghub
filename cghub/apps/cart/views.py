@@ -11,18 +11,15 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils.http import urlquote
 
-from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
-                    generate_task_uuid, get_wsapi_settings, manifest,
-                    metadata)
+from cghub.apps.core.utils import (is_celery_alive,
+                    generate_task_uuid, get_wsapi_settings)
+
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                                    cache_results, get_or_create_cart,
                                    get_cart_stats, clear_cart)
 from cghub.apps.cart.tasks import add_files_to_cart_by_query
-
-from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import Results
-
+import cghub.apps.core.utils as utils
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -139,8 +136,6 @@ class CartDownloadFilesView(View):
     def post(self, request, action):
         cart = request.session.get('cart')
         if cart and action:
-            if action.startswith('manifest'):
-                return manifest(ids=cart, format=action.split('_')[1])
-            if action.startswith('metadata'):
-                return metadata(ids=cart, format=action.split('_')[1])
+            download = getattr(utils, action)
+            return download(cart)
         return HttpResponseRedirect(reverse('cart_page'))

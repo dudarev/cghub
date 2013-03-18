@@ -13,7 +13,7 @@ urlpatterns = patterns('',
         CartClearView.as_view(),
         name='clear_cart'),
     url(
-        r'^(?P<action>manifest_xml|manifest_tsv|metadata_xml|metadata_tsv)/$',
+        r'^(?P<action>manifest|metadata|summary)/$',
         CartDownloadFilesView.as_view(),
         name='cart_download_files'),
     url(r'^$', CartView.as_view(), name='cart_page'),
