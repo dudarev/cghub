@@ -128,13 +128,13 @@ def manifest(ids, format):
         results= _empty_results()
 
     mfio = StringIO()
+    parser = etree.XMLParser()
+    tree = etree.XML(results.tostring(), parser)
     if format == 'xml':
-        mfio.write(results.tostring())
+        mfio.write(etree.tostring(tree, pretty_print=True))
         content_type = 'text/xml'
         filename = 'manifest.xml'
     if format == 'tsv':
-        parser = etree.XMLParser()
-        tree = etree.XML(results.tostring(), parser)
         csvwriter = _write_manifest_csv(stringio=mfio, tree=tree)
         content_type = 'text/tsv'
         filename = 'manifest.tsv'
@@ -150,7 +150,9 @@ def metadata(ids, format):
     results = get_results(ids, get_attributes=True)
 
     if format == 'xml':
-        mfio.write(results.tostring())
+        parser = etree.XMLParser()
+        tree = etree.XML(results.tostring(), parser)
+        mfio.write(etree.tostring(tree, pretty_print=True))
         content_type = 'text/xml'
         filename = 'metadata.xml'
     if format == 'tsv':
