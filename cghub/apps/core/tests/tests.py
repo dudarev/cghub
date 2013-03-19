@@ -274,7 +274,7 @@ class TemplateTagsTestCase(TestCase):
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
             '<li data-name="library_strategy" data-filters="WGS&WXS">'
-            '<b>Run Type</b>: WGS, WXS</li></ul>')
+            '<b>Library Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()

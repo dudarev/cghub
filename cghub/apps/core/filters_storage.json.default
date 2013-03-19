@@ -128,7 +128,7 @@
         "WGS": "WGS", 
         "WXS": "WXS"
       }, 
-      "title": "By Run Type"
+      "title": "By Library Type"
     }, 
     "refassem_short_name": {
       "filters": {
