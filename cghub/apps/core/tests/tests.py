@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, generate_task_uuid,
-                    manifest, metadata)
+                    manifest, metadata, summary)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -65,6 +65,7 @@ class CoreTestCase(WithCacheTestCase):
         'aad96e9a8702634a40528d6280187da7.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
+        '71411da734e90beda34360fa47d88b99_ids.cache',
     ]
     query = "6d54*"
 
@@ -126,7 +127,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, results.Result.center_name)
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
-        self.assertContains(response, 'Show raw xml')
+        self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
         self.assertContains(response, 'Disease abbr')
@@ -170,33 +171,26 @@ class UtilsTestCase(TestCase):
         for data in test_data:
             self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
 
-    def test_manifest_xml(self):
-        response = manifest(self.FILES_IN_CART, format='xml')
+    def test_manifest(self):
+        response = manifest(self.FILES_IN_CART)
         man = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
         self.assertFalse(self.IDS_IN_CART[1] in man)
         self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
 
-    def test_manifest_tsv(self):
-        response = manifest(self.FILES_IN_CART, format='tsv')
-        man = response.content
-        self.assertTrue(self.IDS_IN_CART[0] in man)
-        self.assertFalse(self.IDS_IN_CART[1] in man)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='manifest.tsv')
-
-    def test_metadata_xml(self):
-        response = metadata(self.FILES_IN_CART, format='xml')
+    def test_metadata(self):
+        response = metadata(self.FILES_IN_CART)
         met = response.content
         for id in self.IDS_IN_CART:
             self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
         self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
 
-    def test_metadata_tvs(self):
-        response = metadata(self.FILES_IN_CART, format='tsv')
-        met = response.content
+    def test_summary_tsv(self):
+        response = summary(self.FILES_IN_CART)
+        sum = response.content
         for id in self.IDS_IN_CART:
-            self.assertTrue(id in met)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='metadata.tsv')
+            self.assertTrue(id in sum)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
 
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
@@ -265,16 +259,22 @@ class TemplateTagsTestCase(TestCase):
             'center_name': '(HMS-RK)',
             'library_strategy': '(WGS OR WXS)',
             'last_modified': '[NOW-7DAY TO NOW]',
-            'disease_abbr': '(CNTL OR COAD)', })
+            'disease_abbr': '(CNTL OR COAD)',
+            'q': 'Some text'})
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
         self.assertEqual(
             result,
-            'Applied filter(s): <ul><li><b>Center</b>: Harvard (HMS-RK)</li>'
-            '<li id="modified-filter-applied" data="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
-            '<li><b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li><b>Study</b>: TCGA (phs000178)</li>'
-            '<li><b>Run Type</b>: WGS, WXS</li></ul>')
+            u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
+            '<b>Text query</b>: "Some text"</li>'
+            '<li data-name="center_name" data-filters="HMS-RK">'
+            '<b>Center</b>: Harvard (HMS-RK)</li>'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
+            '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
+            '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
+            '<li data-name="library_strategy" data-filters="WGS&WXS">'
+            '<b>Run Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -354,6 +354,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
             self.assertTrue(res.find(RESULT['analysis_id']) != -1)
             self.assertTrue(res.find(RESULT['study']) == -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
         FIELDS = ('UUID', 'Study')
@@ -366,6 +374,14 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find('<td') != -1)
             for field in FIELDS:
                 self.assertTrue(res.find(field) != -1)
+        # test value_resolvers
+        right_value = 'Right value'
+        def value_resolver(value):
+            return right_value
+        with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
+            res = table_row(RESULT)
+            self.assertIn(right_value, res)
+            self.assertNotIn(RESULT['study'], res)
 
     def test_period_from_query(self):
         test_data = (
@@ -395,7 +411,10 @@ class TemplateTagsTestCase(TestCase):
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml'
+        'd35ccea87328742e26a8702dee596ee9.xml',
+        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache',
+        '5c4840476e9f1638af7e4ba9224c8689.xml',
+        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
     query = "6d54*"
 

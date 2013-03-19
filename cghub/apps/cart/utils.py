@@ -35,6 +35,12 @@ def get_cart_stats(request):
     return stats
 
 
+def clear_cart(request):
+    if 'cart' in request.session:
+        request.session['cart'].clear()
+        request.session.modified = True
+
+
 def cache_results(file_dict):
     """
     To check celery status use cghub.apps.core.utils.py:is_celery_alive

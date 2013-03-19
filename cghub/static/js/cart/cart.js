@@ -16,49 +16,47 @@ jQuery(function ($) {
             cghub.cart.$nextColumn;
             cghub.cart.$nextColumnWidth = 0;
             cghub.cart.$searchTable = $('table.data-table');
-            cghub.cart.$downloadManifestXml = $('.cart-form-download-manifest-xml');
-            cghub.cart.$downloadManifestTsv = $('.cart-form-download-manifest-tsv');
-            cghub.cart.$downloadMetadataXml = $('.cart-form-download-metadata-xml');
-            cghub.cart.$downloadMetadataTsv = $('.cart-form-download-metadata-tsv');
-            cghub.cart.$removeBtn = $('.cart-form-remove');
+            cghub.cart.$downloadManifestXml = $('.cart-download-manifest');
+            cghub.cart.$downloadMetadataXml = $('.cart-download-metadata');
+            cghub.cart.$downloadMetadataTsv = $('.cart-download-summary');
+            cghub.cart.$removeBtn = $('.cart-remove');
+            cghub.cart.$clearBtn = $('.cart-clear');
         },
         bindEvents:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             $('.flexigrid .bDiv tr').contextmenu();
-            cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifestXml);
-            cghub.cart.$downloadManifestTsv.on('click', cghub.cart.downloadManifestTsv);
-            cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadataXml);
-            cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadMetadataTsv);
+            cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
+            cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
+            cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
+            cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
         },
+        // replace current action with needed, /\/[a-z_]+\/$/ = "/some_action/",
+        // slashes in '/.../' are needed!
         removeFromCart:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|metadata_xml|metadata_tsv|manifest_xml|manifest_tsv)/, 'remove'));
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/remove/'));
         },
-        downloadManifestXml:function () {
+        clearCart: function(){
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|remove|metadata_xml|metadata_tsv|manifest_tsv)/, 'manifest_xml'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/clear/'));
         },
-        downloadManifestTsv:function () {
+        downloadManifest:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|remove|metadata_xml|metadata_tsv|manifest_xml)/, 'manifest_tsv'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/'));
         },
-        downloadMetadataXml:function () {
+        downloadMetadata:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|remove|metadata_tsv|manifest_xml|manifest_tsv)/, 'metadata_xml'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/'));
         },
-        downloadMetadataTsv:function () {
+        downloadSummary:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/(action|remove|metadata_xml|manifest_xml|manifest_tsv)/, 'metadata_tsv'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
         }
     };
     cghub.cart.init();

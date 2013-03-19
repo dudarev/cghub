@@ -6,7 +6,6 @@ import csv
 
 from StringIO import StringIO
 from lxml import etree, objectify
-from datetime import datetime
 
 from django.core.mail import mail_admins
 from django.core.servers import basehttp
@@ -16,6 +15,7 @@ from django.utils import timezone
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import Results
+from cghub.apps.core.templatetags.search_tags import field_values
 
 
 ALLOWED_ATTRIBUTES = (
@@ -121,47 +121,30 @@ def get_results(ids, get_attributes=False, live_only=False):
     return results
 
 
-def manifest(ids, format):
+def manifest(ids):
     results = get_results(ids, live_only=True)
     if not results:
         results= _empty_results()
-
-    mfio = StringIO()
-    if format == 'xml':
-        mfio.write(results.tostring())
-        content_type = 'text/xml'
-        filename = 'manifest.xml'
-    if format == 'tsv':
-        parser = etree.XMLParser()
-        tree = etree.XML(results.tostring(), parser)
-        csvwriter = _write_manifest_csv(stringio=mfio, tree=tree, delimeter='\t')
-        content_type = 'text/tsv'
-        filename = 'manifest.tsv'
-    mfio.seek(0)
-
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    mfio = _stream_with_xml(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
-def metadata(ids, format):
-    mfio = StringIO()
+def metadata(ids):
     results = get_results(ids, get_attributes=True)
+    mfio = _stream_with_xml(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+    return response
 
-    if format == 'xml':
-        mfio.write(results.tostring())
-        content_type = 'text/xml'
-        filename = 'metadata.xml'
-    if format == 'tsv':
-        parser = etree.XMLParser()
-        tree = etree.XML(results.tostring(), parser)
-        csvwriter = _write_metadata_csv(stringio=mfio, tree=tree, delimeter='\t')
-        content_type = 'text/tsv'
-        filename = 'metadata.tsv'
 
-    mfio.seek(0)
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+def summary(ids):
+    results = get_results(ids, get_attributes=True)
+    results.add_custom_fields()
+    mfio = _write_summary_tsv(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
+    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
 
@@ -183,78 +166,31 @@ def _empty_results():
     return results
 
 
-def _write_manifest_csv(stringio, tree, delimeter):
-    csvwriter = csv.writer(stringio, delimiter=delimeter)
-    # date
-    csvwriter.writerow(tree.items()[0])
-    csvwriter.writerow('')
-    # Result
-    result = tree.find("Result")
-    csvwriter.writerow([result.keys()[0]]+
-                       [r.tag for r in result.iterchildren()])
-    for result in tree.iterfind("Result"):
-        csvwriter.writerow([result.values()[0]]+
-                           [r.text for r in result.iterchildren()])
-    csvwriter.writerow('')
-    # ResultSummary
-    summary = tree.find("ResultSummary")
-    if summary is not None:
-        state_count = summary.find("state_count")
-        csvwriter.writerow([s.tag for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.tag for s in state_count.iterchildren()])
-        csvwriter.writerow([s.text for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.text for s in state_count.iterchildren()])
-    return csvwriter
+def _stream_with_xml(results):
+    stringio = StringIO()
+    parser = etree.XMLParser()
+    tree = etree.XML(results.tostring(), parser)
+    stringio.write(etree.tostring(tree, pretty_print=True))
+    stringio.seek(0)
+    return stringio
 
 
-def _write_metadata_csv(stringio, tree, delimeter):
-    csvwriter = csv.writer(stringio, delimiter=delimeter)
-    # date
-    csvwriter.writerow(tree.items()[0])
-    csvwriter.writerow('')
+def _write_summary_tsv(results):
+    stringio = StringIO()
+    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
 
-    # Result
-    # complex tags not included in table of Result
-    not_included_tags_set = set(['files', 'analysis_xml', 'experiment_xml', 'run_xml'])
+    csvwriter.writerow([field.lower().replace(' ', '_')
+                        for field, visibility in settings.TABLE_COLUMNS])
+    for result in results.Result:
+        fields = field_values(result)
 
-    for result in tree.iterfind("Result"):
-        csvwriter.writerow(["Result"])
-        csvwriter.writerow(result.items()[0])
-        # variant of a Result in table with 2 columns
-        for r in result.iterchildren():
-            if r.tag not in not_included_tags_set:
-                csvwriter.writerow([r.tag, r.text])
+        row = []
+        for field_name, default_state in settings.TABLE_COLUMNS:
+            value = fields.get(field_name, None)
+            if value == None:
+                continue
+            row.append(value)
+        csvwriter.writerow(row)
 
-            #           # variant of a Result in one row
-            #            csvwriter.writerow([result.keys()[0]]+
-            #                               [r.tag for r in result.iterchildren()
-            #                                if r.tag not in not_included_tags_set])
-            #            csvwriter.writerow([result.values()[0]]+
-            #                               [r.text for r in result.iterchildren()
-            #                                if r.tag not in not_included_tags_set])
-
-        csvwriter.writerow('')
-        # separate inner table for files in Result
-        file = result.find('.//file')
-        if file is not None:
-            csvwriter.writerow([f.tag for f in file.iterchildren()]+[file.find('checksum').keys()[0]])
-            for file in result.iterfind('.//file'):
-                csvwriter.writerow([f.text for f in file.iterchildren()]+[file.find('checksum').values()[0]])
-            csvwriter.writerow('')
-            # TODO here might be separate tables for 'analysis_xml', 'experiment_xml', 'run_xml' tags
-        csvwriter.writerow('')
-
-    # ResultSummary
-    summary = tree.find("ResultSummary")
-    if summary is not None:
-        csvwriter.writerow(["ResultSummary"])
-        state_count = summary.find("state_count")
-        csvwriter.writerow([s.tag for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.tag for s in state_count.iterchildren()])
-        csvwriter.writerow([s.text for s in summary.iterchildren()
-                            if s.tag != "summary_count"]+
-                           [s.text for s in state_count.iterchildren()])
-    return csvwriter
+    stringio.seek(0)
+    return stringio

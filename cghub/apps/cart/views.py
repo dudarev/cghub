@@ -9,20 +9,17 @@ from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
-from django.utils import timezone
 from django.utils.http import urlquote
 
-from cghub.apps.core.utils import (get_filters_string, is_celery_alive,
-                    generate_task_uuid, get_wsapi_settings, manifest,
-                    metadata)
+from cghub.apps.core.utils import (is_celery_alive,
+                    generate_task_uuid, get_wsapi_settings)
+
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                    cache_results, get_or_create_cart, get_cart_stats)
+                                   cache_results, get_or_create_cart,
+                                   get_cart_stats, clear_cart)
 from cghub.apps.cart.tasks import add_files_to_cart_by_query
-
-from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import Results
-
+import cghub.apps.core.utils as utils
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -50,9 +47,7 @@ def cart_add_files(request):
                     task = TaskState.objects.get(task_id=task_id)
                     # if task was done more thant hour ago
                     # than restart task
-                    hour_ago = timezone.now() - datetime.timedelta(hours=1)
-                    if task.state == states.FAILURE or (
-                        task.state == states.SUCCESS and task.tstamp < hour_ago):
+                    if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)
@@ -127,13 +122,20 @@ class CartAddRemoveFilesView(View):
     def get(self, request, action):
         raise Http404
 
+class CartClearView(View):
+    """
+    Handels clearing cart
+    """
+    def post(self, request):
+        clear_cart(request)
+        url = reverse('cart_page')
+        return HttpResponseRedirect(url)
+
 
 class CartDownloadFilesView(View):
     def post(self, request, action):
         cart = request.session.get('cart')
         if cart and action:
-            if action.startswith('manifest'):
-                return manifest(ids=cart, format=action.split('_')[1])
-            if action.startswith('metadata'):
-                return metadata(ids=cart, format=action.split('_')[1])
+            download = getattr(utils, action)
+            return download(cart)
         return HttpResponseRedirect(reverse('cart_page'))

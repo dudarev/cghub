@@ -8,15 +8,14 @@
  * $Date: 2007-10-03 19:08:15 -0700 (Wed, 03 Oct 2007) $
  */
 
-function LoadXML(ParentElementID,URL) 
-{
+function LoadXML(ParentElementID,URL) {
 		var xmlHolderElement = GetParentElement(ParentElementID);
 		if (xmlHolderElement==null) { return false; }
 		ToggleElementVisibility(xmlHolderElement);
-		return RequestURL(URL,URLReceiveCallback,ParentElementID);
+		return RequestURL(URL, URLReceiveCallback, ParentElementID);
 }
-function LoadXMLDom(ParentElementID,xmlDoc) 
-{
+
+function LoadXMLDom(ParentElementID,xmlDoc) {
 	if (xmlDoc) {
 		var xmlHolderElement = GetParentElement(ParentElementID);
 		if (xmlHolderElement==null) { return false; }
@@ -26,22 +25,24 @@ function LoadXMLDom(ParentElementID,xmlDoc)
 	}
 	else { return false; }
 }
-function LoadXMLString(ParentElementID,XMLString) 
-{
+
+function LoadXMLString(ParentElementID,XMLString) {
 	xmlDoc = CreateXMLDOM(XMLString);
 	return LoadXMLDom(ParentElementID,xmlDoc) ;
 }
 ////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS - SHOULD NOT BE DIRECTLY CALLED BY USERS
 ////////////////////////////////////////////////////////////
-function GetParentElement(ParentElementID)
-{
+function GetParentElement(ParentElementID) {
 	if (typeof(ParentElementID)=='string') {	return document.getElementById(ParentElementID);	}
 	else if (typeof(ParentElementID)=='object') { return ParentElementID;} 
 	else { return null; }
 }
-function URLReceiveCallback(httpRequest,xmlHolderElement)
-{
+
+/**
+ * @return {boolean}
+ */
+function URLReceiveCallback(httpRequest, xmlHolderElement) {
 	  try {
             if (httpRequest.readyState == 4) {
                 if (httpRequest.status == 200) {
@@ -59,29 +60,34 @@ function URLReceiveCallback(httpRequest,xmlHolderElement)
             return false;
         }	
 }
+
+/**
+ * @return {boolean}
+ */
 function RequestURL(url,callback,ExtraData) { // based on: http://developer.mozilla.org/en/docs/AJAX:Getting_Started
-        var httpRequest;
-        if (window.XMLHttpRequest) { // Mozilla, Safari, ...
-            httpRequest = new XMLHttpRequest();
-            if (httpRequest.overrideMimeType) { httpRequest.overrideMimeType('text/xml'); }
-        } 
-        else if (window.ActiveXObject) { // IE
-            try { httpRequest = new ActiveXObject("Msxml2.XMLHTTP");   } 
-            catch (e) {
-				   try { httpRequest = new ActiveXObject("Microsoft.XMLHTTP"); } 
-				   catch (e) {}
-            }
-        }
-        if (!httpRequest) { return false;   }
-        httpRequest.onreadystatechange = function() { callback(httpRequest,ExtraData); };
-        httpRequest.open('GET', url, true);
-        httpRequest.send('');
-		return true;
+    var httpRequest;
+    if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+        httpRequest = new XMLHttpRequest();
+        if (httpRequest.overrideMimeType) { httpRequest.overrideMimeType('text/xml'); }
     }
-function CreateXMLDOM(XMLStr) 
-{
-	if (window.ActiveXObject)
-	 {
+    else if (window.ActiveXObject) { // IE
+        try { httpRequest = new ActiveXObject("Msxml2.XMLHTTP");   }
+        catch (e) {
+               try { httpRequest = new ActiveXObject("Microsoft.XMLHTTP"); }
+               catch (e) {}
+        }
+    }
+    if (!httpRequest) {
+        return false;
+    }
+    httpRequest.onreadystatechange = function() { callback(httpRequest,ExtraData); };
+    httpRequest.open('GET', url, true);
+    httpRequest.send('');
+    return true;
+}
+
+function CreateXMLDOM(XMLStr) {
+	if (window.ActiveXObject) {
 		  xmlDoc=new ActiveXObject("Microsoft.XMLDOM"); 
 		  xmlDoc.loadXML(XMLStr);	
 		  return xmlDoc;
@@ -97,7 +103,11 @@ function CreateXMLDOM(XMLStr)
 
 var IDCounter = 1;
 var NestingIndent = 15;
-function ShowXML(xmlHolderElement,RootNode,indent)
+
+/**
+ * @return {boolean}
+ */
+function ShowXML(xmlHolderElement, RootNode, indent)
 {
 	if (RootNode==null || xmlHolderElement==null) { return false; }
 	var Result  = true;
@@ -105,108 +115,121 @@ function ShowXML(xmlHolderElement,RootNode,indent)
 	TagEmptyElement.className = 'Element';
 	TagEmptyElement.style.position = 'relative';
 	TagEmptyElement.style.left = NestingIndent+'px';
-	if (RootNode.childNodes.length==0) { 
-        var ClickableElement = AddTextNode(TagEmptyElement,'','Clickable') ;
 
-        /* PROBLEM WAS: if node is without children and it's clickable has id 'div_empty_#',
-         *  then the next node with children will have same id 'div_empty_#'.
-         *  No need to give id to elements that have no children.
-         *  This row corrupted collapsing. Please, NEVER uncomment this
-         *  or use this row and increment IDCounter after
-         */
-        //ClickableElement.id = 'div_empty_' + IDCounter;
+    var TagElement = document.createElement('div');
+    TagElement.className = 'Element';
+    TagElement.style.position = 'relative';
+    TagElement.style.left = NestingIndent+'px';
 
-        AddTextNode(TagEmptyElement,'<','Utility') ;
-        AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName')
-        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-          CurrentAttribute  = RootNode.attributes.item(i);
-          AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-          AddTextNode(TagEmptyElement,'=','Utility') ;
-          AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
-        }
-        AddTextNode(TagEmptyElement,' />') ;
+    // empty tag: <some_empty_tag />
+	if (RootNode.childNodes.length==0) {
+        AddNodeNameWithAttributes(TagEmptyElement, RootNode);
+        CloseElement(TagEmptyElement,' />');
         xmlHolderElement.appendChild(TagEmptyElement);
-        //SetVisibility(TagEmptyElement,true);
 	}
-	else { // nodes with children
-        var ClickableElement = AddTextNode(TagEmptyElement,'+','Clickable') ;
-        ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
-        ClickableElement.id = 'div_empty_' + IDCounter;
-
-        AddTextNode(TagEmptyElement,'<','Utility') ;
-        AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName')
-        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-            CurrentAttribute  = RootNode.attributes.item(i);
-            AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-            AddTextNode(TagEmptyElement,'=','Utility') ;
-            AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
+    // only text inside: <tag_with_text>Here is text</tag_with_text>
+    else if (RootNode.childNodes.length==1 && RootNode.childNodes.item(0).nodeName == '#text'){
+        AddNodeNameWithAttributes(TagElement, RootNode);
+        CloseElement(TagElement, '>') ;
+        var NodeText = RootNode.childNodes.item(i).nodeValue;
+        if (NodeText) {
+            AddTextNode(TagElement, NodeText, 'NodeValue') ;
         }
-
-        AddTextNode(TagEmptyElement,'>  </','Utility') ;
-        AddTextNode(TagEmptyElement,RootNode.nodeName,'NodeName') ;
-        AddTextNode(TagEmptyElement,'>','Utility') ;
+        AddClosingElement(TagElement, RootNode.nodeName);
+        xmlHolderElement.appendChild(TagElement);
+    }
+    // nodes with children
+	else {
+        AddClickablePlus (TagEmptyElement, IDCounter);
+        AddNodeNameWithAttributes(TagEmptyElement, RootNode);
+        CloseElement(TagEmptyElement,'>');
+        AddClosingElement(TagEmptyElement, RootNode.nodeName);
         xmlHolderElement.appendChild(TagEmptyElement);
         SetVisibility(TagEmptyElement,false);
         //----------------------------------------------
 
-        var TagElement = document.createElement('div');
-        TagElement.className = 'Element';
-        TagElement.style.position = 'relative';
-        TagElement.style.left = NestingIndent+'px';
-        ClickableElement = AddTextNode(TagElement,'-','Clickable') ;
-        ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
-        ClickableElement.id = 'div_content_' + IDCounter;
+        AddClickableMinus(TagElement, IDCounter);
         ++IDCounter;
-        AddTextNode(TagElement,'<','Utility') ;
-        AddTextNode(TagElement,RootNode.nodeName ,'NodeName') ;
 
-        for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
-            CurrentAttribute  = RootNode.attributes.item(i);
-            AddTextNode(TagElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
-            AddTextNode(TagElement,'=','Utility') ;
-            AddTextNode(TagElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
-        }
-        AddTextNode(TagElement,'>','Utility') ;
+        AddNodeNameWithAttributes(TagElement, RootNode);
+        CloseElement(TagElement, '>') ;
+
         TagElement.appendChild(document.createElement('br'));
-        var NodeContent = null;
+        NodeText = null;
         for (var i = 0; RootNode.childNodes && i < RootNode.childNodes.length; ++i) {
           if (RootNode.childNodes.item(i).nodeName != '#text') {
-            Result &= ShowXML(TagElement,RootNode.childNodes.item(i),indent+1);
+            Result &= ShowXML(TagElement, RootNode.childNodes.item(i), indent+1);
           }
           else {
-            NodeContent =RootNode.childNodes.item(i).nodeValue;
+            NodeText = RootNode.childNodes.item(i).nodeValue;
           }
         }
         if (RootNode.nodeValue) {
-          NodeContent = RootNode.nodeValue;
+          NodeText = RootNode.nodeValue;
         }
-        if (NodeContent) {
-          var ContentElement = document.createElement('div');
-          ContentElement.style.position = 'relative';
-          ContentElement.style.left = NestingIndent+'px';
-          AddTextNode(ContentElement,NodeContent ,'NodeValue') ;
-          TagElement.appendChild(ContentElement);
+        if (NodeText) {
+          AddTextInDiv(TagElement, NodeText);
         }
-        AddTextNode(TagElement,'  </','Utility') ;
-        AddTextNode(TagElement,RootNode.nodeName,'NodeName') ;
-        AddTextNode(TagElement,'>','Utility') ;
+        AddClosingElement(TagElement, RootNode.nodeName) ;
         xmlHolderElement.appendChild(TagElement);
-  }
-	
+    }
 	// if (indent==0) { ToggleElementVisibility(TagElement.childNodes(0)); } - uncomment to collapse the external element
 	return Result;
 }
-function AddTextNode(ParentNode,Text,Class) 
-{
+
+function CloseElement (element, closing) {
+    AddTextNode(element, closing);
+}
+
+function AddClosingElement (element, nodeName) {
+    AddTextNode(element, ' </', 'Utility') ;
+    AddTextNode(element, nodeName, 'NodeName') ;
+    AddTextNode(element, '>', 'Utility') ;
+}
+
+function AddNodeNameWithAttributes(TagEmptyElement, RootNode) {
+    AddTextNode(TagEmptyElement,'<','Utility') ;
+    AddTextNode(TagEmptyElement,RootNode.nodeName ,'NodeName')
+    for (var i = 0; RootNode.attributes && i < RootNode.attributes.length; ++i) {
+        var CurrentAttribute  = RootNode.attributes.item(i);
+        AddTextNode(TagEmptyElement,' ' + CurrentAttribute.nodeName ,'AttributeName') ;
+        AddTextNode(TagEmptyElement,'=','Utility') ;
+        AddTextNode(TagEmptyElement,'"' + CurrentAttribute.nodeValue + '"','AttributeValue') ;
+    }
+}
+
+function AddClickablePlus (element, counter) {
+    var ClickableElement = AddTextNode(element,'+','Clickable') ;
+    ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
+    ClickableElement.id = 'div_empty_' + counter;
+}
+
+function AddClickableMinus (element, counter) {
+    var ClickableElement = AddTextNode(element,'-','Clickable') ;
+    ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
+    ClickableElement.id = 'div_content_' + counter;
+}
+
+function AddTextInDiv(element, text) {
+    var ContentElement = document.createElement('div');
+    ContentElement.style.position = 'relative';
+    ContentElement.style.left = NestingIndent+'px';
+    AddTextNode(ContentElement, text, 'NodeValue') ;
+    element.appendChild(ContentElement);
+}
+
+function AddTextNode(ParentNode,Text,Class) {
 	NewNode = document.createElement('span');
 	if (Class) {  NewNode.className  = Class;}
 	if (Text) { NewNode.appendChild(document.createTextNode(Text)); }
 	if (ParentNode) { ParentNode.appendChild(NewNode); }
 	return NewNode;		
 }
-function CompatibleGetElementByID(id)
-{
-	if (!id) { return null; }
+
+function CompatibleGetElementByID(id) {
+	if (!id) {
+        return null;
+    }
 	if (document.getElementById) { // DOM3 = IE5, NS6
 		return document.getElementById(id);
 	}
@@ -219,8 +242,8 @@ function CompatibleGetElementByID(id)
 		}
 	}
 }
-function SetVisibility(HTMLElement,Visible)
-{
+
+function SetVisibility(HTMLElement,Visible) {
 	if (!HTMLElement) { return; }
 	var VisibilityStr  = (Visible) ? 'block' : 'none';
 	if (document.getElementById) { // DOM3 = IE5, NS6
@@ -235,8 +258,8 @@ function SetVisibility(HTMLElement,Visible)
 		}
 	}
 }
-function ToggleElementVisibility(Element)
-{
+
+function ToggleElementVisibility(Element) {
 	if (!Element|| !Element.id) { return; }
 	try {
 		ElementType = Element.id.slice(0,Element.id.lastIndexOf('_')+1);

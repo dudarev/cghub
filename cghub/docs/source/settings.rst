@@ -44,8 +44,7 @@ In ``local.py`` define BROKER_URL
 	import sys
 	import djcelery
 
-	from cart_cache import TIME_CHECK_CART_CACHE_INTERVAL
-	from api_cache import TIME_CHECK_API_CACHE_INTERVAL
+	from .cache import TIME_CHECK_CART_CACHE_INTERVAL, TIME_CHECK_API_CACHE_INTERVAL
 
 	djcelery.setup_loader()
 
@@ -87,11 +86,11 @@ Two types of caching is used:
 API cache
 ~~~~~~~~~~~~~
 
-API does not clean cache automatically. Celery task to do so is scheduled to run. Its parameters are stored in ``settings/api_cache.py``:
+API does not clean cache automatically. Celery task to do so is scheduled to run. Its parameters are stored in ``settings/cache.py``:
 
 .. code-block:: python
 
-    # api_cache.py
+    # cache.py
 
     TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_API_CACHE_INTERVAL = timedelta(hours=1)
@@ -108,7 +107,7 @@ to keep files is also specified.
 
 .. code-block:: python
 
-    # cart_cache.py
+    # cache.py
 
     CART_CACHE_DIR = '/tmp/wsapi/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
@@ -144,7 +143,7 @@ Default configuration is located in ``settings/ui.py``:
 Allowed default states: 'visible', 'hidden'.
 
 Details list ordering
-----------------
+---------------------
 Details list ordering can be specified in project settings.
 Default configuration is located in ``settings/ui.py``:
 
@@ -158,52 +157,92 @@ Default configuration is located in ``settings/ui.py``:
     'Disease',
     ...
 
+Change values displayed in table
+--------------------------------
+
+Some column values can has an absurd names. To map them to something a human would understand can be used VALUE_RESOLVERS variable.
+
+``settings/ui.py``:
+
+.. code-block:: python
+
+    def study_resolver(val):
+        if val.find('Other_Sequencing_Multiisolate') != -1:
+            return 'CCLE'
+        return val
+
+    VALUE_RESOLVERS = {
+        'Study': study_resolver,
+    }
+
+
+Default filters
+---------------
+
+Default filters can be specified in settings. For example:
+
+.. code-block:: python
+
+    # ui.py
+
+    DEFAULT_FILTERS = {
+        'state': '(live)',
+        'upload_date': '[NOW-7DAY+TO+NOW]',
+    }
+
 Logging
 --------------
 
-:file:`cghub.setting.local.py.default` contains the example of a SysLogHadler usage.
+:file:`cghub/setting/local.py.default` contains the example of a SysLogHadler usage. Default configuration located in :file:`cghub/setting/logging_settings.py`.
 
 .. code-block:: python
 
 	from logging.handlers import SysLogHandler
 
 	LOGGING = {
-	    'version': 1,
-	    'disable_existing_loggers': False,
-	    'formatters': {
-	        'verbose': {
-	            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-	        },
-	        'simple': {
-	            'format': '%(levelname)s %(message)s'
-	        },
-	    },
-	    'filters': {
-	        'require_debug_false': {
-	            '()': 'django.utils.log.RequireDebugFalse'
-	        }
-	    },
-	    'handlers': {
-	        'mail_admins': {
-	            'level': 'ERROR',
-	            'filters': ['require_debug_false'],
-	            'class': 'django.utils.log.AdminEmailHandler'
-	        },
-	        'syslog':{ 
-	            'address': '/dev/log',
-	            'level':'ERROR', 
-	            'class': 'logging.handlers.SysLogHandler', 
-	            'formatter': 'verbose',
-	        },
-	    },
-	    'loggers': {
-	        'django.request': {
-	            'handlers': ['syslog',],
-	            'level': 'ERROR',
-	            'propagate': True,
-	            },
-	        }
-	}
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s'
+            },
+        },
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+            }
+        },
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            },
+            'syslog': {
+                'level':'INFO',
+                'class':'logging.handlers.SysLogHandler',
+                'formatter': 'verbose',
+                'facility': SysLogHandler.LOG_LOCAL2,
+                # uncomment to save logs to /dev/log/syslog
+                'address': '/dev/log',
+            },
+        },
+        'loggers': {
+            'django.request': {
+                'handlers': ['syslog'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'help.hints': {
+                'handlers': ['syslog'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+        },
+    }
 
 .. code-block:: bash
 
