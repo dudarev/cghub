@@ -24,7 +24,7 @@ jQuery(function ($) {
         },
         changeCheckboxes:function () {
             $('.data-table-checkbox').prop('checked', $(this).is(':checked'));
-            return false;
+            return;
         },
         updateSelectAll:function () {
             $('.js-select-all').prop('checked',
@@ -43,7 +43,7 @@ jQuery(function ($) {
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
-                if(obj.target.localName=='input') return;
+                if(obj.target.name=='selected_files') { return };
                 var $tr = $(this);
                 var modal = $($tr.attr('data-target'));
                 var loaded = false;
