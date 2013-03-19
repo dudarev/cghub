@@ -144,7 +144,7 @@ class ItemDetailsView(TemplateView):
 
 class MetadataView(View):
     def post(self, request, uuid):
-        return metadata(ids=[uuid], format='xml')
+        return metadata(ids=[uuid])
 
 
 class CeleryTasksView(TemplateView):

@@ -16,20 +16,18 @@ jQuery(function ($) {
             cghub.cart.$nextColumn;
             cghub.cart.$nextColumnWidth = 0;
             cghub.cart.$searchTable = $('table.data-table');
-            cghub.cart.$downloadManifestXml = $('.cart-form-download-manifest-xml');
-            cghub.cart.$downloadManifestTsv = $('.cart-form-download-manifest-tsv');
-            cghub.cart.$downloadMetadataXml = $('.cart-form-download-metadata-xml');
-            cghub.cart.$downloadMetadataTsv = $('.cart-form-download-metadata-tsv');
-            cghub.cart.$removeBtn = $('.cart-form-remove');
-            cghub.cart.$clearBtn = $('.cart-form-clear');
+            cghub.cart.$downloadManifestXml = $('.cart-download-manifest');
+            cghub.cart.$downloadMetadataXml = $('.cart-download-metadata');
+            cghub.cart.$downloadMetadataTsv = $('.cart-download-summary');
+            cghub.cart.$removeBtn = $('.cart-remove');
+            cghub.cart.$clearBtn = $('.cart-clear');
         },
         bindEvents:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             $('.flexigrid .bDiv tr').contextmenu();
-            cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifestXml);
-            cghub.cart.$downloadManifestTsv.on('click', cghub.cart.downloadManifestTsv);
-            cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadataXml);
-            cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadMetadataTsv);
+            cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
+            cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
+            cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
             cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
         },
@@ -45,29 +43,20 @@ jQuery(function ($) {
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/clear/'));
         },
-        downloadManifestXml:function () {
+        downloadManifest:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest_xml/'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/'));
         },
-        downloadManifestTsv:function () {
+        downloadMetadata:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest_tsv/'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/'));
         },
-        downloadMetadataXml:function () {
+        downloadSummary:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata_xml/'));
-            form.trigger('submit');
-        },
-        downloadMetadataTsv:function () {
-            var btn = $(this);
-            var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata_tsv/'));
-            form.trigger('submit');
+            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
         }
     };
     cghub.cart.init();

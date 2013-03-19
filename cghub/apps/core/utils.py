@@ -6,7 +6,6 @@ import csv
 
 from StringIO import StringIO
 from lxml import etree, objectify
-from datetime import datetime
 
 from django.core.mail import mail_admins
 from django.core.servers import basehttp
@@ -144,46 +143,30 @@ def get_results(ids, get_attributes=False, live_only=False):
     return results
 
 
-def manifest(ids, format):
+def manifest(ids):
     results = get_results(ids, live_only=True)
     if not results:
         results= _empty_results()
-
-    mfio = StringIO()
-    if format == 'xml':
-        mfio.write(results.tostring())
-        content_type = 'text/xml'
-        filename = 'manifest.xml'
-    if format == 'tsv':
-        parser = etree.XMLParser()
-        tree = etree.XML(results.tostring(), parser)
-        csvwriter = _write_manifest_csv(stringio=mfio, tree=tree)
-        content_type = 'text/tsv'
-        filename = 'manifest.tsv'
-    mfio.seek(0)
-
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    mfio = _stream_with_xml(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
-def metadata(ids, format):
-    mfio = StringIO()
+def metadata(ids):
     results = get_results(ids, get_attributes=True)
+    mfio = _stream_with_xml(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+    return response
 
-    if format == 'xml':
-        mfio.write(results.tostring())
-        content_type = 'text/xml'
-        filename = 'metadata.xml'
-    if format == 'tsv':
-        results.add_custom_fields()
-        csvwriter = _write_metadata_csv(stringio=mfio, results=results)
-        content_type = 'text/tsv'
-        filename = 'metadata.tsv'
 
-    mfio.seek(0)
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+def summary(ids):
+    results = get_results(ids, get_attributes=True)
+    results.add_custom_fields()
+    mfio = _write_summary_tsv(results)
+    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
+    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
 
@@ -205,20 +188,17 @@ def _empty_results():
     return results
 
 
-def _write_manifest_csv(stringio, tree):
-    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
-
-    result = tree.find("Result")
-    csvwriter.writerow([result.keys()[0]]+
-                       [r.tag.lower().replace(' ', '_') for r in result.iterchildren()])
-    for result in tree.iterfind("Result"):
-        csvwriter.writerow([result.values()[0]]+
-                           [r.text for r in result.iterchildren()])
-    csvwriter.writerow('')
-    return csvwriter
+def _stream_with_xml(results):
+    stringio = StringIO()
+    parser = etree.XMLParser()
+    tree = etree.XML(results.tostring(), parser)
+    stringio.write(etree.tostring(tree, pretty_print=True))
+    stringio.seek(0)
+    return stringio
 
 
-def _write_metadata_csv(stringio, results):
+def _write_summary_tsv(results):
+    stringio = StringIO()
     csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
 
     csvwriter.writerow([field.lower().replace(' ', '_')
@@ -233,4 +213,6 @@ def _write_metadata_csv(stringio, results):
                 continue
             row.append(value)
         csvwriter.writerow(row)
-    return csvwriter
+
+    stringio.seek(0)
+    return stringio

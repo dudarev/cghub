@@ -22,7 +22,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query, generate_task_uuid,
-                    manifest, metadata)
+                    manifest, metadata, summary)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -177,33 +177,26 @@ class UtilsTestCase(TestCase):
         for data in test_data:
             self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
 
-    def test_manifest_xml(self):
-        response = manifest(self.FILES_IN_CART, format='xml')
+    def test_manifest(self):
+        response = manifest(self.FILES_IN_CART)
         man = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
         self.assertFalse(self.IDS_IN_CART[1] in man)
         self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
 
-    def test_manifest_tsv(self):
-        response = manifest(self.FILES_IN_CART, format='tsv')
-        man = response.content
-        self.assertTrue(self.IDS_IN_CART[0] in man)
-        self.assertFalse(self.IDS_IN_CART[1] in man)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='manifest.tsv')
-
-    def test_metadata_xml(self):
-        response = metadata(self.FILES_IN_CART, format='xml')
+    def test_metadata(self):
+        response = metadata(self.FILES_IN_CART)
         met = response.content
         for id in self.IDS_IN_CART:
             self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
         self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
 
-    def test_metadata_tvs(self):
-        response = metadata(self.FILES_IN_CART, format='tsv')
-        met = response.content
+    def test_summary_tsv(self):
+        response = summary(self.FILES_IN_CART)
+        sum = response.content
         for id in self.IDS_IN_CART:
-            self.assertTrue(id in met)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='metadata.tsv')
+            self.assertTrue(id in sum)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
 
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)

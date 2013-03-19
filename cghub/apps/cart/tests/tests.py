@@ -222,17 +222,17 @@ class CacheTestCase(TestCase):
         for file in files:
             os.remove(file)
 
-    def test_cache_generate_manifest_xml_live(self):
+    def test_cache_generate_manifest_live(self):
         """
         Test if manifest collects only data from files where state='live'
         """
-        response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
+        response = self.client.post(reverse('cart_download_files', args=['manifest']))
         manifest = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in manifest)
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[1] in manifest)
         self.assertFalse(self.IDS_IN_CART[2] in manifest)
 
-    def test_cache_generate_manifest_xml_no_live(self):
+    def test_cache_generate_manifest_no_live(self):
         """
         Test if manifest is an empty template when only element with state = 'bad_data' in cart
         """
@@ -241,37 +241,25 @@ class CacheTestCase(TestCase):
         self.client.post(url,
             {'selected_files': [self.IDS_IN_CART[0], self.IDS_IN_CART[1]]},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = self.client.post(reverse('cart_download_files', args=['manifest_xml']))
+        response = self.client.post(reverse('cart_download_files', args=['manifest']))
         self.assertTrue('<downloadable_file_size units="GB">0</downloadable_file_size>' in response.content)
 
-    def test_cache_generate_manifest_tsv(self):
-        """
-        Test generating manifest in TSV
-        metadata should contain only elements with state='live'
-        """
-        response = self.client.post(reverse('cart_download_files', args=['manifest_tsv']))
-        content = response.content
-        self.assertTrue(self.IDS_IN_CART[0] in content)
-        self.assertTrue(self.IDS_IN_CART[1] in content)
-        self.assertFalse(self.IDS_IN_CART[2] in content)
-        self.assertTrue(all(tag in content for tag in ['id', 'analysis_id', 'state', 'analysis_data_uri']))
-
-    def test_cache_generate_metadata_xml(self):
+    def test_cache_generate_metadata(self):
         """
         Test generating metadata in xml
         metadata should contain all elements
         """
-        response = self.client.post(reverse('cart_download_files', args=['metadata_xml']))
+        response = self.client.post(reverse('cart_download_files', args=['metadata']))
         metadata = response.content
         for id in self.IDS_IN_CART:
             self.assertTrue('<analysis_id>%s</analysis_id>' % id in metadata)
 
-    def test_cache_generate_metadata_tsv(self):
+    def test_cache_generate_summary_tsv(self):
         """
         Test generating metadata in TSV
         metadata should contain all elements
         """
-        response = self.client.post(reverse('cart_download_files', args=['metadata_tsv']))
+        response = self.client.post(reverse('cart_download_files', args=['summary']))
         content = response.content
         for id in self.IDS_IN_CART:
             self.assertTrue(id in content)

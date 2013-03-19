@@ -11,6 +11,7 @@ jQuery(function ($) {
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
+            cghub.base.mockIePlaceholder();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -27,7 +28,7 @@ jQuery(function ($) {
         },
         changeCheckboxes:function () {
             $('.data-table-checkbox').prop('checked', $(this).is(':checked'));
-            return false;
+            return;
         },
         updateSelectAll:function () {
             $('.js-select-all').prop('checked',
@@ -46,7 +47,7 @@ jQuery(function ($) {
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
-                if(obj.target.localName=='input') return;
+                if(obj.target.name=='selected_files') { return };
                 var $tr = $(this);
                 var modal = $($tr.attr('data-target'));
                 var loaded = false;
@@ -109,6 +110,12 @@ jQuery(function ($) {
                 });
             }
         },
+        mockIePlaceholder:function() {
+            $('input[placeholder]').placeholder();
+            if($.browser.msie) {
+                $('input[placeholder]').css({'height': '18px', 'line-height': '18px'})
+            }
+        }
     };
     cghub.base.init();
 });
