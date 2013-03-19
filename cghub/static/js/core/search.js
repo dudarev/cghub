@@ -193,9 +193,9 @@ jQuery(function ($) {
                             if(tasks) {
                                 tasks = tasks.split(',');
                                 tasks.push(data['task_id']);
-                                $.cookie('active_tasks', tasks.join(','), { path: '/' });
+                                $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
                             } else {
-                                $.cookie('active_tasks', data['task_id'], { path: '/' });
+                                $.cookie('active_tasks', data['task_id'], { path: '/', expires: 7 });
                             }
                         }
                     }

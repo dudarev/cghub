@@ -95,7 +95,7 @@ jQuery(function ($) {
                             tasks = tasks.split(',');
                             if(tasks.length > 1) {
                                 tasks.shift();
-                                $.cookie('active_tasks', tasks.join(','), { path: '/' });
+                                $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
                             } else {
                                 $.removeCookie('active_tasks', { path: '/' });
                             }

@@ -74,6 +74,10 @@ class CoreTestCase(WithCacheTestCase):
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+        # check ajax urls is available
+        self.assertContains(response, reverse('help_hint'))
+        self.assertContains(response, reverse('help_text'))
+        self.assertContains(response, reverse('celery_task_status'))
 
     def test_non_existent_search(self):
         response = self.client.get('/search/?q=non_existent_search_query')
@@ -223,6 +227,12 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178)&state=(live)')
+        # empty filters
+        with self.settings(
+            DEFAULT_FILTERS = {}):
+            self.assertEqual(
+                get_default_query(),
+                '')
 
 
 class TemplateTagsTestCase(TestCase):
