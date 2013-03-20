@@ -13,6 +13,13 @@ from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 register = template.Library()
 
 
+DATE_ATTRIBUTES = (
+    'last_modified',
+    'upload_date',
+    'published_date'
+)
+
+
 def period_from_query(query):
     """
     examples:
@@ -54,6 +61,14 @@ def file_size(value):
     if bytes >= 1024:
         return '%.2f KB' % round(bytes / 1024., 2)
     return '%d Bytes' % bytes
+
+
+@register.filter
+def only_date(value):
+    """
+    Extracts date string from datetime lxml string.
+    """
+    return unicode(value).split('T')[0]
 
 
 @register.simple_tag
@@ -288,7 +303,7 @@ def table_header(request):
             'attr': 'library_strategy',
         },
         'Last modified': {
-            'width': 120,
+            'width': 80,
             'attr': 'last_modified',
         },
         'Sample Accession': {
@@ -312,7 +327,7 @@ def table_header(request):
             'attr': 'study',
         },
         'Upload time': {
-            'width': 120,
+            'width': 80,
             'attr': 'upload_date',
         },
         'UUID': {
@@ -334,6 +349,8 @@ def table_header(request):
 
 def get_result_attr(result, attr):
     try:
+        if attr in DATE_ATTRIBUTES:
+            return only_date(result[attr])
         return result[attr]
     except KeyError:
         pass
