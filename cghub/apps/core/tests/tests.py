@@ -3,7 +3,7 @@ import shutil
 import contextlib
 import datetime
 from lxml import objectify
-from mock import patch
+from mock import patch, Mock
 
 from django.conf import settings
 from django.utils import simplejson as json
@@ -17,7 +17,7 @@ from apps.core.templatetags.pagination_tags import Paginator
 
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query)
+                    period_from_query, datetime_to_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, generate_task_uuid,
                     manifest, metadata, summary)
@@ -406,6 +406,19 @@ class TemplateTagsTestCase(TestCase):
                 self.assertEqual(
                         period_from_query(data['query']),
                         data['result'])
+
+    def test_datetime_to_date_tag(self):
+        str_datetime = '2013-02-22T12:00:21Z'
+        date = datetime_to_date(str_datetime)
+        self.assertEqual(date, '')
+
+        class LxmlObj(object):
+            @property
+            def text(self):
+                return '2013-02-22T12:00:21Z'
+        lxml_obj = LxmlObj()
+        date = datetime_to_date(lxml_obj)
+        self.assertEqual(date, str_datetime.split('T')[0])
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):

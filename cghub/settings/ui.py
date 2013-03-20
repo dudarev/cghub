@@ -83,12 +83,6 @@ DETAILS_FIELDS = (
     'Files Size',
 )
 
-DATETIME_ATTRIBUTES = (
-    'last_modified',
-    'upload_date',
-    'published_date'
-)
-
 def study_resolver(val):
     if val.find('Other_Sequencing_Multiisolate') != -1:
         return 'CCLE'
