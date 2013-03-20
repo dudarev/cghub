@@ -303,7 +303,7 @@ def table_header(request):
             'attr': 'library_strategy',
         },
         'Last modified': {
-            'width': 120,
+            'width': 80,
             'attr': 'last_modified',
         },
         'Sample Accession': {
@@ -327,7 +327,7 @@ def table_header(request):
             'attr': 'study',
         },
         'Upload time': {
-            'width': 120,
+            'width': 80,
             'attr': 'upload_date',
         },
         'UUID': {
