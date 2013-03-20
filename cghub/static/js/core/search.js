@@ -207,6 +207,9 @@ jQuery(function ($) {
             var sections = $('select.filter-select:not(.date-filters)');
             var searchQuery = $('input.search-query').val();
 
+            if(searchQuery=='Search') {
+                searchQuery = '';
+            }
             // loop by sections excluding date
             sections.each(function (i, section) {
                 var dropContainer = $(section).next().next(),
