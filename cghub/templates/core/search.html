@@ -60,7 +60,7 @@
     {% else %}
         <div class="applied-filters">{% applied_filters request %}</div>
         {% if message %}
-            <h4>{{ message }}<h4>
+            <h4>{{ message }}</h4>
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -68,6 +68,6 @@
     {% if debug %}
         <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.js"></script>
     {% else %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.js"></script>
     {% endif %}
 {% endblock %}

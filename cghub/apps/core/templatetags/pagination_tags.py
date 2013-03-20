@@ -152,7 +152,8 @@ def items_per_page(request, *limits):
         else:
             get['limit'] = str(limit)
             path = request.path + '?' + get.urlencode()
-            link = '<a href="%s">%d</a>' % (path, limit)
+            link = '<a href="%s">%d</a>' % (path.replace('&', '&amp;'), limit)
         links += '&nbsp;' + link + '&nbsp;|'
 
-    return '<div class="items-per-page-label">Items per page:%s</div>' % links[:-1]
+    return '<div class="items-per-page-label">Items per page:{0}</div>'.format(
+        links[:-1])
