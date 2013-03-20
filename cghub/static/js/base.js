@@ -45,7 +45,7 @@ jQuery(function ($) {
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
                 var $first_td = $(obj.target).find('input[name=selected_files]');
-                if(obj.target.name=='selected_files' || $first_td.length) { return };
+                if($first_td.length) { return };
                 var $tr = $(this);
                 var modal = $($tr.attr('data-target'));
                 var loaded = false;
