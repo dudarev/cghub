@@ -13,7 +13,7 @@ from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 register = template.Library()
 
 
-DATETIME_ATTRIBUTES = (
+DATE_ATTRIBUTES = (
     'last_modified',
     'upload_date',
     'published_date'
@@ -64,16 +64,11 @@ def file_size(value):
 
 
 @register.filter
-def datetime_to_date(value):
+def only_date(value):
     """
     Extracts date string from datetime lxml string.
     """
-    try:
-        datetime = value.text
-    except:
-        return ''
-    date = datetime.split('T')[0]
-    return date
+    return unicode(value).split('T')[0]
 
 
 @register.simple_tag
@@ -354,11 +349,10 @@ def table_header(request):
 
 def get_result_attr(result, attr):
     try:
-        if attr in DATETIME_ATTRIBUTES:
-            date = datetime_to_date(result[attr])
-            return date
+        if attr in DATE_ATTRIBUTES:
+            return only_date(result[attr])
         return result[attr]
-    except:
+    except KeyError:
         pass
     return ''
 
