@@ -335,10 +335,11 @@ def table_header(request):
 def get_result_attr(result, attr):
     try:
         if attr in settings.DATETIME_ATTRIBUTES:
-            return result[attr].text.split('T')[0]
+            result = result[attr].text.split('T')[0]
+            return result
         else:
             return result[attr]
-    except KeyError:
+    except:
         pass
     return ''
 
