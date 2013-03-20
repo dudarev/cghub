@@ -325,7 +325,7 @@ def table_header(request):
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
+        html += '<th width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
                     width=col['width'],
                     defaultstate=ds,
                     link=sort_link(request, col['attr'], c))
