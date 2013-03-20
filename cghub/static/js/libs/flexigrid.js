@@ -63,7 +63,7 @@
                 cellSpacing: 0,
                 border: 0
             }) //remove padding and spacing
-            .removeAttr('width'); //remove width properties
+            .removeAttr('data-width'); //remove width properties
         //create grid class
         var g = {
             hset: {},
@@ -727,7 +727,7 @@
                     if (pth != null) {
                         if (pth.process) pth.process(tdDiv, pid);
                     }
-                    $(this).empty().append(tdDiv).removeAttr('width'); //wrap content
+                    $(this).empty().append(tdDiv).removeAttr('data-width'); //wrap content
                     g.addTitleToCell(tdDiv);
                 });
             },
@@ -1067,10 +1067,10 @@
             }
             $(thdiv).css({
                 textAlign: this.align,
-                width: this.width + 'px'
+                width: $(this).attr('data-width') + 'px'
             });
             thdiv.innerHTML = this.innerHTML;
-            $(this).empty().append(thdiv).removeAttr('width').mousedown(function (e) {
+            $(this).empty().append(thdiv).removeAttr('data-width').mousedown(function (e) {
                 g.dragStart('colMove', e, this);
             }).hover(function () {
                 if (!g.colresize && !$(this).hasClass('thMove') && !g.colCopy) {

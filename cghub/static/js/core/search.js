@@ -52,7 +52,7 @@ jQuery(function ($) {
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
-                var section = $select.attr('section');
+                var section = $select.attr('data-section');
                 if(section in filters) {
                     if(section == 'refassem_short_name') {
                         for(var i=0; i<filters[section].length; i++) {
@@ -215,7 +215,7 @@ jQuery(function ($) {
                 var dropContainer = $(section).next().next(),
                     all_checked = Boolean(dropContainer.find('input[value = "(all)"]:checked').length),
                     query = '',
-                    section_name = $(section).attr('section');
+                    section_name = $(section).attr('data-section');
                 // Checked some boxes
                 if (!all_checked && dropContainer.find('input:checked').length !== 0) {
                     dropContainer.find('input:checked').each(function (j, checkbox) {
@@ -239,9 +239,9 @@ jQuery(function ($) {
                 $('.date-filters').each(function() {
                     var dateQuery = $(this).find('option:selected').val();
                     if (dateQuery !== ''){
-                        new_search[$(this).attr('section')] = dateQuery;
+                        new_search[$(this).attr('data-section')] = dateQuery;
                     } else {
-                        delete new_search[$(this).attr('section')];
+                        delete new_search[$(this).attr('data-section')];
                     }
                 });
             }

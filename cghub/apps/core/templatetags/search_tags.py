@@ -199,7 +199,7 @@ def applied_filters(request):
                         filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
                         break
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
             continue
 
@@ -212,7 +212,7 @@ def applied_filters(request):
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
 
     filtered_by_str += '</ul>'
@@ -340,7 +340,7 @@ def table_header(request):
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
+        html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
                     width=col['width'],
                     defaultstate=ds,
                     link=sort_link(request, col['attr'], c))
