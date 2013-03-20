@@ -3,7 +3,7 @@ import shutil
 import contextlib
 import datetime
 from lxml import objectify
-from mock import patch, Mock
+from mock import patch
 
 from django.conf import settings
 from django.utils import simplejson as json
