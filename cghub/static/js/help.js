@@ -10,9 +10,9 @@ jQuery(function ($) {
     cghub.help = {
         hintShow: false,
         keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
-        hintUrl: '/help/hint/',
-        textUrl: '/help/text/',
         init:function () {
+            cghub.help.hintUrl = $('body').data('help-hint-url');
+            cghub.help.textUrl = $('body').data('help-text-url');
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();

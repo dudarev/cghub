@@ -13,6 +13,13 @@ from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 register = template.Library()
 
 
+DATE_ATTRIBUTES = (
+    'last_modified',
+    'upload_date',
+    'published_date'
+)
+
+
 def period_from_query(query):
     """
     examples:
@@ -54,6 +61,14 @@ def file_size(value):
     if bytes >= 1024:
         return '%.2f KB' % round(bytes / 1024., 2)
     return '%d Bytes' % bytes
+
+
+@register.filter
+def only_date(value):
+    """
+    Extracts date string from datetime lxml string.
+    """
+    return unicode(value).split('T')[0]
 
 
 @register.simple_tag
@@ -184,7 +199,7 @@ def applied_filters(request):
                         filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
                         break
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
             continue
 
@@ -197,7 +212,7 @@ def applied_filters(request):
                 filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
 
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
 
     filtered_by_str += '</ul>'
@@ -288,7 +303,7 @@ def table_header(request):
             'attr': 'library_strategy',
         },
         'Last modified': {
-            'width': 120,
+            'width': 80,
             'attr': 'last_modified',
         },
         'Sample Accession': {
@@ -312,7 +327,7 @@ def table_header(request):
             'attr': 'study',
         },
         'Upload time': {
-            'width': 120,
+            'width': 80,
             'attr': 'upload_date',
         },
         'UUID': {
@@ -325,7 +340,7 @@ def table_header(request):
         col = COLS.get(c, None)
         if col == None:
             continue
-        html += '<th width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
+        html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
                     width=col['width'],
                     defaultstate=ds,
                     link=sort_link(request, col['attr'], c))
@@ -334,6 +349,8 @@ def table_header(request):
 
 def get_result_attr(result, attr):
     try:
+        if attr in DATE_ATTRIBUTES:
+            return only_date(result[attr])
         return result[attr]
     except KeyError:
         pass
