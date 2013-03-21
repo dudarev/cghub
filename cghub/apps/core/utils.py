@@ -114,6 +114,10 @@ def is_celery_alive():
 
 
 def get_results(ids, get_attributes=False, live_only=False):
+    """
+    Join xml files with specified ids.
+    If file exists in cache, it will be used, otherwise, file will be downloaded.
+    """
     results = None
     results_counter = 1
     for analysis_id in ids:

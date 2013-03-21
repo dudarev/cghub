@@ -18,6 +18,18 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 @task(ignore_result=True)
 def cache_results_task(file_dict):
+    """
+    If file for specified uid not exists in settings.CART_CACHE_DIR,
+    attributes will be received and saved.
+    Two different files will be saved,
+    the first contains all attributes and the second only most necessary ones.
+
+    For example, for uuid==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
+        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_with_attributes
+        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_without_attributes
+    
+    :param file_dict: dictionary with attributes
+    """
     analysis_id = file_dict.get('analysis_id')
     filename_with_attributes = os.path.join(settings.CART_CACHE_DIR,
         "{0}_with_attributes".format(analysis_id))
@@ -38,11 +50,10 @@ def cache_results_task(file_dict):
 @task(ignore_result=True)
 def add_files_to_cart_by_query(data, session_key):
     """
-    Obtain all results for specified query and add them to cart
+    Obtains all results for specified query and adds them to cart
 
-    data - AllFilesForm form cleaned data:
-    {'attributes': [...], 'filters': {...}}
-    session_key - Session.session_key
+    :param data: AllFilesForm form cleaned data: ``{'attributes': [...], 'filters': {...}}``
+    :param session_key: Session.session_key
 
     How to change variables stored in session:
     https://docs.djangoproject.com/en/dev/topics/http/sessions/#using-sessions-out-of-views
@@ -87,6 +98,10 @@ def add_files_to_cart_by_query(data, session_key):
 
 @task(ignore_result=True)
 def cache_clear_task():
+    """
+    Removes files from settings.CART_CACHE_DIR which are older than
+    settings.TIME_DELETE_CART_CACHE_FILES_OLDER
+    """
     files = glob.glob(os.path.join(settings.CART_CACHE_DIR, '*'))
     now = datetime.datetime.now()
     for file in files:
