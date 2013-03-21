@@ -44,4 +44,4 @@ cghub/apps/core/filters_storage.json
 !wsapi/docs
 wsapi/docs/build
 !cghub/docs
-cghub/docs/build
+cghub/docs/build/doctrees
