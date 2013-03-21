@@ -19,7 +19,7 @@ from django.http import HttpRequest, QueryDict
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query)
+                    period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query, generate_task_uuid,
                     manifest, metadata, summary)
@@ -297,14 +297,13 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
-            '<b>Text query</b>: "Some text"</li>'
-            '<li data-name="center_name" data-filters="HMS-RK">'
+            '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
             '<b>Center</b>: Harvard (HMS-RK)</li>'
             '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
-            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
-            '<li data-name="library_strategy" data-filters="WGS&WXS">'
+            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
             '<b>Run Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
@@ -437,6 +436,11 @@ class TemplateTagsTestCase(TestCase):
                 self.assertEqual(
                         period_from_query(data['query']),
                         data['result'])
+
+    def test_only_date_tag(self):
+        self.assertEqual(only_date('2013-02-22T12:00:21Z'), '2013-02-22')
+        self.assertEqual(only_date('2013-02-22'), '2013-02-22')
+        self.assertEqual(only_date(''), '')
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
