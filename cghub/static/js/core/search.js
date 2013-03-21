@@ -48,7 +48,12 @@ jQuery(function ($) {
         parseAppliedFilters: function () {
             var filters = {};
             $('.applied-filters ul li').each(function() {
-                filters[$(this).data('name')] = $(this).data('filters').toString().split('&');
+                // for not to lose '0' in sample_type
+                var filters_code = $(this).data('filters');
+                if (typeof(filters_code) == "number" && filters_code < 10){
+                    filters_code = '0' + filters_code;
+                }
+                filters[$(this).data('name')] =filters_code.split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
