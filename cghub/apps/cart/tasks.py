@@ -27,6 +27,8 @@ def cache_results_task(file_dict):
     For example, for uuid==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
         - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_with_attributes
         - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_without_attributes
+    
+    :param file_dict: dictionary with attributes
     """
     analysis_id = file_dict.get('analysis_id')
     filename_with_attributes = os.path.join(settings.CART_CACHE_DIR,
@@ -48,7 +50,7 @@ def cache_results_task(file_dict):
 @task(ignore_result=True)
 def add_files_to_cart_by_query(data, session_key):
     """
-    Obtain all results for specified query and add them to cart
+    Obtains all results for specified query and adds them to cart
 
     :param data: AllFilesForm form cleaned data: ``{'attributes': [...], 'filters': {...}}``
     :param session_key: Session.session_key

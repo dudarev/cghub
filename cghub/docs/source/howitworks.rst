@@ -94,3 +94,57 @@ There are next tasks:
 .. autofunction:: cghub.apps.cart.tasks.add_files_to_cart_by_query
 
 .. autofunction:: cghub.apps.cart.tasks.cache_clear_task
+
+
+Caching
+=======
+
+There are next types of cache files:
+    - api cache:
+        - files obtained by api.py. Theirs names calculated as hash from query used to obtain them
+        - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
+        - list of ids created by api_light.py, they ends with '_ids.cache'
+    - cart cache
+        - cached files for one uid, creates when adding results to cart. Names of this files calculates as uuid+'_with_attributes' and uuid+'_without_attributes'.
+
+Cache lives only time specified in ``settings.TIME_DELETE_CART_CACHE_FILES_OLDER`` or ``settings.TIME_DELETE_API_CACHE_FILES_OLDER`` for api cache and then them should be removed. Celery tasks used for this.
+
+Folders where cache should be stored specified in settings.
+
+Cart cache
+----------
+
+When user adds few files to cart, for every file added to cart will be created task to upload attributes and store them in cache.
+
+.. autofunction:: cghub.apps.cart.tasks.cache_results_task
+
+Adding files to cart
+====================
+
+There are two ways to add items to cart:
+    - select few items and add them to cart
+    - add all items obtained by specified query
+
+Adding selected files to cart
+-----------------------------
+
+The following sequence of actions are performing:
+    - when user click on 'Add to cart', attributes values for selected files that stored in table transmitted
+    - obtained attributes are saved to cart (stored in Session)
+    - for every file creates task to obtain attributes and save them to cache
+
+Adding all files to cart
+------------------------
+
+Here are next sequence of actions:
+    - when user click 'Add all to cart', transmitted only current query
+    - then will be created task to obtain all attributes for specified query and fill cart
+    - task id transmitted back to user and saves into cookies
+    - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
+
+Downloading metadata
+====================
+
+File with metadata collected from xml files with uuids which stored in cart.
+
+.. autofunction:: cghub.apps.core.utils.get_results
