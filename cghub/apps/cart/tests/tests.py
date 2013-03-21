@@ -149,6 +149,7 @@ class ClearCartTestCase(TestCase):
     IDS_IN_CART = ('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
                    '4b2235d6-ffe9-4664-9170-d9d2013b395f',
                    '7be92e1e-33b6-4d15-a868-59d5a513fca1')
+
     def setUp(self):
         url = reverse('cart_add_remove_files', args=['add'])
         self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
@@ -164,10 +165,10 @@ class ClearCartTestCase(TestCase):
 
 class CartAddItemsTestCase(WithCacheTestCase):
     cache_files = [
-        '32aca6fc099abe3ce91e88422edc0a20.xml'
+        'c0fc7dd542430ce04e8c6e0d065cfd71.xml'
     ]
 
-    def cart_add_files(self):
+    def test_cart_add_files(self):
         # initialize session
         settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
         engine = import_module(settings.SESSION_ENGINE)
@@ -189,7 +190,9 @@ class CartAddItemsTestCase(WithCacheTestCase):
         url = reverse('cart_add_remove_files', args=('add',))
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['action'], 'message')
+        data = json.loads(response.content)
+        self.assertEqual(data['action'], 'message')
+        self.assertTrue(data['task_id'])
         self.assertTrue(self.client.session.session_key)
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)

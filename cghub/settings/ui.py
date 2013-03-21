@@ -12,7 +12,7 @@ Format:
 
 Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
-'Last modified', 'Run Type', 'Sample Accession', 'Sample Type',
+'Last modified', 'Library Type', 'Sample Accession', 'Sample Type',
 'Sample Type Name', 'State', 'Study', 'Upload time', 'UUID'.
 
 Available default_states: 'visible', 'hidden'.
@@ -44,7 +44,7 @@ TABLE_COLUMNS = (
     ('Study', 'visible'),
     ('Disease', 'visible'),
     ('Disease Name', 'visible'),
-    ('Run Type', 'visible'),
+    ('Library Type', 'visible'),
     ('Assembly', 'visible'),
     ('Center', 'visible'),
     ('Center Name', 'visible'),
@@ -78,7 +78,7 @@ DETAILS_FIELDS = (
     'Sample id',
     'Sample Type',
     'Sample Type Name',
-    'Library strategy',
+    'Library Type',
     'Sample Accession',
     'Files Size',
 )
@@ -95,6 +95,6 @@ VALUE_RESOLVERS = {
 DEFAULT_PAGINATOR_LIMIT = 10
 
 DEFAULT_FILTERS = {
-    'state': '(live)',
-    'upload_date': '[NOW-7DAY+TO+NOW]',
+    'state': ('live',),
+    'upload_date': '[NOW-7DAY TO NOW]',
 }

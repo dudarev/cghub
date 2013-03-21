@@ -298,7 +298,7 @@ def table_header(request):
             'width': 75,
             'attr': 'files_size',
         },
-        'Run Type': {
+        'Library Type': {
             'width': 100,
             'attr': 'library_strategy',
         },
@@ -376,7 +376,7 @@ def field_values(result):
                                 or get_result_attr(result, 'files')
                                 and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
-        'Run Type': get_result_attr(result, 'library_strategy'),
+        'Library Type': get_result_attr(result, 'library_strategy'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
@@ -395,7 +395,6 @@ def field_values(result):
         'Aliquot id': get_result_attr(result, 'aliquot_id'),
         'Disease abbr': get_result_attr(result, 'disease_abbr'),
         'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
-        'Library strategy': get_result_attr(result, 'library_strategy'),
         'Published time': get_result_attr(result, 'published_date'),
         'Participant id': get_result_attr(result, 'participant_id'),
         'Sample id': get_result_attr(result, 'sample_id'),

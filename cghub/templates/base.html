@@ -31,7 +31,7 @@
     {% endif %}
     {% block extra_header_js %} {% endblock %}
 </head>
-<body>
+<body data-help-hint-url="{% url help_hint %}" data-help-text-url="{% url help_text %}" data-task-status-url="{% url celery_task_status %}">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
@@ -62,9 +62,23 @@
             </div>
         {% endblock %}
 </div>
+{% comment %}
+    Common message popup template
+{% endcomment %}
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="common-message-label" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="modal-label" id="common-message-label"></h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/ui.dropdownchecklist-1.4-min.js"></script>
 {% if debug %}

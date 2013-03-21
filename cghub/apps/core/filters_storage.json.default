@@ -10,6 +10,7 @@
     "study": {
       "filters": {
         "phs000178": "TCGA", 
+        "*Other_Sequencing_Multiisolate": "CCLE", 
         "TCGA_MUT_BENCHMARK_4": "TCGA Benchmark"
       }, 
       "title": "By Study"
@@ -128,7 +129,7 @@
         "WGS": "WGS", 
         "WXS": "WXS"
       }, 
-      "title": "By Run Type"
+      "title": "By Library Type"
     }, 
     "refassem_short_name": {
       "filters": {
