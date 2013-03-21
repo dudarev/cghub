@@ -149,6 +149,7 @@ class ClearCartTestCase(TestCase):
     IDS_IN_CART = ('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
                    '4b2235d6-ffe9-4664-9170-d9d2013b395f',
                    '7be92e1e-33b6-4d15-a868-59d5a513fca1')
+
     def setUp(self):
         url = reverse('cart_add_remove_files', args=['add'])
         self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
