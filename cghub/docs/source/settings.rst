@@ -186,9 +186,16 @@ Default filters can be specified in settings. For example:
     # ui.py
 
     DEFAULT_FILTERS = {
-        'state': '(live)',
-        'upload_date': '[NOW-7DAY+TO+NOW]',
+        'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
+        'state': ('live',),
+        'upload_date': '[NOW-7DAY TO NOW]',
     }
+
+Filters can be found in :file:`cghub/apps/core/filters_storage_full.py` or copied from browser's address field, for example, for specified DEFAULT_FILTERS, address will be next:
+
+::
+
+    https://cghub.ucsc.edu/browser/search/?upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)
 
 Logging
 --------------

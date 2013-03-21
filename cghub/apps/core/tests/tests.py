@@ -2,8 +2,11 @@ import os
 import shutil
 import contextlib
 import datetime
+
 from lxml import objectify
 from mock import patch
+from djcelery.models import TaskState
+from celery import states
 
 from django.conf import settings
 from django.utils import simplejson as json
@@ -13,13 +16,12 @@ from django.test.testcases import TestCase
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
-from apps.core.templatetags.pagination_tags import Paginator
-
+from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query)
+                    period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, generate_task_uuid,
+                    get_wsapi_settings, get_default_query, generate_task_uuid,
                     manifest, metadata, summary)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -72,6 +74,10 @@ class CoreTestCase(WithCacheTestCase):
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+        # check ajax urls is available
+        self.assertContains(response, reverse('help_hint'))
+        self.assertContains(response, reverse('help_text'))
+        self.assertContains(response, reverse('celery_task_status'))
 
     def test_non_existent_search(self):
         response = self.client.get('/search/?q=non_existent_search_query')
@@ -196,6 +202,31 @@ class UtilsTestCase(TestCase):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
 
+    def test_get_default_query(self):
+        with self.settings(
+            DEFAULT_FILTERS = {
+                'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY TO NOW]'}):
+            self.assertEqual(
+                get_default_query(),
+                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)')
+        # if not existing filter keys
+        with self.settings(
+            DEFAULT_FILTERS = {
+                'study': ('phs000178', 'bad_key'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY TO NOW]'}):
+            self.assertEqual(
+                get_default_query(),
+                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178)&state=(live)')
+        # empty filters
+        with self.settings(
+            DEFAULT_FILTERS = {}):
+            self.assertEqual(
+                get_default_query(),
+                '')
+
 
 class TemplateTagsTestCase(TestCase):
 
@@ -266,15 +297,14 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
-            '<b>Text query</b>: "Some text"</li>'
-            '<li data-name="center_name" data-filters="HMS-RK">'
+            '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
             '<b>Center</b>: Harvard (HMS-RK)</li>'
             '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
-            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&COAD">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
-            '<li data-name="library_strategy" data-filters="WGS&WXS">'
-            '<b>Run Type</b>: WGS, WXS</li></ul>')
+            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
+            '<b>Library Type</b>: WGS, WXS</li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -407,6 +437,11 @@ class TemplateTagsTestCase(TestCase):
                         period_from_query(data['query']),
                         data['result'])
 
+    def test_only_date_tag(self):
+        self.assertEqual(only_date('2013-02-22T12:00:21Z'), '2013-02-22')
+        self.assertEqual(only_date('2013-02-22'), '2013-02-22')
+        self.assertEqual(only_date(''), '')
+
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
@@ -494,3 +529,32 @@ class MetadataViewTestCase(TestCase):
         self.assertTrue(self.ID_DETAILS in metadata)
         self.assertEqual(response['Content-Type'], 'text/xml')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')
+
+
+class TaskViewsTestCase(TestCase):
+
+    def test_celery_task_status(self):
+        task_id = 'someid'
+
+        def get_response():
+            response = self.client.get(
+                                reverse('celery_task_status'),
+                                {'task_id': task_id},
+                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            self.assertEqual(response.status_code, 200)
+            return json.loads(response.content)
+
+        response = self.client.get(reverse('celery_task_status'))
+        self.assertEqual(response.status_code, 404)
+        data = get_response()
+        self.assertEqual(data['status'], 'failure')
+        task_state = TaskState.objects.create(
+                                        state=states.SUCCESS,
+                                        task_id=task_id,
+                                        tstamp=timezone.now())
+        data = get_response()
+        self.assertEqual(data['status'], 'success')
+        task_state.state = states.FAILURE
+        task_state.save()
+        data = get_response()
+        self.assertEqual(data['status'], 'failure')

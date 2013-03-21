@@ -165,7 +165,7 @@ ALL_FILTERS = OrderedDict([
         }
     }),
     ("library_strategy", {
-        "title": "By Run Type",
+        "title": "By Library Type",
         "filters": OrderedDict([
             ("AMPLICON", "AMPLICON"),
             ("Bisulfite-Seq", "Bisulfite-Seq"),

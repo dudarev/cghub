@@ -1,22 +1,39 @@
 import urllib
 
-from django.conf import settings
-from django.http import QueryDict, HttpResponseRedirect
-from django.utils.http import urlquote
-from django.core.urlresolvers import reverse
-
-
-from django.views.generic.base import TemplateView, View
+from djcelery.models import TaskState
+from celery import states
 from lxml import etree
+
+from django.conf import settings
+from django.http import QueryDict, HttpResponseRedirect, HttpResponse, Http404
+from django.utils.http import urlquote
+from django.utils import simplejson as json
+from django.core.urlresolvers import reverse
+from django.views.generic.base import TemplateView, View
+
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
-from cghub.apps.core.utils import get_filters_string, get_wsapi_settings, metadata
+from cghub.apps.core.utils import (get_filters_string, get_default_query,
+                                            get_wsapi_settings, metadata)
 
 
-DEFAULT_QUERY = urllib.unquote(get_filters_string(settings.DEFAULT_FILTERS)[1:])
+DEFAULT_QUERY = get_default_query()
 DEFAULT_SORT_BY = '-upload_date'
 WSAPI_SETTINGS = get_wsapi_settings()
+
+
+class AjaxView(View):
+
+    http_method_names = ['get']
+    response_class = HttpResponse
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        response_kwargs['content_type'] = 'application/json'
+        return self.response_class(json.dumps(context), **response_kwargs)
 
 
 class HomeView(TemplateView):
@@ -125,11 +142,15 @@ class ItemDetailsView(TemplateView):
         return [self.template_name]
 
 
-class CeleryTasksStatus(TemplateView):
+class MetadataView(View):
+    def post(self, request, uuid):
+        return metadata(ids=[uuid])
+
+
+class CeleryTasksView(TemplateView):
     template_name = 'core/celery_task_status.html'
 
     def get_context_data(self):
-        from djcelery.models import TaskState
         from djcelery.humanize import naturaldate
         from djcelery.admin import TASK_STATE_COLORS
         # Showing last 50 task states
@@ -144,6 +165,23 @@ class CeleryTasksStatus(TemplateView):
         return {"tasks": map(prettify_task, tasks)}
 
 
-class MetadataView(View):
-    def post(self, request, uuid):
-        return metadata(ids=[uuid])
+class CeleryTaskStatusView(AjaxView):
+
+    def get_context_data(self, task_id):
+        try:
+            task = TaskState.objects.get(task_id=task_id)
+            if task.state == states.FAILURE:
+                return {'status': 'failure'}
+            if task.state == states.SUCCESS:
+                return {'status': 'success'}
+            return {'status': 'pending'}
+        except TaskState.DoesNotExist:
+            pass
+        return {'status': 'failure'}
+
+    def get(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404
+        key = request.GET.get('task_id')
+        context = self.get_context_data(key)
+        return self.render_to_response(context)
