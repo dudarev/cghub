@@ -1,8 +1,14 @@
+.. How it works
+
+============
+How it works
+============
+
 Help
-=================
+====
 
 Help hints for table and filters bar
-----------------------------
+------------------------------------
 
 Text for help hints for every table column, for table cells values and for filters can be specified in project settings.
 
@@ -65,3 +71,26 @@ You can use such links in help hints:
     COLUMN_HELP_HINTS = {
         'UUID': 'File identifier, <a href class="js-help-link" data-slug="uuid-help">click to view more detailed information</a>.',
         ...
+
+Celery tasks
+============
+
+A `task <http://docs.celeryproject.org/en/latest/userguide/tasks.html#tasks>`__ is a class that can be created out of any callable. It performs dual roles in that it defines both what happens when a task is called (sends a message), and what happens when a worker receives that message.
+
+Task can be easily created from any callable by using ``task()`` decorator.
+
+It is a common practice in Django to put tasks in their own module named tasks.py, and the worker will automatically go through the apps in INSTALLED_APPS to import these modules.
+
+Tasks in this project stored in:
+    - `cghub/apps/core/tasks.py`
+    - `cghub/apps/cart/tasks.py`
+
+There are next tasks:
+
+.. autofunction:: cghub.apps.core.tasks.api_cache_clear_task
+
+.. autofunction:: cghub.apps.cart.tasks.cache_results_task
+
+.. autofunction:: cghub.apps.cart.tasks.add_files_to_cart_by_query
+
+.. autofunction:: cghub.apps.cart.tasks.cache_clear_task
