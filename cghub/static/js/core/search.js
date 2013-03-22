@@ -281,7 +281,9 @@ jQuery(function ($) {
             $(this).blur();
         },
         resetFilters:function() {
-            window.location.href = $(this).data('url');
+            var url = $(this).data('url');
+            $.removeCookie('last_query', { path: url });
+            window.location.href = url;
             $(this).blur();
         },
         createCustomDatepickers:function() {

@@ -142,6 +142,14 @@ class CoreTestCase(WithCacheTestCase):
         # test raw_xml
         self.assertTrue(response.context['raw_xml'])
 
+    def test_save_filters_state(self):
+        response = self.client.get('%s?q=%s' % (reverse('search_page'), self.query))
+        self.assertEqual(
+                self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
+                'q=%s' % self.query)
+        response = self.client.get(reverse('home_page'))
+        self.assertRedirects(response, '%s?q=%s' % (reverse('search_page'), self.query))
+
 
 class UtilsTestCase(TestCase):
     IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
