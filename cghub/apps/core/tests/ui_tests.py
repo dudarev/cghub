@@ -318,11 +318,10 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d71*")
+        element.send_keys("6d71test")
         element.submit()
         time.sleep(10)
-        assert ("/search/?q=6d71%A" in self.selenium.current_url or
-            "/search/?q=6d71*" in self.selenium.current_url)
+        assert "q=6d71test" in self.selenium.current_url
 
     def test_search_result(self):
         self.selenium.get(self.live_server_url)
@@ -353,16 +352,6 @@ class SearchTestCase(LiveServerTestCase):
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys("6d*")
-        element.submit()
-        time.sleep(5)
-        self.selenium.find_element_by_link_text("25").click()
-        print len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
-        assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
-        element = self.selenium.find_element_by_name("q")
-        element.clear()
-        element.send_keys("6d1*")
         element.submit()
         time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
