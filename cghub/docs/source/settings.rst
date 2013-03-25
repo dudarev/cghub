@@ -20,7 +20,7 @@ It is possible to set some settings for wsapi app.
 Celery
 ----------
 
-To run periodic tasks (for now only related to :ref:`caching <cacing>`) we use Celery.
+To run periodic tasks (for now only related to :ref:`caching <caching>`) we use Celery.
 Its settings are in ``settings/celery_settings.py``.
 
 In ``local.py`` define BROKER_URL
@@ -72,6 +72,7 @@ In ``local.py`` define BROKER_URL
 
 	CELERYD_CONCURRENCY = 1
 
+Celery configured to send logs to syslog by default. See :ref:`logging section <logging>`.
 
 .. _caching:
 
@@ -197,6 +198,8 @@ Filters can be found in :file:`cghub/apps/core/filters_storage_full.py` or copie
 
     https://cghub.ucsc.edu/browser/search/?upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)
 
+.. _logging:
+
 Logging
 --------------
 
@@ -204,9 +207,11 @@ Logging
 
 .. code-block:: python
 
-	from logging.handlers import SysLogHandler
+    from logging.handlers import SysLogHandler
 
-	LOGGING = {
+    SYSLOG_ADDRESS = '/dev/log'
+
+    LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
@@ -233,8 +238,7 @@ Logging
                 'class':'logging.handlers.SysLogHandler',
                 'formatter': 'verbose',
                 'facility': SysLogHandler.LOG_LOCAL2,
-                # uncomment to save logs to /dev/log/syslog
-                'address': '/dev/log',
+                'address': SYSLOG_ADDRESS,
             },
         },
         'loggers': {
@@ -251,6 +255,8 @@ Logging
         },
     }
 
+Usage example:
+
 .. code-block:: bash
 
 	>>> import logging
@@ -263,3 +269,5 @@ Logging
 For more information see the `complete SysLogHandler reference`_ .
 
 .. _`complete SysLogHandler reference`: http://docs.python.org/2/library/logging.handlers.html#sysloghandler
+
+Celery configured to send logs to syslog with address == SYSLOG_ADDRESS, see ``cghub/apps/core/__init__.py``.
