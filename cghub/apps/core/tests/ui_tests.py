@@ -306,8 +306,10 @@ class SearchTestCase(LiveServerTestCase):
     def test_no_results(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
+        element.clear()
         element.send_keys("some text")
         element.submit()
+        time.sleep(2)
         result = self.selenium.find_element_by_xpath(
             "//div[contains(@class,'base-container')]/div/h4")
         assert result.text == "No results found."
@@ -315,24 +317,30 @@ class SearchTestCase(LiveServerTestCase):
     def test_url(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
+        element.clear()
         element.send_keys("6d71*")
         element.submit()
         time.sleep(10)
-        assert "/search/?q=6d71%2A" in self.selenium.current_url
+        assert ("/search/?q=6d71%A" in self.selenium.current_url or
+            "/search/?q=6d71*" in self.selenium.current_url)
 
     def test_search_result(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
+        element.clear()
         element.send_keys("6d71*")
         element.submit()
-        assert "Found" in self.selenium.find_element_by_xpath(
-            "/html/body/div[2]/div[2]/div[2]").text
+        time.sleep(5)
+        assert "6d71*" in self.selenium.find_element_by_css_selector(
+            ".page-header + div").text
 
     def test_count_pages(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
+        element.clear()
         element.send_keys("6d1*")
         element.submit()
+        time.sleep(5)
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
             "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
@@ -343,14 +351,20 @@ class SearchTestCase(LiveServerTestCase):
     def test_pagination(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
-        element.send_keys("6d7*")
+        element.clear()
+        element.send_keys("6d*")
         element.submit()
+        time.sleep(5)
+        self.selenium.find_element_by_link_text("25").click()
+        print len(self.selenium.find_elements_by_xpath(
+            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         assert 10 == len(self.selenium.find_elements_by_xpath(
             "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys("6d1*")
         element.submit()
+        time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
         assert 10 == len(self.selenium.find_elements_by_xpath(
@@ -392,7 +406,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_pagination_links(self):
         self.selenium.get(self.live_server_url)
-        self.search("6fd*")
+        self.search("6d*")
 
         found = (self.selenium.find_element_by_css_selector(
             ".base-content > div:nth-child(2)"))
@@ -671,6 +685,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
         driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).click()
+        driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(sample_type_id)).click()
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
         driver.find_element_by_id("id_apply_filters").click()
 
@@ -679,8 +694,10 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
         filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
         filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
+        filter3 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(sample_type_id))
         self.assertTrue(filter1.text in applied_filters1.text)
         self.assertTrue(filter2.text in applied_filters2.text)
+        self.assertTrue(filter3.text in applied_filters2.text)
 
         for i in range(3):
             text1 = driver.find_element_by_xpath(
