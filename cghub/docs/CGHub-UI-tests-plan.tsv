@@ -23,10 +23,11 @@ CART-2	Select all checkbox selects all items	The checkbox in the header of the t
 CART-3	Cart statistics on cart page	There is information on cart page: number of files there and total size of the files. 
 CART-4	Number of files in the cart is shown in Cart navigation link	For instance, 
 CART-5	Items may be removed from the cart	When checkboxes are checked on the cart page and button is clicked, the corresponding items are removed from the cart. 
-CART-6	Select all checkbox works the same way as in search results	see CART-2 
-CART-7	Headers may sort cart content	When clicking cart table headers the table content  is sorted correspondingly See SEARCH-7 
-CART-8	File download formats are in dropdown menu	Choice of file format to download takes place in the dropdown menu of Metadata and Manifest. Dropdown menus contain all possible formats (XML, TSV) 
-CART-9	Manifest may be downloaded in XML or TSV formats	When XML or TSV button in the 'Manifest' dropdown menu is clicked, manifest for all items in the cart is downloaded in chosen format.  
-CART-10	Metadata may be downloaded in XML or TSV formats	Similar to CART-9, but full  information is downloaded, when file format button is clicked. 
-CART-11	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
-CART-12	'Add all to cart' button add all files to cart.	'Add all to cart' button when clicked adds all files from search results to the cart. 
+CART-6	All items may be romeved from cart clicking 'Clear cart' button	When user clicks 'Clear cart' button, cart is being cleared no matter if checkboxes are selected or not. 
+CART-7	Select all checkbox works the same way as in search results	see CART-2 
+CART-8	Headers may sort cart content	When clicking cart table headers the table content  is sorted correspondingly See SEARCH-7 
+CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart is downloaded in XML format.  
+CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button is clicked, metadata for all items in the cart is downloaded in XML format. 
+CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart is downloaded in TSV format. 
+CART-12	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
+CART-13	'Add all to cart' button add all files to cart.	'Add all to cart' button when clicked adds all files from search results to the cart. 

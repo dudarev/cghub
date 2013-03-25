@@ -297,6 +297,9 @@ class SearchTestCase(LiveServerTestCase):
         super(SearchTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
     def search(self, text="6d1*"):
         element = self.selenium.find_element_by_name("q")
         element.clear()
@@ -321,7 +324,7 @@ class SearchTestCase(LiveServerTestCase):
         element.send_keys("6d71test")
         element.submit()
         time.sleep(10)
-        assert "q=6d71test" in self.selenium.current_url
+        assert "/search/?q=6d71test" in self.selenium.current_url
 
     def test_search_result(self):
         self.selenium.get(self.live_server_url)
@@ -330,8 +333,8 @@ class SearchTestCase(LiveServerTestCase):
         element.send_keys("6d71*")
         element.submit()
         time.sleep(5)
-        assert "6d71*" in self.selenium.find_element_by_css_selector(
-            ".page-header + div").text
+        assert "Found" in self.selenium.find_element_by_xpath(
+            "/html/body/div[2]/div[2]/div[2]").text
 
     def test_count_pages(self):
         self.selenium.get(self.live_server_url)
@@ -395,7 +398,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_pagination_links(self):
         self.selenium.get(self.live_server_url)
-        self.search("6d*")
+        self.search("6d7*")
 
         found = (self.selenium.find_element_by_css_selector(
             ".base-content > div:nth-child(2)"))
