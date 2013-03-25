@@ -17,7 +17,7 @@ Make sure RabbitMQ server is installed (see section about RabbitMQ below).
     cd cghub
     cp Makefile.def.default Makefile.def
     cp cghub/settings/local.py.default cghub/settings/local.py
-    mkdir {pids,logs}
+    mkdir pids
 
     # either
     mkvirtualenv -r requirements.txt cghub
