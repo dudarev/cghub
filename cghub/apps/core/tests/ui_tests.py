@@ -71,18 +71,20 @@ class SidebarTestCase(LiveServerTestCase):
     def test_select_all(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-        self.selenium.find_element_by_css_selector("#ddcl-10 > span:first-child > span").click()
+
+        center_id = get_filter_id(driver, 'center_name')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
-        driver.find_element_by_id("ddcl-10-i0").click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-10-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
             self.assertFalse(cb.is_selected())
 
         # click again - select all
-        driver.find_element_by_id("ddcl-10-i0").click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
         for i in range(1, 8):
-            cb = driver.find_element_by_id("ddcl-10-i%d" % i)
+            cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
             self.assertTrue(cb.is_selected())
 
 
@@ -361,7 +363,7 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium.get(self.live_server_url)
 
         # unselect all in Center
-        center_id = get_filter_id(self.selenium, 'center')
+        center_id = get_filter_id(self.selenium, 'center_name')
         self.selenium.execute_script("$('#ddcl-{0}').click()".format(center_id))
         self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
         self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
@@ -648,7 +650,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
 
         # Apply filters on Center Name.
-        center_id = get_filter_id(driver, 'center')
+        center_id = get_filter_id(driver, 'center_name')
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
         driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id)).click()
