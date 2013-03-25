@@ -9,7 +9,7 @@ jQuery(function ($) {
     }
     cghub.help = {
         hintShow: false,
-        keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['uuid', 'uploaded', 'last modified', 'barcode', 'files size'],
         init:function () {
             cghub.help.hintUrl = $('body').data('help-hint-url');
             cghub.help.textUrl = $('body').data('help-text-url');
