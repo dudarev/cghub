@@ -49,6 +49,14 @@ def back_to_bytes(*args):
             result.append(float(file_name.split(' ')[0]))
     return result[0], result[1]
 
+def get_filter_id(driver, filter_name):
+    """
+    Helper function for getting sidebar filter id.
+    Makes filter tests easier to maintain.
+    """
+    el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
+    el_id = el.get_attribute('id').split('-')[-1]
+    return el_id
 
 class SidebarTestCase(LiveServerTestCase):
     cache_files = ('543044213d0b4057751b559589049cd2.xml',)
@@ -57,7 +65,7 @@ class SidebarTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SidebarTests, self).setUpClass()
+        super(SidebarTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
 
     def test_select_all(self):
@@ -77,114 +85,126 @@ class SidebarTestCase(LiveServerTestCase):
             cb = driver.find_element_by_id("ddcl-10-i%d" % i)
             self.assertTrue(cb.is_selected())
 
+
     def test_select_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
         driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
 
-        # Time modified is ddcl-7
+        # Time modified
+        last_modified_id = get_filter_id(driver, 'last_modified')
         driver.find_element_by_xpath(
-            "//span[@id='ddcl-7']/span/span").click()
+            "//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
         # click the first selection
         i_click = 0
 
         # check that others are not selected
-        driver.find_element_by_id("ddcl-7-i%d" % i_click).click()
+        driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
         for i in range(0, 5):
             if not i == i_click:
-                rb = driver.find_element_by_id("ddcl-7-i%i" % i)
+                rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
                 self.assertFalse(rb.is_selected())
 
         # click the second selection
         i_click = 1
 
         # check that others are not selected
-        driver.find_element_by_id("ddcl-7-i%d" % i_click).click()
+        driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
         for i in range(0, 5):
             if not i == i_click:
-                rb = driver.find_element_by_id("ddcl-7-i%i" % i)
+                rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
                 self.assertFalse(rb.is_selected())
-        
-        # Upload Time is ddcl-8
+
+        # Upload date
+        upload_date_id = get_filter_id(driver, 'upload_date')
         driver.find_element_by_xpath(
-            "//span[@id='ddcl-8']/span/span").click()
+            "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
         # click the first selection
         z_click = 0
 
         # check that others are not selected
-        driver.find_element_by_id("ddcl-8-i%d" % z_click).click()
+        driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
         for i in range(0, 5):
             if not i == z_click:
-                rb = driver.find_element_by_id("ddcl-8-i%i" % i)
+                rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
         # click the second selection
         z_click = 1
 
         # check that others are not selected
-        driver.find_element_by_id("ddcl-8-i%d" % z_click).click()
+        driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
         for i in range(0, 5):
             if not i == z_click:
-                rb = driver.find_element_by_id("ddcl-8-i%i" % i)
+                rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
     def test_selection(self):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        self.selenium.find_element_by_css_selector("#ddcl-11 > span:first-child > span").click()
         # study: phs000178
-        driver.find_element_by_id("ddcl-11-i0").click()
-        driver.find_element_by_id("ddcl-11-i1").click()
-        self.selenium.find_element_by_css_selector("#ddcl-11 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-10 > span:first-child > span").click()
+        study_id = get_filter_id(driver, 'study')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(study_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(study_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(study_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(study_id)).click()
         # center: BCM+OR+BCCAGSC+OR+BI
-        driver.find_element_by_id("ddcl-10-i0").click()
-        driver.find_element_by_id("ddcl-10-i1").click()
-        driver.find_element_by_id("ddcl-10-i2").click()
-        driver.find_element_by_id("ddcl-10-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-10 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-6 > span:first-child > span").click()
+        center_id = get_filter_id(driver, 'center_name')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(center_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(center_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i3".format(center_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(center_id)).click()
         # sample type: 10+OR+12+OR+20
-        driver.find_element_by_id("ddcl-6-i0").click()
-        driver.find_element_by_id("ddcl-6-i1").click()
-        driver.find_element_by_id("ddcl-6-i2").click()
-        driver.find_element_by_id("ddcl-6-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-6 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-3 > span:first-child > span").click()
-        # disease_abbr: LAML+OR+BLCA+OR+LGG
-        driver.find_element_by_id("ddcl-3-i0").click()
-        driver.find_element_by_id("ddcl-3-i1").click()
-        driver.find_element_by_id("ddcl-3-i2").click()
-        driver.find_element_by_id("ddcl-3-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-3 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-9 > span:first-child > span").click()
+        sample_type_id = get_filter_id(driver, 'sample_type')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(sample_type_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(sample_type_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(sample_type_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i3".format(sample_type_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(sample_type_id)).click()
+        # disease_abbr: LAML+OR+BLCA+OR+LGG'
+        disease_abbr_id = get_filter_id(driver, 'disease_abbr')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(disease_abbr_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(disease_abbr_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(disease_abbr_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(disease_abbr_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i3".format(disease_abbr_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(disease_abbr_id)).click()
         # analyte_code: D+OR+H+OR+R
-        driver.find_element_by_id("ddcl-9-i0").click()
-        driver.find_element_by_id("ddcl-9-i1").click()
-        driver.find_element_by_id("ddcl-9-i2").click()
-        driver.find_element_by_id("ddcl-9-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-9 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-5 > span:first-child > span").click()
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(analyte_code_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(analyte_code_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(analyte_code_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(analyte_code_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i3".format(analyte_code_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(analyte_code_id)).click()
         # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
-        driver.find_element_by_id("ddcl-5-i0").click()
-        driver.find_element_by_id("ddcl-5-i1").click()
-        driver.find_element_by_id("ddcl-5-i2").click()
-        driver.find_element_by_id("ddcl-5-i3").click()
-        self.selenium.find_element_by_css_selector("#ddcl-5 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-4 > span:first-child > span").click()
+        library_strategy_id = get_filter_id(driver, 'library_strategy')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(library_strategy_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(library_strategy_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(library_strategy_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(library_strategy_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i3".format(library_strategy_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(library_strategy_id)).click()
         # refassem_short_name: NCBI36*+OR+HG18*
-        driver.find_element_by_id("ddcl-4-i0").click()
-        driver.find_element_by_id("ddcl-4-i1").click()
-        self.selenium.find_element_by_css_selector("#ddcl-4 > span:last-child > span").click()
-        self.selenium.find_element_by_css_selector("#ddcl-2 > span:first-child > span").click()
+        refassem_short_name_id = get_filter_id(driver, 'refassem_short_name')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(refassem_short_name_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(refassem_short_name_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(refassem_short_name_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(refassem_short_name_id)).click()
         # state: bad_data+OR+live+OR+validating_sample
-        driver.find_element_by_id("ddcl-2-i0").click()
-        driver.find_element_by_id("ddcl-2-i0").click()
-        driver.find_element_by_id("ddcl-2-i1").click()
-        driver.find_element_by_id("ddcl-2-i2").click()
-        driver.find_element_by_id("ddcl-2-i5").click()
-        self.selenium.find_element_by_css_selector("#ddcl-2 > span:last-child > span").click()
+        state_id = get_filter_id(driver, 'state')
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(state_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(state_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(state_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i1".format(state_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i2".format(state_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i5".format(state_id)).click()
+        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(state_id)).click()
+
         driver.find_element_by_id("id_apply_filters").click()
 
         url = driver.current_url
@@ -244,7 +264,7 @@ class SidebarTestCase(LiveServerTestCase):
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(SidebarTests, self).tearDownClass()
+        super(SidebarTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
 
@@ -266,13 +286,13 @@ class SearchTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SearchTests, self).setUpClass()
+        super(SearchTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(SearchTests, self).tearDownClass()
+        super(SearchTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
     def search(self, text="6d1*"):
@@ -341,29 +361,31 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium.get(self.live_server_url)
 
         # unselect all in Center
-        self.selenium.execute_script("$('#ddcl-10').click()")
-        self.selenium.execute_script("$('#ddcl-10-i0').click()")
-        self.selenium.execute_script("$('#ddcl-10-i0').click()")
+        center_id = get_filter_id(self.selenium, 'center')
+        self.selenium.execute_script("$('#ddcl-{0}').click()".format(center_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
         # select Baylor and Harvard
-        self.selenium.execute_script("$('#ddcl-10-i1').click()")
-        self.selenium.execute_script("$('#ddcl-10-i4').click()")
+        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(center_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i4').click()".format(center_id))
 
         # unselect all in Assembly
-        self.selenium.execute_script("$('#ddcl-4').click()")
-        self.selenium.execute_script("$('#ddcl-4-i0').click()")
-        self.selenium.execute_script("$('#ddcl-4-i0').click()")
+        assembly_id = get_filter_id(self.selenium, 'refassem_short_name')
+        self.selenium.execute_script("$('#ddcl-{0}').click()".format(assembly_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
         # select NCBI36/HG18
-        self.selenium.execute_script("$('#ddcl-4-i1').click()")
+        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(assembly_id))
 
         self.search()
 
         # check if filters is shown
         filter = (self.selenium.find_element_by_css_selector(
-            "#ddcl-10 > span:first-child > span"))
+            "#ddcl-{0} > span:first-child > span".format(center_id)))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
         
         filter2 = (self.selenium.find_element_by_css_selector(
-            "#ddcl-4 > span:first-child > span"))
+            "#ddcl-{0} > span:first-child > span".format(assembly_id)))
         self.assertEqual(filter2.text, u'NCBI36/HG18')
 
     def test_pagination_links(self):
@@ -624,31 +646,37 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
     def test_reset_filters_button(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-        CENTER_NAME_ID = 10
-        SAMPLE_TYPE_ID = 6
+
         # Apply filters on Center Name.
-        driver.find_element_by_xpath("//span[@id='ddcl-%d']/span/span" % CENTER_NAME_ID).click()
-        driver.find_element_by_id("ddcl-%d-i0" % CENTER_NAME_ID).click()
-        driver.find_element_by_xpath("//label[@for='ddcl-%d-i4']" % CENTER_NAME_ID).click()
-        driver.find_element_by_xpath("//span[@id='ddcl-%d']/span/span" % CENTER_NAME_ID).click()
-        driver.find_element_by_xpath("//span[@id='ddcl-8']/span/span").click()
-        driver.find_element_by_id("ddcl-8-i0").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-8']/span/span").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
-        driver.find_element_by_id("ddcl-7-i0").click()
-        driver.find_element_by_xpath("//span[@id='ddcl-7']/span/span").click()
+        center_id = get_filter_id(driver, 'center')
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
+        driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id)).click()
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
+
+        # Set time filters to 'Any date'
+        last_modified_id = get_filter_id(driver, 'last_modified')
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(last_modified_id)).click()
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        upload_date_id = get_filter_id(driver, 'upload_date')
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(upload_date_id)).click()
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+
         # Apply filters on Sample Type.
-        driver.find_element_by_xpath("//span[@id='ddcl-%d']/span/span" % SAMPLE_TYPE_ID).click()
-        driver.find_element_by_id("ddcl-%d-i0" % SAMPLE_TYPE_ID).click()
-        driver.find_element_by_xpath("//label[@for='ddcl-%d-i1']" % SAMPLE_TYPE_ID).click()
-        driver.find_element_by_xpath("//span[@id='ddcl-%d']/span/span" % SAMPLE_TYPE_ID).click()
+        sample_type_id = get_filter_id(driver, 'sample_type')
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
+        driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
+        driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).click()
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
         driver.find_element_by_id("id_apply_filters").click()
 
         # Make sure filters are applied.
         applied_filters1 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
         applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
-        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i4']" % CENTER_NAME_ID)
-        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i1']" % SAMPLE_TYPE_ID)
+        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
+        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
         self.assertTrue(filter1.text in applied_filters1.text)
         self.assertTrue(filter2.text in applied_filters2.text)
 
@@ -674,11 +702,11 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//th[@axis='col13']").click()
         tmp_text = driver.find_element_by_xpath(
             "//div[@class='bDiv']//table//tbody//tr[1]//td[14]/div").text
-        if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-5-i1']").text:
+        if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).text:
             driver.find_element_by_xpath("//th[@axis='col13']").click()
 
-        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i4']" % CENTER_NAME_ID)
-        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-%d-i1']" % SAMPLE_TYPE_ID)
+        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
+        filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
         for i in range(3):
             text1 = driver.find_element_by_xpath(
                 "//div[@class='bDiv']//table//tbody//tr[%d]//td[9]/div" % (i + 1)).text

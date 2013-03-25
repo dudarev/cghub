@@ -25,13 +25,13 @@ class LinksNavigationsTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(LinksNavigationsTests, self).setUpClass()
+        super(LinksNavigationsTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(LinksNavigationsTests, self).tearDownClass()
+        super(LinksNavigationsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
     def test_cart_link(self):
@@ -78,7 +78,7 @@ class CartUITestCase(LiveServerTestCase):
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
-        super(CartUITests, self).setUpClass()
+        super(CartUITestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
         lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
@@ -88,7 +88,7 @@ class CartUITestCase(LiveServerTestCase):
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(CartUITests, self).tearDownClass()
+        super(CartUITestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
     def test_cart(self):
@@ -160,26 +160,17 @@ class CartUITestCase(LiveServerTestCase):
         # Check there are no pre-existed files in /tmp/wsapi/
         try:
             os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
-            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.tsv')
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
         except OSError:
             pass
 
-        # Check dropdown menus are hidden
-        btn1 = driver.find_element_by_class_name('cart-form-download-manifest-xml')
-        btn2 = driver.find_element_by_class_name('cart-form-download-manifest-tsv')
-        btn3 = driver.find_element_by_class_name('cart-form-download-metadata-xml')
-        btn4 = driver.find_element_by_class_name('cart-form-download-metadata-tsv')
-        assert not (
-            btn1.is_displayed() and btn2.is_displayed() and
-            btn3.is_displayed() and btn4.is_displayed()
-        )
+        checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % self.selected[0])
+        checkbox.click()
 
         # Download Manifest in XML file
-        driver.find_element_by_xpath("//div[2]/div/div/div").click()
-        btn = driver.find_element_by_class_name('cart-form-download-manifest-xml')
-        assert btn.is_displayed()
+        btn = driver.find_element_by_class_name('cart-download-manifest')
         btn.click()
         driver.implicitly_wait(5)
         try:
@@ -187,21 +178,8 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File manifest.xml wasn't downloaded"
 
-        # Download Manifest in TSV file
-        driver.find_element_by_xpath("//div[2]/div/div/div").click()
-        btn = driver.find_element_by_class_name('cart-form-download-manifest-tsv')
-        assert btn.is_displayed()
-        btn.click()
-        driver.implicitly_wait(5)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.tsv')
-        except OSError:
-            assert False, "File manifest.tsv wasn't downloaded"
-
         # Download Metadata XML file
-        driver.find_element_by_xpath("//div/div[2]/div").click()
-        btn = driver.find_element_by_class_name('cart-form-download-metadata-xml')
-        assert btn.is_displayed()
+        btn = driver.find_element_by_class_name('cart-download-metadata')
         btn.click()
         driver.implicitly_wait(5)
         try:
@@ -209,26 +187,39 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
 
-        # Download Metadata TSV file
-        driver.find_element_by_xpath("//div/div[2]/div").click()
-        btn = driver.find_element_by_class_name('cart-form-download-metadata-tsv')
-        assert btn.is_displayed()
+        # Download Summary TSV file
+        btn = driver.find_element_by_class_name('cart-download-summary')
         btn.click()
         driver.implicitly_wait(5)
         try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.tsv')
+            os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
         except OSError:
-            assert False, "File metadata.tsv wasn't downloaded"
+            assert False, "File summary.tsv wasn't downloaded"
 
         # Remove selected from cart
-        btn = driver.find_element_by_class_name('cart-form-remove')
+        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+        assert 'Files in your cart: {0}'.format(len(self.selected)) in stat.text
+
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        assert cart_link.text == 'Cart ({0})'.format(len(self.selected))
+
+        btn = driver.find_element_by_class_name('cart-remove')
         btn.click()
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 0 (0 Bytes)'
+        assert 'Files in your cart: {0}'.format(len(self.selected) - 1) in stat.text
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart (0)'
+        assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 1)
+
+        # Test 'clear cart' button
+        btn = driver.find_element_by_class_name('cart-clear')
+        btn.click()
+        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+        assert stat.text == 'Files in your cart: {0} (0 Bytes)'.format(len(self.selected) - 2)
+
+        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+        assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 2)
 
         message = driver.find_element_by_xpath('//form[@action="/cart/action/"]//p')
         assert message.text == 'Your cart is empty!'
@@ -298,6 +289,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 elif attr == 'files_size':
                     self.assertEqual(text.strip(), file_size(sorted_attr[j]))
+                elif attr in ('upload_date', 'last_modified'):
+                    self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # Reverse sorting
@@ -318,6 +311,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
                 elif attr == 'files_size':
                     self.assertEqual(text.strip(), file_size(sorted_attr[j]))
+                elif attr in ('upload_date', 'last_modified'):
+                    self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
 
@@ -334,7 +329,7 @@ class AddAllToCartButtonTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(AddAllToCartButtonTest, self).setUpClass()
+        super(AddAllToCartButtonTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
         lxml2 = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
@@ -344,7 +339,7 @@ class AddAllToCartButtonTestCase(LiveServerTestCase):
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(AddAllToCartButtonTest, self).tearDownClass()
+        super(AddAllToCartButtonTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
     def test_addalltocart_button(self):
