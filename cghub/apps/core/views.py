@@ -42,7 +42,11 @@ class HomeView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
         if request.GET:
-            return HttpResponseRedirect(reverse('search_page') + '?' + request.GET.urlencode())
+            return HttpResponseRedirect(reverse('search_page') + '?' +
+                            request.GET.urlencode())
+        if settings.LAST_QUERY_COOKIE in request.COOKIES:
+            return HttpResponseRedirect(reverse('search_page') + '?' +
+                            request.COOKIES[settings.LAST_QUERY_COOKIE])
         return super(HomeView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -115,6 +119,18 @@ class SearchView(TemplateView):
         if not get_filters_string(request.GET) and not 'q' in request.GET:
             return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
         return super(SearchView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        response = self.render_to_response(context)
+        # save current query to cookie
+        if request.GET and response.status_code==200:
+            response.set_cookie(settings.LAST_QUERY_COOKIE,
+                    request.GET.urlencode(safe='()[]*'),
+                    max_age=settings.COOKIE_MAX_AGE,
+                    path=reverse('home_page'))
+        return response
+
 
 class ItemDetailsView(TemplateView):
 

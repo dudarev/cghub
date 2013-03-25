@@ -140,7 +140,7 @@ jQuery(function ($) {
                 countSelected = 1;
                 preview = 'All';
             }
-            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', countSelected * 19 + 'px');
+            $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
         },
         addFilesFormSubmit:function () {
@@ -281,7 +281,9 @@ jQuery(function ($) {
             $(this).blur();
         },
         resetFilters:function() {
-            window.location.href = $(this).data('url');
+            var url = $(this).data('url');
+            $.removeCookie('last_query', { path: url });
+            window.location.href = url;
             $(this).blur();
         },
         createCustomDatepickers:function() {

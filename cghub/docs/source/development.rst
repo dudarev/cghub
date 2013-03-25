@@ -82,11 +82,26 @@ If it is necessary to erase information about filters that were ran use ``-c`` o
 
 Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_TILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
 
+------
+Celery
+------
+
+We use Celery for periodic tasks (only caching for now). 
+
+`Celery <http://www.celeryproject.org/>`__ - distributed task queue.
+
+From celery documentatin:
+The execution units, called tasks, are executed concurrently on a single or more worker servers using multiprocessing, Eventlet, or gevent. Tasks can execute asynchronously (in the background) or synchronously (wait until ready).
+
+Celery requires a solution to send and receive messages, usually this comes in the form of a separate service called a message broker. The most popular is `RabbitMQ <http://www.rabbitmq.com/>`__.
+
+We use `djcelery <https://github.com/celery/django-celery>`__ for integratin celery to django. It provides using the Django ORM and cache backend for storing results, autodiscovery of task modules for applications listed in INSTALLED_APPS, and more.
+
 --------
 RabbitMQ
 --------
 
-We use Celery for periodic tasks (only caching for now). As message broker for Celery we use RabbitMQ.
+As message broker for Celery we use RabbitMQ.
 
 Installing from the APT repository for Debian/Ubuntu
 ----------------------------------------------------
