@@ -272,7 +272,9 @@ class SidebarTestCase(LiveServerTestCase):
 
 
 class CustomDatepickersTestCase(LiveServerTestCase):
-    cache_files = ()
+    cache_files = (
+        '71411da734e90beda34360fa47d88b99_ids.cache',
+        '01f2124514e0ee69cbe1723a7d25129f_ids.cache')
 
     @classmethod
     def setUpClass(self):
@@ -296,7 +298,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
             dp_start.find_element_by_css_selector("option[value='{0}']".format(year)).click()
             dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
             dp_end.find_element_by_css_selector("option[value='{0}']".format(year)).click()
-        if month:
+        if month or month == 0:
             dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
             dp_start.find_element_by_css_selector("option[value='{0}']".format(month)).click()
             dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
@@ -304,16 +306,44 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         dp_start.find_element_by_link_text("{}".format(start)).click()
         dp_end.find_element_by_link_text("{}".format(end)).click()
 
-    def check_date_filters_values(self, upload, modified):
+    def check_custom_date(self, filter_name, dp_values,
+            reverse=False, future=False):
+        """
+        Helper function for checking whether or not new custom date filter
+        is displayed in date filter input.
+        """
         driver = self.selenium
-        last_modified_id = get_filter_id(driver, 'last_modified')
-        upload_date_id = get_filter_id(driver, 'upload_date')
+        filter_id = get_filter_id(driver, filter_name)
 
+        dp_values = dict(dp_values)
+        if reverse:
+            tmp = dp_values['start']
+            dp_values['start'] = dp_values['end']
+            dp_values['end'] = tmp
+        elif future:
+            dp_values['start'] = datetime.now().date().day - 1
+            dp_values['end'] = datetime.now().date().day
+            dp_values['month'] = datetime.now().date().month
+        else:
+            dp_values['month'] += 1
+        for key in dp_values:
+            if len(str(dp_values[key])) == 1:
+                 dp_values[key] = '0' + str(dp_values[key])
+
+        # Check custom date is displayed in filter input
+        filter_input = driver.find_element_by_css_selector("#ddcl-{0}".format(filter_id))
+        filter_text = filter_input.find_element_by_css_selector('.ui-dropdownchecklist-text').text
+        text = "{0}/{1}/{2} - {0}/{1}/{3}".format(
+            dp_values['year'], dp_values['month'],
+            dp_values['start'], dp_values['end'])
+        assert text in filter_text.strip()
 
     def test_custom_datepickers_future_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
-
+        dp_values = {
+            'start': 31, 'end': 31, 'month': 11,
+            'year': datetime.now().date().year}
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
 
@@ -323,7 +353,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-        self.set_datepicker_date(31, 31, month=11)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
@@ -332,12 +362,18 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-        self.set_datepicker_date(31, 31, month=11)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
+        self.check_custom_date('upload_date', dp_values, future=True)
+        self.check_custom_date('last_modified', dp_values, future=True)
 
     def test_custom_datepickers_wrong_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
+        dp_values = {
+            'start': 2, 'end': 1,
+            'year': datetime.now().date().year,
+            'month': datetime.now().date().month}
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
@@ -348,7 +384,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-        self.set_datepicker_date(2, 1)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
@@ -357,27 +393,37 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-        self.set_datepicker_date(2, 1)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
+        self.check_custom_date('upload_date', dp_values, reverse=True)
+        self.check_custom_date('last_modified', dp_values, reverse=True)
 
     def test_custom_datepickers_right_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
+        dp_values = {
+            'start': 1, 'end': 2,
+            'year': 2012, 'month': 0}
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-        self.set_datepicker_date(1, 2, 2012, 0)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-        self.set_datepicker_date(1, 2, 2012, 0)
+        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
-
+        self.check_custom_date('upload_date', dp_values)
+        self.check_custom_date('last_modified', dp_values)
         driver.find_element_by_id("id_apply_filters").click()
+
+        applied_filters = driver.find_element_by_css_selector('.applied-filters')
+        assert 'Uploaded' in applied_filters.text
+        assert 'Modified' in applied_filters.text
 
 
 class SearchTestCase(LiveServerTestCase):
