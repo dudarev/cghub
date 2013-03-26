@@ -4,6 +4,7 @@ import os, shutil
 from datetime import datetime
 
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.common.action_chains import ActionChains
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -272,6 +273,7 @@ class SidebarTestCase(LiveServerTestCase):
 
 
 class CustomDatepickersTestCase(LiveServerTestCase):
+
     cache_files = (
         '71411da734e90beda34360fa47d88b99_ids.cache',
         '01f2124514e0ee69cbe1723a7d25129f_ids.cache')
@@ -424,6 +426,43 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         applied_filters = driver.find_element_by_css_selector('.applied-filters')
         assert 'Uploaded' in applied_filters.text
         assert 'Modified' in applied_filters.text
+
+
+class HelpHintsTestCase(LiveServerTestCase):
+
+    cache_files = ('71411da734e90beda34360fa47d88b99_ids.cache',)
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(HelpHintsTestCase, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(HelpHintsTestCase, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def test_help_popups(self):
+        """
+        If this test fails try not to move your mouse while test runs
+        """
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        ac = ActionChains(driver)
+        uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
+        for uuid_id in range(2, len(uuids) + 1):
+            if uuid_id != 2:  # TODO remove this check when all help hints are set up
+                continue
+            uuid = driver.find_element_by_xpath(
+                "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(uuid_id))
+            ac.move_to_element(uuid)
+            ac.perform()
+            time.sleep(3)
+            tooltip = driver.find_element_by_css_selector('.js-tooltip')
+            assert tooltip.is_displayed()
 
 
 class SearchTestCase(LiveServerTestCase):
