@@ -1,6 +1,7 @@
 import time
 import re
 import os, shutil
+from datetime import datetime
 
 from selenium.webdriver.firefox.webdriver import WebDriver
 
@@ -268,6 +269,115 @@ class SidebarTestCase(LiveServerTestCase):
         self.selenium.quit()
         super(SidebarTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
+
+
+class CustomDatepickersTestCase(LiveServerTestCase):
+    cache_files = ()
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(CustomDatepickersTestCase, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(CustomDatepickersTestCase, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def set_datepicker_date(self, start, end, year=None, month=None):
+        driver = self.selenium
+        dp_start = driver.find_element_by_id('dp-start')
+        dp_end = driver.find_element_by_id('dp-end')
+        if year:
+            dp_start.find_element_by_css_selector('.ui-datepicker-year').click()
+            dp_start.find_element_by_css_selector("option[value='{0}']".format(year)).click()
+            dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
+            dp_end.find_element_by_css_selector("option[value='{0}']".format(year)).click()
+        if month:
+            dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
+            dp_start.find_element_by_css_selector("option[value='{0}']".format(month)).click()
+            dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
+            dp_end.find_element_by_css_selector("option[value='{0}']".format(month)).click()
+        dp_start.find_element_by_link_text("{}".format(start)).click()
+        dp_end.find_element_by_link_text("{}".format(end)).click()
+
+    def check_date_filters_values(self, upload, modified):
+        driver = self.selenium
+        last_modified_id = get_filter_id(driver, 'last_modified')
+        upload_date_id = get_filter_id(driver, 'upload_date')
+
+
+    def test_custom_datepickers_future_date(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+
+        last_modified_id = get_filter_id(driver, 'last_modified')
+        upload_date_id = get_filter_id(driver, 'upload_date')
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        driver.find_element_by_css_selector("button.btn-cancel.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        self.set_datepicker_date(31, 31, month=11)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        driver.find_element_by_css_selector("button.btn-cancel.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        self.set_datepicker_date(31, 31, month=11)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+    def test_custom_datepickers_wrong_date(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+
+        last_modified_id = get_filter_id(driver, 'last_modified')
+        upload_date_id = get_filter_id(driver, 'upload_date')
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        driver.find_element_by_css_selector("button.btn-cancel.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        self.set_datepicker_date(2, 1)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        driver.find_element_by_css_selector("button.btn-cancel.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        self.set_datepicker_date(2, 1)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+    def test_custom_datepickers_right_date(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+
+        last_modified_id = get_filter_id(driver, 'last_modified')
+        upload_date_id = get_filter_id(driver, 'upload_date')
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        self.set_datepicker_date(1, 2, 2012, 0)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        self.set_datepicker_date(1, 2, 2012, 0)
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+
+        driver.find_element_by_id("id_apply_filters").click()
 
 
 class SearchTestCase(LiveServerTestCase):
