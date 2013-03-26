@@ -1,6 +1,10 @@
 {% load search_tags %}
 
 {% if res %}
+    {% if request.is_ajax %}
+        {% comment %} This will be shown in popup {% endcomment %}
+        <i class="icon-share"></i> <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
+    {% endif %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
