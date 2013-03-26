@@ -447,10 +447,10 @@ class HelpHintsTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def check_help_popups(self, driver):
-        ac = ActionChains(driver)
         uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
         uuid = 0
         for uuid_id in range(2, len(uuids) + 1):
+            ac = ActionChains(driver)
             if uuid_id != 2:  # TODO remove this check when all help hints are set up
                 continue
             uuid = driver.find_element_by_xpath(
@@ -517,7 +517,7 @@ class DetailsTestCase(LiveServerTestCase):
             td.click()
             uuid = driver.find_element_by_xpath(
                 "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(i)).text
-            time.sleep(2)
+            time.sleep(4)
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert popup.is_displayed()
             assert uuid in driver.find_element_by_css_selector('#details-label').text
@@ -541,7 +541,7 @@ class DetailsTestCase(LiveServerTestCase):
             context_menu = driver.find_element_by_css_selector('#table-context-menu')
             assert context_menu.is_displayed()
             driver.find_element_by_css_selector(".js-details-popup").click()
-            time.sleep(2)
+            time.sleep(4)
 
             # Uncomment when context menu 'Details' will be fixed and will show pop-up
             # popup = driver.find_element_by_css_selector('#itemDetailsModal')
@@ -557,7 +557,7 @@ class DetailsTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
         self.check_popup_shows(driver)
         driver.find_element_by_css_selector('.add-to-cart-btn').click()
-        time.sleep(3)
+        time.sleep(4)
         self.check_popup_shows(driver)
 
     def test_xml_display(self):
@@ -803,8 +803,8 @@ class SearchTestCase(LiveServerTestCase):
                 continue
             # scroll table
             self.selenium.execute_script("$('.flexigrid div')"
-                        ".scrollLeft($('.sort-link:contains(%s)')"
-                        ".parents('th').position().left);" % column);
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1));
             # after first click element element is asc sorted
             self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -814,8 +814,8 @@ class SearchTestCase(LiveServerTestCase):
 
             # scroll table
             self.selenium.execute_script("$('.flexigrid div')"
-                        ".scrollLeft($('.sort-link:contains(%s)')"
-                        ".parents('th').position().left);" % column);
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1));
             # resort
             self.selenium.find_element_by_partial_link_text(column).click()
             second = self.selenium.find_element_by_css_selector(selector).text
@@ -1044,33 +1044,32 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
 
         # Reset filters
         driver.find_element_by_id("id_reset_filters").click()
-        time.sleep(2)
+        time.sleep(3)
 
         driver.execute_script(
-            "$('.flexigrid div')"
-            ".scrollLeft($('.flexigrid table thead tr th[axis=col13]')"
+            "$('.flexigrid .bDiv')"
+            ".scrollLeft($('thead tr th[axis=col13]')"
             ".position().left)")
 
         # Sort by Sample Type Name to make sure column includes not only
         # Blood Derived Normal
-        driver.find_element_by_xpath("//th[@axis='col13']").click()
+        driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()
         tmp_text = driver.find_element_by_xpath(
             "//div[@class='bDiv']//table//tbody//tr[1]//td[14]/div").text
         if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).text:
-            driver.find_element_by_xpath("//th[@axis='col13']").click()
-
-        filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
+            driver.execute_script(
+                "$('.flexigrid .bDiv')"
+                ".scrollLeft($('thead tr th[axis=col13]')"
+                ".position().left)")
+            driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()
+        time.sleep(2)
         filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
         for i in range(3):
-            text1 = driver.find_element_by_xpath(
-                "//div[@class='bDiv']//table//tbody//tr[%d]//td[9]/div" % (i + 1)).text
             text2 = driver.find_element_by_xpath(
                 "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
-            self.assertNotEqual(filter1.text, text1)
             self.assertNotEqual(filter2.text, text2)
 
         applied_filters3 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
-        self.assertTrue(filter1.text not in applied_filters3.text)
         try:
             applied_filters4 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[3]")
         except:
