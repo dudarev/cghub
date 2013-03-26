@@ -28,6 +28,5 @@ PIDS_DIR=pids
 LOGS_DIR=logs
 
 CELERYD_PID=$(CURDIR)/$(PIDS_DIR)/celeryd.pid
-CELERYD_LOG=$(CURDIR)/$(LOGS_DIR)/celeryd.log
 CELERYCAM_PID=$(CURDIR)/$(PIDS_DIR)/celerycam.pid
 CELERYBEAT_PID=$(CURDIR)/$(PIDS_DIR)/celerybeat.pid

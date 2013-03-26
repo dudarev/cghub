@@ -37,7 +37,7 @@ class SortingTest(unittest.TestCase):
         # new attribute that must be there
         self.assertEqual(
                 results.Result.analysis_attribute_uri,
-                "https://cghub.ucsc.edu/cghub/metadata/analysisAttributes/e29aa109-d508-4621-9a92-9f7ff7e0018f"
+                "https://cghub.ucsc.edu/cghub/metadata/analysisFull/e29aa109-d508-4621-9a92-9f7ff7e0018f"
                 )
 
 class XMLMergeTestCase(unittest.TestCase):

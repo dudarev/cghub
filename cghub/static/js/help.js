@@ -8,8 +8,9 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
+        hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
-        keysIgnore: ['uuid', 'upload time', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['uuid', 'uploaded', 'last modified', 'barcode', 'files size'],
         init:function () {
             cghub.help.hintUrl = $('body').data('help-hint-url');
             cghub.help.textUrl = $('body').data('help-text-url');
@@ -82,7 +83,7 @@ jQuery(function ($) {
                     var $target = $(e.target);
                     cghub.help.hintShow = true;
                     cghub.help.showToolTip($target, find_key($target));
-                }, 1500);
+                }, cghub.help.hoverTime);
             });
             $(document).on('mouseenter', '.js-tooltip, .js-tooltip > *', function(){
                 if(cghub.help.tooltipHideTimeout) {

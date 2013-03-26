@@ -792,7 +792,7 @@ class SearchTestCase(LiveServerTestCase):
         columns = [
                     'UUID', 'Study', 'Disease', 'Disease Name',
                     'Library Type', 'Assembly', 'Center',
-                    'Center Name', 'Experiment Type', 'Upload time',
+                    'Center Name', 'Experiment Type', 'Uploaded',
                     'Last modified', 'Sample Type', 'Sample Type Name', 
                     'State', 'Barcode', 'Sample Accession', 'Files Size'
         ]
