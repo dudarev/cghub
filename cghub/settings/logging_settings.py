@@ -2,6 +2,9 @@ import sys
 from logging.handlers import SysLogHandler
 from utils import proj
 
+
+SYSLOG_ADDRESS = '/dev/log'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -29,8 +32,7 @@ LOGGING = {
             'class':'logging.handlers.SysLogHandler',
             'formatter': 'verbose',
             'facility': SysLogHandler.LOG_LOCAL2,
-            # uncomment to save logs to /dev/log/syslog
-            'address': '/dev/log',
+            'address': SYSLOG_ADDRESS,
         },
     },
     'loggers': {
