@@ -33,7 +33,7 @@ Text for help hints for every table column, for table cells values and for filte
 
 COLUMN_HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
-Help hints for cells for columns: 'UUID', 'Upload time', 'Last modified', 'Barcode' and 'File Size' are disabled.
+Help hints for cells for columns: 'UUID', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
 In case, when help hint for specified key was not found, a new record will be added to log file, for example:
 
