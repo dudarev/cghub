@@ -32,7 +32,6 @@ PIDS_DIR=${localRoot}/var/run/celery
 LOGS_DIR=${localRoot}/var/log/celery
 
 CELERYD_PID=$(PIDS_DIR)/celeryd.pid
-CELERYD_LOG=$(LOGS_DIR)/celeryd.log
 CELERYCAM_PID=$(PIDS_DIR)/celerycam.pid
 CELERYBEAT_PID=$(PIDS_DIR)/celerybeat.pid
 
