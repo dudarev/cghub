@@ -3,6 +3,7 @@ import re
 import os, shutil
 from datetime import datetime
 
+from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -445,14 +446,10 @@ class HelpHintsTestCase(LiveServerTestCase):
         super(HelpHintsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
-    def test_help_popups(self):
-        """
-        If this test fails try not to move your mouse while test runs
-        """
-        driver = self.selenium
-        driver.get(self.live_server_url)
+    def check_help_popups(self, driver):
         ac = ActionChains(driver)
         uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
+        uuid = 0
         for uuid_id in range(2, len(uuids) + 1):
             if uuid_id != 2:  # TODO remove this check when all help hints are set up
                 continue
@@ -463,6 +460,157 @@ class HelpHintsTestCase(LiveServerTestCase):
             time.sleep(3)
             tooltip = driver.find_element_by_css_selector('.js-tooltip')
             assert tooltip.is_displayed()
+
+    def test_help_popups(self):
+        """
+        If this test fails try not to move your mouse while test runs
+        """
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        self.check_help_popups(driver)
+        driver.find_element_by_css_selector('.data-table-checkbox').click()
+        driver.find_element_by_css_selector('.add-to-cart-btn').click()
+        self.check_help_popups(driver)
+
+
+class DetailsTestCase(LiveServerTestCase):
+
+    cache_files = (
+        '3d1d2ac5-a525-480f-90dd-b373de8e75dc_with_attributes',
+        '3d1d2ac5-a525-480f-90dd-b373de8e75dc_without_attributes',
+        '6eddf5ada46b4245d235ef99cba05c67.xml',
+        '8d5b272f6c3beb7ef181bdaa15624e83.xml',
+        '68ab23f6-254c-4330-8aa9-91c63d445f60_with_attributes',
+        '68ab23f6-254c-4330-8aa9-91c63d445f60_without_attributes',
+        '7789f892-91e0-4f24-a5f1-165e0111e8be_with_attributes',
+        '7789f892-91e0-4f24-a5f1-165e0111e8be_without_attributes',
+        '71411da734e90beda34360fa47d88b99_ids.cache',
+        '331176dd5166828c0be5f1760007062d.xml')
+
+    @classmethod
+    def setUpClass(self):
+        fp = webdriver.FirefoxProfile()
+        fp.set_preference("browser.download.folderList", 2)
+        fp.set_preference("browser.download.manager.showWhenStarting", False)
+        fp.set_preference("browser.download.dir", settings.WSAPI_CACHE_DIR)
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
+        self.selenium = webdriver.Firefox(firefox_profile=fp)
+        self.selenium.implicitly_wait(5)
+        super(DetailsTestCase, self).setUpClass()
+        wsapi_cache_copy(self.cache_files)
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(DetailsTestCase, self).tearDownClass()
+        wsapi_cache_remove(self.cache_files)
+
+    def check_popup_shows(self, driver):
+        for i in range(1, 4):
+            ac = ActionChains(driver)
+
+            # Test that clicking row of the table shows details pop-up
+            popup = driver.find_element_by_css_selector('#itemDetailsModal')
+            assert not popup.is_displayed()
+            td = driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(i, i + 1))
+            td.click()
+            uuid = driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(i)).text
+            time.sleep(2)
+            popup = driver.find_element_by_css_selector('#itemDetailsModal')
+            assert popup.is_displayed()
+            assert uuid in driver.find_element_by_css_selector('#details-label').text
+            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+
+            # Test that clicking on space around checkbox doesn't show pop-up
+            driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]".format(i)
+                ).click()
+            driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div".format(i)
+                ).click()
+            popup = driver.find_element_by_css_selector('#itemDetailsModal')
+            assert not popup.is_displayed()
+
+            # Test that clicking context menu 'Details' shows details pop-up
+            context_menu = driver.find_element_by_css_selector('#table-context-menu')
+            assert not context_menu.is_displayed()
+            ac.context_click(td)
+            ac.perform()
+            context_menu = driver.find_element_by_css_selector('#table-context-menu')
+            assert context_menu.is_displayed()
+            driver.find_element_by_css_selector(".js-details-popup").click()
+            time.sleep(2)
+
+            # Uncomment when context menu 'Details' will be fixed and will show pop-up
+            # popup = driver.find_element_by_css_selector('#itemDetailsModal')
+            # assert popup.is_displayed()
+            # assert uuid in driver.find_element_by_css_selector('#details-label').text
+            # driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+            driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div/input".format(i)
+                ).click()
+
+    def test_details_popups(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        self.check_popup_shows(driver)
+        driver.find_element_by_css_selector('.add-to-cart-btn').click()
+        time.sleep(3)
+        self.check_popup_shows(driver)
+
+    def test_xml_display(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+        td.click()
+        time.sleep(3)
+        driver.execute_script(
+            "$('.modal-body').scrollTop($('.raw-xml-link').position().top);")
+        driver.find_element_by_css_selector('.raw-xml-link').click()
+        time.sleep(3)
+        assert '#raw-xml' in driver.current_url
+
+        # Test 'Collapse all' and 'Expand all' buttons
+        driver.find_element_by_css_selector('#id-expand-all-button').click()
+        xml_containers = driver.find_elements_by_css_selector('#XMLHolder > .Element')
+        collapsed_xml = xml_containers[0].find_elements_by_class_name('Element')
+        expanded_xml = xml_containers[1].find_elements_by_class_name('Element')
+        assert len(expanded_xml) > len(collapsed_xml)
+        assert not xml_containers[0].is_displayed()
+        assert xml_containers[1].is_displayed()
+        driver.find_element_by_css_selector('#id-collapse-all-button').click()
+        assert xml_containers[0].is_displayed()
+        assert not xml_containers[1].is_displayed()
+
+    def test_details_page(self):
+        driver = self.selenium
+        driver.get(self.live_server_url)
+        try:
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+        except OSError:
+            pass
+        td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+        td_text = driver.find_element_by_xpath(
+            "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").text
+        ac = ActionChains(driver)
+        ac.context_click(td)
+        ac.perform()
+        driver.find_element_by_css_selector('.js-details-page').click()
+        time.sleep(5)
+        driver.switch_to_window(driver.window_handles[-1])
+        page_header = driver.find_element_by_class_name('page-header').text
+        assert (td_text in driver.current_url and 'details' in driver.current_url)
+        assert (td_text in page_header and 'details' in page_header)
+        driver.execute_script(
+            "$('.base-container').scrollTop($('#id-download-metadata').position().top);")
+        driver.find_element_by_id('id-download-metadata').click()
+        time.sleep(5)
+        try:
+            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+        except OSError:
+            assert False, "File metadata.xml wasn't downloaded"
 
 
 class SearchTestCase(LiveServerTestCase):
