@@ -6,7 +6,8 @@ Sidebar navigation
 SIDEBAR-1	Clicking (all) checkbox selects or deselects all in that category.	 
 SIDEBAR-2	Only one category can be selected for category	Radio buttons allow to select only one category for this special category. 
 SIDEBAR-3	Correct link is created when only some values are selected	When a user clicks correct page is displayed. Try applying selections in several categories. 
-SIDEBAR-4	'Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button on the sidebar, applied filters are reset.
+SIDEBAR-4	'Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button on the sidebar, applied filters are reset. 
+SIDEBAR-5	Time filters have 'Pick period' option.	When chosing 'Pick period' option in time filters two datepickers are shown where user can chose a period to be displayed. 
 Search		 
 SEARCH-1	Entering a search term and hitting enter leads to correct page	When a user enters a search term, for instace, '6d7*' (without quotes) it goes to correct page: '/search/?q=6d7*' in that case. 
 SEARCH-2	No search results when nothing is found	A message is displayed when no results are found: 
@@ -16,7 +17,10 @@ SEARCH-5	Filtering is shown	On search results page a message about used filters 
 SEARCH-6	Page navigation links work	Links , , 1, 2, etc. lead to correct search results pages. 
 SEARCH-7	Sorting is done by clicking table headlines	When a user clicks table headers sorting is made and sorting order is displayed. When the link is clicked again, the order is reversed and new order is displayed. 
 SEARCH-8	Select Items per page of 25, then 50	More items are displays 
-SEARCH-9	Fewer columns fill all space of the table.	When selected fewer columns, they fill all free space in the table. No blank space should be on the right side.
+SEARCH-9	Fewer columns fill all space of the table.	When selected fewer columns, they fill all free space in the table. No blank space should be on the right side. 
+SEARCH-10	When focusing table cell or column for more than 2 seconds help hint popup appears.	When user focuses a column or cell of a results table for more than 2 seconds popup with help information appears. 
+SEARCH-11	When table row is clicked popup with details is shown.	When user clicks on a table row popup with details appears. Details also include link to details page and with raw XML info.
+SEARCH-12	Raw XML on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' or 'Expand all' button XML data is collapsed and expanded respectively. 
 Cart		 
 CART-1	Items from search results may be added to cart by selecting checkboxes	When button is clicked, items for which checkboxes were selected are added to cart. User is directed to the cart page. 
 CART-2	Select all checkbox selects all items	The checkbox in the header of the table when checked checks all other checkboxes on the page. When one unchecks it, every other checkbox becomes unchecked. When it is checked and one of other checkboxes is unchecked it also becomes unchecked. 
@@ -31,3 +35,6 @@ CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button
 CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart is downloaded in TSV format. 
 CART-12	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
 CART-13	'Add all to cart' button add all files to cart.	'Add all to cart' button when clicked adds all files from search results to the cart. 
+CART-14	When focusing table cell or column for more than 2 seconds help hint popup appears.	See SEARCH-10. 
+CART-15	When table row is clicked popup with details is shown.	See SEARCH-11. 
+
