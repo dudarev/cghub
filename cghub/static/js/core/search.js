@@ -13,6 +13,7 @@ jQuery(function ($) {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
             cghub.search.initFlexigrid();
+            cghub.search.checkFiles();
             cghub.search.parseAppliedFilters();
             cghub.search.initDdcl();
             cghub.search.initCustomPeriodButtons();
@@ -28,6 +29,7 @@ jQuery(function ($) {
             cghub.search.$filterSelects = $('select.filter-select');
             cghub.search.$navbarSearchForm = $('form.navbar-search');
             cghub.search.$messageModal = $('#messageModal');
+            cghub.search.$itemsPerPageLink = $('div.items-per-page-label > a');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -35,6 +37,7 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
+            cghub.search.$itemsPerPageLink.on('click', cghub.search.saveCheckedFiles);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -96,6 +99,17 @@ jQuery(function ($) {
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             $('.flexigrid .bDiv tr').contextmenu();
+        },
+        checkFiles: function() {
+            var checked_items = $.cookie('checked_items');
+            if (checked_items) {
+                checked_items = checked_items.split(',');
+                for (var item in checked_items) {
+                    var checkbox = $('.data-table-checkbox[value='+checked_items[item]+']');
+                    checkbox.prop('checked', true);
+                }
+                $.removeCookie('checked_items', { path: '/' });
+            }
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
@@ -397,6 +411,16 @@ jQuery(function ($) {
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
             return start_date + ' - ' + end_date;
         },
+
+        saveCheckedFiles:function(){
+            var checked_items = [];
+            $('#id_add_files_form .data-table-checkbox').serializeArray().map(
+                function(i) {
+                    checked_items.push(i.value);
+                }
+            )
+            $.cookie('checked_items', checked_items.join(','), { path: '/', expires: 7 });
+        }
     };
     cghub.search.init();
 });
