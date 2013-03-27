@@ -13,6 +13,13 @@ from django.conf import settings
 from wsapi.api import request as api_request
 
 
+"""
+preffered queries (allow using the same cache files):
+"6d711*" - returns one result
+"6d1*" - fore many results
+"""
+
+
 def wsapi_cache_copy(cache_files):
     """
     copy cache_files from TEST_DATA_DIR to CACHE_DIR
@@ -62,7 +69,9 @@ def get_filter_id(driver, filter_name):
     return el_id
 
 class SidebarTestCase(LiveServerTestCase):
-    cache_files = ('543044213d0b4057751b559589049cd2.xml',)
+    cache_files = (
+            '543044213d0b4057751b559589049cd2.xml',
+            '71411da734e90beda34360fa47d88b99_ids.cache')
 
     @classmethod
     def setUpClass(self):
@@ -277,7 +286,8 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
     cache_files = (
         '71411da734e90beda34360fa47d88b99_ids.cache',
-        '01f2124514e0ee69cbe1723a7d25129f_ids.cache')
+        '01f2124514e0ee69cbe1723a7d25129f_ids.cache',
+        '9f0940ac06829683040172c68033504a_ids.cache')
 
     @classmethod
     def setUpClass(self):
@@ -446,31 +456,19 @@ class HelpHintsTestCase(LiveServerTestCase):
         super(HelpHintsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
-    def check_help_popups(self, driver):
-        uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
-        uuid = 0
-        for uuid_id in range(2, len(uuids) + 1):
+    def test_help_hints(self):
+        driver = self.selenium
+        with self.settings(HELP_HINTS = { 'UUID': 'Help for UUID'}):
+            driver.get(self.live_server_url)
+            uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
             ac = ActionChains(driver)
-            if uuid_id != 2:  # TODO remove this check when all help hints are set up
-                continue
             uuid = driver.find_element_by_xpath(
-                "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(uuid_id))
+                "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(2))
             ac.move_to_element(uuid)
             ac.perform()
             time.sleep(3)
             tooltip = driver.find_element_by_css_selector('.js-tooltip')
             assert tooltip.is_displayed()
-
-    def test_help_popups(self):
-        """
-        If this test fails try not to move your mouse while test runs
-        """
-        driver = self.selenium
-        driver.get(self.live_server_url)
-        self.check_help_popups(driver)
-        driver.find_element_by_css_selector('.data-table-checkbox').click()
-        driver.find_element_by_css_selector('.add-to-cart-btn').click()
-        self.check_help_popups(driver)
 
 
 class DetailsTestCase(LiveServerTestCase):
@@ -506,32 +504,21 @@ class DetailsTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def check_popup_shows(self, driver):
-        for i in range(1, 4):
             ac = ActionChains(driver)
 
             # Test that clicking row of the table shows details pop-up
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert not popup.is_displayed()
             td = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(i, i + 1))
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
             td.click()
             uuid = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(i)).text
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
             time.sleep(4)
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert popup.is_displayed()
             assert uuid in driver.find_element_by_css_selector('#details-label').text
             driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-
-            # Test that clicking on space around checkbox doesn't show pop-up
-            driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]".format(i)
-                ).click()
-            driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div".format(i)
-                ).click()
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert not popup.is_displayed()
 
             # Test that clicking context menu 'Details' shows details pop-up
             context_menu = driver.find_element_by_css_selector('#table-context-menu')
@@ -541,21 +528,15 @@ class DetailsTestCase(LiveServerTestCase):
             context_menu = driver.find_element_by_css_selector('#table-context-menu')
             assert context_menu.is_displayed()
             driver.find_element_by_css_selector(".js-details-popup").click()
-            time.sleep(4)
-
-            # Uncomment when context menu 'Details' will be fixed and will show pop-up
-            # popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            # assert popup.is_displayed()
-            # assert uuid in driver.find_element_by_css_selector('#details-label').text
-            # driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-            driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div/input".format(i)
-                ).click()
+            # TODO(postatum): Popup should be shown on context menu item click 
 
     def test_details_popups(self):
         driver = self.selenium
         driver.get(self.live_server_url)
         self.check_popup_shows(driver)
+        driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div/input".format(1)
+                ).click()
         driver.find_element_by_css_selector('.add-to-cart-btn').click()
         time.sleep(4)
         self.check_popup_shows(driver)
@@ -624,7 +605,26 @@ class SearchTestCase(LiveServerTestCase):
         '8095ea0809a0074e8c415845115062b3.xml', '0de87d39f79698685cbbe78b8dae8f54.xml',
         '13dd8ffefeee9a4bcca7b5f29ed6911f.xml', '4c9983171c2b3b793d74d55ca49b980d.xml',
         '09e82ff3db65f0bf8cb36acb8e3a4d9b.xml', '4160e2c5199163358e7e918eaf1b7986.xml',
-        '6c34d043ca88ec8032f97eac592e33d9.xml', 'b5b52e9da30c9869530490533891e709.xml')
+        '6c34d043ca88ec8032f97eac592e33d9.xml', 'b5b52e9da30c9869530490533891e709.xml',
+        
+        '71411da734e90beda34360fa47d88b99_ids.cache', '7483974d8235868e5d4d2079d5051332.xml',
+        '714f182ce3b2196b3b064880493e242d.xml', 'c0db6ab7b80ded4f9211570170011d80.xml',
+        '754c3dc8c582013011f0028a6f78e0d4.xml', 'e0004ef23a2e10e42ac402db10ac0535.xml',
+        'faf6e2f16239b6b844226ab83bb98756.xml',
+        '7bf8d051308235f7b2aff34391303113.xml', 'ca3707b0c52ca54d2d264d9f8b122c28.xml',
+        'd83fe04980a423f672ed63c39d4a86dd.xml',
+        '39983600179929edc5cba726704dfbb8.xml', 'dcc000923be4973a3a201f65bc9d86fb.xml',
+        'f1db42e28cca7a220508b4e9778f66fc.xml',
+        '3f7b84aaa3c17cdade74e151d5d67d48.xml', '630a979741b05f755ed83591703c38aa.xml',
+        '707ffa5e53cbc239ee358240839177c2.xml',
+        '0ccd7cf2c00f026998262840d940d485_ids.cache', '682ca432dc8f4a85bc70d89d10ef64b1_ids.cache', 
+        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache', '12b0c26f18006e39b45d135ff626148f_ids.cache',
+        '695f8c090ce677d51b3184e721e90198_ids.cache', 'b02bb4f82cb336d7d7ad0f512c17a879_ids.cache',
+        '194a167248e69ab52f7984f251423eb3_ids.cache', '6a5d605d38e701a14bf16c094333bab2_ids.cache',  'b50de5c4b4c0fd0cd0c2b4c91409a45a_ids.cache', '28e1cf619d26bdab58fcab5e7a2b9e6c_ids.cache',  '6f55a35e4a0aa854110317a459f46a63_ids.cache', 'bf8267e82f09bc70cebd0179ae04222b_ids.cache',
+        '2b2cddbe3555451285e826c410598f8d_ids.cache', '7169b446f2c2a0f3824ff54748f2279c_ids.cache',  'c410977da1ca1a9d10f79e5c106a87e7_ids.cache', '2b59cdba32158d41e96292263e080c9a_ids.cache',  '71a961a423dea25d42e06ab2c015334d_ids.cache', 'e9284a03bf4b46354cc645abd7eba129_ids.cache',
+        '3fe0137f1c7df05124508e503ff18c27_ids.cache', '8211bfd303398c83fd6266268772a0f6_ids.cache',  'ef7e8c3d4403a0d52a09d49d7c5b903b_ids.cache', '422c90827750a69a42d4035b9aae6899_ids.cache',  '87b817c0c86c91c11246b9f241ce40c9_ids.cache', 'efbff930fa0a2423d282c4e71700ca74_ids.cache',
+        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache')
+
     query = "6d5*"
 
     @classmethod
@@ -666,14 +666,14 @@ class SearchTestCase(LiveServerTestCase):
         element.clear()
         element.send_keys("6d71test")
         element.submit()
-        time.sleep(10)
+        time.sleep(2)
         assert "/search/?q=6d71test" in self.selenium.current_url
 
     def test_search_result(self):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d71*")
+        element.send_keys("6d711*")
         element.submit()
         time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
@@ -685,7 +685,7 @@ class SearchTestCase(LiveServerTestCase):
         element.clear()
         element.send_keys("6d1*")
         element.submit()
-        time.sleep(5)
+        time.sleep(3)
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
             "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
@@ -697,7 +697,7 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d*")
+        element.send_keys("6d1*")
         element.submit()
         time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
@@ -741,7 +741,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_pagination_links(self):
         self.selenium.get(self.live_server_url)
-        self.search("6d7*")
+        self.search("6d1*")
 
         found = (self.selenium.find_element_by_css_selector(
             ".base-content > div:nth-child(2)"))
@@ -758,7 +758,7 @@ class SearchTestCase(LiveServerTestCase):
             self.__link_is_active(first)
 
             # check page by page
-            for page_num in range(2, page_count + 1):
+            for page_num in (2, 3, page_count):
                 self.selenium.find_element_by_link_text(str(page_num)).click()
                 a = self.selenium.find_element_by_link_text(str(page_num))
                 self.__link_is_active(a)
@@ -833,10 +833,13 @@ class SearchTestCase(LiveServerTestCase):
 
 class ColumnSelectTestCase(LiveServerTestCase):
     cache_files = (
-                '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
-                'cb712a7b93a6411001cbc34cfb883594.xml',
-                'ecbf7eaaf5b476df08b2997afd675701.xml')
-    query = "6d53*"
+                '7e82235686903c015624e4b0db45f0b6.xml',
+                '862628620de0b3600cbaa8c11d92a4a2.xml',
+                '862e15fcf25b3882bb5c58e3a96026da.xml',
+                'c7e49b79-2f7d-1584-e040-ad451e410b1c_with_attributes',
+                'c7e49b79-2f7d-1584-e040-ad451e410b1c_without_attributes',
+                'c819df02cad704f9d074e73d322cb319.xml')
+    query = "6d711*"
 
     @classmethod
     def setUpClass(self):
@@ -854,7 +857,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def select_columns(self, driver, location):
-        time.sleep(3)
+        time.sleep(2)
         column_count = len(driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")) - 1
         # Find select on search or cart page
         if location == 'search':
@@ -877,6 +880,16 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+            # Check that last column takes all free space
+            if i < column_count - 1:
+                full_width = driver.find_element_by_class_name('hDiv').value_of_css_property('width')[:-2]
+                full_width = int(full_width.split('.')[0])
+                all_columns_width = driver.find_element_by_xpath("//th[@axis='col0']").size.get('width', 0)
+                for x in range(1, column_count + 1):
+                    col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
+                    if col.is_displayed():
+                        all_columns_width += col.size.get('width', 0)
+                self.assertTrue(full_width - all_columns_width < 3)
         # Select (all) option
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
         r2 = range(column_count)
@@ -898,88 +911,16 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
-        time.sleep(3)
-        self.select_columns(driver, 'cart')
-
-
-class ColumnsFillTableWidthTestCase(LiveServerTestCase):
-    cache_files = (
-                '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
-                'cb712a7b93a6411001cbc34cfb883594.xml',
-                'ecbf7eaaf5b476df08b2997afd675701.xml')
-    query = "6d53*"
-
-    @classmethod
-    def setUpClass(self):
-        self.selenium = WebDriver()
-        self.selenium.implicitly_wait(5)
-        super(ColumnsFillTableWidthTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
-
-    @classmethod
-    def tearDownClass(self):
-        self.selenium.quit()
-        super(ColumnsFillTableWidthTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
-
-    def select_columns(self, driver, location):
-        time.sleep(3)
-        # Find select on search or cart page
-        if location == 'search':
-            select = driver.find_element_by_xpath("//form[@id='id_add_files_form']/span/span\
-                /span[@class='ui-dropdownchecklist-text']")
-        elif location == 'cart':
-            select = driver.find_element_by_css_selector("#ddcl-1 > span:first-child > span")
-        select.click()
-
-        full_table = driver.find_element_by_class_name('hDiv')
-        full_width = full_table.value_of_css_property('width')[:-2]
-        full_width = int(full_width.split('.')[0])
-
-        # Unselect all elements
-        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
-
-        # Add columns by 1 each step and check their width equals 
-        # full tabel width.
-        first_col = driver.find_element_by_xpath("//th[@axis='col0']")
-        all_columns_width = first_col.size.get('width', 0)
-        for i in range(1, 6):
-            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % i).click()
-        for x in range(1, 6):
-            col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
-            if col.is_displayed():
-                all_columns_width += col.size.get('width', 0)
-
-        # Taking in count some random borders < 3px total.
-        self.assertTrue((full_width - all_columns_width) < 3)
-
-        # Remove first 2 columns
-        all_columns_width = first_col.size.get('width', 0)
-        for i in range(1, 3):
-            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % i).click()
-        for x in range(1, 6):
-            col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
-            if col.is_displayed():
-                all_columns_width += col.size.get('width', 0)
-
-        # Taking in count some random borders < 3px total.
-        self.assertTrue((full_width - all_columns_width) < 3)
-
-        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
-
-    def test_column_fill_table_space(self):
-        driver = self.selenium
-        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
-
-        self.select_columns(driver, 'search')
-        driver.find_element_by_css_selector('input.js-select-all').click()
-        driver.find_element_by_css_selector('button.add-to-cart-btn').click()
-        time.sleep(3)
+        time.sleep(2)
         self.select_columns(driver, 'cart')
 
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
-    cache_files = ('f0824accdea06f55a22de5be6e2db752.xml', )
+    cache_files = (
+                'f0824accdea06f55a22de5be6e2db752.xml',
+                '71411da734e90beda34360fa47d88b99_ids.cache',
+                'ab111b55fd90876ca6d64f2e79d8a338_ids.cache',
+                'f5aa9c674cf08d95920510a239babbcb_ids.cache')
 
     @classmethod
     def setUpClass(self):
