@@ -154,7 +154,7 @@ class Results(object):
             for a in attributes_to_remove:
                 r.remove(r.find(a))
             r.analysis_attribute_uri = (get_setting('CGHUB_SERVER', self.settings) +
-                    get_setting('CGHUB_ANALYSIS_ATTRIBUTES_URI', self.settings) +
+                    get_setting('CGHUB_ANALYSIS_FULL_URI', self.settings) +
                     '/' + r.analysis_id)
             objectify.deannotate(r.analysis_attribute_uri)
             etree.cleanup_namespaces(r)
@@ -271,7 +271,7 @@ def request(
         results_from_cache = False
         server = get_setting('CGHUB_SERVER')
         if get_attributes:
-            uri = get_setting('CGHUB_ANALYSIS_ATTRIBUTES_URI')
+            uri = get_setting('CGHUB_ANALYSIS_FULL_URI')
         else:
             uri = get_setting('CGHUB_ANALYSIS_ID_URI')
         if not '=' in query:

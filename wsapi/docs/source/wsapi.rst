@@ -35,7 +35,7 @@ Implementation of the lightweight way to obtain results from cghub server:
     1. obtain ids list for specified query (from cache or
 load from CGHUB_ANALYSIS_ID_URI)
     2. load attributes for specified page items (using
-CGHUB_ANALYSIS_ATTRIBUTES_URI)
+CGHUB_ANALYSIS_FULL_URI)
 
 .. autofunction:: wsapi.api_light.request_light
 
@@ -56,7 +56,7 @@ In case, when some settings not specified, will be used default settings, specif
 Available settings:
     - CGHUB_SERVER: CGHub server url
     - CGHUB_ANALYSIS_ID_URI: Analysis Object Identification uri
-    - CGHUB_ANALYSIS_ATTRIBUTES_URI: Analysis Attribute Query uri
+    - CGHUB_ANALYSIS_FULL_URI: Complete set of attributes uri
     - CACHE_DIR: directory to store cache, ``/tmp/wsapi/`` by default
     - USE_CACHE: enables caching if equals True, False is the default
     - CACHE_BACKEND: determines cache type, for now available types are ('simple',)

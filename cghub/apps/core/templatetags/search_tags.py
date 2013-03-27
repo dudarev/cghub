@@ -326,7 +326,7 @@ def table_header(request):
             'width': 100,
             'attr': 'study',
         },
-        'Upload time': {
+        'Uploaded': {
             'width': 80,
             'attr': 'upload_date',
         },
@@ -388,7 +388,7 @@ def field_values(result):
             'state', get_result_attr(result, 'state')),
         'Study': get_name_by_code(
             'study', get_result_attr(result, 'study')),
-        'Upload time': get_result_attr(result, 'upload_date'),
+        'Uploaded': get_result_attr(result, 'upload_date'),
         'UUID': get_result_attr(result, 'analysis_id'),
 
         # additional fields for details

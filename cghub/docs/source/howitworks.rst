@@ -10,6 +10,13 @@ Help
 Help hints for table and filters bar
 ------------------------------------
 
+Hints shows for table cells and filters. Time, after which tooltip will be shown, specified in ``cghub/static/js/help.js`` - see ``hoverTime`` variable.
+
+.. code-block:: js
+
+    cghub.help = {
+        hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
+
 Text for help hints for every table column, for table cells values and for filters can be specified in project settings.
 
 ``settings/help.py``:
@@ -26,7 +33,7 @@ Text for help hints for every table column, for table cells values and for filte
 
 COLUMN_HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
-Help hints for cells for columns: 'UUID', 'Upload time', 'Last modified', 'Barcode' and 'File Size' are disabled.
+Help hints for cells for columns: 'UUID', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
 In case, when help hint for specified key was not found, a new record will be added to log file, for example:
 
