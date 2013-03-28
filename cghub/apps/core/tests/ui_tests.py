@@ -16,7 +16,7 @@ from wsapi.api import request as api_request
 """
 preffered queries (allow using the same cache files):
 "6d711*" - returns one result
-"6d1*" - fore many results
+"6d1*" - for many results
 """
 
 
@@ -359,6 +359,11 @@ class CustomDatepickersTestCase(LiveServerTestCase):
             'year': datetime.now().date().year}
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
+
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
 
         driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
@@ -390,6 +395,11 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
+
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
 
         driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
@@ -420,6 +430,11 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
+
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
 
         driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
@@ -432,6 +447,9 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values)
         self.check_custom_date('last_modified', dp_values)
+
+        driver.execute_script(
+            "$('body').scrollTop($('#id_apply_filters').position().top);")
         driver.find_element_by_id("id_apply_filters").click()
 
         applied_filters = driver.find_element_by_css_selector('.applied-filters')
@@ -611,7 +629,8 @@ class SearchTestCase(LiveServerTestCase):
         '194a167248e69ab52f7984f251423eb3_ids.cache', '6a5d605d38e701a14bf16c094333bab2_ids.cache',  'b50de5c4b4c0fd0cd0c2b4c91409a45a_ids.cache', '28e1cf619d26bdab58fcab5e7a2b9e6c_ids.cache',  '6f55a35e4a0aa854110317a459f46a63_ids.cache', 'bf8267e82f09bc70cebd0179ae04222b_ids.cache',
         '2b2cddbe3555451285e826c410598f8d_ids.cache', '7169b446f2c2a0f3824ff54748f2279c_ids.cache',  'c410977da1ca1a9d10f79e5c106a87e7_ids.cache', '2b59cdba32158d41e96292263e080c9a_ids.cache',  '71a961a423dea25d42e06ab2c015334d_ids.cache', 'e9284a03bf4b46354cc645abd7eba129_ids.cache',
         '3fe0137f1c7df05124508e503ff18c27_ids.cache', '8211bfd303398c83fd6266268772a0f6_ids.cache',  'ef7e8c3d4403a0d52a09d49d7c5b903b_ids.cache', '422c90827750a69a42d4035b9aae6899_ids.cache',  '87b817c0c86c91c11246b9f241ce40c9_ids.cache', 'efbff930fa0a2423d282c4e71700ca74_ids.cache',
-        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache')
+        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache'
+    )
 
     query = "6d5*"
 
@@ -814,9 +833,6 @@ class SearchTestCase(LiveServerTestCase):
                     # GB == GB, MB == MB, etc.
                     first, second = back_to_bytes(first, second)
                     self.assertLessEqual(first, second)
-                # elif column in ('Uploaded', 'Last modified'):
-                #     #TODO(postatum): fails for Uploaded
-                #     pass
                 else:
                     self.assertLessEqual(first, second)
 
