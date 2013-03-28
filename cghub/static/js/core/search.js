@@ -35,8 +35,6 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
-            $(window).on('scroll', cghub.search.placeFlexigridScrollbar);
-            $(window).on('resize', cghub.search.placeFlexigridScrollbar);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -98,9 +96,6 @@ jQuery(function ($) {
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             $('.flexigrid .bDiv tr').contextmenu();
-            $('#scrollbar1').tinyscrollbar({ axis: 'x'});
-            $('#scrollbar1 .viewport').height($('.flexigrid').height());
-            cghub.search.placeFlexigridScrollbar();
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
@@ -401,28 +396,6 @@ jQuery(function ($) {
             start_date = $.datepicker.formatDate('yy/mm/dd', start_date);
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
             return start_date + ' - ' + end_date;
-        },
-        placeFlexigridScrollbar: function(){
-            var $viewport = $('#scrollbar1 .viewport'); //container with flexigrid
-            var $scrollbar = $('#scrollbar1 .scrollbar');
-            var viewportBottom = $viewport.offset().top + $viewport.height() - $(window).scrollTop();
-            var visibleScreenHeight = $(window).height();
-
-            if (viewportBottom > visibleScreenHeight){
-                //if the end of table is outside visible part of screen, place scrollbar in screen bottom
-                $scrollbar.offset({
-                    top: visibleScreenHeight - 20 + $(window).scrollTop(),
-                    left: $viewport.offset().left
-                });
-            } else {
-                //if the end of table is in visible part, place scrollbar just under the table
-                $scrollbar.offset({
-                    top: $viewport.offset().top + $viewport.height(),
-                    left: $viewport.offset().left
-                });
-            }
-            //adjust width of scrollbar if window was resized
-            $scrollbar.width($viewport.width());
         }
     };
     cghub.search.init();
