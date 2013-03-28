@@ -518,12 +518,15 @@ class DetailsTestCase(LiveServerTestCase):
         # Test that clicking context menu 'Details' shows details pop-up
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
         assert not context_menu.is_displayed()
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert not popup.is_displayed()
         ac.context_click(td)
         ac.perform()
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
         assert context_menu.is_displayed()
         driver.find_element_by_css_selector(".js-details-popup").click()
-        # TODO(postatum): Popup should be shown on context menu item click 
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert popup.is_displayed()
 
     def test_details_popups(self):
         driver = self.selenium
@@ -560,8 +563,6 @@ class DetailsTestCase(LiveServerTestCase):
         assert xml_containers[0].is_displayed()
         assert not xml_containers[1].is_displayed()
 
-    # TODO(postatum): need to fix
-    """
     def test_details_page(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -589,7 +590,6 @@ class DetailsTestCase(LiveServerTestCase):
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
-        """
 
 
 class SearchTestCase(LiveServerTestCase):
@@ -784,7 +784,6 @@ class SearchTestCase(LiveServerTestCase):
                     'Last modified', 'Sample Type', 'Sample Type Name', 
                     'State', 'Barcode', 'Sample Accession', 'Files Size'
         ]
-
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
             if i in (3, 7, 11):
@@ -815,9 +814,9 @@ class SearchTestCase(LiveServerTestCase):
                     # GB == GB, MB == MB, etc.
                     first, second = back_to_bytes(first, second)
                     self.assertLessEqual(first, second)
-                elif column in ('Uploaded', 'Last modified'):
-                    #TODO(postatum): fails for Uploaded
-                    pass
+                # elif column in ('Uploaded', 'Last modified'):
+                #     #TODO(postatum): fails for Uploaded
+                #     pass
                 else:
                     self.assertLessEqual(first, second)
 
