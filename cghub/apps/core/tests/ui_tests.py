@@ -534,19 +534,22 @@ class DetailsTestCase(LiveServerTestCase):
         assert popup.is_displayed()
         assert uuid in driver.find_element_by_css_selector('#details-label').text
         driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-
+        time.sleep(1)
         # Test that clicking context menu 'Details' shows details pop-up
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
         assert not context_menu.is_displayed()
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        time.sleep(1)
         assert not popup.is_displayed()
         ac.context_click(td)
         ac.perform()
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
         assert context_menu.is_displayed()
         driver.find_element_by_css_selector(".js-details-popup").click()
+        time.sleep(1)
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
         assert popup.is_displayed()
+        driver.find_element_by_css_selector(".modal-footer .btn").click()
 
     def test_details_popups(self):
         driver = self.selenium
