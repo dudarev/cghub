@@ -258,7 +258,6 @@ class SortWithinCartTestCase(LiveServerTestCase):
         super(SortWithinCartTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
-    #TODO(postatum): need to fix
     def test_sort_within_cart(self):
         # Adding first 10 items to cart for sorting
         driver = self.selenium

@@ -84,7 +84,7 @@ class SidebarTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
 
         center_id = get_filter_id(driver, 'center_name')
-        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
+        self.selenium.find_element_by_id("ddcl-{0}".format(center_id)).click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
@@ -152,8 +152,7 @@ class SidebarTestCase(LiveServerTestCase):
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
-    #TODO(postatum): need to fix
-    """
+
     def test_selection(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -275,7 +274,6 @@ class SidebarTestCase(LiveServerTestCase):
             re.match('.*state=[^&]*live', url))
         self.assertFalse(
             re.match('.*state=[^&]*submitted', url))
-    """
 
     @classmethod
     def tearDownClass(self):
@@ -346,15 +344,13 @@ class CustomDatepickersTestCase(LiveServerTestCase):
                  dp_values[key] = '0' + str(dp_values[key])
 
         # Check custom date is displayed in filter input
-        filter_input = driver.find_element_by_css_selector("#ddcl-{0}".format(filter_id))
+        filter_input = driver.find_element_by_id("ddcl-{0}".format(filter_id))
         filter_text = filter_input.find_element_by_css_selector('.ui-dropdownchecklist-text').text
         text = "{0}/{1}/{2} - {0}/{1}/{3}".format(
             dp_values['year'], dp_values['month'],
             dp_values['start'], dp_values['end'])
         assert text in filter_text.strip()
 
-    #TODO(poststum): need to fix
-    """
     def test_custom_datepickers_future_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -364,29 +360,26 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values, future=True)
         self.check_custom_date('last_modified', dp_values, future=True)
-    """
 
-    # TODO(postatum): need to fix
-    """
     def test_custom_datepickers_wrong_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -398,26 +391,25 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values, reverse=True)
         self.check_custom_date('last_modified', dp_values, reverse=True)
-    """
 
     def test_custom_datepickers_right_date(self):
         driver = self.selenium
@@ -429,12 +421,12 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
@@ -507,31 +499,31 @@ class DetailsTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def check_popup_shows(self, driver):
-            ac = ActionChains(driver)
+        ac = ActionChains(driver)
 
-            # Test that clicking row of the table shows details pop-up
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert not popup.is_displayed()
-            td = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
-            td.click()
-            uuid = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
-            time.sleep(4)
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert popup.is_displayed()
-            assert uuid in driver.find_element_by_css_selector('#details-label').text
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+        # Test that clicking row of the table shows details pop-up
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert not popup.is_displayed()
+        td = driver.find_element_by_xpath(
+            "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
+        td.click()
+        uuid = driver.find_element_by_xpath(
+            "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
+        time.sleep(4)
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert popup.is_displayed()
+        assert uuid in driver.find_element_by_css_selector('#details-label').text
+        driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
 
-            # Test that clicking context menu 'Details' shows details pop-up
-            context_menu = driver.find_element_by_css_selector('#table-context-menu')
-            assert not context_menu.is_displayed()
-            ac.context_click(td)
-            ac.perform()
-            context_menu = driver.find_element_by_css_selector('#table-context-menu')
-            assert context_menu.is_displayed()
-            driver.find_element_by_css_selector(".js-details-popup").click()
-            # TODO(postatum): Popup should be shown on context menu item click 
+        # Test that clicking context menu 'Details' shows details pop-up
+        context_menu = driver.find_element_by_css_selector('#table-context-menu')
+        assert not context_menu.is_displayed()
+        ac.context_click(td)
+        ac.perform()
+        context_menu = driver.find_element_by_css_selector('#table-context-menu')
+        assert context_menu.is_displayed()
+        driver.find_element_by_css_selector(".js-details-popup").click()
+        # TODO(postatum): Popup should be shown on context menu item click 
 
     def test_details_popups(self):
         driver = self.selenium
