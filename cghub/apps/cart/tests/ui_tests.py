@@ -231,6 +231,12 @@ class CartUITestCase(LiveServerTestCase):
 
 class SortWithinCartTestCase(LiveServerTestCase):
     cache_files = (
+                    '7e82235686903c015624e4b0db45f0b6.xml',
+                    '862628620de0b3600cbaa8c11d92a4a2.xml',
+                    'c7e49b79-2f7d-1584-e040-ad451e410b1c_with_attributes',
+                    'c7e49b79-2f7d-1584-e040-ad451e410b1c_without_attributes',
+                    'c819df02cad704f9d074e73d322cb319.xml',
+                    '862e15fcf25b3882bb5c58e3a96026da.xml',
                     'cb712a7b93a6411001cbc34cfb883594.xml',
                     'ecbf7eaaf5b476df08b2997afd675701.xml',
                     '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
@@ -243,7 +249,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[4])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
@@ -253,7 +259,6 @@ class SortWithinCartTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     #TODO(postatum): need to fix
-    """
     def test_sort_within_cart(self):
         # Adding first 10 items to cart for sorting
         driver = self.selenium
@@ -321,4 +326,3 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
-        """
