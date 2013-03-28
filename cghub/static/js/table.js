@@ -13,15 +13,20 @@ jQuery(function ($) {
             cghub.table.bindEvents();
             cghub.table.selectFiles();
             cghub.table.initCustomScrollbar();
+            cghub.table.$selectAllCheckbox.removeAttr('disabled');
         },
         cacheElements:function () {
             cghub.table.$flexigridTable = $('.flexigrid');
             cghub.table.$scrollbar = $('#scrollbar1');
             cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
+            cghub.table.$selectAllCheckbox = $('.js-select-all');
+            cghub.table.$checkboxes = $('.data-table-checkbox');
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
             cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedFiles);
+            cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
+            cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
             $(window).on('scroll', cghub.table.placeFlexigridScrollbar);
             $(window).on('resize', cghub.table.placeFlexigridScrollbar);
         },
@@ -60,6 +65,14 @@ jQuery(function ($) {
                 window.focus();
                 return false;
             });
+        },
+        changeCheckboxes:function () {
+            cghub.table.$checkboxes.prop('checked', $(this).is(':checked'));
+            return;
+        },
+        updateSelectAll:function () {
+            cghub.table.$selectAllCheckbox.prop('checked',
+                cghub.table.$checkboxes.length == $('.data-table-checkbox:checked').length);
         },
         selectFiles: function() {
             var selected_items = $.cookie('browser_checked_items');
@@ -110,7 +123,7 @@ jQuery(function ($) {
             $scrollbar.width($viewport.width());
         },
         initCustomScrollbar: function() {
-            cghub.table.$scrollbar.tinyscrollbar({ axis: 'x'});
+            cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
             cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
             cghub.table.placeFlexigridScrollbar();
         }
