@@ -309,7 +309,7 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
-                    dateFormat: 'yy/mm/dd',
+                    dateFormat: 'yy/mm/dd'
                 });
             });
             return $dp_container;

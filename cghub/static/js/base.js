@@ -22,16 +22,6 @@ jQuery(function ($) {
         bindEvents:function () {
             cghub.base.defineActiveLink();
             cghub.base.activateTaskStatusChecking();
-            $(document).on('change', '.js-select-all', cghub.base.changeCheckboxes);
-            $(document).on('change', '.data-table-checkbox', cghub.base.updateSelectAll);
-        },
-        changeCheckboxes:function () {
-            $('.data-table-checkbox').prop('checked', $(this).is(':checked'));
-            return;
-        },
-        updateSelectAll:function () {
-            $('.js-select-all').prop('checked',
-                $('.data-table-checkbox').length == $('.data-table-checkbox:checked').length);
         },
         defineActiveLink:function () {
             cghub.base.$navbarAnchors.each(cghub.base.resetActiveLink);
