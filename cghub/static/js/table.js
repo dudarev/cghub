@@ -90,9 +90,10 @@ jQuery(function ($) {
             var $viewport = cghub.table.$scrollbar.find('.viewport'); //container with flexigrid
             var $scrollbar = cghub.table.$scrollbar.find('.scrollbar');
             var viewportBottom = $viewport.offset().top + $viewport.height() - $(window).scrollTop();
+            var viewportTop = $viewport.offset().top - $(window).scrollTop();
             var visibleScreenHeight = $(window).height();
 
-            if (viewportBottom > visibleScreenHeight){
+            if (viewportBottom > visibleScreenHeight - 20 && viewportTop < visibleScreenHeight - 100){
                 //if the end of table is outside visible part of screen, place scrollbar in screen bottom
                 $scrollbar.offset({
                     top: visibleScreenHeight - 20 + $(window).scrollTop(),
