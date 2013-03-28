@@ -21,7 +21,6 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
-            cghub.base.activateItemDetailsLinks();
             cghub.base.activateTaskStatusChecking();
             $(document).on('change', '.js-select-all', cghub.base.changeCheckboxes);
             $(document).on('change', '.data-table-checkbox', cghub.base.updateSelectAll);
@@ -44,42 +43,6 @@ jQuery(function ($) {
             } else {
                 pageLink.closest('li').addClass('active');
             }
-        },
-        activateItemDetailsLinks:function () {
-            $(document).on('click', '.bDiv tr', function(obj){
-                var $first_td = $(obj.target).find('input[name=selected_files]');
-                if(obj.target.name=='selected_files' || $first_td.length) { return };
-                var $tr = $(this);
-                var modal = $($tr.attr('data-target'));
-                var loaded = false;
-                modal.on('shown', function(){
-                    if (!loaded){
-                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(response, status, xhr){
-                            if (status == "error") {
-                                modal.find('.modal-body').html('There was an error loading data. Please contact admin.');
-                            } else {
-                                loaded = true;
-                            }
-                        });
-                    }
-                }).on('show', function(){
-                    modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for UUID '+$tr.attr('data-uuid'));
-                }).modal('show');
-                return false;
-            });
-            $(document).on('click', '.js-details-popup', function() {
-                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
-                $tr.trigger('click');
-                return false;
-            });
-            $(document).on('click', '.js-details-page', function() {
-                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
-                /* open in new tab */
-                window.open($tr.attr('data-details-url'), '_blank');
-                window.focus();
-                return false;
-            });
         },
         activateTaskStatusChecking:function () {
             setTimeout(cghub.base.activateTaskStatusChecking, 30000);

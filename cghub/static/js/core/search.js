@@ -52,8 +52,12 @@ jQuery(function ($) {
             $('.applied-filters ul li').each(function() {
                 // for not to lose '0' in sample_type
                 var filters_code = $(this).data('filters');
-                if (typeof(filters_code) == "number" && filters_code < 10){
-                    filters_code = '0' + filters_code;
+                if (typeof(filters_code) == "number"){
+                    if(filters_code < 10) {
+                        filters_code = '0' + filters_code;
+                    } else {
+                        filters_code = '' + filters_code;
+                    }
                 }
                 filters[$(this).data('name')] =filters_code.split('&');
             });
