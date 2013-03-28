@@ -65,19 +65,18 @@ module.exports = function (grunt) {
         },
         min:{
             base:{
-                src:[
-                    jsStaticFolder + 'base.js',
+                src:[jsStaticFolder + 'base.js',
                     jsStaticFolder + 'help.js'],
                 dest:jsStaticFolder + 'base.min.js'
             },
             details:{
-                src:[
-                    jsStaticFolder + 'details.js',
+                src:[jsStaticFolder + 'details.js',
                     jsStaticFolder + 'libs/XMLDisplay.js'],
                 dest:jsStaticFolder + 'details.min.js'
             },
             cart:{
-                src:[jsStaticFolder + 'cart/cart.js'],
+                src:[jsStaticFolder + 'cart/cart.js',
+                    jsStaticFolder + 'table.js'],
                 dest:jsStaticFolder + 'cart/cart.min.js'
             },
             core_home:{
@@ -85,7 +84,8 @@ module.exports = function (grunt) {
                 dest:jsStaticFolder + 'core/home.min.js'
             },
             core_search:{
-                src:[jsStaticFolder + 'core/search.js'],
+                src:[jsStaticFolder + 'core/search.js',
+                    jsStaticFolder + 'table.js'],
                 dest:jsStaticFolder + 'core/search.min.js'
             },
             flexigrid:{

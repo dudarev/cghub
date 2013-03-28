@@ -97,7 +97,9 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     Get ids for specified query from cache or load from CGHub server.
     """
     q = query
-    if sort_by and not sort_by in CALCULATED_FIELDS:
+    if (sort_by and
+        not sort_by in CALCULATED_FIELDS and
+        not sort_by[1:] in CALCULATED_FIELDS):
         q += '&sort_by=' + parse_sort_by(sort_by)
     filename = get_cache_file_name(q, settings)
     # reload cache if ignore_cache
