@@ -66,6 +66,8 @@ def get_filter_id(driver, filter_name):
     """
     el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
+    driver.execute_script(
+            "$(window).scrollTop($('#ddcl-{0}').position().top - 100);".format(el_id))
     return el_id
 
 class SidebarTestCase(LiveServerTestCase):
