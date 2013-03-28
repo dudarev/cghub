@@ -24,7 +24,7 @@ def cache_results_task(file_dict):
     Two different files will be saved,
     the first contains all attributes and the second only most necessary ones.
 
-    For example, for uuid==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
+    For example, for analysis_id==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
         - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_with_attributes
         - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_without_attributes
     

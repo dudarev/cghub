@@ -466,13 +466,13 @@ class HelpHintsTestCase(LiveServerTestCase):
 
     def test_help_hints(self):
         driver = self.selenium
-        with self.settings(HELP_HINTS = { 'UUID': 'Help for UUID'}):
+        with self.settings(HELP_HINTS = { 'Analysis Id': 'Help for Analysis Id'}):
             driver.get(self.live_server_url)
-            uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
+            analysis_ids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
             ac = ActionChains(driver)
-            uuid = driver.find_element_by_xpath(
+            analysis_id = driver.find_element_by_xpath(
                 "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(2))
-            ac.move_to_element(uuid)
+            ac.move_to_element(analysis_id)
             ac.perform()
             time.sleep(3)
             tooltip = driver.find_element_by_css_selector('.js-tooltip')
@@ -515,12 +515,12 @@ class DetailsTestCase(LiveServerTestCase):
             td = driver.find_element_by_xpath(
                 "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
             td.click()
-            uuid = driver.find_element_by_xpath(
+            analysis_id = driver.find_element_by_xpath(
                 "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
             time.sleep(4)
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert popup.is_displayed()
-            assert uuid in driver.find_element_by_css_selector('#details-label').text
+            assert analysis_id in driver.find_element_by_css_selector('#details-label').text
             driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
 
             # Test that clicking context menu 'Details' shows details pop-up
@@ -786,7 +786,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_sorting_order(self):
         columns = [
-                    'UUID', 'Study', 'Disease', 'Disease Name',
+                    'Analysis Id', 'Study', 'Disease', 'Disease Name',
                     'Library Type', 'Assembly', 'Center',
                     'Center Name', 'Experiment Type', 'Uploaded',
                     'Last modified', 'Sample Type', 'Sample Type Name', 

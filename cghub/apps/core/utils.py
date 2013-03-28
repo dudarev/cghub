@@ -83,9 +83,9 @@ def get_wsapi_settings():
     return wsapi_settings
 
 
-def generate_task_uuid(**d):
+def generate_task_analysis_id(**d):
     """
-    Generate uuid from dict
+    Generate analysis_id from dict
     """
     result = [str(v) for v in d.values()]
     result.sort()

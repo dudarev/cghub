@@ -138,14 +138,14 @@ class ItemDetailsView(TemplateView):
     ajax_template_name = 'core/details_table.html'
 
     def get_context_data(self, **kwargs):
-        results = api_request(query='analysis_id=%s' % kwargs['uuid'],
+        results = api_request(query='analysis_id=%s' % kwargs['analysis_id'],
                                     settings=WSAPI_SETTINGS)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             return {
                 'res': results.Result,
                 'raw_xml': repr(etree.tostring(results.Result).replace(' id="1"', '')),
-                'uuid': kwargs['uuid']}
+                'analysis_id': kwargs['analysis_id']}
         return {'res': None}
 
     def get_template_names(self):
@@ -159,8 +159,8 @@ class ItemDetailsView(TemplateView):
 
 
 class MetadataView(View):
-    def post(self, request, uuid):
-        return metadata(ids=[uuid])
+    def post(self, request, analysis_id):
+        return metadata(ids=[analysis_id])
 
 
 class CeleryTasksView(TemplateView):

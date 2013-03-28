@@ -12,7 +12,7 @@ from django.utils import simplejson as json
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (is_celery_alive,
-                    generate_task_uuid, get_wsapi_settings)
+                    generate_task_analysis_id, get_wsapi_settings)
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
@@ -42,7 +42,7 @@ def cart_add_files(request):
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
-                task_id = generate_task_uuid(**kwargs)
+                task_id = generate_task_analysis_id(**kwargs)
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task

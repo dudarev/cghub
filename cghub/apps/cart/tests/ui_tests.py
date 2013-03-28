@@ -86,8 +86,8 @@ class CartUITestCase(LiveServerTestCase):
         wsapi_cache_copy(self.cache_files)
         # Calculate uuid for items on the first page
         lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
-        uuids = lxml.xpath('/ResultSet/Result/analysis_id')
-        self.page_uuids = uuids[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
+        analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
+        self.page_analysis_ids = analysis_id[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
     def tearDownClass(self):
@@ -101,26 +101,26 @@ class CartUITestCase(LiveServerTestCase):
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
         # Test Select all link in search results
-        for uuid in self.page_uuids:
+        for analysis_id in self.page_analysis_ids:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
+                'input[value="%s"]' % analysis_id)
             assert not checkbox.is_selected()
 
         btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
-        for uuid in self.page_uuids:
+        for analysis_id in self.page_analysis_ids:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
+                'input[value="%s"]' % analysis_id)
             assert checkbox.is_selected()
 
         btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
         # Select two items for adding to cart
-        for uuid in self.selected:
+        for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
+                'input[value="%s"]' % analysis_id)
             checkbox.click()
 
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
@@ -128,13 +128,13 @@ class CartUITestCase(LiveServerTestCase):
         time.sleep(3)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
-        for uuid in self.selected:
+        for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
-        for uuid in self.unselected:
+                'input[value="%s"]' % analysis_id)
+        for analysis_id in self.unselected:
             try:
                 checkbox = driver.find_element_by_css_selector(
-                    'input[value="%s"]' % uuid)
+                    'input[value="%s"]' % analysis_id)
                 assert False, "Element mustn't be found on the page"
             except NoSuchElementException:
                 pass
@@ -146,18 +146,18 @@ class CartUITestCase(LiveServerTestCase):
         assert cart_link.text == 'Cart (2)'
 
         # Testing 'Select all' button in the cart
-        for uuid in self.selected:
+        for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
+                'input[value="%s"]' % analysis_id)
             assert not checkbox.is_selected()
 
         btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
         driver.implicitly_wait(1)
 
-        for uuid in self.selected:
+        for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % uuid)
+                'input[value="%s"]' % analysis_id)
             assert checkbox.is_selected()
 
         # Checking file downloading

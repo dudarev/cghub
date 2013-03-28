@@ -26,14 +26,14 @@ Text for help hints for every table column, for table cells values and for filte
     # help.py
 
     COLUMN_HELP_HINTS = {
-        'UUID': 'Help hint for UUID, and this is <a href="http://some/url/">link</a>, click to view help page!',
+        'Analysis Id': 'Help hint for Analysis Id, and this is <a href="http://some/url/">link</a>, click to view help page!',
         'State': 'Some help text',
         'State:Live': 'Some help hint for Live State'
         ...
 
 COLUMN_HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
-Help hints for cells for columns: 'UUID', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
+Help hints for cells for columns: 'Analysis Id', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
 In case, when help hint for specified key was not found, a new record will be added to log file, for example:
 
@@ -67,7 +67,7 @@ For example:
 
 .. code-block:: html
 
-    <a href class="js-help-link" data-slug="uuid-help">Click to show UUID help</a>
+    <a href class="js-help-link" data-slug="analysis_id-help">Click to show Analysis Id help</a>
 
 When user click on this link, popup will be shown.
 
@@ -76,7 +76,7 @@ You can use such links in help hints:
 .. code-block:: python
 
     COLUMN_HELP_HINTS = {
-        'UUID': 'File identifier, <a href class="js-help-link" data-slug="uuid-help">click to view more detailed information</a>.',
+        'Analysis Id': 'File identifier, <a href class="js-help-link" data-slug="analysis_id-help">click to view more detailed information</a>.',
         ...
 
 Celery tasks
@@ -112,7 +112,7 @@ There are next types of cache files:
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
         - list of ids created by api_light.py, they ends with '_ids.cache'
     - cart cache
-        - cached files for one uid, creates when adding results to cart. Names of this files calculates as uuid+'_with_attributes' and uuid+'_without_attributes'.
+        - cached files for one uid, creates when adding results to cart. Names of this files calculates as analysis_id+'_with_attributes' and analysis_id+'_without_attributes'.
 
 Cache lives only time specified in ``settings.TIME_DELETE_CART_CACHE_FILES_OLDER`` or ``settings.TIME_DELETE_API_CACHE_FILES_OLDER`` for api cache and then them should be removed. Celery tasks used for this.
 
@@ -152,6 +152,6 @@ Here are next sequence of actions:
 Downloading metadata
 ====================
 
-File with metadata collected from xml files with uuids which stored in cart.
+File with metadata collected from xml files with analysis_ids which stored in cart.
 
 .. autofunction:: cghub.apps.core.utils.get_results

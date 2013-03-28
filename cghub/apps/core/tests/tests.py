@@ -21,7 +21,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query, generate_task_uuid,
+                    get_wsapi_settings, get_default_query, generate_task_analysis_id,
                     manifest, metadata, summary)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -105,8 +105,8 @@ class CoreTestCase(WithCacheTestCase):
         self.assertTrue('Found' in response.content)
 
     def test_item_details_view(self):
-        uuid = '12345678-1234-1234-1234-123456789abc'
-        response = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        analysis_id = '12345678-1234-1234-1234-123456789abc'
+        response = self.client.get(reverse('item_details', kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
@@ -116,7 +116,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}))
+                        kwargs={'analysis_id': results.Result.analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
         self.assertContains(response, results.Result.center_name)
@@ -127,7 +127,7 @@ class CoreTestCase(WithCacheTestCase):
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}),
+                        kwargs={'analysis_id': results.Result.analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, results.Result.center_name)
@@ -170,7 +170,7 @@ class UtilsTestCase(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(get_wsapi_settings()[key], value)
 
-    def test_generate_task_uuid(self):
+    def test_generate_task_analysis_id(self):
         test_data = [
             {
                 'dict': {'some': 'dict', '1': 2},
@@ -183,7 +183,7 @@ class UtilsTestCase(TestCase):
                 'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
         ]
         for data in test_data:
-            self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
+            self.assertEqual(generate_task_analysis_id(**data['dict']), data['result'])
 
     def test_manifest(self):
         response = manifest(self.FILES_IN_CART)
@@ -366,7 +366,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(file_size(1234567890), '1.15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
+        COLUMNS = (('Disease', 'visible'), ('Analysis Id', 'hidden'),
                                                 ('Study', 'visible'))
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
@@ -379,7 +379,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
+        COLUMNS = (('Disease', 'visible'), ('Analysis Id', 'visible'),
                                                 ('Study', 'visible'))
         RESULT = {
                 'disease_abbr': 'COAD',
@@ -402,7 +402,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
-        FIELDS = ('UUID', 'Study')
+        FIELDS = ('Analysis Id', 'Study')
         RESULT = {
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
                 'study': 'phs000178',
