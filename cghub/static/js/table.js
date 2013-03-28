@@ -108,16 +108,16 @@ jQuery(function ($) {
 
             if (viewportBottom > visibleScreenHeight - 20 && viewportTop < visibleScreenHeight - 100){
                 //if the end of table is outside visible part of screen, place scrollbar in screen bottom
-                $scrollbar.offset({
-                    top: visibleScreenHeight - 20 + $(window).scrollTop(),
-                    left: $viewport.offset().left
-                });
+                $scrollbar.css({
+                    position: 'fixed',
+                    top: visibleScreenHeight - 20 + 'px',
+                    left: $viewport.offset().left + 'px'});
             } else {
                 //if the end of table is in visible part, place scrollbar just under the table
-                $scrollbar.offset({
-                    top: $viewport.offset().top + $viewport.height(),
-                    left: $viewport.offset().left
-                });
+                $scrollbar.css({
+                    position: 'absolute',
+                    top: $viewport.offset().top + $viewport.height() + 'px',
+                    left: $viewport.offset().left + 'px'});
             }
             //adjust width of scrollbar if window was resized
             $scrollbar.width($viewport.width());
