@@ -67,7 +67,7 @@ def get_filter_id(driver, filter_name):
     el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
     driver.execute_script(
-            "$(window).scrollTop($('#ddcl-{0}').position().top - 100);".format(el_id))
+            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(el_id))
     return el_id
 
 class SidebarTestCase(LiveServerTestCase):
@@ -603,9 +603,9 @@ class DetailsTestCase(LiveServerTestCase):
         assert (td_text in driver.current_url and 'details' in driver.current_url)
         assert (td_text in page_header and 'details' in page_header)
         driver.execute_script(
-            "$('.base-container').scrollTop($('#id-download-metadata').position().top);")
+            "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
         driver.find_element_by_id('id-download-metadata').click()
-        time.sleep(5)
+        time.sleep(3)
         try:
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
         except OSError:
