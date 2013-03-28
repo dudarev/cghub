@@ -16,7 +16,7 @@ from wsapi.api import request as api_request
 """
 preffered queries (allow using the same cache files):
 "6d711*" - returns one result
-"6d1*" - fore many results
+"6d1*" - for many results
 """
 
 
@@ -59,6 +59,7 @@ def back_to_bytes(*args):
             result.append(float(file_name.split(' ')[0]))
     return result[0], result[1]
 
+
 def get_filter_id(driver, filter_name):
     """
     Helper function for getting sidebar filter id.
@@ -66,7 +67,10 @@ def get_filter_id(driver, filter_name):
     """
     el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
+    driver.execute_script(
+            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(el_id))
     return el_id
+
 
 class SidebarTestCase(LiveServerTestCase):
     cache_files = (
@@ -84,7 +88,7 @@ class SidebarTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
 
         center_id = get_filter_id(driver, 'center_name')
-        self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
+        self.selenium.find_element_by_id("ddcl-{0}".format(center_id)).click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
@@ -98,7 +102,6 @@ class SidebarTestCase(LiveServerTestCase):
             cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
             self.assertTrue(cb.is_selected())
 
-
     def test_select_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -111,17 +114,17 @@ class SidebarTestCase(LiveServerTestCase):
         # click the first selection
         i_click = 0
 
-        # check that others are not selected
+        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
         for i in range(0, 5):
             if not i == i_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
                 self.assertFalse(rb.is_selected())
 
-        # click the second selection
+        # click on first option
         i_click = 1
 
-        # check that others are not selected
+        # check that other options unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
         for i in range(0, 5):
             if not i == i_click:
@@ -132,29 +135,31 @@ class SidebarTestCase(LiveServerTestCase):
         upload_date_id = get_filter_id(driver, 'upload_date')
         driver.find_element_by_xpath(
             "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
-        # click the first selection
+        # select first option
         z_click = 0
 
-        # check that others are not selected
+        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
         for i in range(0, 5):
             if not i == z_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
-        # click the second selection
+        # select second option
         z_click = 1
 
-        # check that others are not selected
+        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
         for i in range(0, 5):
             if not i == z_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
-    #TODO(postatum): need to fix
-    """
+
     def test_selection(self):
+        """
+        Select filters, click on submit, check query
+        """
         driver = self.selenium
         driver.get(self.live_server_url)
 
@@ -275,7 +280,6 @@ class SidebarTestCase(LiveServerTestCase):
             re.match('.*state=[^&]*live', url))
         self.assertFalse(
             re.match('.*state=[^&]*submitted', url))
-    """
 
     @classmethod
     def tearDownClass(self):
@@ -285,6 +289,9 @@ class SidebarTestCase(LiveServerTestCase):
 
 
 class CustomDatepickersTestCase(LiveServerTestCase):
+    """
+    Check custom period selecting
+    """
 
     cache_files = (
         '71411da734e90beda34360fa47d88b99_ids.cache',
@@ -346,15 +353,13 @@ class CustomDatepickersTestCase(LiveServerTestCase):
                  dp_values[key] = '0' + str(dp_values[key])
 
         # Check custom date is displayed in filter input
-        filter_input = driver.find_element_by_css_selector("#ddcl-{0}".format(filter_id))
+        filter_input = driver.find_element_by_id("ddcl-{0}".format(filter_id))
         filter_text = filter_input.find_element_by_css_selector('.ui-dropdownchecklist-text').text
         text = "{0}/{1}/{2} - {0}/{1}/{3}".format(
             dp_values['year'], dp_values['month'],
             dp_values['start'], dp_values['end'])
         assert text in filter_text.strip()
 
-    #TODO(poststum): need to fix
-    """
     def test_custom_datepickers_future_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -363,30 +368,32 @@ class CustomDatepickersTestCase(LiveServerTestCase):
             'year': datetime.now().date().year}
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
+
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values, future=True)
         self.check_custom_date('last_modified', dp_values, future=True)
-    """
 
-    # TODO(postatum): need to fix
-    """
     def test_custom_datepickers_wrong_date(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -397,27 +404,31 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
+
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values, reverse=True)
         self.check_custom_date('last_modified', dp_values, reverse=True)
-    """
 
     def test_custom_datepickers_right_date(self):
         driver = self.selenium
@@ -428,18 +439,26 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        analyte_code_id = get_filter_id(driver, 'analyte_code')
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        driver.execute_script(
+            "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
+                analyte_code_id))
+
+        driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
 
-        driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
         driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
         self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
         self.check_custom_date('upload_date', dp_values)
         self.check_custom_date('last_modified', dp_values)
+
+        driver.execute_script(
+            "$('body').scrollTop($('#id_apply_filters').position().top);")
         driver.find_element_by_id("id_apply_filters").click()
 
         applied_filters = driver.find_element_by_css_selector('.applied-filters')
@@ -507,33 +526,42 @@ class DetailsTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def check_popup_shows(self, driver):
-            ac = ActionChains(driver)
+        ac = ActionChains(driver)
 
-            # Test that clicking row of the table shows details pop-up
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert not popup.is_displayed()
-            td = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
-            td.click()
-            uuid = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
-            time.sleep(4)
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert popup.is_displayed()
-            assert uuid in driver.find_element_by_css_selector('#details-label').text
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-
-            # Test that clicking context menu 'Details' shows details pop-up
-            context_menu = driver.find_element_by_css_selector('#table-context-menu')
-            assert not context_menu.is_displayed()
-            ac.context_click(td)
-            ac.perform()
-            context_menu = driver.find_element_by_css_selector('#table-context-menu')
-            assert context_menu.is_displayed()
-            driver.find_element_by_css_selector(".js-details-popup").click()
-            # TODO(postatum): Popup should be shown on context menu item click 
+        # test clicking on row leads to details popup opening
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert not popup.is_displayed()
+        td = driver.find_element_by_xpath(
+            "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
+        td.click()
+        uuid = driver.find_element_by_xpath(
+            "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
+        time.sleep(4)
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert popup.is_displayed()
+        assert uuid in driver.find_element_by_css_selector('#details-label').text
+        driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+        time.sleep(1)
+        # test clicking on 'Details' option from context menu leads to details popup opening
+        context_menu = driver.find_element_by_css_selector('#table-context-menu')
+        assert not context_menu.is_displayed()
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        time.sleep(1)
+        assert not popup.is_displayed()
+        ac.context_click(td)
+        ac.perform()
+        context_menu = driver.find_element_by_css_selector('#table-context-menu')
+        assert context_menu.is_displayed()
+        driver.find_element_by_css_selector(".js-details-popup").click()
+        time.sleep(1)
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert popup.is_displayed()
+        driver.find_element_by_css_selector(".modal-footer .btn").click()
 
     def test_details_popups(self):
+        """
+        
+        """
         driver = self.selenium
         driver.get(self.live_server_url)
         self.check_popup_shows(driver)
@@ -556,7 +584,7 @@ class DetailsTestCase(LiveServerTestCase):
         time.sleep(3)
         assert '#raw-xml' in driver.current_url
 
-        # Test 'Collapse all' and 'Expand all' buttons
+        # test 'Collapse all' and 'Expand all' buttons
         driver.find_element_by_css_selector('#id-expand-all-button').click()
         xml_containers = driver.find_elements_by_css_selector('#XMLHolder > .Element')
         collapsed_xml = xml_containers[0].find_elements_by_class_name('Element')
@@ -568,8 +596,6 @@ class DetailsTestCase(LiveServerTestCase):
         assert xml_containers[0].is_displayed()
         assert not xml_containers[1].is_displayed()
 
-    # TODO(postatum): need to fix
-    """
     def test_details_page(self):
         driver = self.selenium
         driver.get(self.live_server_url)
@@ -590,14 +616,14 @@ class DetailsTestCase(LiveServerTestCase):
         assert (td_text in driver.current_url and 'details' in driver.current_url)
         assert (td_text in page_header and 'details' in page_header)
         driver.execute_script(
-            "$('.base-container').scrollTop($('#id-download-metadata').position().top);")
+            "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
+        # try to load analysis xml
         driver.find_element_by_id('id-download-metadata').click()
-        time.sleep(5)
+        time.sleep(3)
         try:
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
-        """
 
 
 class SearchTestCase(LiveServerTestCase):
@@ -619,7 +645,8 @@ class SearchTestCase(LiveServerTestCase):
         '194a167248e69ab52f7984f251423eb3_ids.cache', '6a5d605d38e701a14bf16c094333bab2_ids.cache',  'b50de5c4b4c0fd0cd0c2b4c91409a45a_ids.cache', '28e1cf619d26bdab58fcab5e7a2b9e6c_ids.cache',  '6f55a35e4a0aa854110317a459f46a63_ids.cache', 'bf8267e82f09bc70cebd0179ae04222b_ids.cache',
         '2b2cddbe3555451285e826c410598f8d_ids.cache', '7169b446f2c2a0f3824ff54748f2279c_ids.cache',  'c410977da1ca1a9d10f79e5c106a87e7_ids.cache', '2b59cdba32158d41e96292263e080c9a_ids.cache',  '71a961a423dea25d42e06ab2c015334d_ids.cache', 'e9284a03bf4b46354cc645abd7eba129_ids.cache',
         '3fe0137f1c7df05124508e503ff18c27_ids.cache', '8211bfd303398c83fd6266268772a0f6_ids.cache',  'ef7e8c3d4403a0d52a09d49d7c5b903b_ids.cache', '422c90827750a69a42d4035b9aae6899_ids.cache',  '87b817c0c86c91c11246b9f241ce40c9_ids.cache', 'efbff930fa0a2423d282c4e71700ca74_ids.cache',
-        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache')
+        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache'
+    )
 
     query = "6d5*"
 
@@ -684,10 +711,10 @@ class SearchTestCase(LiveServerTestCase):
         time.sleep(3)
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
         self.selenium.find_element_by_link_text("50").click()
         assert 50 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
 
     def test_pagination(self):
         self.selenium.get(self.live_server_url)
@@ -699,10 +726,10 @@ class SearchTestCase(LiveServerTestCase):
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
         assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
         self.selenium.find_element_by_link_text("2").click()
         assert 10 == len(self.selenium.find_elements_by_xpath(
-            "//*[@id='id_add_files_form']/div[6]/div[4]/table/tbody/tr"))
+            "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
 
     def test_filtering_shown(self):
         self.selenium.get(self.live_server_url)
@@ -726,7 +753,7 @@ class SearchTestCase(LiveServerTestCase):
 
         self.search()
 
-        # check if filters is shown
+        # check filters is shown
         filter = (self.selenium.find_element_by_css_selector(
             "#ddcl-{0} > span:first-child > span".format(center_id)))
         self.assertEqual(filter.text, u'Baylor\nHarvard')
@@ -747,28 +774,28 @@ class SearchTestCase(LiveServerTestCase):
             page_count = None
 
         if page_count:
-            # at begining 'Prev' and '1' link must be disabled
+            # initially 'Prev' and '1' links should be disabled
             prev = self.selenium.find_element_by_link_text('Prev')
             self.__link_is_disabled(prev)
             first = self.selenium.find_element_by_link_text('1')
             self.__link_is_active(first)
 
-            # check page by page
+            # check other pages
             for page_num in (2, 3, page_count):
                 self.selenium.find_element_by_link_text(str(page_num)).click()
                 a = self.selenium.find_element_by_link_text(str(page_num))
                 self.__link_is_active(a)
 
-            # 'Next' link must be disabled if we are on the last page
+            # 'Next' link should be disabled in case when last page selected
             next = self.selenium.find_element_by_link_text('Next')
             self.__link_is_disabled(next)
 
-            # if now click on 'Prev', page_num-1 will be loaded
+            # check 'Prev'
             self.selenium.find_element_by_link_text('Prev').click()
             current = self.selenium.find_element_by_link_text(str(page_num - 1))
             self.__link_is_active(current)
 
-            # if now click on 'Next', page_num will be loaded
+            # check 'Next'
             self.selenium.find_element_by_link_text('Next').click()
             current = self.selenium.find_element_by_link_text(str(page_num))
             self.__link_is_active(current)
@@ -792,13 +819,12 @@ class SearchTestCase(LiveServerTestCase):
                     'Last modified', 'Sample Type', 'Sample Type Name', 
                     'State', 'Barcode', 'Sample Accession', 'Files Size'
         ]
-
         self.selenium.get(self.live_server_url)
         for i, column in enumerate(columns):
             if i in (3, 7, 11):
                 continue
             # scroll table
-            self.selenium.execute_script("$('.flexigrid div')"
+            self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1));
             # after first click element element is asc sorted
@@ -809,23 +835,18 @@ class SearchTestCase(LiveServerTestCase):
             first = self.selenium.find_element_by_css_selector(selector).text
 
             # scroll table
-            self.selenium.execute_script("$('.flexigrid div')"
+            self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1));
             # resort
             self.selenium.find_element_by_partial_link_text(column).click()
             second = self.selenium.find_element_by_css_selector(selector).text
-            # TODO: for now ignoring the case when one of them is 'None'
-            # consider doing it differently
             if not (first == 'None' or second == 'None' or
                     first == ' ' or second == ' '):
                 if column == 'Files Size':
                     # GB == GB, MB == MB, etc.
                     first, second = back_to_bytes(first, second)
                     self.assertLessEqual(first, second)
-                elif column in ('Uploaded', 'Last modified'):
-                    #TODO(postatum): fails for Uploaded
-                    pass
                 else:
                     self.assertLessEqual(first, second)
 
@@ -870,12 +891,12 @@ class ColumnSelectTestCase(LiveServerTestCase):
         for i in r:
             driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (i + 1)).click()
             for j in r[:(i + 1)]:
-                driver.execute_script("$('.flexigrid div')"
+                driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
             for j in r[(i + 1):]:
-                driver.execute_script("$('.flexigrid div')"
+                driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
@@ -893,12 +914,10 @@ class ColumnSelectTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
         r2 = range(column_count)
         for x in r2:
-            driver.execute_script("$('.flexigrid div')"
+            driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
-            # I hide each column after test checks if it exists because this
-            # part can't check last two columns when tests are run not in fullscreen.
             driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (x + 1)).click()        
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
         select.click()
@@ -937,7 +956,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver = self.selenium
         driver.get(self.live_server_url)
 
-        # Apply filters on Center Name.
+        # Apply filters on Center Name
         center_id = get_filter_id(driver, 'center_name')
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
@@ -954,7 +973,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i0".format(upload_date_id)).click()
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
 
-        # Apply filters on Sample Type.
+        # Apply filters on Sample Type
         sample_type_id = get_filter_id(driver, 'sample_type')
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
@@ -963,7 +982,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
         driver.find_element_by_id("id_apply_filters").click()
 
-        # Make sure filters are applied.
+        # Make sure that filters are applied
         applied_filters1 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
         applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
         filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
@@ -983,21 +1002,19 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
 
         # Reset filters
         driver.find_element_by_id("id_reset_filters").click()
-        time.sleep(3)
+        time.sleep(5)
 
         driver.execute_script(
-            "$('.flexigrid .bDiv')"
+            "$('.viewport')"
             ".scrollLeft($('thead tr th[axis=col13]')"
             ".position().left)")
 
-        # Sort by Sample Type Name to make sure column includes not only
-        # Blood Derived Normal
         driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()
         tmp_text = driver.find_element_by_xpath(
             "//div[@class='bDiv']//table//tbody//tr[1]//td[14]/div").text
         if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).text:
             driver.execute_script(
-                "$('.flexigrid .bDiv')"
+                "$('.viewport')"
                 ".scrollLeft($('thead tr th[axis=col13]')"
                 ".position().left)")
             driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()

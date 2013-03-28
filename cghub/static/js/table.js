@@ -54,7 +54,7 @@ jQuery(function ($) {
                 return false;
             });
             $(document).on('click', '.js-details-popup', function() {
-                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                var $tr = $($(this).parents('ul').data('e').target).parents('td');
                 $tr.trigger('click');
                 return false;
             });
