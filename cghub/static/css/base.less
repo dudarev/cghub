@@ -65,10 +65,10 @@
 }
 
 .flexigrid {
-	width: 100%;
+    width: 100%;
     // fix selected row highlighting
     div.bDiv {
-        overflow-x: scroll !important;
+        overflow-x: hidden !important;    // don't show scrolls in flexigrid
         overflow-y: hidden !important;
         tr.trSelected td {
             background-color: #d5effc;
