@@ -123,8 +123,6 @@ jQuery(function ($) {
                     cghub.search.ddclOnComplete(select);
                 }
             }
-            //Bug #1787 delete standard tooltip with text "selecting..."
-            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
@@ -148,6 +146,8 @@ jQuery(function ($) {
             }
             $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
+            //Bug #1787 delete standard tooltip with text "selecting..."
+            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         addFilesFormSubmit:function () {
             // collect all data attributes

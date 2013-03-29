@@ -112,12 +112,15 @@ jQuery(function ($) {
                     position: 'fixed',
                     top: visibleScreenHeight - 20 + 'px',
                     left: $viewport.offset().left + 'px'});
+                /* add border at the top of scrollbar */
+                $scrollbar.addClass('bordered');
             } else {
                 //if the end of table is in visible part, place scrollbar just under the table
                 $scrollbar.css({
                     position: 'absolute',
                     top: $viewport.offset().top + $viewport.height() + 'px',
                     left: $viewport.offset().left + 'px'});
+                $scrollbar.removeClass('bordered');
             }
             //adjust width of scrollbar if window was resized
             $scrollbar.width($viewport.width());
