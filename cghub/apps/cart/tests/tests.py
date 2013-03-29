@@ -47,7 +47,7 @@ class CartTestCase(TestCase):
         # make sure counter in header is OK
         self.assertContains(response, 'Cart (3)')
         self.assertContains(response, 'Files in your cart: 3')
-        self.assertContains(response, '3.00 MB')
+        self.assertContains(response, '3,00 MB')
 
         # make sure we have 3 files in cart
         self.assertEqual(len(response.context['results']), 3)
@@ -265,7 +265,7 @@ class CacheTestCase(TestCase):
         for id in self.IDS_IN_CART:
             self.assertTrue(id in content)
         self.assertTrue(all(field.lower().replace(' ', '_') in content
-                            for field, visibility in settings.TABLE_COLUMNS))
+                            for field, visibility, align in settings.TABLE_COLUMNS))
 
 
 class CartFormsTestCase(TestCase):

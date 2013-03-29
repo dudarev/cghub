@@ -361,13 +361,13 @@ class TemplateTagsTestCase(TestCase):
 
     def test_file_size_filter(self):
         self.assertEqual(file_size('123'), '123 Bytes')
-        self.assertEqual(file_size(123456), '120.56 KB')
-        self.assertEqual(file_size(1234567), '1.18 MB')
-        self.assertEqual(file_size(1234567890), '1.15 GB')
+        self.assertEqual(file_size(123456), '120,56 KB')
+        self.assertEqual(file_size(1234567), '1,18 MB')
+        self.assertEqual(file_size(1234567890), '1,15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
-                                                ('Study', 'visible'))
+        COLUMNS = (('Disease', 'visible', 'left'), ('UUID', 'hidden', 'left'),
+                                                ('Study', 'visible', 'left'))
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_header(request)
@@ -379,8 +379,8 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
-                                                ('Study', 'visible'))
+        COLUMNS = (('Disease', 'visible', 'left'), ('UUID', 'visible', 'left'),
+                                                ('Study', 'visible', 'left'))
         RESULT = {
                 'disease_abbr': 'COAD',
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
