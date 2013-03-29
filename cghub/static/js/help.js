@@ -130,8 +130,6 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
                 var filter = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
                 filter = filter.replace(':', '').replace('By ', '');
-                console.log('filter = ' + filter);
-                console.log('$target.text() = ' + $target.text());
                 if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return filter + ':' + $target.text();
             });
