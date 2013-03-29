@@ -6,7 +6,7 @@ keys have to be like this:
 
 
 HELP_HINTS = {
-    # help hints for headers in results table, taken fron settings.TABLE_COLUMNS
+    # help hints for headers in results table, taken from settings.TABLE_COLUMNS
     'UUID': 'Sample tooltip for column "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
     'Study': 'Sample tooltip for column "Study"',
     'Disease': 'Sample tooltip for column "Disease"',
@@ -25,8 +25,6 @@ HELP_HINTS = {
     'Sample Accession': 'Sample tooltip for column "Sample Accession"',
     'Files Size': 'Sample tooltip for column "Files Size"',
 
-
-
     # help hints for filter titles (here should be placed all titles from filters_storage_full.py, without "By")
     'filter:Study': 'Sample tooltip for filter "Study"',
     'filter:Center': 'Sample tooltip for filter "Center"',
@@ -39,6 +37,7 @@ HELP_HINTS = {
     'filter:Disease': 'Sample tooltip for filter "Disease"',
     'filter:State': 'Sample tooltip for filter "State"',
 
+    # help hints for filters in dropdown, selected filters and cells in table
     'Study:TCGA': 'Sample tooltip for "Study/TCGA"',
     'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
 }

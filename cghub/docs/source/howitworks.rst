@@ -26,8 +26,17 @@ Text for help hints for every table column, for table cells values and for filte
     # help.py
 
     HELP_HINTS = {
-        'UUID': 'Sample tooltip for "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
-        'Study': 'Sample tooltip for "Study"',
+        # help hints for headers in results table, taken from settings.TABLE_COLUMNS
+        'UUID': 'Sample tooltip for column "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
+        'Study': 'Sample tooltip for column "Study"',
+        ...
+
+        # help hints for filter titles (here should be placed all titles from filters_storage_full.py, without "By")
+        'filter:Study': 'Sample tooltip for filter "Study"',
+        'filter:Center': 'Sample tooltip for filter "Center"',
+        ...
+
+        # help hints for filters in dropdown, selected filters and cells in table
         'Study:TCGA': 'Sample tooltip for "Study/TCGA"',
         'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
     }
