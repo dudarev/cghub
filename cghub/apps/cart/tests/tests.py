@@ -223,6 +223,13 @@ class CacheTestCase(TestCase):
         for file in files:
             os.remove(file)
 
+    # test for new cache functions TODO(nanvel): remove this comments and unnecessary tests
+
+
+    # end new tests
+
+
+
     def test_cache_generate_manifest_live(self):
         """
         Test if manifest collects only data from files where state='live'

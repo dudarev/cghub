@@ -1,6 +1,10 @@
 import sys
 
 from cghub.apps.cart.tasks import cache_results_task
+from cghub.apps.core.utils import get_wsapi_settings
+
+
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def get_or_create_cart(request):
@@ -49,3 +53,31 @@ def cache_results(file_dict):
         cache_results_task.delay(file_dict)
     except:
         cache_results_task(file_dict)
+
+
+def save_metadata_full(analysis_id, modification_time):
+    """
+    Save file to {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisFull.xml
+    and cutted version saves to
+    {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
+    """
+    path = settings.CART_CACHE_DIR
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    path = os.path.join(path, analysis_id)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    path = os.path.join(path, modification_time)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    path_full = os.path.join(path, 'analysisFull.xml')
+    path_short = os.path.join(path, 'analysisShort.xml')
+    if not (os.path.exists(path_full) and os.path.exists(path_short)):
+        result = api_request(
+                query='analysis_id={0}'.format(analysis_id),
+                settings=WSAPI_SETTINGS)
+        with open(path_full, 'w') as f:
+            f.write(result.tostring())
+        with open(path_short, 'w') as f:
+            result.remove_attributes()
+            f.write(result.tostring())
