@@ -137,7 +137,7 @@ jQuery(function ($) {
             });
         },
         activateFilterTextTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text-item', function($target) {
                 var filter = $target.parents('.ui-dropdownchecklist-selector-wrapper').prev().prev().text();
                 filter = filter.replace(':', '').replace('By ', '');
                 if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
