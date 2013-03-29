@@ -6,7 +6,7 @@ Format:
 
 ::
     (
-        (column_name, default_state),
+        (column_name, default_state, text-align),
         ...
     )
 
@@ -16,6 +16,8 @@ Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Sample Type Name', 'State', 'Study', 'Uploaded', 'UUID'.
 
 Available default_states: 'visible', 'hidden'.
+
+Available text-align: 'center', 'justify', 'left', 'right', 'inherit'
 
 VALUE_RESOLVERS
 ---------------
@@ -40,23 +42,23 @@ function obtains value and should return new value, for example:
 """
 
 TABLE_COLUMNS = (
-    ('UUID', 'visible'),
-    ('Study', 'visible'),
-    ('Disease', 'visible'),
-    ('Disease Name', 'visible'),
-    ('Library Type', 'visible'),
-    ('Assembly', 'visible'),
-    ('Center', 'visible'),
-    ('Center Name', 'visible'),
-    ('Experiment Type', 'visible'),
-    ('Uploaded', 'visible'),
-    ('Last modified', 'visible'),
-    ('Sample Type', 'visible'),
-    ('Sample Type Name', 'visible'),
-    ('State', 'visible'),
-    ('Barcode', 'visible'),
-    ('Sample Accession', 'visible'),
-    ('Files Size', 'visible'),
+    ('UUID', 'visible', 'left'),
+    ('Study', 'visible', 'left'),
+    ('Disease', 'visible', 'left'),
+    ('Disease Name', 'visible', 'left'),
+    ('Library Type', 'visible', 'left'),
+    ('Assembly', 'visible', 'left'),
+    ('Center', 'visible', 'left'),
+    ('Center Name', 'visible', 'left'),
+    ('Experiment Type', 'visible', 'left'),
+    ('Uploaded', 'visible', 'left'),
+    ('Last modified', 'visible', 'left'),
+    ('Sample Type', 'visible', 'left'),
+    ('Sample Type Name', 'visible', 'left'),
+    ('State', 'visible', 'left'),
+    ('Barcode', 'visible', 'left'),
+    ('Sample Accession', 'visible', 'left'),
+    ('Files Size', 'visible', 'right'),
 )
 
 DETAILS_FIELDS = (
