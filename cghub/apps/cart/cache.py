@@ -122,8 +122,8 @@ def get_analysis(analysis_id, last_modified, short=False):
     # if file not exists or was updated - AnalysisFileException exception will be raised
     return save_to_cart_cache(analysis_id, last_modified)
 
-'''
-def get_results(data, short=False, live_only=False):
+
+def join_analysises(data, short=False, live_only=False):
     """
     Join xml files with specified ids.
     If file exists in cache, it will be used, otherwise, file will be downloaded and cached.
@@ -135,15 +135,12 @@ def get_results(data, short=False, live_only=False):
     results = None
     results_counter = 1
     for analysis_id, last_modified in data:
-        #if live_only and ids[analysis_id].get('state') != 'live':
-        #    continue
-        filepath = get_cart_cache_file_path(analysis_id, last_modified, short)
         try:
-            result = Results.from_file(
-                filepath,
-                settings=get_wsapi_settings())
-        except IOError:
-            result = save_to_cart_cache()
+            result = get_analysis(analysis_id, last_modified, short=False)
+            if live_only and result.Result.state != 'live':
+                continue
+        except AnalysisFileException:
+            continue
         if results is None:
             results = result
             results.Query.clear()
@@ -153,6 +150,4 @@ def get_results(data, short=False, live_only=False):
             # '+ 1' because the first two elements (0th and 1st) are Query and Hits
             results.insert(results_counter + 1, result.Result)
         results_counter += 1
-
     return results
-'''

@@ -18,7 +18,8 @@ from django.conf import settings
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
-                    save_to_cart_cache, get_analysis_path, get_analysis)
+                    save_to_cart_cache, get_analysis_path, get_analysis,
+                    join_analysises)
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -315,14 +316,24 @@ class CartCacheTestCase(WithCacheTestCase):
 
     cache_files = [
             '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
-            '4d3fee9f8557fc0de585af248b598c44.xml']
+            '4d3fee9f8557fc0de585af248b598c44.xml',
+            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
+            '39ee3de2a4c531b8a871dc218d940a03.xml']
 
     """
-    Cached file will be used
+    Cached files will be used
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
+    8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-03-04T00:22:02Z
+
+    satate = 'Submitted'
+    db1cc50d-6340-4ecd-a1db-4ec17797ae75 - 2013-03-29T19:52:35Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
     last_modified = '2012-10-29T21:56:12Z'
+    analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
+    last_modified2 = '2013-03-04T00:22:02Z'
+    analysis_id_not_live = 'db1cc50d-6340-4ecd-a1db-4ec17797ae75'
+    last_modified_not_live = '2013-03-29T19:52:35Z'
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -414,6 +425,27 @@ class CartCacheTestCase(WithCacheTestCase):
         shutil.rmtree(path)
         analysis = get_analysis(self.analysis_id, self.last_modified)
         self.assertEqual(analysis.Hits, 1)
+
+    def test_join_analysises(self):
+        data = (
+                (self.analysis_id, self.last_modified),
+                (self.analysis_id2, self.last_modified2))
+        result = join_analysises(data)
+        content = result.tostring()
+        self.assertTrue(self.analysis_id in content)
+        self.assertTrue(self.analysis_id2 in content)
+        # check live only
+        data = (
+                (self.analysis_id, self.last_modified),
+                (self.analysis_id_not_live, self.last_modified_not_live))
+        result = join_analysises(data)
+        content = result.tostring()
+        self.assertTrue(self.analysis_id in content)
+        self.assertTrue(self.analysis_id_not_live in content)
+        result = join_analysises(data, live_only=True)
+        content = result.tostring()
+        self.assertTrue(self.analysis_id in content)
+        self.assertFalse(self.analysis_id_not_live in content)
 
 
 class CartFormsTestCase(TestCase):
