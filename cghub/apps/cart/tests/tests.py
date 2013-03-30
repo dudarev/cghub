@@ -335,6 +335,9 @@ class CartCacheTestCase(WithCacheTestCase):
     analysis_id_not_live = 'db1cc50d-6340-4ecd-a1db-4ec17797ae75'
     last_modified_not_live = '2013-03-29T19:52:35Z'
 
+    # will be removed from cache after every test
+    ids = (analysis_id, analysis_id2, analysis_id_not_live,)
+
     def test_get_cache_file_path(self):
         self.assertEqual(
                 get_cart_cache_file_path(
@@ -396,8 +399,6 @@ class CartCacheTestCase(WithCacheTestCase):
             self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
-        if os.path.isdir(path):
-            shutil.rmtree(path)
 
     def test_get_analysis(self):
         # test get_analysis_path
@@ -446,6 +447,13 @@ class CartCacheTestCase(WithCacheTestCase):
         content = result.tostring()
         self.assertTrue(self.analysis_id in content)
         self.assertFalse(self.analysis_id_not_live in content)
+
+    def tearDown(self):
+        super(CartCacheTestCase, self).tearDown()
+        for i in self.ids:
+            path = os.path.join(settings.CART_CACHE_DIR, i)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
 
 
 class CartFormsTestCase(TestCase):
