@@ -17,8 +17,8 @@ from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
-from cghub.apps.cart.cache import (AnalysisFileException, save_to_cart_cache,
-                                                get_cart_cache_file_path)
+from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
+                    save_to_cart_cache, get_analysis_path, get_analysis)
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -347,7 +347,9 @@ class CartCacheTestCase(WithCacheTestCase):
             shutil.rmtree(path)
         path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
         path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
-        save_to_cart_cache(self.analysis_id, self.last_modified)
+        result = save_to_cart_cache(self.analysis_id, self.last_modified)
+        # check that Results object returns
+        self.assertEqual(result.Result.analysis_id, self.analysis_id)
         self.assertTrue(os.path.exists(path_full))
         self.assertTrue(os.path.exists(path_short))
         shutil.rmtree(path)
@@ -385,6 +387,34 @@ class CartCacheTestCase(WithCacheTestCase):
             raise False, 'AnalysisFileException doesn\'t raised'
         if os.path.isdir(path):
             shutil.rmtree(path)
+
+    def test_get_analysis(self):
+        # test get_analysis_path
+        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        analysis_path = get_analysis_path(self.analysis_id, self.last_modified)
+        self.assertEqual(
+            analysis_path,
+            get_cart_cache_file_path(self.analysis_id, self.last_modified))
+        self.assertTrue(os.path.exists(analysis_path))
+        # now using cache
+        analysis_path = get_analysis_path(self.analysis_id, self.last_modified)
+        self.assertEqual(
+            analysis_path,
+            get_cart_cache_file_path(self.analysis_id, self.last_modified))
+        # test get_analysis
+        # with cache
+        analysis = get_analysis(self.analysis_id, self.last_modified)
+        self.assertEqual(analysis.Hits, 1)
+        # short version
+        analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
+        self.assertEqual(analysis.Hits, 1)
+        # without cache
+        shutil.rmtree(path)
+        analysis = get_analysis(self.analysis_id, self.last_modified)
+        self.assertEqual(analysis.Hits, 1)
+
 
 class CartFormsTestCase(TestCase):
 

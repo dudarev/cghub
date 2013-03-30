@@ -1,8 +1,11 @@
 import os.path
 import sys
 
+from lxml import objectify
+
 from django.conf import settings
 
+from wsapi.api import Results
 from wsapi.api import request as api_request
 
 from cghub.apps.core.utils import get_wsapi_settings
@@ -52,6 +55,8 @@ def save_to_cart_cache(analysis_id, last_modified):
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
     Raise AnalysisFileException if file does not exist or was updated
+
+    returns wsapi.api.Results object if success
     """
     # to protect files outside cache dir
     if analysis_id.find('..') != -1 or last_modified.find('..') != -1:
@@ -83,17 +88,39 @@ def save_to_cart_cache(analysis_id, last_modified):
         with open(path_short, 'w') as f:
             result.remove_attributes()
             f.write(result.tostring())
+        return result
+    return Results.from_file(path_full, settings=WSAPI_SETTINGS)
 
 
-def get_analysis_file(analysis_id, modification_time):
-    path = os.path.join(settings.CART_CACHE_DIR, analysis_id, modification_time)
-    path_full = os.path.join(path, 'analysisFull.xml')
-    path_short = os.path.join(path, 'analysisShort.xml')
-    if os.path.exists(path_full) and os.path.exists(path_short):
-        return (path_full, path_short)
+def get_analysis_path(analysis_id, last_modified, short=False):
+    """
+    returns path to analysis file on disk
+
+    :param analysis_id: file analysis_id
+    :param last_modified: file last_modified
+    :param short: if True - will be returned path to file contains cutted amount of attributes
+    """
+    path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
+    if os.path.exists(path):
+        return path
     # if file not exists or was updated - AnalysisFileException exception will be raised
-    save_to_cache(analysis_id, modification_time)
-    return (path_full, path_short)
+    save_to_cart_cache(analysis_id, last_modified)
+    return path
+
+
+def get_analysis(analysis_id, last_modified, short=False):
+    """
+    returns wsapi.api.Results object
+
+    :param analysis_id: file analysis_id
+    :param last_modified: file last_modified
+    :param short: if True - will be returned path to file contains cutted amount of attributes
+    """
+    path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
+    if os.path.exists(path):
+        return Results.from_file(path, settings=WSAPI_SETTINGS)
+    # if file not exists or was updated - AnalysisFileException exception will be raised
+    return save_to_cart_cache(analysis_id, last_modified)
 
 '''
 def get_results(data, short=False, live_only=False):
@@ -110,17 +137,13 @@ def get_results(data, short=False, live_only=False):
     for analysis_id, last_modified in data:
         #if live_only and ids[analysis_id].get('state') != 'live':
         #    continue
-        filename = "{0}_with{1}_attributes".format(
-            analysis_id,
-            '' if get_attributes else 'out')
+        filepath = get_cart_cache_file_path(analysis_id, last_modified, short)
         try:
             result = Results.from_file(
-                os.path.join(settings.CART_CACHE_DIR, filename),
+                filepath,
                 settings=get_wsapi_settings())
         except IOError:
-            result = api_request(
-                query='analysis_id={0}'.format(analysis_id),
-                get_attributes=get_attributes, settings=get_wsapi_settings())
+            result = save_to_cart_cache()
         if results is None:
             results = result
             results.Query.clear()
