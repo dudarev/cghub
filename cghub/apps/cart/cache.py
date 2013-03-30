@@ -55,8 +55,6 @@ def save_to_cart_cache(analysis_id, last_modified):
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
     Raise AnalysisFileException if file does not exist or was updated
-
-    returns wsapi.api.Results object if success
     """
     # to protect files outside cache dir
     if analysis_id.find('..') != -1 or last_modified.find('..') != -1:
@@ -88,8 +86,6 @@ def save_to_cart_cache(analysis_id, last_modified):
         with open(path_short, 'w') as f:
             result.remove_attributes()
             f.write(result.tostring())
-        return result
-    return Results.from_file(path_full, settings=WSAPI_SETTINGS)
 
 
 def get_analysis_path(analysis_id, last_modified, short=False):
@@ -117,37 +113,8 @@ def get_analysis(analysis_id, last_modified, short=False):
     :param short: if True - will be returned path to file contains cutted amount of attributes
     """
     path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
-    if os.path.exists(path):
-        return Results.from_file(path, settings=WSAPI_SETTINGS)
-    # if file not exists or was updated - AnalysisFileException exception will be raised
-    return save_to_cart_cache(analysis_id, last_modified)
-
-
-def join_analysises(data, short=False, live_only=False):
-    """
-    Join xml files with specified ids.
-    If file exists in cache, it will be used, otherwise, file will be downloaded and cached.
-
-    :param data: ((analysis_id, last_modified), (analysis_id, last_modified), ...)
-    :param short: if True - file will be contains only most necessary attributes
-    :param live_only: if True - files with state attribute != 'live' will be not included to results
-    """
-    results = None
-    results_counter = 1
-    for analysis_id, last_modified in data:
-        try:
-            result = get_analysis(analysis_id, last_modified, short=False)
-            if live_only and result.Result.state != 'live':
-                continue
-        except AnalysisFileException:
-            continue
-        if results is None:
-            results = result
-            results.Query.clear()
-            results.Hits.clear()
-        else:
-            result.Result.set('id', u'{0}'.format(results_counter))
-            # '+ 1' because the first two elements (0th and 1st) are Query and Hits
-            results.insert(results_counter + 1, result.Result)
-        results_counter += 1
-    return results
+    if not os.path.exists(path):
+        # if file not exists or was updated - AnalysisFileException exception will be raised
+        save_to_cart_cache(analysis_id, last_modified)
+    result = Results.from_file(path, settings=WSAPI_SETTINGS)
+    return result

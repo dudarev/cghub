@@ -15,7 +15,8 @@ from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 
 from cghub.apps.core.utils import (get_filters_string, get_default_query,
-                                            get_wsapi_settings, metadata)
+                                                    get_wsapi_settings)
+from cghub.apps.cart.utils import metadata
 
 
 DEFAULT_QUERY = get_default_query()
@@ -159,8 +160,10 @@ class ItemDetailsView(TemplateView):
 
 
 class MetadataView(View):
-    def post(self, request, uuid):
-        return metadata(ids=[uuid])
+    def get(self, request, uuid):
+        return metadata(data={uuid: {
+                'last_modified': request.GET.get('last_modified'),
+                'state': request.GET.get('state')}})
 
 
 class CeleryTasksView(TemplateView):

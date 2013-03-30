@@ -19,7 +19,7 @@ from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                                    cache_results, get_or_create_cart,
                                    get_cart_stats, clear_cart)
 from cghub.apps.cart.tasks import add_files_to_cart_by_query
-import cghub.apps.core.utils as utils
+import cghub.apps.cart.utils as cart_utils
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -122,6 +122,7 @@ class CartAddRemoveFilesView(View):
     def get(self, request, action):
         raise Http404
 
+
 class CartClearView(View):
     """
     Handels clearing cart
@@ -136,6 +137,6 @@ class CartDownloadFilesView(View):
     def post(self, request, action):
         cart = request.session.get('cart')
         if cart and action:
-            download = getattr(utils, action)
+            download = getattr(cart_utils, action)
             return download(cart)
         return HttpResponseRedirect(reverse('cart_page'))

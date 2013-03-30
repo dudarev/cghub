@@ -16,10 +16,10 @@ from django.contrib.sessions.models import Session
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
+from cghub.apps.cart.utils import join_analysises, manifest, metadata, summary
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
-                    save_to_cart_cache, get_analysis_path, get_analysis,
-                    join_analysises)
+                    save_to_cart_cache, get_analysis_path, get_analysis)
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -204,139 +204,26 @@ class CartAddItemsTestCase(WithCacheTestCase):
         session_data = session.get_decoded()
         self.assertEqual(len(session_data['cart']), 14)
 
-'''
-class OldCacheTestCase(TestCase):
-    IDS_IN_CART = ("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
-                   "4b2235d6-ffe9-4664-9170-d9d2013b395f",
-                   "7be92e1e-33b6-4d15-a868-59d5a513fca1")
-    def setUp(self):
-        self.api_results_cache_dir = settings.CART_CACHE_DIR
-        files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
-        for file in files:
-            if not os.path.isdir(file):
-                os.remove(file)
-        files = glob.glob(os.path.join(testdata_dir, '*'))
-        for file in files:
-            shutil.copy(file, os.path.join(self.api_results_cache_dir, os.path.basename(file)))
-
-        url = reverse('cart_add_remove_files', args=['add'])
-        self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
-                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-    def tearDown(self):
-        files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
-        for file in files:
-            if not os.path.isdir(file):
-                pass
-                os.remove(file)
-
-    # test for new cache functions TODO(nanvel): remove this comments and unnecessary tests
-    def test_save_to_cache(self):
-        """
-        7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
-        """
-        analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-        last_modified = '2012-10-29T21:56:12Z'
-        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
-        if os.path.exists(path):
-            shutil.rmtree(path)
-        path_full = os.path.join(path, last_modified, 'analysisFull.xml')
-        path_short = os.path.join(path, last_modified, 'analysisShort.xml')
-        save_to_cache(analysis_id, last_modified)
-        self.assertTrue(os.path.exists(path_full))
-        self.assertTrue(os.path.exists(path_short))
-        shutil.rmtree(path)
-        # check exception raises when file does not exists
-        bad_analysis_id = 'bad-analysis-id'
-        path = os.path.join(settings.CART_CACHE_DIR, bad_analysis_id)
-        try:
-            save_to_cache(bad_analysis_id, last_modified)
-        except AnalysisFileException:
-            pass
-        else:
-            raise False, 'AnalysisFileException doesn\'t raised'
-        shutil.rmtree(path)
-        # check case when file was updated
-        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
-        try:
-            save_to_cache(analysis_id, '1900-10-29T21:56:12Z')
-        except AnalysisFileException:
-            pass
-        else:
-            raise False, 'AnalysisFileException doesn\'t raised'
-        shutil.rmtree(path)
-
-
-    def test_cache_generate_manifest_live(self):
-        """
-        Test if manifest collects only data from files where state='live'
-        """
-        response = self.client.post(reverse('cart_download_files', args=['manifest']))
-        manifest = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in manifest)
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[1] in manifest)
-        self.assertFalse(self.IDS_IN_CART[2] in manifest)
-
-    def test_cache_generate_manifest_no_live(self):
-        """
-        Test if manifest is an empty template when only element with state = 'bad_data' in cart
-        """
-        # remove all 'live' elements from cart
-        url = reverse('cart_add_remove_files', args=['remove'])
-        self.client.post(url,
-            {'selected_files': [self.IDS_IN_CART[0], self.IDS_IN_CART[1]]},
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = self.client.post(reverse('cart_download_files', args=['manifest']))
-        self.assertTrue('<downloadable_file_size units="GB">0</downloadable_file_size>' in response.content)
-
-    def test_cache_generate_metadata(self):
-        """
-        Test generating metadata in xml
-        metadata should contain all elements
-        """
-        response = self.client.post(reverse('cart_download_files', args=['metadata']))
-        metadata = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue('<analysis_id>%s</analysis_id>' % id in metadata)
-
-    def test_cache_generate_summary_tsv(self):
-        """
-        Test generating metadata in TSV
-        metadata should contain all elements
-        """
-        response = self.client.post(reverse('cart_download_files', args=['summary']))
-        content = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue(id in content)
-        self.assertTrue(all(field.lower().replace(' ', '_') in content
-                            for field, visibility in settings.TABLE_COLUMNS))
-'''
 
 class CartCacheTestCase(WithCacheTestCase):
 
     cache_files = [
             '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
             '4d3fee9f8557fc0de585af248b598c44.xml',
-            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
-            '39ee3de2a4c531b8a871dc218d940a03.xml']
+            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml']
 
     """
     Cached files will be used
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
     8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-03-04T00:22:02Z
-
-    satate = 'Submitted'
-    db1cc50d-6340-4ecd-a1db-4ec17797ae75 - 2013-03-29T19:52:35Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
     last_modified = '2012-10-29T21:56:12Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-03-04T00:22:02Z'
-    analysis_id_not_live = 'db1cc50d-6340-4ecd-a1db-4ec17797ae75'
-    last_modified_not_live = '2013-03-29T19:52:35Z'
 
     # will be removed from cache after every test
-    ids = (analysis_id, analysis_id2, analysis_id_not_live,)
+    ids = (analysis_id, analysis_id2,)
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -362,8 +249,6 @@ class CartCacheTestCase(WithCacheTestCase):
         path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
         path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
         result = save_to_cart_cache(self.analysis_id, self.last_modified)
-        # check that Results object returns
-        self.assertEqual(result.Result.analysis_id, self.analysis_id)
         self.assertTrue(os.path.exists(path_full))
         self.assertTrue(os.path.exists(path_short))
         shutil.rmtree(path)
@@ -417,10 +302,14 @@ class CartCacheTestCase(WithCacheTestCase):
             get_cart_cache_file_path(self.analysis_id, self.last_modified))
         # test get_analysis
         # with cache
-        analysis = get_analysis(self.analysis_id, self.last_modified)
+        analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
         self.assertEqual(analysis.Hits, 1)
+        content = analysis.tostring()
+        self.assertIn('analysis_xml', content)
         # short version
         analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
+        content = analysis.tostring()
+        self.assertNotIn('analysis_xml', content)
         self.assertEqual(analysis.Hits, 1)
         # without cache
         shutil.rmtree(path)
@@ -428,25 +317,61 @@ class CartCacheTestCase(WithCacheTestCase):
         self.assertEqual(analysis.Hits, 1)
 
     def test_join_analysises(self):
-        data = (
-                (self.analysis_id, self.last_modified),
-                (self.analysis_id2, self.last_modified2))
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
         result = join_analysises(data)
         content = result.tostring()
         self.assertTrue(self.analysis_id in content)
         self.assertTrue(self.analysis_id2 in content)
+        # check full by default
+        self.assertIn('analysis_xml', content)
         # check live only
-        data = (
-                (self.analysis_id, self.last_modified),
-                (self.analysis_id_not_live, self.last_modified_not_live))
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'submitted'}}
         result = join_analysises(data)
         content = result.tostring()
         self.assertTrue(self.analysis_id in content)
-        self.assertTrue(self.analysis_id_not_live in content)
+        self.assertTrue(self.analysis_id2 in content)
         result = join_analysises(data, live_only=True)
         content = result.tostring()
         self.assertTrue(self.analysis_id in content)
-        self.assertFalse(self.analysis_id_not_live in content)
+        self.assertFalse(self.analysis_id2 in content)
+
+    def test_manifest(self):
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+        response = manifest(data)
+        content = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
+
+    def test_metadata(self):
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+        response = metadata(data)
+        content = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
+
+    def test_summary(self):
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+        response = summary(data)
+        content = response.content
+        self.assertTrue(self.analysis_id in content)
+        self.assertTrue(self.analysis_id2 in content)
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
+
+    def _check_content_type_and_disposition(self, response, type, filename):
+        self.assertEqual(response['Content-Type'], type)
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
 
     def tearDown(self):
         super(CartCacheTestCase, self).tearDown()
