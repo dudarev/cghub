@@ -19,24 +19,44 @@ class AnalysisFileException(Exception):
     Exception raises when file with specified analysis_id does not exists
     or was updated
     """
-    def __init__(self, analysis_id, last_modified):
+    def __init__(self, analysis_id, last_modified, message=''):
         self.analysis_id = analysis_id
         self.last_modified = last_modified
+        self.message = message
 
     def __str__(self):
-        return ('File for analysis_id={0}, which was last modified {1} '
+        return self.message or ('File for analysis_id={0}, which was last modified {1} '
             'not exists, may be it was updated'.format(
                                 self.analysis_id,
                                 self.last_modified)) 
 
 
-def save_to_cache(analysis_id, last_modified):
+def get_cart_cache_file_path(analysis_id, last_modified, short=False):
+    """
+    Calculate path to cache file
+
+    :param analysis_id: file analysis_id
+    :param last_modified: file last_modified
+    :short: if True - will be returned path to file contains cutted amount of attributes
+    """
+    return os.path.join(
+            settings.CART_CACHE_DIR,
+            analysis_id,
+            last_modified,
+            'analysis{0}.xml'.format('Short' if short else 'Full'))
+
+
+def save_to_cart_cache(analysis_id, last_modified):
     """
     Save file to {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisFull.xml
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
     Raise AnalysisFileException if file does not exist or was updated
     """
+    # to protect files outside cache dir
+    if analysis_id.find('..') != -1 or last_modified.find('..') != -1:
+        raise AnalysisFileException(analysis_id, last_modified,
+                                message='Bad analysis_id or last_modified')
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):
         os.makedirs(path)
@@ -74,4 +94,42 @@ def get_analysis_file(analysis_id, modification_time):
     # if file not exists or was updated - AnalysisFileException exception will be raised
     save_to_cache(analysis_id, modification_time)
     return (path_full, path_short)
-    
+
+'''
+def get_results(data, short=False, live_only=False):
+    """
+    Join xml files with specified ids.
+    If file exists in cache, it will be used, otherwise, file will be downloaded and cached.
+
+    :param data: ((analysis_id, last_modified), (analysis_id, last_modified), ...)
+    :param short: if True - file will be contains only most necessary attributes
+    :param live_only: if True - files with state attribute != 'live' will be not included to results
+    """
+    results = None
+    results_counter = 1
+    for analysis_id, last_modified in data:
+        #if live_only and ids[analysis_id].get('state') != 'live':
+        #    continue
+        filename = "{0}_with{1}_attributes".format(
+            analysis_id,
+            '' if get_attributes else 'out')
+        try:
+            result = Results.from_file(
+                os.path.join(settings.CART_CACHE_DIR, filename),
+                settings=get_wsapi_settings())
+        except IOError:
+            result = api_request(
+                query='analysis_id={0}'.format(analysis_id),
+                get_attributes=get_attributes, settings=get_wsapi_settings())
+        if results is None:
+            results = result
+            results.Query.clear()
+            results.Hits.clear()
+        else:
+            result.Result.set('id', u'{0}'.format(results_counter))
+            # '+ 1' because the first two elements (0th and 1st) are Query and Hits
+            results.insert(results_counter + 1, result.Result)
+        results_counter += 1
+
+    return results
+'''

@@ -17,7 +17,8 @@ from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
-from cghub.apps.cart.cache import save_to_cache, AnalysisFileException
+from cghub.apps.cart.cache import (AnalysisFileException, save_to_cart_cache,
+                                                get_cart_cache_file_path)
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -316,43 +317,74 @@ class CartCacheTestCase(WithCacheTestCase):
             '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
             '4d3fee9f8557fc0de585af248b598c44.xml']
 
-    def test_save_to_cache(self):
-        """
-        7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
-        """
-        analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-        last_modified = '2012-10-29T21:56:12Z'
-        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
-        if os.path.exists(path):
+    """
+    Cached file will be used
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
+    """
+    analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
+    last_modified = '2012-10-29T21:56:12Z'
+
+    def test_get_cache_file_path(self):
+        self.assertEqual(
+                get_cart_cache_file_path(
+                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
+                        '2012-10-29T21:56:12Z'),
+                os.path.join(
+                        settings.CART_CACHE_DIR,
+                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisFull.xml'))
+        self.assertEqual(
+                get_cart_cache_file_path(
+                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
+                        '2012-10-29T21:56:12Z',
+                        short=True),
+                os.path.join(
+                        settings.CART_CACHE_DIR,
+                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisShort.xml'))
+
+    def test_save_to_cart_cache(self):
+        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        if os.path.isdir(path):
             shutil.rmtree(path)
-        path_full = os.path.join(path, last_modified, 'analysisFull.xml')
-        path_short = os.path.join(path, last_modified, 'analysisShort.xml')
-        save_to_cache(analysis_id, last_modified)
+        path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
+        path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
+        save_to_cart_cache(self.analysis_id, self.last_modified)
         self.assertTrue(os.path.exists(path_full))
         self.assertTrue(os.path.exists(path_short))
         shutil.rmtree(path)
         # check exception raises when file does not exists
         bad_analysis_id = 'bad-analysis-id'
         path = os.path.join(settings.CART_CACHE_DIR, bad_analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
         try:
-            save_to_cache(bad_analysis_id, last_modified)
+            save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
             self.assertEqual(unicode(e), 'File for analysis_id=bad-analysis-id, '
                 'which was last modified 2012-10-29T21:56:12Z not exists, '
                 'may be it was updated')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
-        shutil.rmtree(path)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
         # check case when file was updated
-        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
+        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
         try:
-            save_to_cache(analysis_id, '1900-10-29T21:56:12Z')
+            save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
         except AnalysisFileException:
             pass
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
-        shutil.rmtree(path)
-
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        # check access denied to files outside cache dir
+        try:
+            save_to_cart_cache(self.analysis_id, '../../same_outside_dir')
+        except AnalysisFileException as e:
+            self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
+        else:
+            raise False, 'AnalysisFileException doesn\'t raised'
+        if os.path.isdir(path):
+            shutil.rmtree(path)
 
 class CartFormsTestCase(TestCase):
 
