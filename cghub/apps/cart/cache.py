@@ -1,4 +1,5 @@
 import os.path
+import sys
 
 from django.conf import settings
 
@@ -8,6 +9,9 @@ from cghub.apps.core.utils import get_wsapi_settings
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
+
+# use wsapi cache when testing
+USE_WSAPI_CACHE = 'test' in sys.argv
 
 
 class AnalysisFileException(Exception):
@@ -47,7 +51,7 @@ def save_to_cache(analysis_id, last_modified):
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
         result = api_request(
                 query='analysis_id={0}'.format(analysis_id),
-                ignore_cache=True,
+                ignore_cache=not USE_WSAPI_CACHE,
                 use_api_light=False,
                 settings=WSAPI_SETTINGS)
         if not hasattr(result, 'Result') or int(result.Hits.text) != 1:
@@ -67,6 +71,7 @@ def get_analysis_file(analysis_id, modification_time):
     path_short = os.path.join(path, 'analysisShort.xml')
     if os.path.exists(path_full) and os.path.exists(path_short):
         return (path_full, path_short)
+    # if file not exists or was updated - AnalysisFileException exception will be raised
     save_to_cache(analysis_id, modification_time)
     return (path_full, path_short)
     

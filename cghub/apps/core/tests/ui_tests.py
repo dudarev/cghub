@@ -17,6 +17,8 @@ from wsapi.api import request as api_request
 preffered queries (allow using the same cache files):
 "6d711*" - returns one result
 "6d1*" - for many results
+
+"bad-analysis-id" - bad id
 """
 
 

@@ -202,13 +202,12 @@ class CartAddItemsTestCase(WithCacheTestCase):
         session_data = session.get_decoded()
         self.assertEqual(len(session_data['cart']), 14)
 
-
-class CacheTestCase(TestCase):
+'''
+class OldCacheTestCase(TestCase):
     IDS_IN_CART = ("4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
                    "4b2235d6-ffe9-4664-9170-d9d2013b395f",
                    "7be92e1e-33b6-4d15-a868-59d5a513fca1")
     def setUp(self):
-        testdata_dir = os.path.join(PROJECT_ROOT, 'test_data/test_cache')
         self.api_results_cache_dir = settings.CART_CACHE_DIR
         files = glob.glob(os.path.join(self.api_results_cache_dir, '*'))
         for file in files:
@@ -227,7 +226,7 @@ class CacheTestCase(TestCase):
         for file in files:
             if not os.path.isdir(file):
                 pass
-                #os.remove(file)
+                os.remove(file)
 
     # test for new cache functions TODO(nanvel): remove this comments and unnecessary tests
     def test_save_to_cache(self):
@@ -309,6 +308,50 @@ class CacheTestCase(TestCase):
             self.assertTrue(id in content)
         self.assertTrue(all(field.lower().replace(' ', '_') in content
                             for field, visibility in settings.TABLE_COLUMNS))
+'''
+
+class CartCacheTestCase(WithCacheTestCase):
+
+    cache_files = [
+            '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
+            '4d3fee9f8557fc0de585af248b598c44.xml']
+
+    def test_save_to_cache(self):
+        """
+        7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
+        """
+        analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
+        last_modified = '2012-10-29T21:56:12Z'
+        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        path_full = os.path.join(path, last_modified, 'analysisFull.xml')
+        path_short = os.path.join(path, last_modified, 'analysisShort.xml')
+        save_to_cache(analysis_id, last_modified)
+        self.assertTrue(os.path.exists(path_full))
+        self.assertTrue(os.path.exists(path_short))
+        shutil.rmtree(path)
+        # check exception raises when file does not exists
+        bad_analysis_id = 'bad-analysis-id'
+        path = os.path.join(settings.CART_CACHE_DIR, bad_analysis_id)
+        try:
+            save_to_cache(bad_analysis_id, last_modified)
+        except AnalysisFileException as e:
+            self.assertEqual(unicode(e), 'File for analysis_id=bad-analysis-id, '
+                'which was last modified 2012-10-29T21:56:12Z not exists, '
+                'may be it was updated')
+        else:
+            raise False, 'AnalysisFileException doesn\'t raised'
+        shutil.rmtree(path)
+        # check case when file was updated
+        path = os.path.join(settings.CART_CACHE_DIR, analysis_id)
+        try:
+            save_to_cache(analysis_id, '1900-10-29T21:56:12Z')
+        except AnalysisFileException:
+            pass
+        else:
+            raise False, 'AnalysisFileException doesn\'t raised'
+        shutil.rmtree(path)
 
 
 class CartFormsTestCase(TestCase):

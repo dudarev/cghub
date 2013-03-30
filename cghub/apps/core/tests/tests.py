@@ -46,9 +46,10 @@ class WithCacheTestCase(TestCase):
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(settings.WSAPI_CACHE_DIR, f)
             )
-        self.default_results = objectify.fromstring(
-            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
+        if self.cache_files:
+            self.default_results = objectify.fromstring(
+                open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
+            self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
