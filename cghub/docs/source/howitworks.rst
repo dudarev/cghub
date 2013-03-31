@@ -25,13 +25,14 @@ Text for help hints for every table column, for table cells values and for filte
 
     # help.py
 
-    COLUMN_HELP_HINTS = {
-        'UUID': 'Help hint for UUID, and this is <a href="http://some/url/">link</a>, click to view help page!',
-        'State': 'Some help text',
-        'State:Live': 'Some help hint for Live State'
-        ...
+    HELP_HINTS = {
+        'UUID': 'Sample tooltip for "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
+        'Study': 'Sample tooltip for "Study"',
+        'Study:TCGA': 'Sample tooltip for "Study/TCGA"',
+        'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
+    }
 
-COLUMN_HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
+HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
 Help hints for cells for columns: 'UUID', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
