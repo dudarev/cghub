@@ -55,16 +55,6 @@ def clear_cart(request):
         request.session.modified = True
 
 
-def cache_results(file_dict):
-    """
-    To check celery status use cghub.apps.core.utils.py:is_celery_alive
-    """
-    try:
-        cache_results_task.delay(file_dict)
-    except:
-        cache_results_task(file_dict)
-
-
 def join_analysises(data, short=False, live_only=False):
     """
     Join xml files with specified ids.

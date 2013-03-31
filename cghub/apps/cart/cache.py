@@ -44,9 +44,14 @@ def get_cart_cache_file_path(analysis_id, last_modified, short=False):
     """
     return os.path.join(
             settings.CART_CACHE_DIR,
-            analysis_id,
-            last_modified,
+            analysis_id or '',
+            last_modified or '',
             'analysis{0}.xml'.format('Short' if short else 'Full'))
+
+
+def is_cart_cache_exists(analysis_id, last_modified):
+    return (os.path.exists(get_cart_cache_file_path(analysis_id, last_modified)) and
+        os.path.exists(get_cart_cache_file_path(analysis_id, last_modified, short=True)))
 
 
 def save_to_cart_cache(analysis_id, last_modified):
@@ -63,8 +68,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         last_modified.find('..') != -1):
         raise AnalysisFileException(analysis_id, last_modified,
                                 message='Bad analysis_id or last_modified')
-    if (os.path.exists(get_cart_cache_file_path(analysis_id, last_modified)) and
-        os.path.exists(get_cart_cache_file_path(analysis_id, last_modified, short=True))):
+    if is_cart_cache_exists(analysis_id, last_modified):
         return
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):

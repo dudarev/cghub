@@ -9,8 +9,8 @@ from wsapi.api_light import *
 from wsapi.utils import get_setting
 
 
-class SortingTest(unittest.TestCase):
-    """Test functions that do sorting."""
+class ApiLightTest(unittest.TestCase):
+    """Test functions from api_light.py."""
 
     def test_parse_sort_by(self):
         self.assertEqual(

@@ -19,7 +19,8 @@ from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import join_analysises, manifest, metadata, summary
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
-                    save_to_cart_cache, get_analysis_path, get_analysis)
+                    save_to_cart_cache, get_analysis_path, get_analysis,
+                    is_cart_cache_exists)
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -170,7 +171,14 @@ class ClearCartTestCase(TestCase):
 
 class CartAddItemsTestCase(WithCacheTestCase):
     cache_files = [
-        'c0fc7dd542430ce04e8c6e0d065cfd71.xml'
+        'c0fc7dd542430ce04e8c6e0d065cfd71.xml',
+        # cart cache
+        '0785ced5f282f47f8d1dbfb481fd585b.xml',
+        '3ca38cd1d292b763274585176e0fc172.xml',
+        '71589df42c0c6ae62ef7816dc2448f20.xml',
+        '2ae4e9c5-d69f-4da0-bfe7-0b49e2c87d5c',
+        '39e888db-92f9-435c-9a6c-923026500ea0',
+        '90297e2b-dd70-4c66-b975-1cb28f57eae4',
     ]
 
     def test_cart_add_files(self):
@@ -187,7 +195,8 @@ class CartAddItemsTestCase(WithCacheTestCase):
                 session_key=store.session_key)
         s.save()
         data = {
-            'attributes': json.dumps(['study', 'center_name', 'analyte_code']),
+            'attributes': json.dumps(['study', 'center_name', 'analyte_code',
+                                                        'last_modified']),
             'filters': json.dumps({
                         'state': '(live)',
                         'last_modified': '[NOW-1DAY TO NOW]',
@@ -202,15 +211,10 @@ class CartAddItemsTestCase(WithCacheTestCase):
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
-        self.assertEqual(len(session_data['cart']), 14)
+        self.assertEqual(len(session_data['cart']), 3)
 
 
 class CartCacheTestCase(WithCacheTestCase):
-
-    cache_files = [
-            '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
-            '4d3fee9f8557fc0de585af248b598c44.xml',
-            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml']
 
     """
     Cached files will be used
@@ -222,8 +226,12 @@ class CartCacheTestCase(WithCacheTestCase):
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-03-04T00:22:02Z'
 
-    # will be removed from cache after every test
-    ids = (analysis_id, analysis_id2,)
+    cache_files = [
+            '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
+            '4d3fee9f8557fc0de585af248b598c44.xml',
+            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
+            analysis_id,
+            analysis_id2]
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -248,9 +256,12 @@ class CartCacheTestCase(WithCacheTestCase):
             shutil.rmtree(path)
         path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
         path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
+        # check is_cart_cache_exists
+        self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
         result = save_to_cart_cache(self.analysis_id, self.last_modified)
         self.assertTrue(os.path.exists(path_full))
         self.assertTrue(os.path.exists(path_short))
+        self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
         shutil.rmtree(path)
         # check exception raises when file does not exists
         bad_analysis_id = 'bad-analysis-id'
@@ -372,13 +383,6 @@ class CartCacheTestCase(WithCacheTestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
-
-    def tearDown(self):
-        super(CartCacheTestCase, self).tearDown()
-        for i in self.ids:
-            path = os.path.join(settings.CART_CACHE_DIR, i)
-            if os.path.isdir(path):
-                shutil.rmtree(path)
 
 
 class CartFormsTestCase(TestCase):

@@ -5,10 +5,13 @@ import os
 from django.conf import settings
 from django.utils import timezone
 from celery.task import task
+
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
-from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
-from cghub.apps.core.utils import get_wsapi_settings, get_filters_string
+from cghub.apps.cart.cache import (AnalysisFileException, save_to_cart_cache,
+                                                    is_cart_cache_exists)
+from cghub.apps.core.utils import (get_wsapi_settings, get_filters_string,
+                                                        is_celery_alive)
 
 from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
@@ -18,17 +21,16 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
-def cache_results_task(file_dict):
+def cache_results_task(analysis_id, last_modified):
     """
     If file for specified uid not exists in settings.CART_CACHE_DIR,
     attributes will be received and saved.
     Two different files will be saved,
     the first contains all attributes and the second only most necessary ones.
 
-    :param file_dict: dictionary with attributes
+    :param analysis_id: file analysis id
+    :param last_modified: file last_modified
     """
-    analysis_id = file_dict.get('analysis_id')
-    last_modified = file_dict.get('last_modified')
     try:
         save_to_cart_cache(analysis_id, last_modified)
     except AnalysisFileException:
@@ -36,7 +38,7 @@ def cache_results_task(file_dict):
 
 
 @task(ignore_result=True)
-def add_files_to_cart_by_query(data, session_key):
+def add_files_to_cart_by_query_task(data, session_key):
     """
     Obtains all results for specified query and adds them to cart
 
@@ -51,6 +53,7 @@ def add_files_to_cart_by_query(data, session_key):
          Session.objects.get(session_key=session_key)
     except Session.DoesNotExist:
         return
+    celery_alive = is_celery_alive()
     # modify session
     s = SessionStore(session_key=session_key)
     cart = s.get('cart', {})
@@ -80,6 +83,12 @@ def add_files_to_cart_by_query(data, session_key):
             r_attrs['analysis_id'] = analysis_id
             if analysis_id not in cart:
                 cart[analysis_id] = r_attrs
+                last_modified = r_attrs['last_modified']
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                    if celery_alive:
+                        cache_results_task.delay(analysis_id, last_modified)
+                    else:
+                        cache_results_task(analysis_id, last_modified)
     s['cart'] = cart
     s.save()
 

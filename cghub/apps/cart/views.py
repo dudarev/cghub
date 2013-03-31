@@ -16,9 +16,10 @@ from cghub.apps.core.utils import (is_celery_alive,
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                                   cache_results, get_or_create_cart,
-                                   get_cart_stats, clear_cart)
-from cghub.apps.cart.tasks import add_files_to_cart_by_query
+                            get_or_create_cart, get_cart_stats, clear_cart)
+from cghub.apps.cart.cache import is_cart_cache_exists
+from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
+                                                    cache_results_task)
 import cghub.apps.cart.utils as cart_utils
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -33,6 +34,7 @@ def cart_add_files(request):
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
     if filters:
+        # 'Add all to cart' pressed
         form = AllFilesForm(request.POST)
         if form.is_valid():
             if celery_alive:
@@ -47,12 +49,12 @@ def cart_add_files(request):
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
                     if task.state not in (states.RECEIVED, states.STARTED):
-                        add_files_to_cart_by_query.apply_async(
+                        add_files_to_cart_by_query_task.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)
                 except TaskState.DoesNotExist:
                     # files will be added later by celery task
-                    add_files_to_cart_by_query.apply_async(
+                    add_files_to_cart_by_query_task.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)
                 result = {
@@ -62,7 +64,7 @@ def cart_add_files(request):
                             'title': WILL_BE_ADDED_SOON_TITLE}
             else:
                 # files will be added immediately
-                add_files_to_cart_by_query(
+                add_files_to_cart_by_query_task(
                         form.cleaned_data,
                         request.session.session_key)
                 result = {'action': 'redirect', 'redirect': reverse('cart_page')}
@@ -73,8 +75,13 @@ def cart_add_files(request):
             selected_files = request.POST.getlist('selected_files')
             for f in selected_files:
                 add_file_to_cart(request, attributes[f])
-                if celery_alive:
-                    cache_results(attributes[f])
+                analysis_id = attributes[f].get('analysis_id')
+                last_modified = attributes[f].get('last_modified')
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                    if celery_alive:
+                        cache_results_task.delay(analysis_id, last_modified)
+                    else:
+                        cache_results_task(analysis_id, last_modified)
             result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     return HttpResponse(json.dumps(result), mimetype="application/json")
 
