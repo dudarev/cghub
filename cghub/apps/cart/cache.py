@@ -57,9 +57,15 @@ def save_to_cart_cache(analysis_id, last_modified):
     Raise AnalysisFileException if file does not exist or was updated
     """
     # to protect files outside cache dir
-    if analysis_id.find('..') != -1 or last_modified.find('..') != -1:
+    if (not analysis_id or
+        not last_modified or
+        analysis_id.find('..') != -1 or
+        last_modified.find('..') != -1):
         raise AnalysisFileException(analysis_id, last_modified,
                                 message='Bad analysis_id or last_modified')
+    if (os.path.exists(get_cart_cache_file_path(analysis_id, last_modified)) and
+        os.path.exists(get_cart_cache_file_path(analysis_id, last_modified, short=True))):
+        return
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):
         os.makedirs(path)

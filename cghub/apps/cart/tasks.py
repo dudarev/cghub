@@ -7,6 +7,7 @@ from django.utils import timezone
 from celery.task import task
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
+from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
 from cghub.apps.core.utils import get_wsapi_settings, get_filters_string
 
 from django.contrib.sessions.models import Session
@@ -24,27 +25,14 @@ def cache_results_task(file_dict):
     Two different files will be saved,
     the first contains all attributes and the second only most necessary ones.
 
-    For example, for uuid==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
-        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_with_attributes
-        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_without_attributes
-    
     :param file_dict: dictionary with attributes
     """
     analysis_id = file_dict.get('analysis_id')
-    filename_with_attributes = os.path.join(settings.CART_CACHE_DIR,
-        "{0}_with_attributes".format(analysis_id))
-    filename_without_attributes = os.path.join(settings.CART_CACHE_DIR,
-        "{0}_without_attributes".format(analysis_id))
-    if os.path.isfile(filename_with_attributes) and os.path.isfile(filename_without_attributes):
-        return
-    result = api_request(
-                query='analysis_id={0}'.format(analysis_id),
-                settings=WSAPI_SETTINGS)
-    with open(filename_with_attributes, 'w') as f:
-        f.write(result.tostring())
-    with open(filename_without_attributes, 'w') as f:
-        result.remove_attributes()
-        f.write(result.tostring())
+    last_modified = file_dict.get('last_modified')
+    try:
+        save_to_cart_cache(analysis_id, last_modified)
+    except AnalysisFileException:
+        pass
 
 
 @task(ignore_result=True)

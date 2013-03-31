@@ -24,24 +24,34 @@ preffered queries (allow using the same cache files):
 
 def wsapi_cache_copy(cache_files):
     """
-    copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    Copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    In case of cart_cache, it should be generated every time,
+    but it will use wsapi cache.
     """
     TEST_DATA_DIR = 'cghub/test_data/'
     if not os.path.exists(settings.WSAPI_CACHE_DIR):
         os.makedirs(settings.WSAPI_CACHE_DIR)
     for f in cache_files:
-        shutil.copy(
-            os.path.join(TEST_DATA_DIR, f),
-            os.path.join(settings.WSAPI_CACHE_DIR, f)
-        )
+        path_from = os.path.join(TEST_DATA_DIR, f)
+        if os.path.exists(path_from):
+            shutil.copy(
+                path_from,
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
+            )
 
 
 def wsapi_cache_remove(cache_files):
     """
-    remove cache_files from CACHE_DIR
+    Remove cache_files from CACHE_DIR
+    In case of cart_cache, where data stored in directories,
+    will be used rmtree
     """
     for f in cache_files:
-        os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
+        path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
 
 
 def back_to_bytes(*args):
@@ -76,7 +86,9 @@ def get_filter_id(driver, filter_name):
 
 class SidebarTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99.ids',)
+                'f87f34ec002eff67850c644d09bf6f80.ids',
+                '71411da734e90beda34360fa47d88b99.ids',
+                )
 
     @classmethod
     def setUpClass(self):
@@ -297,8 +309,8 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
     cache_files = (
         '71411da734e90beda34360fa47d88b99.ids',
-        '01f2124514e0ee69cbe1723a7d25129f.ids',
-        '9f0940ac06829683040172c68033504a.ids')
+        '0036c3926adab0f1ec1af6a76ae0a3d0.ids'
+        )
 
     @classmethod
     def setUpClass(self):
@@ -503,10 +515,9 @@ class HelpHintsTestCase(LiveServerTestCase):
 class DetailsTestCase(LiveServerTestCase):
 
     cache_files = (
+        '0b8eae89-0af1-45b7-9b97-ea1fdeaf3890',
         '71411da734e90beda34360fa47d88b99.ids',
-        'c493b4ed5f47d04e1f1cd60e6e5a1ce1.xml',
-        '39fb3b30-abfe-46ad-a9c9-ef83b1dbb6c4_with_attributes',
-        '39fb3b30-abfe-46ad-a9c9-ef83b1dbb6c4_without_attributes'
+        '9aa43640de03f3d47f87c21ef1a35ee5.xml',
         )
 
     @classmethod
@@ -862,11 +873,10 @@ class SearchTestCase(LiveServerTestCase):
 
 class ColumnSelectTestCase(LiveServerTestCase):
     cache_files = (
-                '7e82235686903c015624e4b0db45f0b6.xml',
                 '862628620de0b3600cbaa8c11d92a4a2.xml',
                 'c819df02cad704f9d074e73d322cb319.xml',
-                'c7e49b79-2f7d-1584-e040-ad451e410b1c_with_attributes',
-                'c7e49b79-2f7d-1584-e040-ad451e410b1c_without_attributes',
+                '862e15fcf25b3882bb5c58e3a96026da.xml',
+                'c7e49b79-2f7d-1584-e040-ad451e410b1c'
                 )
     query = "6d711*"
 
