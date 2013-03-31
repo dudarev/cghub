@@ -5,8 +5,8 @@ from lxml import objectify
 
 from django.conf import settings
 
-from wsapi.api import Results
-from wsapi.api import request as api_request
+from cghub.wsapi.api import Results
+from cghub.wsapi.api import request as api_request
 
 from cghub.apps.core.utils import get_wsapi_settings
 

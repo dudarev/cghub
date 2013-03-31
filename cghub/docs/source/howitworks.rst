@@ -111,20 +111,27 @@ There are next types of cache files:
     - api cache:
         - files obtained by api.py. Theirs names calculated as hash from query used to obtain them
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
-        - list of ids created by api_light.py, they ends with '_ids.cache'
+        - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
-        - cached files for one uid, creates when adding results to cart. Names of this files calculates as uuid+'_with_attributes' and uuid+'_without_attributes'.
+        - cached files for one uid, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: {CART_CACHE_DIR}/{analysis_id}/{last_modified}/analysis[Full|Short].xml
 
-Cache lives only time specified in ``settings.TIME_DELETE_CART_CACHE_FILES_OLDER`` or ``settings.TIME_DELETE_API_CACHE_FILES_OLDER`` for api cache and then them should be removed. Celery tasks used for this.
-
-Folders where cache should be stored specified in settings.
+Folders where cache should be stored specified in settings (CART_CACHE_DIR).
 
 Cart cache
 ----------
 
-When user adds few files to cart, for every file added to cart will be created task to upload attributes and store them in cache.
+When user adds some files to cart, this files will be saved to cache if they not exists here yet.
+For every added file will be created two files in cache: one is analysisFull.xml and second is analysisShort.xml that contains only most necessary attributes and used to build manifest file.
 
-.. autofunction:: cghub.apps.cart.tasks.cache_results_task
+Path to analysis file can be obtained by next function:
+
+.. autofunction:: cghub.apps.cart.cache.get_analysis_path
+
+If file will be not  cached, program will try to upload it. In case when file with specified analysis_id for specified last_modified will be not found, will be raised AnalysisFileException exception.
+
+To get wsapi.api.Result object for specified analysis_id and last_modified can be used next function:
+
+.. autofunction:: cghub.apps.cart.cache.get_analysis
 
 Adding files to cart
 ====================
@@ -155,4 +162,4 @@ Downloading metadata
 
 File with metadata collected from xml files with uuids which stored in cart.
 
-.. autofunction:: cghub.apps.core.utils.get_results
+.. autofunction:: cghub.apps.cart.utils.join_analysises

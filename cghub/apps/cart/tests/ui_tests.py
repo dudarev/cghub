@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 class LinksNavigationsTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99_ids.cache',)
+                '71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
     def setUpClass(self):

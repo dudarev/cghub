@@ -68,7 +68,7 @@ def cache_results(file_dict):
 def join_analysises(data, short=False, live_only=False):
     """
     Join xml files with specified ids.
-    If file exists in cache, it will be used, otherwise, file will be downloaded and cached.
+    If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
 
     :param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
     :param short: if True - file will be contains only most necessary attributes
