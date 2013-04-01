@@ -101,9 +101,6 @@ There are next tasks:
 
 .. autofunction:: cghub.apps.cart.tasks.add_files_to_cart_by_query
 
-.. autofunction:: cghub.apps.cart.tasks.cache_clear_task
-
-
 Caching
 =======
 
@@ -113,25 +110,25 @@ There are next types of cache files:
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
         - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
-        - cached files for one uid, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: {CART_CACHE_DIR}/{analysis_id}/{last_modified}/analysis[Full|Short].xml
+        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: {CART_CACHE_DIR}/{analysis_id}/{last_modified}/analysis[Full|Short].xml
 
 Folders where cache should be stored specified in settings (CART_CACHE_DIR).
 
 Cart cache
 ----------
 
-When user adds some files to cart, this files will be saved to cache if they not exists here yet.
+When user adds some files to cart, this files will be saved to cache if they not exists here yet (using cache_results_task).
 For every added file will be created two files in cache: one is analysisFull.xml and second is analysisShort.xml that contains only most necessary attributes and used to build manifest file.
 
 Path to analysis file can be obtained by next function:
 
 .. autofunction:: cghub.apps.cart.cache.get_analysis_path
 
-If file will be not  cached, program will try to upload it. In case when file with specified analysis_id for specified last_modified will be not found, will be raised AnalysisFileException exception.
-
 To get wsapi.api.Result object for specified analysis_id and last_modified can be used next function:
 
 .. autofunction:: cghub.apps.cart.cache.get_analysis
+
+If file will be not  cached, program will try to upload it. In case when file with specified analysis_id for specified last_modified will be not found, will be raised AnalysisFileException exception.
 
 Adding files to cart
 ====================
@@ -146,7 +143,7 @@ Adding selected files to cart
 The following sequence of actions are performing:
     - when user click on 'Add to cart', attributes values for selected files that stored in table transmitted
     - obtained attributes are saved to cart (stored in Session)
-    - for every file creates task to obtain attributes and save them to cache
+    - if file not in cache yet, will be created task to cache it
 
 Adding all files to cart
 ------------------------
@@ -154,12 +151,13 @@ Adding all files to cart
 Here are next sequence of actions:
     - when user click 'Add all to cart', transmitted only current query
     - then will be created task to obtain all attributes for specified query and fill cart
+    - will be checked that every file exists in cache, if not - will be created task to cache it
     - task id transmitted back to user and saves into cookies
     - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
 
 Downloading metadata
 ====================
 
-File with metadata collected from xml files with uuids which stored in cart.
+File with metadata collected from xml files stored in cart cache with analysis ids which stored in cart.
 
 .. autofunction:: cghub.apps.cart.utils.join_analysises

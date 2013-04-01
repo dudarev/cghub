@@ -110,7 +110,7 @@ to keep files is also specified.
 
     # cache.py
 
-    CART_CACHE_DIR = '/tmp/wsapi/'
+    CART_CACHE_DIR = '/tmp/cart/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
 

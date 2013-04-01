@@ -92,7 +92,8 @@ def add_files_to_cart_by_query_task(data, session_key):
     s['cart'] = cart
     s.save()
 
-
+# FIXME(nanvel): now cache stored in folders
+'''
 @task(ignore_result=True)
 def cache_clear_task():
     """
@@ -105,3 +106,4 @@ def cache_clear_task():
         time_file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file))
         if now - time_file_modified > settings.TIME_DELETE_CART_CACHE_FILES_OLDER:
             os.remove(file)
+'''
