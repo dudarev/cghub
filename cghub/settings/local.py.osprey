@@ -9,8 +9,8 @@ ADMINS = (
   ('Mark Diekhans', 'markd@kermodei.com'),
 )
 
-WSAPI_CACHE_DIR = '/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser/local/var/cache/cghub-data-browser'
-CART_CACHE_DIR = WSAPI_CACHE_DIR
+WSAPI_CACHE_DIR = '/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser/local/var/cache/cghub-data-browser/wsapi'
+CART_CACHE_DIR = '/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser/local/var/cache/cghub-data-browser/cart'
 
 # rabbitmq server
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"

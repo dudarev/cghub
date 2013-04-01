@@ -63,14 +63,14 @@ def parse_sort_by(value):
 def get_cache_file_name(query, settings):
     """
     Calculate cache file name.
-    IDs cache files ends with _ids.cache.
+    IDs cache files ends with .ids.
     """
     # Prevent getting different file names because of 
     # percent escaping
     query = urllib2.unquote(query.encode("utf8"))
     query = urllib2.quote(query)
     md5 = hashlib.md5(query)
-    cache_file_name = u'{0}_ids.cache'.format(md5.hexdigest())
+    cache_file_name = u'{0}.ids'.format(md5.hexdigest())
     cache_file_name = os.path.join(
                 get_setting('CACHE_DIR', settings),
                 cache_file_name)

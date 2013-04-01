@@ -11,10 +11,10 @@ CELERY_IMPORTS = (
     )
 
 CELERYBEAT_SCHEDULE = {
-    "clear-cart-cache": {
-        "task": "cghub.apps.cart.tasks.cache_clear_task",
-        "schedule": TIME_CHECK_CART_CACHE_INTERVAL,
-        },
+    #"clear-cart-cache": {
+    #    "task": "cghub.apps.cart.tasks.cache_clear_task",
+    #    "schedule": TIME_CHECK_CART_CACHE_INTERVAL,
+    #    },
     "clear-api-cache": {
         "task": "cghub.apps.core.tasks.api_cache_clear_task",
         "schedule": TIME_CHECK_API_CACHE_INTERVAL,

@@ -10,7 +10,7 @@ jQuery(function ($) {
     cghub.help = {
         hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
-        keysIgnore: ['uuid', 'uploaded', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['analysis id', 'uploaded', 'last modified', 'barcode', 'files size'],
         init:function () {
             cghub.help.hintUrl = $('body').data('help-hint-url');
             cghub.help.textUrl = $('body').data('help-text-url');
@@ -19,6 +19,7 @@ jQuery(function ($) {
             cghub.help.activateTableCellTooltipHelp();
             cghub.help.activateFilterTooltipHelp();
             cghub.help.activateFilterItemTooltipHelp();
+            cghub.help.activateFilterTextTooltipHelp();
             cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
@@ -128,6 +129,14 @@ jQuery(function ($) {
         activateFilterItemTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
                 var filter = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
+                filter = filter.replace(':', '').replace('By ', '');
+                if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return filter + ':' + $target.text();
+            });
+        },
+        activateFilterTextTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text-item', function($target) {
+                var filter = $target.parents('.ui-dropdownchecklist-selector-wrapper').prev().prev().text();
                 filter = filter.replace(':', '').replace('By ', '');
                 if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return filter + ':' + $target.text();

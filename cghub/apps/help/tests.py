@@ -30,7 +30,7 @@ class HelpViewsTestCase(TestCase):
         ajax view for obtaining help hints text
         """
         ajax_attrs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        help_hint_key = 'UUID'
+        help_hint_key = 'Analysis Id'
         help_hint_text = 'Some hint text'
         with self.settings(HELP_HINTS = {help_hint_key: help_hint_text}):
             url = reverse('help_hint')

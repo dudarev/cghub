@@ -11,10 +11,10 @@ urlpatterns = patterns(
     '',
     url(r'^$', HomeView.as_view(), name='home_page'),
     url(r'^search/$', SearchView.as_view(), name='search_page'),
-    url(r'^details/(?P<uuid>'
+    url(r'^details/(?P<analysis_id>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         ItemDetailsView.as_view(), name='item_details'),
-    url(r'^metadata/(?P<uuid>'
+    url(r'^metadata/(?P<analysis_id>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         MetadataView.as_view(), name='metadata'),
     url(r'^cart/', include('cghub.apps.cart.urls')),

@@ -103,12 +103,14 @@ jQuery(function ($) {
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
                         width: 180,
+                        zIndex: 1010,
                         explicitClose: 'close'
                     });
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 180,
+                        zIndex: 1010,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
@@ -133,7 +135,7 @@ jQuery(function ($) {
                 countSelected = 0,
                 color = '#333';
             $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                preview += $(el).find('label').html() + '<br>';
+                preview += '<span class="ui-dropdownchecklist-text-item">' + $(el).find('label').html() + '</span><br>';
                 countSelected++;
             });
             if (countSelected === 0) {
@@ -146,6 +148,8 @@ jQuery(function ($) {
             }
             $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
+            //Bug #1787 delete standard tooltip with text "selecting..."
+            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         addFilesFormSubmit:function () {
             // collect all data attributes
@@ -374,10 +378,10 @@ jQuery(function ($) {
             }
             var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
             var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
-            if(start_to_now == now_to_end) {start_to_now += 1};
+            if(start_to_now == now_to_end) {start_to_now += 1;}
             var start_str = '[NOW-' + start_to_now + 'DAY';
             var end_str = 'NOW-' + now_to_end + 'DAY]';
-            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
+            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]'; }
             return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
@@ -385,7 +389,7 @@ jQuery(function ($) {
             var current = new Date();
             var current_parsed = Date.parse(current);
             // Get the number of days
-            var values = value.slice(1, -1).split(' TO ')
+            var values = value.slice(1, -1).split(' TO ');
             var start_now = parseInt(values[0].split('-').reverse()[0].slice(0, -3));
             var end_now = parseInt(values[1].split('-').reverse()[0].slice(0, -3));
             // Convert each to date objects
