@@ -20,6 +20,7 @@ jQuery(function ($) {
             cghub.help.activateFilterHeaderTooltipHelp();
             cghub.help.activateFilterSelectorItemTooltipHelp();
             cghub.help.activateFilterTextTooltipHelp();
+            cghub.help.activateCommonTooltipHelp();
             cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
@@ -109,7 +110,9 @@ jQuery(function ($) {
         // for headers in results table
         activateTableHeaderTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
-                return $target.text().replace(decodeURI('%C2%A0%E2%86%93'), '');
+                return $target.text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
             });
         },
         // for cells in result table
@@ -118,7 +121,9 @@ jQuery(function ($) {
                 if(!$target.text().length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
-                .eq(index).text().replace(decodeURI('%C2%A0%E2%86%93'), '');
+                .eq(index).text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();
             });
@@ -146,7 +151,13 @@ jQuery(function ($) {
                 if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return filterName + ':' + $target.text();
             });
-        }
+        },
+        // for other elements on the page
+        activateCommonTooltipHelp:function ($target) {
+            cghub.help.activateTooltipsForSelector('.js-common-tooltip', function($target) {
+                return 'common:' + $target.data('key');
+            });
+        },
     };
     cghub.help.init();
 });

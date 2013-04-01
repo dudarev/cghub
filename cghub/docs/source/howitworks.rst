@@ -7,17 +7,17 @@ How it works
 Help
 ====
 
-Help hints for table and filters bar
-------------------------------------
+Help hints
+----------
 
-Hints shows for table cells and filters. Time, after which tooltip will be shown, specified in ``cghub/static/js/help.js`` - see ``hoverTime`` variable.
+Hints shows for table cells, filters and other elements marked by class. Time, after which tooltip will be shown, specified in ``cghub/static/js/help.js`` - see ``hoverTime`` variable.
 
 .. code-block:: js
 
     cghub.help = {
         hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
 
-Text for help hints for every table column, for table cells values and for filters can be specified in project settings.
+Text for help hints for every table column, for table cells values, for filters and othe elements can be specified in project settings.
 
 ``settings/help.py``:
 
@@ -32,9 +32,23 @@ Text for help hints for every table column, for table cells values and for filte
         'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
         # help hints for filter titles
         'filter:Study': 'Sample tooltip for filter "Study"',
+        # common help hint, can be added for any element
+        'common:some-div': 'Sample tooltip for div-element',
     }
 
 HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
+
+In case of common help hint, key will start from 'common:'.
+To add tooltip to, for example, some div element, we should add 'js-commont-tooltip' class to element and specify key it will be recognized by. Example:
+
+::
+
+    # HTML:
+    <div class="someclass js-common-tooltip" data-tag="some-key">Some content</div>
+
+    # help.py:
+    HELP_HINTS = {
+        'common:some-tag': 'Some hint' 
 
 Help hints for cells for columns: 'Analysis Id', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
