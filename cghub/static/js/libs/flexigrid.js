@@ -1491,6 +1491,7 @@
             columnSelectMenu.dropdownchecklist({
                 firstItemChecksAll: true,
                 width: 170,
+                zIndex: 1010,
                 textFormatFunction: function(options) {
                     $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
                     return 'selecting...';

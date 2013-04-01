@@ -25,13 +25,14 @@ Text for help hints for every table column, for table cells values and for filte
 
     # help.py
 
-    COLUMN_HELP_HINTS = {
-        'Analysis Id': 'Help hint for Analysis Id, and this is <a href="http://some/url/">link</a>, click to view help page!',
-        'State': 'Some help text',
-        'State:Live': 'Some help hint for Live State'
-        ...
+    HELP_HINTS = {
+        'UUID': 'Sample tooltip for "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
+        'Study': 'Sample tooltip for "Study"',
+        'Study:TCGA': 'Sample tooltip for "Study/TCGA"',
+        'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
+    }
 
-COLUMN_HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
+HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
 Help hints for cells for columns: 'Analysis Id', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
@@ -100,9 +101,6 @@ There are next tasks:
 
 .. autofunction:: cghub.apps.cart.tasks.add_files_to_cart_by_query
 
-.. autofunction:: cghub.apps.cart.tasks.cache_clear_task
-
-
 Caching
 =======
 
@@ -110,20 +108,27 @@ There are next types of cache files:
     - api cache:
         - files obtained by api.py. Theirs names calculated as hash from query used to obtain them
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
-        - list of ids created by api_light.py, they ends with '_ids.cache'
+        - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
-        - cached files for one uid, creates when adding results to cart. Names of this files calculates as analysis_id+'_with_attributes' and analysis_id+'_without_attributes'.
+        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: {CART_CACHE_DIR}/{analysis_id}/{last_modified}/analysis[Full|Short].xml
 
-Cache lives only time specified in ``settings.TIME_DELETE_CART_CACHE_FILES_OLDER`` or ``settings.TIME_DELETE_API_CACHE_FILES_OLDER`` for api cache and then them should be removed. Celery tasks used for this.
-
-Folders where cache should be stored specified in settings.
+Folders where cache should be stored specified in settings (CART_CACHE_DIR).
 
 Cart cache
 ----------
 
-When user adds few files to cart, for every file added to cart will be created task to upload attributes and store them in cache.
+When user adds some files to cart, this files will be saved to cache if they not exists here yet (using cache_results_task).
+For every added file will be created two files in cache: one is analysisFull.xml and second is analysisShort.xml that contains only most necessary attributes and used to build manifest file.
 
-.. autofunction:: cghub.apps.cart.tasks.cache_results_task
+Path to analysis file can be obtained by next function:
+
+.. autofunction:: cghub.apps.cart.cache.get_analysis_path
+
+To get wsapi.api.Result object for specified analysis_id and last_modified can be used next function:
+
+.. autofunction:: cghub.apps.cart.cache.get_analysis
+
+If file will be not  cached, program will try to upload it. In case when file with specified analysis_id for specified last_modified will be not found, will be raised AnalysisFileException exception.
 
 Adding files to cart
 ====================
@@ -138,7 +143,7 @@ Adding selected files to cart
 The following sequence of actions are performing:
     - when user click on 'Add to cart', attributes values for selected files that stored in table transmitted
     - obtained attributes are saved to cart (stored in Session)
-    - for every file creates task to obtain attributes and save them to cache
+    - if file not in cache yet, will be created task to cache it
 
 Adding all files to cart
 ------------------------
@@ -146,12 +151,13 @@ Adding all files to cart
 Here are next sequence of actions:
     - when user click 'Add all to cart', transmitted only current query
     - then will be created task to obtain all attributes for specified query and fill cart
+    - will be checked that every file exists in cache, if not - will be created task to cache it
     - task id transmitted back to user and saves into cookies
     - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
 
 Downloading metadata
 ====================
 
-File with metadata collected from xml files with analysis_ids which stored in cart.
+File with metadata collected from xml files stored in cart cache with analysis ids which stored in cart.
 
-.. autofunction:: cghub.apps.core.utils.get_results
+.. autofunction:: cghub.apps.cart.utils.join_analysises

@@ -5,9 +5,13 @@ import os
 from django.conf import settings
 from django.utils import timezone
 from celery.task import task
+
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
-from cghub.apps.core.utils import get_wsapi_settings, get_filters_string
+from cghub.apps.cart.cache import (AnalysisFileException, save_to_cart_cache,
+                                                    is_cart_cache_exists)
+from cghub.apps.core.utils import (get_wsapi_settings, get_filters_string,
+                                                        is_celery_alive)
 
 from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
@@ -17,38 +21,24 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
-def cache_results_task(file_dict):
+def cache_results_task(analysis_id, last_modified):
     """
     If file for specified uid not exists in settings.CART_CACHE_DIR,
     attributes will be received and saved.
     Two different files will be saved,
     the first contains all attributes and the second only most necessary ones.
 
-    For example, for analysis_id==b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462 will be saved next files:
-        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_with_attributes
-        - b7bee6ad-9e79-4ea2-ac8f-c7fec93b7462_without_attributes
-    
-    :param file_dict: dictionary with attributes
+    :param analysis_id: file analysis id
+    :param last_modified: file last_modified
     """
-    analysis_id = file_dict.get('analysis_id')
-    filename_with_attributes = os.path.join(settings.CART_CACHE_DIR,
-        "{0}_with_attributes".format(analysis_id))
-    filename_without_attributes = os.path.join(settings.CART_CACHE_DIR,
-        "{0}_without_attributes".format(analysis_id))
-    if os.path.isfile(filename_with_attributes) and os.path.isfile(filename_without_attributes):
-        return
-    result = api_request(
-                query='analysis_id={0}'.format(analysis_id),
-                settings=WSAPI_SETTINGS)
-    with open(filename_with_attributes, 'w') as f:
-        f.write(result.tostring())
-    with open(filename_without_attributes, 'w') as f:
-        result.remove_attributes()
-        f.write(result.tostring())
+    try:
+        save_to_cart_cache(analysis_id, last_modified)
+    except AnalysisFileException:
+        pass
 
 
 @task(ignore_result=True)
-def add_files_to_cart_by_query(data, session_key):
+def add_files_to_cart_by_query_task(data, session_key):
     """
     Obtains all results for specified query and adds them to cart
 
@@ -63,6 +53,7 @@ def add_files_to_cart_by_query(data, session_key):
          Session.objects.get(session_key=session_key)
     except Session.DoesNotExist:
         return
+    celery_alive = is_celery_alive()
     # modify session
     s = SessionStore(session_key=session_key)
     cart = s.get('cart', {})
@@ -92,10 +83,17 @@ def add_files_to_cart_by_query(data, session_key):
             r_attrs['analysis_id'] = analysis_id
             if analysis_id not in cart:
                 cart[analysis_id] = r_attrs
+                last_modified = r_attrs['last_modified']
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                    if celery_alive:
+                        cache_results_task.delay(analysis_id, last_modified)
+                    else:
+                        cache_results_task(analysis_id, last_modified)
     s['cart'] = cart
     s.save()
 
-
+# FIXME(nanvel): now cache stored in folders
+'''
 @task(ignore_result=True)
 def cache_clear_task():
     """
@@ -108,3 +106,4 @@ def cache_clear_task():
         time_file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file))
         if now - time_file_modified > settings.TIME_DELETE_CART_CACHE_FILES_OLDER:
             os.remove(file)
+'''

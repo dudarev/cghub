@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 class LinksNavigationsTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99_ids.cache',)
+                '71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
     def setUpClass(self):
@@ -31,6 +31,7 @@ class LinksNavigationsTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(LinksNavigationsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
@@ -54,13 +55,11 @@ class LinksNavigationsTestCase(LiveServerTestCase):
 
 class CartUITestCase(LiveServerTestCase):
     cache_files = (
-                    '3b687dc26053309770100fd85a0dcfe8.xml',
                     '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
-                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58_with_attributes',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1_with_attributes',
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58_without_attributes',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1_without_attributes',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml',
+                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58',
+                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
                     )
     selected = [
         '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
@@ -73,7 +72,7 @@ class CartUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
-        # Presetup Firefox for file downloads
+        # presetup Firefox for file downloads
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
@@ -84,7 +83,7 @@ class CartUITestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
-        # Calculate uuid for items on the first page
+        # calculate uuid for items on the first page
         lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
         analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
         self.page_analysis_ids = analysis_id[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
@@ -96,7 +95,7 @@ class CartUITestCase(LiveServerTestCase):
         wsapi_cache_remove(self.cache_files)
 
     def test_cart(self):
-        # Testing proper item adding
+        # test adding item to cart
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
@@ -145,6 +144,7 @@ class CartUITestCase(LiveServerTestCase):
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
 
+
         # Testing 'Select all' button in the cart
         for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
@@ -160,8 +160,7 @@ class CartUITestCase(LiveServerTestCase):
                 'input[value="%s"]' % analysis_id)
             assert checkbox.is_selected()
 
-        # Checking file downloading
-        # Check there are no pre-existed files in /tmp/wsapi/
+        # check file downloading
         try:
             os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
@@ -173,7 +172,7 @@ class CartUITestCase(LiveServerTestCase):
                 'input[value="%s"]' % self.selected[0])
         checkbox.click()
 
-        # Download Manifest in XML file
+        # download Manifest XML
         btn = driver.find_element_by_class_name('cart-download-manifest')
         btn.click()
         driver.implicitly_wait(5)
@@ -182,7 +181,7 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File manifest.xml wasn't downloaded"
 
-        # Download Metadata XML file
+        # download Metadata XML
         btn = driver.find_element_by_class_name('cart-download-metadata')
         btn.click()
         driver.implicitly_wait(5)
@@ -191,7 +190,7 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File metadata.xml wasn't downloaded"
 
-        # Download Summary TSV file
+        # download Summary TSV
         btn = driver.find_element_by_class_name('cart-download-summary')
         btn.click()
         driver.implicitly_wait(5)
@@ -200,7 +199,7 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File summary.tsv wasn't downloaded"
 
-        # Remove selected from cart
+        # remove items from cart
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
         assert 'Files in your cart: {0}'.format(len(self.selected)) in stat.text
 
@@ -216,7 +215,7 @@ class CartUITestCase(LiveServerTestCase):
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 1)
 
-        # Test 'clear cart' button
+        # test 'clear cart' button
         btn = driver.find_element_by_class_name('cart-clear')
         btn.click()
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
@@ -231,10 +230,15 @@ class CartUITestCase(LiveServerTestCase):
 
 class SortWithinCartTestCase(LiveServerTestCase):
     cache_files = (
+                    '7e82235686903c015624e4b0db45f0b6.xml',
+                    '862628620de0b3600cbaa8c11d92a4a2.xml',
+                    'c819df02cad704f9d074e73d322cb319.xml',
+                    '862e15fcf25b3882bb5c58e3a96026da.xml',
                     'cb712a7b93a6411001cbc34cfb883594.xml',
                     'ecbf7eaaf5b476df08b2997afd675701.xml',
-                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
-                    )
+                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                    'c7e49b79-2f7d-1584-e040-ad451e410b1c')
+
     query = "6d711*"
 
     @classmethod
@@ -243,7 +247,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
         wsapi_cache_copy(self.cache_files)
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[4])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
@@ -252,10 +256,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
         super(SortWithinCartTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
 
-    #TODO(postatum): need to fix
-    """
     def test_sort_within_cart(self):
-        # Adding first 10 items to cart for sorting
+        # add first 10 items to cart for sorting
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
@@ -275,14 +277,15 @@ class SortWithinCartTestCase(LiveServerTestCase):
 
             # scroll table
             if i > 5:
-                driver.execute_script("$('.flexigrid div')"
+                time.sleep(1)
+                driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
                         ".parents('th').position().left);" % attr)
-            time.sleep(5)
+            time.sleep(3)
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
-            # Getting list with sorted attributes
+            # get list with sorted attributes
             results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1], sort_by=attr).Result
             sorted_attr = [getattr(r, attr) for r in results]
 
@@ -299,8 +302,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
-            # Reverse sorting
-            driver.execute_script("$('.flexigrid div')"
+            # reverse sorting
+            time.sleep(1)
+            driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
                         ".parents('th').position().left);" % attr);
             sort_link = driver.find_element_by_xpath(
@@ -321,4 +325,3 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
-        """
