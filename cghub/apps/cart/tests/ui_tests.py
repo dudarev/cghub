@@ -11,7 +11,8 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import (
                             wsapi_cache_copy,
-                            wsapi_cache_remove)
+                            wsapi_cache_remove,
+                            cart_cache_remove)
 from cghub.apps.core.templatetags.search_tags import (
                             get_name_by_code,
                             get_sample_type_by_code,
@@ -19,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 
 class LinksNavigationsTestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                 '71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
@@ -27,14 +28,14 @@ class LinksNavigationsTestCase(LiveServerTestCase):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
         super(LinksNavigationsTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
         super(LinksNavigationsTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
     def test_cart_link(self):
         self.selenium.get(self.live_server_url)
@@ -54,13 +55,16 @@ class LinksNavigationsTestCase(LiveServerTestCase):
 
 
 class CartUITestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                     '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
                     '128a4ee167e9c3eacf2e5943b93b6b53.xml',
                     '4d3fee9f8557fc0de585af248b598c44.xml',
+                    )
+    cart_cache_files = (
                     '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58',
                     '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
                     )
+
     selected = [
         '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
         '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58'
@@ -82,9 +86,9 @@ class CartUITestCase(LiveServerTestCase):
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
         # calculate uuid for items on the first page
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
         analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
         self.page_analysis_ids = analysis_id[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
@@ -92,7 +96,8 @@ class CartUITestCase(LiveServerTestCase):
     def tearDownClass(self):
         self.selenium.quit()
         super(CartUITestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
+        cart_cache_remove(self.cart_cache_files)
 
     def test_cart(self):
         # test adding item to cart
@@ -229,14 +234,15 @@ class CartUITestCase(LiveServerTestCase):
 
 
 class SortWithinCartTestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                     '7e82235686903c015624e4b0db45f0b6.xml',
                     '862628620de0b3600cbaa8c11d92a4a2.xml',
                     'c819df02cad704f9d074e73d322cb319.xml',
                     '862e15fcf25b3882bb5c58e3a96026da.xml',
                     'cb712a7b93a6411001cbc34cfb883594.xml',
                     'ecbf7eaaf5b476df08b2997afd675701.xml',
-                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml')
+    cart_cache_files = (
                     'c7e49b79-2f7d-1584-e040-ad451e410b1c')
 
     query = "6d711*"
@@ -246,7 +252,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
         lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[4])._lxml_results
         self.items_count = lxml.Hits
 
@@ -254,7 +260,8 @@ class SortWithinCartTestCase(LiveServerTestCase):
     def tearDownClass(self):
         self.selenium.quit()
         super(SortWithinCartTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
+        cart_cache_remove(self.cart_cache_files)
 
     def test_sort_within_cart(self):
         # add first 10 items to cart for sorting

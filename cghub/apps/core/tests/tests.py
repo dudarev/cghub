@@ -38,29 +38,33 @@ class WithCacheTestCase(TestCase):
         # >>> get_cache_file_name('xml_text=6d5%2A', True)
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
-        if not self.cache_files:
-            return
-
+        # wsapi cache
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
             os.makedirs(settings.WSAPI_CACHE_DIR)
-        for f in self.cache_files:
-            path_from = os.path.join(TEST_DATA_DIR, f)
-            if os.path.exists(path_from):
-                shutil.copy(
-                    path_from,
-                    os.path.join(settings.WSAPI_CACHE_DIR, f)
-                )
-        path = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
-        if not os.path.exists(path):
-            return
-        self.default_results = objectify.fromstring(
-            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
+        for f in self.wsapi_cache_files:
+            shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
+            )
+        if self.wsapi_cache_files:
+            path = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
+            if not os.path.exists(path):
+                return
+            self.default_results = objectify.fromstring(
+                open(path).read())
+            self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
-        for f in self.cache_files:
+        # wsapi cache
+        for f in self.wsapi_cache_files:
             path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+            if not os.path.exists(path):
+                continue
+            os.remove(path)
+        # cart cache
+        for f in self.cart_cache_files:
+            path = os.path.join(settings.CART_CACHE_DIR, f)
             if not os.path.exists(path):
                 continue
             if os.path.isdir(path):
@@ -72,7 +76,8 @@ class WithCacheTestCase(TestCase):
 
 class CoreTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         '35d58c85ed93322dcaacadef5538a455.xml',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
@@ -126,7 +131,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
+        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
@@ -443,7 +448,8 @@ class TemplateTagsTestCase(TestCase):
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         'af5eb9d62e2bafda2eb3bad59afa5b2d.ids',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
@@ -520,7 +526,8 @@ class PaginatorUnitTestCase(TestCase):
 
 class MetadataViewTestCase(WithCacheTestCase):
 
-    cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
+    cart_cache_files = []
+    wsapi_cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
 
     """
     Cached files will be used
