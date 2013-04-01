@@ -330,7 +330,7 @@ def table_header(request):
             'width': 80,
             'attr': 'upload_date',
         },
-        'UUID': {
+        'Analysis Id': {
             'width': 220,
             'attr': 'analysis_id',
         },
@@ -389,7 +389,7 @@ def field_values(result):
         'Study': get_name_by_code(
             'study', get_result_attr(result, 'study')),
         'Uploaded': get_result_attr(result, 'upload_date'),
-        'UUID': get_result_attr(result, 'analysis_id'),
+        'Analysis Id': get_result_attr(result, 'analysis_id'),
 
         # additional fields for details
         'Aliquot id': get_result_attr(result, 'aliquot_id'),

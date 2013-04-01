@@ -26,7 +26,7 @@ Text for help hints for every table column, for table cells values and for filte
     # help.py
 
     HELP_HINTS = {
-        'UUID': 'Sample tooltip for "UUID", and this is <a href="#" class="js-help-link" data-slug="uuid-help">link</a>, click to view help page!',
+        'Analysis Id': 'Sample tooltip for "UUID", and this is <a href="#" class="js-help-link" data-slug="analysis-id-help">link</a>, click to view help page!',
         'Study': 'Sample tooltip for "Study"',
         'Study:TCGA': 'Sample tooltip for "Study/TCGA"',
         'Study:TCGA Benchmark': 'Sample tooltip for "Study/TCGA Benchmark"',
@@ -34,7 +34,7 @@ Text for help hints for every table column, for table cells values and for filte
 
 HELP_HINTS keys for table cells calculates as <column name>:<cell value>.
 
-Help hints for cells for columns: 'UUID', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
+Help hints for cells for columns: 'Analysis Id', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
 In case, when help hint for specified key was not found, a new record will be added to log file, for example:
 
@@ -68,7 +68,7 @@ For example:
 
 .. code-block:: html
 
-    <a href class="js-help-link" data-slug="uuid-help">Click to show UUID help</a>
+    <a href class="js-help-link" data-slug="analysis_id-help">Click to show Analysis Id help</a>
 
 When user click on this link, popup will be shown.
 
@@ -77,7 +77,7 @@ You can use such links in help hints:
 .. code-block:: python
 
     COLUMN_HELP_HINTS = {
-        'UUID': 'File identifier, <a href class="js-help-link" data-slug="uuid-help">click to view more detailed information</a>.',
+        'Analysis Id': 'File identifier, <a href class="js-help-link" data-slug="analysis_id-help">click to view more detailed information</a>.',
         ...
 
 Celery tasks

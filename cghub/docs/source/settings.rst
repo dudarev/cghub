@@ -136,7 +136,7 @@ Default configuration is located in ``settings/ui.py``:
     # ui.py
 
     TABLE_COLUMNS = (
-    ('UUID', 'visible'),
+    ('Analysis Id', 'visible'),
     ('Study', 'visible'),
     ('Disease', 'visible'),
     ...
@@ -153,7 +153,7 @@ Default configuration is located in ``settings/ui.py``:
     # ui.py
 
     DETAILS_FIELDS = (
-    'UUID',
+    'Analysis Id',
     'Study',
     'Disease',
     ...

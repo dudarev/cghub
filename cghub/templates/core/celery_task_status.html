@@ -10,7 +10,7 @@
 <table class="celery-task-status table table-bordered">
     <thead>
         <tr>
-            <th>UUID</th>
+            <th>Analysis Id</th>
             <th>State</th>
             <th>Name</th>
             <th>When</th>
@@ -20,7 +20,7 @@
         <tr>
             <td>{{ task.task_id }}</td>
             <td>{{ task.state|safe }}</td>
-            <td><b>{{ task.name }}<b></td>
+            <td><b>{{ task.name }}</b></td>
             <td>{{ task.tstamp }}</td>
 
         </tr>

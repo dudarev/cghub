@@ -21,7 +21,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query, generate_task_uuid)
+                    get_wsapi_settings, get_default_query,
+                    generate_task_analysis_id)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -37,29 +38,33 @@ class WithCacheTestCase(TestCase):
         # >>> get_cache_file_name('xml_text=6d5%2A', True)
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
-        if not self.cache_files:
-            return
-
+        # wsapi cache
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
             os.makedirs(settings.WSAPI_CACHE_DIR)
-        for f in self.cache_files:
-            path_from = os.path.join(TEST_DATA_DIR, f)
-            if os.path.exists(path_from):
-                shutil.copy(
-                    path_from,
-                    os.path.join(settings.WSAPI_CACHE_DIR, f)
-                )
-        path = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
-        if not os.path.exists(path):
-            return
-        self.default_results = objectify.fromstring(
-            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
+        for f in self.wsapi_cache_files:
+            shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
+            )
+        if self.wsapi_cache_files:
+            path = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
+            if not os.path.exists(path):
+                return
+            self.default_results = objectify.fromstring(
+                open(path).read())
+            self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
-        for f in self.cache_files:
+        # wsapi cache
+        for f in self.wsapi_cache_files:
             path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+            if not os.path.exists(path):
+                continue
+            os.remove(path)
+        # cart cache
+        for f in self.cart_cache_files:
+            path = os.path.join(settings.CART_CACHE_DIR, f)
             if not os.path.exists(path):
                 continue
             if os.path.isdir(path):
@@ -71,7 +76,8 @@ class WithCacheTestCase(TestCase):
 
 class CoreTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         '35d58c85ed93322dcaacadef5538a455.xml',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
@@ -119,18 +125,18 @@ class CoreTestCase(WithCacheTestCase):
         self.assertTrue('Found' in response.content)
 
     def test_item_details_view(self):
-        uuid = '12345678-1234-1234-1234-123456789abc'
-        response = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        analysis_id = '12345678-1234-1234-1234-123456789abc'
+        response = self.client.get(reverse('item_details', kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
+        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}))
+                        kwargs={'analysis_id': results.Result.analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
         self.assertContains(response, results.Result.center_name)
@@ -141,7 +147,7 @@ class CoreTestCase(WithCacheTestCase):
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}),
+                        kwargs={'analysis_id': results.Result.analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, results.Result.center_name)
@@ -184,7 +190,7 @@ class UtilsTestCase(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(get_wsapi_settings()[key], value)
 
-    def test_generate_task_uuid(self):
+    def test_generate_task_analysis_id(self):
         test_data = [
             {
                 'dict': {'some': 'dict', '1': 2},
@@ -197,7 +203,7 @@ class UtilsTestCase(TestCase):
                 'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
         ]
         for data in test_data:
-            self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
+            self.assertEqual(generate_task_analysis_id(**data['dict']), data['result'])
 
     def test_get_default_query(self):
         with self.settings(
@@ -355,7 +361,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(file_size(1234567890), '1.15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
+        COLUMNS = (('Disease', 'visible'), ('Analysis Id', 'hidden'),
                                                 ('Study', 'visible'))
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
@@ -368,7 +374,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
+        COLUMNS = (('Disease', 'visible'), ('Analysis Id', 'visible'),
                                                 ('Study', 'visible'))
         RESULT = {
                 'disease_abbr': 'COAD',
@@ -391,7 +397,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
-        FIELDS = ('UUID', 'Study')
+        FIELDS = ('Analysis Id', 'Study')
         RESULT = {
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
                 'study': 'phs000178',
@@ -442,7 +448,8 @@ class TemplateTagsTestCase(TestCase):
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         'af5eb9d62e2bafda2eb3bad59afa5b2d.ids',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
@@ -519,7 +526,8 @@ class PaginatorUnitTestCase(TestCase):
 
 class MetadataViewTestCase(WithCacheTestCase):
 
-    cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
+    cart_cache_files = []
+    wsapi_cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
 
     """
     Cached files will be used

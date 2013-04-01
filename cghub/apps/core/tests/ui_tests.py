@@ -9,6 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from django.test import LiveServerTestCase
 from django.conf import settings
+from django.utils import timezone
 
 from wsapi.api import request as api_request
 
@@ -24,7 +25,7 @@ preffered queries (allow using the same cache files):
 
 def wsapi_cache_copy(cache_files):
     """
-    Copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    Copy cache_files from TEST_DATA_DIR to WSAPI_CACHE_DIR
     In case of cart_cache, it should be generated every time,
     but it will use wsapi cache.
     """
@@ -32,26 +33,30 @@ def wsapi_cache_copy(cache_files):
     if not os.path.exists(settings.WSAPI_CACHE_DIR):
         os.makedirs(settings.WSAPI_CACHE_DIR)
     for f in cache_files:
-        path_from = os.path.join(TEST_DATA_DIR, f)
-        if os.path.exists(path_from):
-            shutil.copy(
-                path_from,
-                os.path.join(settings.WSAPI_CACHE_DIR, f)
-            )
+        shutil.copy(
+            os.path.join(TEST_DATA_DIR, f),
+            os.path.join(settings.WSAPI_CACHE_DIR, f)
+        )
 
 
 def wsapi_cache_remove(cache_files):
     """
-    Remove cache_files from CACHE_DIR
-    In case of cart_cache, where data stored in directories,
-    will be used rmtree
+    Remove cache_files from WSAPI_CACHE_DIR
     """
     for f in cache_files:
         path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+        if os.path.exists(path):
+            os.remove(path)
+
+
+def cart_cache_remove(cache_files):
+    """
+    Remove cache_files from CART_CACHE_DIR
+    """
+    for f in cache_files:
+        path = os.path.join(settings.CART_CACHE_DIR, f)
         if os.path.isdir(path):
             shutil.rmtree(path)
-        else:
-            os.remove(path)
 
 
 def back_to_bytes(*args):
@@ -85,7 +90,7 @@ def get_filter_id(driver, filter_name):
 
 
 class SidebarTestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                 'f87f34ec002eff67850c644d09bf6f80.ids',
                 '71411da734e90beda34360fa47d88b99.ids',
                 )
@@ -95,7 +100,7 @@ class SidebarTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SidebarTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     def test_select_all(self):
         driver = self.selenium
@@ -299,7 +304,7 @@ class SidebarTestCase(LiveServerTestCase):
     def tearDownClass(self):
         self.selenium.quit()
         super(SidebarTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
 
 class CustomDatepickersTestCase(LiveServerTestCase):
@@ -307,7 +312,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
     Check custom period selecting
     """
 
-    cache_files = (
+    wsapi_cache_files = (
         '71411da734e90beda34360fa47d88b99.ids',
         '0036c3926adab0f1ec1af6a76ae0a3d0.ids'
         )
@@ -317,13 +322,13 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(CustomDatepickersTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(CustomDatepickersTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
     def set_datepicker_date(self, start, end, year=None, month=None):
         driver = self.selenium
@@ -357,9 +362,9 @@ class CustomDatepickersTestCase(LiveServerTestCase):
             dp_values['start'] = dp_values['end']
             dp_values['end'] = tmp
         elif future:
-            dp_values['start'] = datetime.now().date().day - 1
-            dp_values['end'] = datetime.now().date().day
-            dp_values['month'] = datetime.now().date().month
+            dp_values['start'] = timezone.now().date().day - 1
+            dp_values['end'] = timezone.now().date().day
+            dp_values['month'] = timezone.now().date().month
         else:
             dp_values['month'] += 1
         for key in dp_values:
@@ -379,7 +384,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
         dp_values = {
             'start': 31, 'end': 31, 'month': 11,
-            'year': datetime.now().date().year}
+            'year': timezone.now().date().year}
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
         analyte_code_id = get_filter_id(driver, 'analyte_code')
@@ -413,8 +418,8 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         driver.get(self.live_server_url)
         dp_values = {
             'start': 2, 'end': 1,
-            'year': datetime.now().date().year,
-            'month': datetime.now().date().month}
+            'year': timezone.now().date().year,
+            'month': timezone.now().date().month}
 
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
@@ -482,30 +487,30 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
 class HelpHintsTestCase(LiveServerTestCase):
 
-    cache_files = ('71411da734e90beda34360fa47d88b99.ids',)
+    wsapi_cache_files = ('71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(HelpHintsTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(HelpHintsTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
     def test_help_hints(self):
         driver = self.selenium
-        with self.settings(HELP_HINTS = { 'UUID': 'Help for UUID'}):
+        with self.settings(HELP_HINTS = { 'Analysis Id': 'Help for Analysis Id'}):
             driver.get(self.live_server_url)
-            uuids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
+            analysis_ids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
             ac = ActionChains(driver)
-            uuid = driver.find_element_by_xpath(
+            analysis_id = driver.find_element_by_xpath(
                 "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(2))
-            ac.move_to_element(uuid)
+            ac.move_to_element(analysis_id)
             ac.perform()
             time.sleep(3)
             tooltip = driver.find_element_by_css_selector('.js-tooltip')
@@ -514,11 +519,13 @@ class HelpHintsTestCase(LiveServerTestCase):
 
 class DetailsTestCase(LiveServerTestCase):
 
-    cache_files = (
-        '0b8eae89-0af1-45b7-9b97-ea1fdeaf3890',
+    wsapi_cache_files = (
         '71411da734e90beda34360fa47d88b99.ids',
         '9aa43640de03f3d47f87c21ef1a35ee5.xml',
         )
+    cart_cache_files = (
+        '0b8eae89-0af1-45b7-9b97-ea1fdeaf3890',
+    )
 
     @classmethod
     def setUpClass(self):
@@ -530,17 +537,17 @@ class DetailsTestCase(LiveServerTestCase):
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(DetailsTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(DetailsTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
+        cart_cache_remove(self.cart_cache_files)
 
     def check_popup_shows(self, driver):
         ac = ActionChains(driver)
-
         # test clicking on row leads to details popup opening
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
         assert not popup.is_displayed()
@@ -641,7 +648,7 @@ class DetailsTestCase(LiveServerTestCase):
 
 class SearchTestCase(LiveServerTestCase):
 
-    cache_files = (
+    wsapi_cache_files = (
         '71411da734e90beda34360fa47d88b99.ids', '7483974d8235868e5d4d2079d5051332.xml',
         '714f182ce3b2196b3b064880493e242d.xml', 'c0db6ab7b80ded4f9211570170011d80.xml',
         '754c3dc8c582013011f0028a6f78e0d4.xml', 'e0004ef23a2e10e42ac402db10ac0535.xml',
@@ -675,13 +682,13 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SearchTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(SearchTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -833,7 +840,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_sorting_order(self):
         columns = [
-                    'UUID', 'Study', 'Disease', 'Disease Name',
+                    'Analysis Id', 'Study', 'Disease', 'Disease Name',
                     'Library Type', 'Assembly', 'Center',
                     'Center Name', 'Experiment Type', 'Uploaded',
                     'Last modified', 'Sample Type', 'Sample Type Name', 
@@ -872,12 +879,14 @@ class SearchTestCase(LiveServerTestCase):
 
 
 class ColumnSelectTestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                 '862628620de0b3600cbaa8c11d92a4a2.xml',
                 'c819df02cad704f9d074e73d322cb319.xml',
                 '862e15fcf25b3882bb5c58e3a96026da.xml',
-                'c7e49b79-2f7d-1584-e040-ad451e410b1c'
                 )
+    cart_cache_files = (
+                'c7e49b79-2f7d-1584-e040-ad451e410b1c',
+    )
     query = "6d711*"
 
     @classmethod
@@ -885,15 +894,16 @@ class ColumnSelectTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(ColumnSelectTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[0])._lxml_results
+        wsapi_cache_copy(self.wsapi_cache_files)
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
+        cart_cache_remove(self.cart_cache_files)
 
     def select_columns(self, driver, location):
         time.sleep(2)
@@ -953,7 +963,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
 
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
-    cache_files = (
+    wsapi_cache_files = (
                 '71411da734e90beda34360fa47d88b99.ids',
                 'ab111b55fd90876ca6d64f2e79d8a338.ids',
                 'f5aa9c674cf08d95920510a239babbcb.ids')
@@ -963,13 +973,13 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(ResetFiltersButtonTestCase, self).setUpClass()
-        wsapi_cache_copy(self.cache_files)
+        wsapi_cache_copy(self.wsapi_cache_files)
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(ResetFiltersButtonTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.cache_files)
+        wsapi_cache_remove(self.wsapi_cache_files)
 
     def test_reset_filters_button(self):
         driver = self.selenium

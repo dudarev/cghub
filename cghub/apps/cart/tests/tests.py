@@ -170,12 +170,14 @@ class ClearCartTestCase(TestCase):
 
 
 class CartAddItemsTestCase(WithCacheTestCase):
-    cache_files = [
+    wsapi_cache_files = [
         'c0fc7dd542430ce04e8c6e0d065cfd71.xml',
         # cart cache
         '0785ced5f282f47f8d1dbfb481fd585b.xml',
         '3ca38cd1d292b763274585176e0fc172.xml',
         '71589df42c0c6ae62ef7816dc2448f20.xml',
+    ]
+    cart_cache_files = [
         '2ae4e9c5-d69f-4da0-bfe7-0b49e2c87d5c',
         '39e888db-92f9-435c-9a6c-923026500ea0',
         '90297e2b-dd70-4c66-b975-1cb28f57eae4',
@@ -226,12 +228,12 @@ class CartCacheTestCase(WithCacheTestCase):
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-03-04T00:22:02Z'
 
-    cache_files = [
+    wsapi_cache_files = [
             '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
             '4d3fee9f8557fc0de585af248b598c44.xml',
             'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
-            analysis_id,
-            analysis_id2]
+    ]
+    cart_cache_files = [analysis_id, analysis_id2]
 
     def test_get_cache_file_path(self):
         self.assertEqual(
