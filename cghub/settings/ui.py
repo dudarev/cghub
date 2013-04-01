@@ -13,7 +13,7 @@ Format:
 Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
 'Last modified', 'Library Type', 'Sample Accession', 'Sample Type',
-'Sample Type Name', 'State', 'Study', 'Uploaded', 'UUID'.
+'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
 
 Available default_states: 'visible', 'hidden'.
 
@@ -40,7 +40,7 @@ function obtains value and should return new value, for example:
 """
 
 TABLE_COLUMNS = (
-    ('UUID', 'visible'),
+    ('Analysis Id', 'visible'),
     ('Study', 'visible'),
     ('Disease', 'visible'),
     ('Disease Name', 'visible'),

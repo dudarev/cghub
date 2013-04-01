@@ -103,12 +103,14 @@ jQuery(function ($) {
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
                         width: 180,
+                        zIndex: 1010,
                         explicitClose: 'close'
                     });
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 180,
+                        zIndex: 1010,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'

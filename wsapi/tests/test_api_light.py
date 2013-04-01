@@ -9,8 +9,8 @@ from wsapi.api_light import *
 from wsapi.utils import get_setting
 
 
-class SortingTest(unittest.TestCase):
-    """Test functions that do sorting."""
+class ApiLightTest(unittest.TestCase):
+    """Test functions from api_light.py."""
 
     def test_parse_sort_by(self):
         self.assertEqual(
@@ -27,7 +27,7 @@ class SortingTest(unittest.TestCase):
         filepath = get_cache_file_name(query='xml_text=6d51*', settings={})
         self.assertEqual(
                 filepath,
-                '%s47fc9c0916a570ed7970e98508a07a60_ids.cache' % get_setting('CACHE_DIR'))
+                '%s47fc9c0916a570ed7970e98508a07a60.ids' % get_setting('CACHE_DIR'))
 
     def test_get_ids(self):
         """
@@ -37,7 +37,7 @@ class SortingTest(unittest.TestCase):
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
-        f = '47fc9c0916a570ed7970e98508a07a60_ids.cache'
+        f = '47fc9c0916a570ed7970e98508a07a60.ids'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(cache_dir, f))
