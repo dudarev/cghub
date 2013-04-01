@@ -17,29 +17,41 @@ from wsapi.api import request as api_request
 preffered queries (allow using the same cache files):
 "6d711*" - returns one result
 "6d1*" - for many results
+
+"bad-analysis-id" - bad id
 """
 
 
 def wsapi_cache_copy(cache_files):
     """
-    copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    Copy cache_files from TEST_DATA_DIR to CACHE_DIR
+    In case of cart_cache, it should be generated every time,
+    but it will use wsapi cache.
     """
     TEST_DATA_DIR = 'cghub/test_data/'
     if not os.path.exists(settings.WSAPI_CACHE_DIR):
         os.makedirs(settings.WSAPI_CACHE_DIR)
     for f in cache_files:
-        shutil.copy(
-            os.path.join(TEST_DATA_DIR, f),
-            os.path.join(settings.WSAPI_CACHE_DIR, f)
-        )
+        path_from = os.path.join(TEST_DATA_DIR, f)
+        if os.path.exists(path_from):
+            shutil.copy(
+                path_from,
+                os.path.join(settings.WSAPI_CACHE_DIR, f)
+            )
 
 
 def wsapi_cache_remove(cache_files):
     """
-    remove cache_files from CACHE_DIR
+    Remove cache_files from CACHE_DIR
+    In case of cart_cache, where data stored in directories,
+    will be used rmtree
     """
     for f in cache_files:
-        os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
+        path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
 
 
 def back_to_bytes(*args):
@@ -74,7 +86,9 @@ def get_filter_id(driver, filter_name):
 
 class SidebarTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99_ids.cache',)
+                'f87f34ec002eff67850c644d09bf6f80.ids',
+                '71411da734e90beda34360fa47d88b99.ids',
+                )
 
     @classmethod
     def setUpClass(self):
@@ -294,9 +308,9 @@ class CustomDatepickersTestCase(LiveServerTestCase):
     """
 
     cache_files = (
-        '71411da734e90beda34360fa47d88b99_ids.cache',
-        '01f2124514e0ee69cbe1723a7d25129f_ids.cache',
-        '9f0940ac06829683040172c68033504a_ids.cache')
+        '71411da734e90beda34360fa47d88b99.ids',
+        '0036c3926adab0f1ec1af6a76ae0a3d0.ids'
+        )
 
     @classmethod
     def setUpClass(self):
@@ -468,7 +482,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
 class HelpHintsTestCase(LiveServerTestCase):
 
-    cache_files = ('71411da734e90beda34360fa47d88b99_ids.cache',)
+    cache_files = ('71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
     def setUpClass(self):
@@ -501,10 +515,9 @@ class HelpHintsTestCase(LiveServerTestCase):
 class DetailsTestCase(LiveServerTestCase):
 
     cache_files = (
-        '71411da734e90beda34360fa47d88b99_ids.cache',
-        'c493b4ed5f47d04e1f1cd60e6e5a1ce1.xml',
-        '39fb3b30-abfe-46ad-a9c9-ef83b1dbb6c4_with_attributes',
-        '39fb3b30-abfe-46ad-a9c9-ef83b1dbb6c4_without_attributes'
+        '0b8eae89-0af1-45b7-9b97-ea1fdeaf3890',
+        '71411da734e90beda34360fa47d88b99.ids',
+        '9aa43640de03f3d47f87c21ef1a35ee5.xml',
         )
 
     @classmethod
@@ -629,7 +642,7 @@ class DetailsTestCase(LiveServerTestCase):
 class SearchTestCase(LiveServerTestCase):
 
     cache_files = (
-        '71411da734e90beda34360fa47d88b99_ids.cache', '7483974d8235868e5d4d2079d5051332.xml',
+        '71411da734e90beda34360fa47d88b99.ids', '7483974d8235868e5d4d2079d5051332.xml',
         '714f182ce3b2196b3b064880493e242d.xml', 'c0db6ab7b80ded4f9211570170011d80.xml',
         '754c3dc8c582013011f0028a6f78e0d4.xml', 'e0004ef23a2e10e42ac402db10ac0535.xml',
         'faf6e2f16239b6b844226ab83bb98756.xml',
@@ -639,13 +652,20 @@ class SearchTestCase(LiveServerTestCase):
         'f1db42e28cca7a220508b4e9778f66fc.xml',
         '3f7b84aaa3c17cdade74e151d5d67d48.xml', '630a979741b05f755ed83591703c38aa.xml',
         '707ffa5e53cbc239ee358240839177c2.xml',
-        '0ccd7cf2c00f026998262840d940d485_ids.cache', '682ca432dc8f4a85bc70d89d10ef64b1_ids.cache', 
-        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache', '12b0c26f18006e39b45d135ff626148f_ids.cache',
-        '695f8c090ce677d51b3184e721e90198_ids.cache', 'b02bb4f82cb336d7d7ad0f512c17a879_ids.cache',
-        '194a167248e69ab52f7984f251423eb3_ids.cache', '6a5d605d38e701a14bf16c094333bab2_ids.cache',  'b50de5c4b4c0fd0cd0c2b4c91409a45a_ids.cache', '28e1cf619d26bdab58fcab5e7a2b9e6c_ids.cache',  '6f55a35e4a0aa854110317a459f46a63_ids.cache', 'bf8267e82f09bc70cebd0179ae04222b_ids.cache',
-        '2b2cddbe3555451285e826c410598f8d_ids.cache', '7169b446f2c2a0f3824ff54748f2279c_ids.cache',  'c410977da1ca1a9d10f79e5c106a87e7_ids.cache', '2b59cdba32158d41e96292263e080c9a_ids.cache',  '71a961a423dea25d42e06ab2c015334d_ids.cache', 'e9284a03bf4b46354cc645abd7eba129_ids.cache',
-        '3fe0137f1c7df05124508e503ff18c27_ids.cache', '8211bfd303398c83fd6266268772a0f6_ids.cache',  'ef7e8c3d4403a0d52a09d49d7c5b903b_ids.cache', '422c90827750a69a42d4035b9aae6899_ids.cache',  '87b817c0c86c91c11246b9f241ce40c9_ids.cache', 'efbff930fa0a2423d282c4e71700ca74_ids.cache',
-        '63b0dd56b1ceaa4d191e5033fbcecbc5_ids.cache', 'a3204a04d92154d37de73b1be4959c5e_ids.cache',  'f5aa9c674cf08d95920510a239babbcb_ids.cache'
+        '0ccd7cf2c00f026998262840d940d485.ids', '682ca432dc8f4a85bc70d89d10ef64b1.ids', 
+        'af5eb9d62e2bafda2eb3bad59afa5b2d.ids', '12b0c26f18006e39b45d135ff626148f.ids',
+        '695f8c090ce677d51b3184e721e90198.ids', 'b02bb4f82cb336d7d7ad0f512c17a879.ids',
+        '194a167248e69ab52f7984f251423eb3.ids', '6a5d605d38e701a14bf16c094333bab2.ids',
+        'b50de5c4b4c0fd0cd0c2b4c91409a45a.ids', '28e1cf619d26bdab58fcab5e7a2b9e6c.ids',
+        '6f55a35e4a0aa854110317a459f46a63.ids', 'bf8267e82f09bc70cebd0179ae04222b.ids',
+        '2b2cddbe3555451285e826c410598f8d.ids', '7169b446f2c2a0f3824ff54748f2279c.ids',
+        'c410977da1ca1a9d10f79e5c106a87e7.ids', '2b59cdba32158d41e96292263e080c9a.ids',
+        '71a961a423dea25d42e06ab2c015334d.ids', 'e9284a03bf4b46354cc645abd7eba129.ids',
+        '3fe0137f1c7df05124508e503ff18c27.ids', '8211bfd303398c83fd6266268772a0f6.ids',
+        'ef7e8c3d4403a0d52a09d49d7c5b903b.ids', '422c90827750a69a42d4035b9aae6899.ids',
+        '87b817c0c86c91c11246b9f241ce40c9.ids', 'efbff930fa0a2423d282c4e71700ca74.ids',
+        '63b0dd56b1ceaa4d191e5033fbcecbc5.ids', 'a3204a04d92154d37de73b1be4959c5e.ids',
+        'f5aa9c674cf08d95920510a239babbcb.ids'
     )
 
     query = "6d5*"
@@ -853,11 +873,10 @@ class SearchTestCase(LiveServerTestCase):
 
 class ColumnSelectTestCase(LiveServerTestCase):
     cache_files = (
-                '7e82235686903c015624e4b0db45f0b6.xml',
                 '862628620de0b3600cbaa8c11d92a4a2.xml',
                 'c819df02cad704f9d074e73d322cb319.xml',
-                'c7e49b79-2f7d-1584-e040-ad451e410b1c_with_attributes',
-                'c7e49b79-2f7d-1584-e040-ad451e410b1c_without_attributes',
+                '862e15fcf25b3882bb5c58e3a96026da.xml',
+                'c7e49b79-2f7d-1584-e040-ad451e410b1c'
                 )
     query = "6d711*"
 
@@ -935,9 +954,9 @@ class ColumnSelectTestCase(LiveServerTestCase):
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99_ids.cache',
-                'ab111b55fd90876ca6d64f2e79d8a338_ids.cache',
-                'f5aa9c674cf08d95920510a239babbcb_ids.cache')
+                '71411da734e90beda34360fa47d88b99.ids',
+                'ab111b55fd90876ca6d64f2e79d8a338.ids',
+                'f5aa9c674cf08d95920510a239babbcb.ids')
 
     @classmethod
     def setUpClass(self):

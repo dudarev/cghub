@@ -20,7 +20,7 @@ from cghub.apps.core.templatetags.search_tags import (
 
 class LinksNavigationsTestCase(LiveServerTestCase):
     cache_files = (
-                '71411da734e90beda34360fa47d88b99_ids.cache',)
+                '71411da734e90beda34360fa47d88b99.ids',)
 
     @classmethod
     def setUpClass(self):
@@ -31,6 +31,7 @@ class LinksNavigationsTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(LinksNavigationsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.cache_files)
@@ -54,13 +55,11 @@ class LinksNavigationsTestCase(LiveServerTestCase):
 
 class CartUITestCase(LiveServerTestCase):
     cache_files = (
-                    '3b687dc26053309770100fd85a0dcfe8.xml',
                     '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
-                    'b28367eb5d8e8d30c33b4cb47ac5b0b3.xml',
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58_with_attributes',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1_with_attributes',
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58_without_attributes',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1_without_attributes',
+                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
+                    '4d3fee9f8557fc0de585af248b598c44.xml',
+                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58',
+                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
                     )
     selected = [
         '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
@@ -232,14 +231,13 @@ class SortWithinCartTestCase(LiveServerTestCase):
     cache_files = (
                     '7e82235686903c015624e4b0db45f0b6.xml',
                     '862628620de0b3600cbaa8c11d92a4a2.xml',
-                    'c7e49b79-2f7d-1584-e040-ad451e410b1c_with_attributes',
-                    'c7e49b79-2f7d-1584-e040-ad451e410b1c_without_attributes',
                     'c819df02cad704f9d074e73d322cb319.xml',
                     '862e15fcf25b3882bb5c58e3a96026da.xml',
                     'cb712a7b93a6411001cbc34cfb883594.xml',
                     'ecbf7eaaf5b476df08b2997afd675701.xml',
-                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml'
-                    )
+                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml',
+                    'c7e49b79-2f7d-1584-e040-ad451e410b1c')
+
     query = "6d711*"
 
     @classmethod
@@ -278,10 +276,11 @@ class SortWithinCartTestCase(LiveServerTestCase):
 
             # scroll table
             if i > 5:
+                time.sleep(1)
                 driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
                         ".parents('th').position().left);" % attr)
-            time.sleep(5)
+            time.sleep(3)
             sort_link = driver.find_element_by_xpath(
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
@@ -303,6 +302,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 else:
                     self.assertEqual(text.strip(), str(sorted_attr[j]))
             # reverse sorting
+            time.sleep(1)
             driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.sort-link[href*=%s]')"
                         ".parents('th').position().left);" % attr);

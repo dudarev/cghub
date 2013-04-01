@@ -21,8 +21,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query, generate_task_uuid,
-                    manifest, metadata, summary)
+                    get_wsapi_settings, get_default_query, generate_task_uuid)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -38,21 +37,36 @@ class WithCacheTestCase(TestCase):
         # >>> get_cache_file_name('xml_text=6d5%2A', True)
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
+        if not self.cache_files:
+            return
+
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
             os.makedirs(settings.WSAPI_CACHE_DIR)
         for f in self.cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(settings.WSAPI_CACHE_DIR, f)
-            )
+            path_from = os.path.join(TEST_DATA_DIR, f)
+            if os.path.exists(path_from):
+                shutil.copy(
+                    path_from,
+                    os.path.join(settings.WSAPI_CACHE_DIR, f)
+                )
+        path = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
+        if not os.path.exists(path):
+            return
         self.default_results = objectify.fromstring(
             open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
         self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
         for f in self.cache_files:
-            os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
+            path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+            if not os.path.exists(path):
+                continue
+            if os.path.isdir(path):
+                # remove cart cache
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
 
 
 class CoreTestCase(WithCacheTestCase):
@@ -67,7 +81,7 @@ class CoreTestCase(WithCacheTestCase):
         'aad96e9a8702634a40528d6280187da7.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
-        '71411da734e90beda34360fa47d88b99_ids.cache',
+        '71411da734e90beda34360fa47d88b99.ids',
     ]
     query = "6d54*"
 
@@ -184,31 +198,6 @@ class UtilsTestCase(TestCase):
         ]
         for data in test_data:
             self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
-
-    def test_manifest(self):
-        response = manifest(self.FILES_IN_CART)
-        man = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
-        self.assertFalse(self.IDS_IN_CART[1] in man)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
-
-    def test_metadata(self):
-        response = metadata(self.FILES_IN_CART)
-        met = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
-
-    def test_summary_tsv(self):
-        response = summary(self.FILES_IN_CART)
-        sum = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue(id in sum)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
-
-    def _check_content_type_and_disposition(self, response, type, filename):
-        self.assertEqual(response['Content-Type'], type)
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
 
     def test_get_default_query(self):
         with self.settings(
@@ -455,7 +444,7 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
-        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache',
+        'af5eb9d62e2bafda2eb3bad59afa5b2d.ids',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
@@ -528,15 +517,31 @@ class PaginatorUnitTestCase(TestCase):
         )
 
 
-class MetadataViewTestCase(TestCase):
-    ID_DETAILS = "4b2235d6-ffe9-4664-9170-d9d2013b395f"
+class MetadataViewTestCase(WithCacheTestCase):
+
+    cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
+
+    """
+    Cached files will be used
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
+    """
+    analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
+    last_modified = '2012-10-29T21:56:12Z'
 
     def test_metadata(self):
-        response = self.client.post(reverse('metadata', args=[self.ID_DETAILS]))
-        metadata = response.content
-        self.assertTrue(self.ID_DETAILS in metadata)
+        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        response = self.client.get(
+                    reverse('metadata',
+                    args=[self.analysis_id]),
+                    {'last_modified': self.last_modified, 'state': 'live'})
+        content = response.content
+        self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')
+        if os.path.isdir(path):
+            shutil.rmtree(path)
 
 
 class TaskViewsTestCase(TestCase):
