@@ -53,7 +53,7 @@ class CartTestCase(TestCase):
         # make sure counter in header is OK
         self.assertContains(response, 'Cart (3)')
         self.assertContains(response, 'Files in your cart: 3')
-        self.assertContains(response, '3.00 MB')
+        self.assertContains(response, '3,00 MB')
 
         # make sure we have 3 files in cart
         self.assertEqual(len(response.context['results']), 3)
@@ -378,6 +378,8 @@ class CartCacheTestCase(WithCacheTestCase):
             self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
         response = summary(data)
         content = response.content
+        self.assertTrue(all(field.lower().replace(' ', '_') in content
+                            for field, visibility, align in settings.TABLE_COLUMNS))
         self.assertTrue(self.analysis_id in content)
         self.assertTrue(self.analysis_id2 in content)
         self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')

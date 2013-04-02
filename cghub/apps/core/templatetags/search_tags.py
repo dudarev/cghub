@@ -48,18 +48,18 @@ def period_from_query(query):
 def file_size(value):
     """
     Transform number of bytes to value in KB, MB or GB
-    123456 -> 123.46 KB
+    123456 -> 123,46 KB
     """
     try:
         bytes = int(value)
     except ValueError:
         return ''
     if bytes >= 1073741824:
-        return '%.2f GB' % round(bytes / 1073741824., 2)
+        return ('%.2f GB' % round(bytes / 1073741824., 2)).replace('.', ',')
     if bytes >= 1048576:
-        return '%.2f MB' % round(bytes / 1048576., 2)
+        return ('%.2f MB' % round(bytes / 1048576., 2)).replace('.', ',')
     if bytes >= 1024:
-        return '%.2f KB' % round(bytes / 1024., 2)
+        return ('%.2f KB' % round(bytes / 1024., 2)).replace('.', ',')
     return '%d Bytes' % bytes
 
 
@@ -263,7 +263,7 @@ def sort_link(request, attribute, link_anchor):
 @register.simple_tag
 def table_header(request):
     """
-    Return table header ordered accoreding to settings.TABLE_COLUMNS
+    Return table header ordered according to settings.TABLE_COLUMNS
     """
     COLS = {
         'Assembly': {
@@ -336,7 +336,7 @@ def table_header(request):
         },
     }
     html = ''
-    for c, ds in settings.TABLE_COLUMNS:
+    for c, ds, align in settings.TABLE_COLUMNS:
         col = COLS.get(c, None)
         if col == None:
             continue
@@ -373,8 +373,8 @@ def field_values(result):
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
         'Files Size': file_size(get_result_attr(result, 'files_size')
-                                or get_result_attr(result, 'files')
-                                and get_result_attr(result, 'files').file[0].filesize),
+                      or get_result_attr(result, 'files')
+                         and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
@@ -409,13 +409,13 @@ def table_row(result):
     """
     fields = field_values(result)
     html = ''
-    for field_name, default_state in settings.TABLE_COLUMNS:
+    for field_name, default_state, align in settings.TABLE_COLUMNS:
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value == None:
             continue
-        html += '<td>%s</td>' % value
+        html += '<td style="text-align: %s">%s</td>' % (align, value)
     return html
 
 

@@ -144,7 +144,7 @@ class CartUITestCase(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (9.68 GB)'
+        assert stat.text == 'Files in your cart: 2 (9,68 GB)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
@@ -253,7 +253,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
         wsapi_cache_copy(self.wsapi_cache_files)
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[4])._lxml_results
+        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[4])._lxml_results
         self.items_count = lxml.Hits
 
     @classmethod
@@ -293,7 +293,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
             sort_link.click()
             # get list with sorted attributes
-            results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.cache_files[1], sort_by=attr).Result
+            results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[1], sort_by=attr).Result
             sorted_attr = [getattr(r, attr) for r in results]
 
             for j in range(self.items_count):
