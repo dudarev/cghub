@@ -100,6 +100,7 @@ jQuery(function ($) {
             $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
         },
         placeFlexigridScrollbar: function(){
+            if(!cghub.table.$scrollbar.length) return;
             var $viewport = cghub.table.$scrollbar.find('.viewport'); //container with flexigrid
             var $scrollbar = cghub.table.$scrollbar.find('.scrollbar');
             var viewportBottom = $viewport.offset().top + $viewport.height() - $(window).scrollTop();
