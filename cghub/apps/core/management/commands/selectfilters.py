@@ -107,7 +107,7 @@ class Command(BaseCommand):
                     self.stdout.write('checking filter\n')
                     is_filter_used[(key, filter)] = False
                     for date in DATE_RANGES:
-                        query = '%s=%s&%s' % (key, filter, date)
+                        query = '%s=(%s)&%s' % (key, filter, date)
                         self.stdout.write('query: %s\n' % query)
                         results = api_request(query=query, get_attributes=False)
                         hits = int(results.Hits.text)
