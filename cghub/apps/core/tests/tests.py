@@ -361,7 +361,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(file_size(1234567890), '1,15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible', 'left'), ('UUID', 'hidden', 'left'),
+        COLUMNS = (('Disease', 'visible', 'left'), ('Analysis Id', 'hidden', 'left'),
                                                 ('Study', 'visible', 'left'))
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
@@ -374,7 +374,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(res.find(COLUMNS[2][0]) == -1)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible', 'left'), ('UUID', 'visible', 'left'),
+        COLUMNS = (('Disease', 'visible', 'left'), ('Analysis Id', 'visible', 'left'),
                                                 ('Study', 'visible', 'left'))
         RESULT = {
                 'disease_abbr': 'COAD',

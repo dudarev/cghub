@@ -66,14 +66,15 @@ def back_to_bytes(*args):
     files = [str(ar) for ar in args]
     result = []
     for file_name in files:
+        float_result = float(file_name.split(' ')[0].replace(',', '.'))
         if file_name.endswith('GB'):
-            result.append(float(file_name.split(' ')[0]) * 1073741824.)
+            result.append(float_result * 1073741824.)
         elif file_name.endswith('MB'):
-            result.append(float(file_name.split(' ')[0]) * 1048576.)
+            result.append(float_result * 1048576.)
         elif file_name.endswith('KB'):
-            result.append(float(file_name.split(' ')[0]) * 1024.)
+            result.append(float_result * 1024.)
         else:
-            result.append(float(file_name.split(' ')[0]))
+            result.append()
     return result[0], result[1]
 
 

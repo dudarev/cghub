@@ -378,11 +378,8 @@ class CartCacheTestCase(WithCacheTestCase):
             self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
         response = summary(data)
         content = response.content
-        # FIXME(nanvel)
-        #for id in self.IDS_IN_CART:
-        #    self.assertTrue(id in content)
-        #self.assertTrue(all(field.lower().replace(' ', '_') in content
-        #                    for field, visibility, align in settings.TABLE_COLUMNS))
+        self.assertTrue(all(field.lower().replace(' ', '_') in content
+                            for field, visibility, align in settings.TABLE_COLUMNS))
         self.assertTrue(self.analysis_id in content)
         self.assertTrue(self.analysis_id2 in content)
         self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
