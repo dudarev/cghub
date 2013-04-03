@@ -1592,8 +1592,22 @@
             setCheckboxStatus("Default", onlyDefaultColumnsChecked());
             setCheckboxStatus("(all)", allColumnsChecked());
             onComplete(columnSelectMenu);
+
+            /* Button "Reset Columns" */
+            $('.reset-columns-button').on('click',resetColumnsClick);
+            function resetColumnsClick(){
+                checkOnlyDefaultColumns();
+                $('#scrollbar1').tinyscrollbar_update();
+                setCheckboxStatus("(all)", allColumnsChecked());
+                setCheckboxStatus("Default", onlyDefaultColumnsChecked());
+                onComplete(columnSelectMenu);
+            }
         });
     }; //end flexigrid
+
+
+
+
     $.fn.flexReload = function (p) { // function to reload grid
         return this.each(function () {
             if (this.grid && this.p.url) this.grid.populate();

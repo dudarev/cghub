@@ -224,6 +224,7 @@ jQuery(function ($) {
             });
             return false;
         },
+
         getFiltersValues:function () {
             var new_search = URI.parseQuery(window.location.search);
             var is_error = false;
