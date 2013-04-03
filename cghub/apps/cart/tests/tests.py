@@ -13,6 +13,7 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
@@ -21,6 +22,7 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     is_cart_cache_exists)
+from cghub.apps.cart.parsers import parse_cart_attributes
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -387,6 +389,36 @@ class CartCacheTestCase(WithCacheTestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+
+
+class CartParsersTestCase(TestCase):
+
+    test_file = os.path.join(
+                    os.path.dirname(__file__),
+                    '../../../test_data/f1db42e28cca7a220508b4e9778f66fc.xml')
+
+    def test_parse_cart_attributes(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        attributes = ['study', 'center_name', 'analyte_code', 'last_modified']
+        session_store = SessionStore(session_key=self.client.session.session_key)
+        parse_cart_attributes(session_store, attributes, file_path=self.test_file)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        for analysis_id in session_data['cart']:
+            self.assertTrue(session_data['cart'][analysis_id]['study'])
+            self.assertTrue(session_data['cart'][analysis_id]['center_name'])
 
 
 class CartFormsTestCase(TestCase):
