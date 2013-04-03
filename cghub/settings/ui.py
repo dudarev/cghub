@@ -6,7 +6,7 @@ Format:
 
 ::
     (
-        (column_name, default_state),
+        column_name,
         ...
     )
 
@@ -15,7 +15,20 @@ Available column_names : 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Last modified', 'Library Type', 'Sample Accession', 'Sample Type',
 'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
 
-Available default_states: 'visible', 'hidden'.
+
+COLUMNS
+-------
+
+Format:
+
+::
+    {
+        column_name: {'width': ..., 'align': '...', 'default_state': '...'},
+        ...
+    }
+
+Available align: center, justify, left, right, inherit
+Available default_state: 'visible', 'hidden'.
 
 VALUE_RESOLVERS
 ---------------
@@ -38,79 +51,79 @@ function obtains value and should return new value, for example:
         'Study': study_resolver,
     }
 """
-COLUMNS = {
+COLUMN_STYLES = {
     'Analysis Id': {
-        'width': 220, 'attr': 'analysis_id', 'align': 'left',
+        'width': 220, 'align': 'left', 'default_state': 'visible',
         },
     'Assembly': {
-        'width': 120, 'attr': 'refassem_short_name', 'align': 'left',
+        'width': 120, 'align': 'left', 'default_state': 'visible',
         },
     'Barcode': {
-        'width': 235, 'attr': 'legacy_sample_id', 'align': 'left',
+        'width': 235, 'align': 'left', 'default_state': 'visible',
         },
     'Center': {
-        'width': 100, 'attr': 'center_name', 'align': 'left',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Center Name': {
-        'width': 100, 'attr': 'center_name', 'align': 'left',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Disease': {
-        'width': 65, 'attr': 'disease_abbr', 'align': 'left',
+        'width': 65, 'align': 'left', 'default_state': 'visible',
         },
     'Disease Name': {
-        'width': 200, 'attr': 'disease_abbr', 'align': 'left',
+        'width': 200, 'align': 'left', 'default_state': 'visible',
         },
     'Experiment Type': {
-        'width': 95, 'attr': 'analyte_code', 'align': 'left',
+        'width': 95, 'align': 'left', 'default_state': 'visible',
         },
     'Files Size': {
-        'width': 75, 'attr': 'files_size', 'align': 'right',
+        'width': 75, 'align': 'right', 'default_state': 'visible',
         },
     'Library Type': {
-        'width': 100, 'attr': 'library_strategy', 'align': 'left',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Last modified': {
-        'width': 80, 'attr': 'last_modified', 'align': 'left',
+        'width': 80, 'align': 'left', 'default_state': 'visible',
         },
     'Sample Accession': {
-        'width': 100, 'attr': 'sample_accession', 'align': 'left',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Sample Type': {
-        'width': 75, 'attr': 'sample_type', 'align': 'left',
+        'width': 75, 'align': 'left', 'default_state': 'visible',
         },
     'Sample Type Name': {
-        'width': 150, 'attr': 'sample_type', 'align': 'left',
+        'width': 150, 'align': 'left', 'default_state': 'visible',
         },
     'State': {
-        'width': 70, 'attr': 'state', 'align': 'left',
+        'width': 70, 'align': 'left', 'default_state': 'visible',
         },
     'Study': {
-        'width': 100, 'attr': 'study', 'align': 'left',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Uploaded': {
-        'width': 80, 'attr': 'upload_date', 'align': 'left',
+        'width': 80, 'align': 'left', 'default_state': 'visible',
         },
     }
 
 
 TABLE_COLUMNS = (
-    ('Analysis Id', 'visible'),
-    ('Study', 'visible'),
-    ('Disease', 'visible'),
-    ('Disease Name', 'visible'),
-    ('Library Type', 'visible'),
-    ('Assembly', 'visible'),
-    ('Center', 'visible'),
-    ('Center Name', 'visible'),
-    ('Experiment Type', 'visible'),
-    ('Uploaded', 'visible'),
-    ('Last modified', 'visible'),
-    ('Sample Type', 'visible'),
-    ('Sample Type Name', 'visible'),
-    ('State', 'visible'),
-    ('Barcode', 'visible'),
-    ('Sample Accession', 'visible'),
-    ('Files Size', 'visible'),
+    'Analysis Id',
+    'Study',
+    'Disease',
+    'Disease Name',
+    'Library Type',
+    'Assembly',
+    'Center',
+    'Center Name',
+    'Experiment Type',
+    'Uploaded',
+    'Last modified',
+    'Sample Type',
+    'Sample Type Name',
+    'State',
+    'Barcode',
+    'Sample Accession',
+    'Files Size',
 )
 
 DETAILS_FIELDS = (

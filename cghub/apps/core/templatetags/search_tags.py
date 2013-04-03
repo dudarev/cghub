@@ -265,15 +265,35 @@ def table_header(request):
     """
     Return table header ordered according to settings.TABLE_COLUMNS
     """
+    COLUMN_NAMES = {
+        'Analysis Id': 'analysis_id',
+        'Assembly':  'refassem_short_name',
+        'Barcode': 'legacy_sample_id',
+        'Center': 'center_name',
+        'Center Name': 'center_name',
+        'Disease': 'disease_abbr',
+        'Disease Name': 'disease_abbr',
+        'Experiment Type': 'analyte_code',
+        'Files Size': 'files_size',
+        'Library Type': 'library_strategy',
+        'Last modified': 'last_modified',
+        'Sample Accession': 'sample_accession',
+        'Sample Type': 'sample_type',
+        'Sample Type Name': 'sample_type',
+        'State': 'state',
+        'Study': 'study',
+        'Uploaded': 'upload_date',
+    }
     html = ''
-    for field_name, default_state in settings.TABLE_COLUMNS:
-        col = settings.COLUMNS.get(field_name, None)
-        if col is None:
+    for field_name in settings.TABLE_COLUMNS:
+        col_name = COLUMN_NAMES.get(field_name, None)
+        if col_name is None:
             continue
+        col_style = settings.COLUMN_STYLES[field_name]
         html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
-                    width=col['width'],
-                    defaultstate=default_state,
-                    link=sort_link(request, col['attr'], field_name))
+                    width=col_style['width'],
+                    defaultstate=col_style['default_state'],
+                    link=sort_link(request, col_name, field_name))
     return html
 
 
@@ -339,14 +359,14 @@ def table_row(result):
     """
     fields = field_values(result)
     html = ''
-    for field_name, default_state in settings.TABLE_COLUMNS:
-        col = settings.COLUMNS.get(field_name, None)
+    for field_name in settings.TABLE_COLUMNS:
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
             continue
-        html += '<td style="text-align: %s">%s</td>' % (col['align'], value)
+        col_style = settings.COLUMN_STYLES[field_name]
+        html += '<td style="text-align: %s">%s</td>' % (col_style['align'], value)
     return html
 
 
