@@ -410,15 +410,24 @@ class CartParsersTestCase(TestCase):
                 expire_date=timezone.now() + datetime.timedelta(days=7),
                 session_key=store.session_key)
         s.save()
-        attributes = ['study', 'center_name', 'analyte_code', 'last_modified']
+        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
+                                            'assembly', 'files_size']
         session_store = SessionStore(session_key=self.client.session.session_key)
-        parse_cart_attributes(session_store, attributes, file_path=self.test_file)
+        parse_cart_attributes(session_store, attributes, file_path=self.test_file,
+                                                    cache_files=False)
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
-        for analysis_id in session_data['cart']:
-            self.assertTrue(session_data['cart'][analysis_id]['study'])
-            self.assertTrue(session_data['cart'][analysis_id]['center_name'])
+        # 5464f590-587a-4590-8145-f683410ec407 - 2012-05-10T06:23:39Z
+        # ff258e70-4a00-45b4-bda9-9134b05c0319 - 2012-05-18T03:25:49Z
+        self.assertEqual(
+                    session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['last_modified'],
+                    '2012-05-10T06:23:39Z')
+        self.assertTrue(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['study'])
+        self.assertTrue(int(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['files_size']))
+        self.assertEqual(
+                    session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319']['last_modified'],
+                    '2012-05-18T03:25:49Z')
 
 
 class CartFormsTestCase(TestCase):
