@@ -244,13 +244,13 @@ def sort_link(request, attribute, link_anchor):
         data['sort_by'] = attribute
         direction_label = ''
 
+    sorting_arrow = direction_label
     if direction_label:
         if direction_label == 'up':
             sorting_arrow = "&nbsp;&uarr;"
         if direction_label == 'down':
             sorting_arrow = "&nbsp;&darr;"
-    else:
-        sorting_arrow = direction_label
+
 
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
@@ -265,85 +265,15 @@ def table_header(request):
     """
     Return table header ordered according to settings.TABLE_COLUMNS
     """
-    COLS = {
-        'Assembly': {
-            'width': 120,
-            'attr': 'refassem_short_name',
-        },
-        'Barcode': {
-            'width': 235,
-            'attr': 'legacy_sample_id',
-        },
-        'Center': {
-            'width': 100,
-            'attr': 'center_name',
-        },
-        'Center Name': {
-            'width': 100,
-            'attr': 'center_name',
-        },
-        'Disease': {
-            'width': 65,
-            'attr': 'disease_abbr',
-        },
-        'Disease Name': {
-            'width': 200,
-            'attr': 'disease_abbr',
-        },
-        'Experiment Type': {
-            'width': 95,
-            'attr': 'analyte_code',
-        },
-        'Files Size': {
-            'width': 75,
-            'attr': 'files_size',
-        },
-        'Library Type': {
-            'width': 100,
-            'attr': 'library_strategy',
-        },
-        'Last modified': {
-            'width': 80,
-            'attr': 'last_modified',
-        },
-        'Sample Accession': {
-            'width': 100,
-            'attr': 'sample_accession',
-        },
-        'Sample Type': {
-            'width': 75,
-            'attr': 'sample_type',
-        },
-        'Sample Type Name': {
-            'width': 150,
-            'attr': 'sample_type',
-        },
-        'State': {
-            'width': 70,
-            'attr': 'state',
-        },
-        'Study': {
-            'width': 100,
-            'attr': 'study',
-        },
-        'Uploaded': {
-            'width': 80,
-            'attr': 'upload_date',
-        },
-        'Analysis Id': {
-            'width': 220,
-            'attr': 'analysis_id',
-        },
-    }
     html = ''
-    for c, ds, align in settings.TABLE_COLUMNS:
-        col = COLS.get(c, None)
-        if col == None:
+    for field_name, default_state in settings.TABLE_COLUMNS:
+        col = settings.COLUMNS.get(field_name, None)
+        if col is None:
             continue
         html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
                     width=col['width'],
-                    defaultstate=ds,
-                    link=sort_link(request, col['attr'], c))
+                    defaultstate=default_state,
+                    link=sort_link(request, col['attr'], field_name))
     return html
 
 
@@ -409,13 +339,14 @@ def table_row(result):
     """
     fields = field_values(result)
     html = ''
-    for field_name, default_state, align in settings.TABLE_COLUMNS:
+    for field_name, default_state in settings.TABLE_COLUMNS:
+        col = settings.COLUMNS.get(field_name, None)
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
-        if value == None:
+        if value is None:
             continue
-        html += '<td style="text-align: %s">%s</td>' % (align, value)
+        html += '<td style="text-align: %s">%s</td>' % (col['align'], value)
     return html
 
 
@@ -430,7 +361,7 @@ def details_table(result):
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
-        if value == None:
+        if value is None:
             continue
         html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
     return html
