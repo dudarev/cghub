@@ -171,19 +171,7 @@ class ClearCartTestCase(TestCase):
         self.assertContains(response, "Your cart is empty!")
 
 
-class CartAddItemsTestCase(WithCacheTestCase):
-    wsapi_cache_files = [
-        'c0fc7dd542430ce04e8c6e0d065cfd71.xml',
-        # cart cache
-        '0785ced5f282f47f8d1dbfb481fd585b.xml',
-        '3ca38cd1d292b763274585176e0fc172.xml',
-        '71589df42c0c6ae62ef7816dc2448f20.xml',
-    ]
-    cart_cache_files = [
-        '2ae4e9c5-d69f-4da0-bfe7-0b49e2c87d5c',
-        '39e888db-92f9-435c-9a6c-923026500ea0',
-        '90297e2b-dd70-4c66-b975-1cb28f57eae4',
-    ]
+class CartAddItemsTestCase(TestCase):
 
     def test_cart_add_files(self):
         # initialize session
@@ -203,8 +191,8 @@ class CartAddItemsTestCase(WithCacheTestCase):
                                                         'last_modified']),
             'filters': json.dumps({
                         'state': '(live)',
-                        'last_modified': '[NOW-1DAY TO NOW]',
-                        'analyte_code': '(D)'})}
+                        'q': '(00b27c0f-acf5-434c-8efa-25b1f3c4f506)'
+                    })}
         url = reverse('cart_add_remove_files', args=('add',))
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
@@ -212,10 +200,6 @@ class CartAddItemsTestCase(WithCacheTestCase):
         self.assertEqual(data['action'], 'message')
         self.assertTrue(data['task_id'])
         self.assertTrue(self.client.session.session_key)
-        # check task created
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        self.assertEqual(len(session_data['cart']), 3)
 
 
 class CartCacheTestCase(WithCacheTestCase):
