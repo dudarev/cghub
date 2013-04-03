@@ -25,6 +25,7 @@
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
+.reset-columns-button{margin-bottom:8px;}
 input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
@@ -44,4 +45,3 @@ div.search-btn-group{padding:15px 0;}
 form.search-form{margin:175px 0;text-align:center;}form.search-form input{font-size:20px;font-weight:normal;padding:14px 24px;margin-right:10px;width:30%;}
 .filter-select{display:none;}
 .applied-filters{margin-top:5px;}.applied-filters ul{list-style-type:none;margin-left:20px;}.applied-filters ul li{padding:2px 0;}.applied-filters ul li b{font-weight:normal;padding:0 2px;border-bottom:1px dotted #222;}
-.reset-columns-button{margin-bottom:8px;}
