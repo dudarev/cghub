@@ -164,7 +164,7 @@ class ClearCartTestCase(TestCase):
     def test_clear_cart(self):
         url = reverse('clear_cart')
         response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
         self.assertContains(response, "Your cart is empty!")
 

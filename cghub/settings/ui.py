@@ -45,19 +45,19 @@ TABLE_COLUMNS = (
     ('Analysis Id', 'visible', 'left'),
     ('Study', 'visible', 'left'),
     ('Disease', 'visible', 'left'),
-    ('Disease Name', 'visible', 'left'),
+    ('Disease Name', 'hidden', 'left'),#
     ('Library Type', 'visible', 'left'),
     ('Assembly', 'visible', 'left'),
     ('Center', 'visible', 'left'),
-    ('Center Name', 'visible', 'left'),
-    ('Experiment Type', 'visible', 'left'),
-    ('Uploaded', 'visible', 'left'),
+    ('Center Name', 'hidden', 'left'),#
+    ('Experiment Type', 'hidden', 'left'),#
+    ('Uploaded', 'hidden', 'left'),#
     ('Last modified', 'visible', 'left'),
     ('Sample Type', 'visible', 'left'),
-    ('Sample Type Name', 'visible', 'left'),
+    ('Sample Type Name', 'hidden', 'left'),#
     ('State', 'visible', 'left'),
     ('Barcode', 'visible', 'left'),
-    ('Sample Accession', 'visible', 'left'),
+    ('Sample Accession', 'hidden', 'left'),#
     ('Files Size', 'visible', 'right'),
 )
 

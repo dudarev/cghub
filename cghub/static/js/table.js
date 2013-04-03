@@ -126,9 +126,12 @@ jQuery(function ($) {
             $scrollbar.width($viewport.width());
         },
         initCustomScrollbar: function() {
-            cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
-            cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
-            cghub.table.placeFlexigridScrollbar();
+            // only if there is a flexigrid on page
+            if (cghub.table.$flexigridTable.length != 0){
+                cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
+                cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
+                cghub.table.placeFlexigridScrollbar();
+            }
         }
     }
     cghub.table.init();
