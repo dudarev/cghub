@@ -80,9 +80,14 @@ class Results(object):
         In real results we see only one file.
         This function takes care of a situation if there will be several ``<file>`` elements.
 
-        Assembly short name is stored in structures
+        Assembly short name is stored in analysis_xml in case of AnalysisFull uri,
+        otherwice in refassem_short_name:
 
         .. code-block :: xml
+
+            <refassem_short_name>HG19</refassem_short_name>
+
+            or
 
             <analysis_xml>
                 <ANALYSIS_SET>
@@ -105,7 +110,8 @@ class Results(object):
             for f in r.files.file:
                 files_size += int(f.filesize)
             r.files_size = files_size
-            r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
+            if not hasattr(r, 'refassem_short_name'):
+                r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
                     .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
                     .ASSEMBLY.STANDARD.get('short_name')
         self.is_custom_fields_calculated = True
@@ -273,7 +279,7 @@ def request(
         server = get_setting('CGHUB_SERVER')
         if get_attributes:
             if full:
-                uri = get_setting('CGHUB_ANALYSIS_FILL_URI')
+                uri = get_setting('CGHUB_ANALYSIS_FULL_URI')
             else:
                 uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI')
         else:
