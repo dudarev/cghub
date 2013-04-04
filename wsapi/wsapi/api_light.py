@@ -6,7 +6,7 @@ wsapi.api_light
 
 Implementation of the lightweight way to obtain results from cghub server:
 1. obtain ids list for specified query (from cache or load from CGHUB_ANALYSIS_ID_URI)
-2. load attributes for specified page items (using CGHUB_ANALYSIS_FULL_URI)
+2. load attributes for specified page items (using CGHUB_ANALYSIS_DETAIL_URI)
 
 """
 import urllib2
@@ -120,12 +120,12 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
 def load_attributes(ids, settings):
     """
     Load attributes for specified set of ids.
-    Sorting not implemented for ANALYSIS_FULL uri.
+    Sorting not implemented for ANALYSIS_DETAIL uri.
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
     url = u'{0}{1}?{2}'.format(
             get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_FULL_URI', settings),
+            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
             query)
     request = urllib2.Request(url)
     response = urllib2.urlopen(request).read()
