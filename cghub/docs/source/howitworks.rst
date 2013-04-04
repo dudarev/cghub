@@ -191,14 +191,13 @@ AnalysisId:
     - used by selectfilters management command to check that filter is used
     - used by wsapi.api.request and wsapi.api.multiple_request when get_attributes == False
 
-AnalysisFull:
+AnalysisDetail:
     - used to obtain attributes for current displaying page
     - used by wsapi.api.request and wsapi.api.multiple_request if get_attributes == True
     - used by cart app to obtain attributes when adding to cart
-    - used when caching files in cart, see `caching`_
 
-AnalysisDetail:
-    - not used yet
+AnalysisFull:
+    - used when caching files in cart, see `caching`_
 
 
 Displayed attributes
