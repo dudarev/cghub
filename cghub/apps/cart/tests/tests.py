@@ -13,6 +13,7 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
@@ -21,6 +22,7 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     is_cart_cache_exists)
+from cghub.apps.cart.parsers import parse_cart_attributes
 
 from cghub.apps.core.tests import WithCacheTestCase
 
@@ -169,19 +171,7 @@ class ClearCartTestCase(TestCase):
         self.assertContains(response, "Your cart is empty!")
 
 
-class CartAddItemsTestCase(WithCacheTestCase):
-    wsapi_cache_files = [
-        'c0fc7dd542430ce04e8c6e0d065cfd71.xml',
-        # cart cache
-        '0785ced5f282f47f8d1dbfb481fd585b.xml',
-        '3ca38cd1d292b763274585176e0fc172.xml',
-        '71589df42c0c6ae62ef7816dc2448f20.xml',
-    ]
-    cart_cache_files = [
-        '2ae4e9c5-d69f-4da0-bfe7-0b49e2c87d5c',
-        '39e888db-92f9-435c-9a6c-923026500ea0',
-        '90297e2b-dd70-4c66-b975-1cb28f57eae4',
-    ]
+class CartAddItemsTestCase(TestCase):
 
     def test_cart_add_files(self):
         # initialize session
@@ -201,8 +191,8 @@ class CartAddItemsTestCase(WithCacheTestCase):
                                                         'last_modified']),
             'filters': json.dumps({
                         'state': '(live)',
-                        'last_modified': '[NOW-1DAY TO NOW]',
-                        'analyte_code': '(D)'})}
+                        'q': '(00b27c0f-acf5-434c-8efa-25b1f3c4f506)'
+                    })}
         url = reverse('cart_add_remove_files', args=('add',))
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
@@ -210,10 +200,6 @@ class CartAddItemsTestCase(WithCacheTestCase):
         self.assertEqual(data['action'], 'message')
         self.assertTrue(data['task_id'])
         self.assertTrue(self.client.session.session_key)
-        # check task created
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        self.assertEqual(len(session_data['cart']), 3)
 
 
 class CartCacheTestCase(WithCacheTestCase):
@@ -387,6 +373,45 @@ class CartCacheTestCase(WithCacheTestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+
+
+class CartParsersTestCase(TestCase):
+
+    test_file = os.path.join(
+                    os.path.dirname(__file__),
+                    '../../../test_data/f1db42e28cca7a220508b4e9778f66fc.xml')
+
+    def test_parse_cart_attributes(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
+                                            'assembly', 'files_size']
+        session_store = SessionStore(session_key=self.client.session.session_key)
+        parse_cart_attributes(session_store, attributes, file_path=self.test_file,
+                                                    cache_files=False)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        # 5464f590-587a-4590-8145-f683410ec407 - 2012-05-10T06:23:39Z
+        # ff258e70-4a00-45b4-bda9-9134b05c0319 - 2012-05-18T03:25:49Z
+        self.assertEqual(
+                    session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['last_modified'],
+                    '2012-05-10T06:23:39Z')
+        self.assertTrue(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['study'])
+        self.assertTrue(int(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['files_size']))
+        self.assertEqual(
+                    session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319']['last_modified'],
+                    '2012-05-18T03:25:49Z')
 
 
 class CartFormsTestCase(TestCase):
