@@ -85,19 +85,14 @@ else
 	@echo Done
 endif
 
+celeryd_stop:
+	ps -ef | grep celery | awk '{print $$2}' | xargs kill -9
+
 celeryd:
-	#-kill -9 `cat $(CELERYD_PID)`
-	#-kill -9 `cat $(CELERYCAM_PID)`
-	#-kill -9 `cat $(CELERYBEAT_PID)`
 	# -B option is for celerybeat with one worker (scheduling)
 	$(MANAGE) celeryd -E -Q celery --pidfile=$(CELERYD_PID)&
 	$(MANAGE) celerybeat --detach --pidfile=$(CELERYBEAT_PID)
 	$(MANAGE) celerycam --detach --pidfile=$(CELERYCAM_PID)
-
-celeryd_stop:
-	-kill -9 `cat $(CELERYD_PID)`
-	-kill -9 `cat $(CELERYCAM_PID)`
-	-kill -9 `cat $(CELERYBEAT_PID)`
 
 less:
 	@grunt-less --config cghub/grunt.js less
