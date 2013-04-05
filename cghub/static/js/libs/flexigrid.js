@@ -1461,7 +1461,7 @@
                 }
             });
             // Hide already hidden columns
-            var hiddenColumns = getHiddenColumns();
+            var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
             // set hidden columns according to data-ds attribute if not done yet
             if(hiddenColumns.length == 1) {
                 hiddenColumns = [""];
@@ -1487,9 +1487,6 @@
                     option = $('<option>').attr('value', i + 1).html(col.find('a').html());
                 if (hiddenColumns.indexOf((i + 1).toString()) < 0) {option.attr('selected', 'selected')}
                 columnSelectMenu.append(option)
-            }
-            function getHiddenColumns(){
-                return (sessionStorage.getItem('hiddenColumns') || '').split(',');
             }
             function setCheckboxStatus(checkboxValue, checked){
                 var checkbox = columnSelectMenu.next().next().find('input[value = "' + checkboxValue + '"]');
@@ -1520,7 +1517,7 @@
             }
             function onComplete(selector) {
                 var text = 'Not all',
-                    allOption = $(selector).next().next().find('input[value = "(all)"]')
+                    allOption = $(selector).next().next().find('input[value = "(all)"]');
                 if (allOption.is(':checked')) {
                     text = 'All'
                 }
