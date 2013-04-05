@@ -37,7 +37,7 @@ If style for column will be not specified, will be used default styles:
         'default_state': 'visible'
     }
 
-Available align values: center, justify, left, right, inherit
+Available align values: center, justify, left, right, inherit.
 Available default_state values: 'visible', 'hidden'.
 
 VALUE_RESOLVERS

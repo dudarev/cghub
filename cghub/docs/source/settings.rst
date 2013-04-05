@@ -126,22 +126,46 @@ Number of results per page may be set in ``settings/ui.py``:
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
-Columns ordering and default state
-----------------
-Columns ordering and default state for the results table can be specified in project settings.
+Columns ordering and styles
+---------------------------
+
+Columns ordering, styles and default state for the results table can be specified in project settings.
 Default configuration is located in ``settings/ui.py``:
 
 .. code-block:: python
 
     # ui.py
 
-    TABLE_COLUMNS = (
-    ('Analysis Id', 'visible'),
-    ('Study', 'visible'),
-    ('Disease', 'visible'),
-    ...
+   TABLE_COLUMNS = (
+        'Study',
+        'Disease',
+        'Disease Name',
+        'Sample Type',
+        ...
 
-Allowed default states: 'visible', 'hidden'.
+    COLUMN_STYLES = {
+        'Analysis Id': {
+            'width': 220, 'align': 'left', 'default_state': 'visible',
+        },
+        'Assembly': {
+            'width': 120, 'align': 'left', 'default_state': 'visible',
+        },
+        ...
+
+
+If style for column will be not specified, will be used default styles:
+
+.. code-block:: python
+
+    {
+        'width': 100,
+        'align': 'left',
+        'default_state': 'visible'
+    }
+
+Available align values: center, justify, left, right, inherit.
+
+Available default_state values: 'visible', 'hidden'.
 
 Details list ordering
 ---------------------
