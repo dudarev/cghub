@@ -136,7 +136,7 @@ Default configuration is located in ``settings/ui.py``:
 
     # ui.py
 
-   TABLE_COLUMNS = (
+    TABLE_COLUMNS = (
         'Study',
         'Disease',
         'Disease Name',
