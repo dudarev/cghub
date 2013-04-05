@@ -117,6 +117,8 @@ There are next tasks:
 
 .. autofunction:: cghub.apps.cart.tasks.add_files_to_cart_by_query
 
+.. _caching:
+
 Caching
 =======
 
@@ -134,7 +136,7 @@ Cart cache
 ----------
 
 When user adds some files to cart, this files will be saved to cache if they not exists here yet (using cache_results_task).
-For every added file will be created two files in cache: one is analysisFull.xml and second is analysisShort.xml that contains only most necessary attributes and used to build manifest file.
+For every added file will be created two files in cache: one is analysisFull.xml and second is analysisShort.xml that contains only most necessary attributes and used to build manifest file. analysisShort.xml produced from analysisFull by removing some attributes, see 'wsapi.api.Results.remove_attributes'.
 
 Path to analysis file can be obtained by next function:
 
@@ -177,3 +179,46 @@ Downloading metadata
 File with metadata collected from xml files stored in cart cache with analysis ids which stored in cart.
 
 .. autofunction:: cghub.apps.cart.utils.join_analysises
+
+Pieces of data
+==========
+
+Used URI's
+----------
+
+AnalysisId:
+    - used to obtain sorted list of ids when searching
+    - used by selectfilters management command to check that filter is used
+    - used by wsapi.api.request and wsapi.api.multiple_request when get_attributes == False
+
+AnalysisDetail:
+    - used to obtain attributes for current displaying page
+    - used by wsapi.api.request and wsapi.api.multiple_request if get_attributes == True
+    - used by cart app to obtain attributes when adding to cart
+
+AnalysisFull:
+    - used when caching files in cart, see `caching`_
+
+
+Displayed attributes
+--------------------
+
+    - aliquot_id (Aliquot id)
+    - analysis_id (Analysis Id)
+    - analyte_code (Experiment Type)
+    - center_name (Center)
+    - disease_abbr (Disease)
+    - filesize (used to calculate Files Size)
+    - last_modified (Last modified)
+    - legacy_sample_id (Barcode)
+    - library_strategy (Library Type)
+    - participant_id (Participant id)
+    - published_date (Published time)
+    - refassem_short_name (Assembly)
+    - sample_accession (Sample Accession)
+    - sample_id (Sample id)
+    - sample_type (Sample Type)
+    - state (State)
+    - study (Study)
+    - tss_id (TSS id)
+    - upload_date (Uploaded)

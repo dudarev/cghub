@@ -80,9 +80,14 @@ class Results(object):
         In real results we see only one file.
         This function takes care of a situation if there will be several ``<file>`` elements.
 
-        Assembly short name is stored in structures
+        Assembly short name is stored in analysis_xml in case of AnalysisFull uri,
+        otherwice in refassem_short_name:
 
         .. code-block :: xml
+
+            <refassem_short_name>HG19</refassem_short_name>
+
+            or
 
             <analysis_xml>
                 <ANALYSIS_SET>
@@ -105,7 +110,8 @@ class Results(object):
             for f in r.files.file:
                 files_size += int(f.filesize)
             r.files_size = files_size
-            r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
+            if not hasattr(r, 'refassem_short_name'):
+                r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
                     .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
                     .ASSEMBLY.STANDARD.get('short_name')
         self.is_custom_fields_calculated = True
@@ -154,7 +160,7 @@ class Results(object):
             for a in attributes_to_remove:
                 r.remove(r.find(a))
             r.analysis_attribute_uri = (get_setting('CGHUB_SERVER', self.settings) +
-                    get_setting('CGHUB_ANALYSIS_FULL_URI', self.settings) +
+                    get_setting('CGHUB_ANALYSIS_DETAIL_URI', self.settings) +
                     '/' + r.analysis_id)
             objectify.deannotate(r.analysis_attribute_uri)
             etree.cleanup_namespaces(r)
@@ -217,7 +223,7 @@ def merge_results(xml_results):
 
 def request(
         query=None, offset=None, limit=None, sort_by=None,
-        get_attributes=True, file_name=None, ignore_cache=False,
+        get_attributes=True, full=False, file_name=None, ignore_cache=False,
         use_api_light=False, settings={}):
     """
     Makes a request to CGHub web service or gets data from a file.
@@ -236,6 +242,7 @@ def request(
     :param file_name: only this parameter maybe specified, in this case results are obtained from a file
     :param use_api_light: use api_light to obtain results, it works more efficient with large queries
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+    :param full: if True, will be used ANALYSIS_FULL uri instead of ANALYSIS_DETAIL uri
     """
 
     if use_api_light:
@@ -271,7 +278,10 @@ def request(
         results_from_cache = False
         server = get_setting('CGHUB_SERVER')
         if get_attributes:
-            uri = get_setting('CGHUB_ANALYSIS_FULL_URI')
+            if full:
+                uri = get_setting('CGHUB_ANALYSIS_FULL_URI')
+            else:
+                uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI')
         else:
             uri = get_setting('CGHUB_ANALYSIS_ID_URI')
         if not '=' in query:
