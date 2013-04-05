@@ -1460,7 +1460,6 @@
                     defaultColumns.push(n.toString());
                 }
             });
-
             // Hide already hidden columns
             var hiddenColumns = getHiddenColumns();
             // set hidden columns according to data-ds attribute if not done yet
@@ -1475,7 +1474,6 @@
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
                 if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
             }
-
             this.grid.adjustTableWidth();
 
             // Init the column select menu
@@ -1490,11 +1488,9 @@
                 if (hiddenColumns.indexOf((i + 1).toString()) < 0) {option.attr('selected', 'selected')}
                 columnSelectMenu.append(option)
             }
-
             function getHiddenColumns(){
                 return (sessionStorage.getItem('hiddenColumns') || '').split(',');
             }
-
             function setCheckboxStatus(checkboxValue, checked){
                 var checkbox = columnSelectMenu.next().next().find('input[value = "' + checkboxValue + '"]');
                 if (checked) {
@@ -1504,26 +1500,9 @@
                     checkbox.removeAttr('checked');
                 }
             }
-
-            function onlyDefaultColumnsChecked(){
-                var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(all)"][value != "Default"]');
-                // false if (not checked and in defaults) or (checked and not in defaults)
-                for (var i=0; i<allColumnCheckboxes.length; i++){
-                    var checkbox = allColumnCheckboxes[i];
-                    if (!checkbox.checked && defaultColumns.indexOf(checkbox.value) != -1 ||
-                        checkbox.checked && defaultColumns.indexOf(checkbox.value) == -1){
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            function allColumnsChecked(){
-                return (getHiddenColumns().length == 1);
-            }
-
             function checkOnlyDefaultColumns(){
-                var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(all)"][value != "Default"]');
+                var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(all)"]'),
+                    allChecked=true;
                 allColumnCheckboxes.each(
                     function(i, checkbox){
                         // toggle those which are (not checked and in defaults) or (checked and not in defaults)
@@ -1532,22 +1511,16 @@
                             grid.toggleCol(checkbox.value);
                             setCheckboxStatus(checkbox.value, !checkbox.checked);
                         }
+                        if(!checkbox.checked) {
+                            allChecked = false;
+                        }
                     }
                 );
+                setCheckboxStatus('(all)', allChecked);
             }
-
-            function checkAll(){
-                var hiddenColumns = getHiddenColumns();
-                for (var i = hiddenColumns.length - 1; i > 0 ; i--){
-                    grid.toggleCol(hiddenColumns[i]);
-                    setCheckboxStatus(hiddenColumns[i], true);
-                }
-            }
-
             function onComplete(selector) {
                 var text = 'Not all',
-                    allOption = $(selector).next().next().find('input[value = "(all)"]'),
-                    defaultOption = $(selector).next().next().find('input[value = "Default"]');
+                    allOption = $(selector).next().next().find('input[value = "(all)"]')
                 if (allOption.is(':checked')) {
                     text = 'All'
                 }
@@ -1564,41 +1537,40 @@
                 onComplete: onComplete,
                 onItemClick: function(checkbox, selector) {
                     var value = $(checkbox).val(),
-                        allCheckbox = $(selector).next().next().find('input[value = "(all)"]'),
-                        defaultCheckbox = $(selector).next().next().find('input[value = "Default"]');
-                    if (value == '(all)' && allCheckbox.is(':checked') ||
-                        value == 'Default' && !defaultCheckbox.is(':checked')) {
-                        checkAll();
-                    }
-                    else if (value == '(all)' && !allCheckbox.is(':checked') ||
-                             value == 'Default' && defaultCheckbox.is(':checked')) {
-                        checkOnlyDefaultColumns();
-                    }
-                    else {
+                        allOption = $(selector).next().next().find('input[value = "(all)"]');
+                    if (value != '(all)') {
                         grid.toggleCol(value)
+                    } else {
+                        if (!allOption.is(':checked')) {
+                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                                if ($(el).is(':checked')) {grid.toggleCol($(el).val())}
+                            })
+                        } else {
+                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                                if (!$(el).is(':checked')) {grid.toggleCol($(el).val())}
+                            })
+                        }
                     }
-                    /* update  checkboxes (all) and Default */
-                    setCheckboxStatus("(all)", allColumnsChecked());
-                    setCheckboxStatus("Default", onlyDefaultColumnsChecked());
                     /* update tinyscrollbar */
                     $('#scrollbar1').tinyscrollbar_update();
                 },
                 explicitClose: 'close'
             });
-            /* update  checkboxes (all) and Default */
-            setCheckboxStatus("Default", onlyDefaultColumnsChecked());
-            setCheckboxStatus("(all)", allColumnsChecked());
-            onComplete(columnSelectMenu);
-
+            // add reset colums button
+            columnSelectMenu.next().next().find('.ui-dropdownchecklist-item').eq(0)
+                .after($('<div class="ui-state-default ui-dropdownchecklist-item js-default-columns" style="padding-left: 3px;">' +
+                '<span class="ui-dropdownchecklist-text">Reset to defaults</span></div>').hover(function() {
+                    $(this).addClass('ui-state-hover');
+                }, function() {
+                    $(this).removeClass('ui-state-hover');
+                }))
             /* Button "Reset Columns" */
-            $('.reset-columns-button').on('click',resetColumnsClick);
-            function resetColumnsClick(){
+            $('.js-default-columns').on('click', function() {
                 checkOnlyDefaultColumns();
-                $('#scrollbar1').tinyscrollbar_update();
-                setCheckboxStatus("(all)", allColumnsChecked());
-                setCheckboxStatus("Default", onlyDefaultColumnsChecked());
                 onComplete(columnSelectMenu);
-            }
+                $('#scrollbar1').tinyscrollbar_update();
+            });
+            onComplete(columnSelectMenu);
         });
     }; //end flexigrid
     $.fn.flexReload = function (p) { // function to reload grid
