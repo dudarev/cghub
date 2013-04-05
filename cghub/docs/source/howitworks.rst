@@ -198,6 +198,7 @@ AnalysisDetail:
 
 AnalysisFull:
     - used when caching files in cart, see `caching`_
+    - used when showing file details
 
 
 Displayed attributes

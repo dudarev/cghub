@@ -140,7 +140,7 @@ class ItemDetailsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         results = api_request(query='analysis_id=%s' % kwargs['analysis_id'],
-                                    settings=WSAPI_SETTINGS)
+                                    full=True, settings=WSAPI_SETTINGS)
         results.add_custom_fields()
         if hasattr(results, 'Result'):
             return {
