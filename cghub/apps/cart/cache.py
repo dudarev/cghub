@@ -85,6 +85,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         result = api_request(
                 query='analysis_id={0}'.format(analysis_id),
                 ignore_cache=not USE_WSAPI_CACHE,
+                full=True,
                 use_api_light=False,
                 settings=WSAPI_SETTINGS)
         if not hasattr(result, 'Result') or int(result.Hits.text) != 1:

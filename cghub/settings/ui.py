@@ -5,6 +5,7 @@ TABLE_COLUMNS
 Format:
 
 ::
+
     (
         (column_name, default_state),
         ...
@@ -29,6 +30,7 @@ dict <Column name>:<function>
 function obtains value and should return new value, for example:
 
 ::
+
     def study_resolver(val):
         if val.find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'

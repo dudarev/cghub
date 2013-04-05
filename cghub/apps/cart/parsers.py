@@ -10,7 +10,7 @@ from cghub.apps.core.utils import is_celery_alive
 
 class CartAttributesParser(handler.ContentHandler):
     """
-    Parse AnalysisFull file and save results to user's cart
+    Parse AnalysisDetail file and save results to user's cart
     """
 
     def __init__(self, session_store, attributes, cache_files):
@@ -73,12 +73,12 @@ class CartAttributesParser(handler.ContentHandler):
 def parse_cart_attributes(session_store, attributes, query=None,
                                     file_path=None, cache_files=True):
     """
-    Receives analysisFull file from cghub server for specified query and
+    Receives analysisDetail file from cghub server for specified query and
     parses it using xml.sax. Reults saves to user session.
 
     :param session_store: django.contrib.sessions.backends.db.SessionStore object
     :param attributes: list of attributes should be obtained and saved to cart
-    :param query: query to get analysisFull file, should be specified query or file_path
+    :param query: query to get analysisDetail file, should be specified query or file_path
     :param file_path: alternatively to receiving data from server, data can be got from file
     :cache_files: if True and file not exists in cart cache, it will be cached
     """
@@ -87,7 +87,7 @@ def parse_cart_attributes(session_store, attributes, query=None,
     if query:
         url = u'{0}{1}?{2}'.format(
                             settings.WSAPI_CGHUB_SERVER,
-                            settings.WSAPI_CGHUB_ANALYSIS_FULL_URI,
+                            settings.WSAPI_CGHUB_ANALYSIS_DETAIL_URI,
                             query)
         req = urllib2.Request(url)
         response = urllib2.urlopen(req)

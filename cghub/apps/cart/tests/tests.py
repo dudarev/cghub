@@ -153,7 +153,7 @@ class CartTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class ClearCartTestCase(TestCase):
+class CartClearTestCase(TestCase):
     IDS_IN_CART = ('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
                    '4b2235d6-ffe9-4664-9170-d9d2013b395f',
                    '7be92e1e-33b6-4d15-a868-59d5a513fca1')
@@ -165,7 +165,7 @@ class ClearCartTestCase(TestCase):
 
     def test_clear_cart(self):
         url = reverse('clear_cart')
-        response = self.client.post(url)
+        response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
         self.assertContains(response, "Your cart is empty!")
