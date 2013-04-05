@@ -1551,13 +1551,10 @@
                 if (allOption.is(':checked')) {
                     text = 'All'
                 }
-                if (defaultOption.is(':checked')) {
-                    text = 'Default'
-                }
                 $(selector).next().find('.ui-dropdownchecklist-text').html(text).css({'color': '#333'});                
             }
             columnSelectMenu.dropdownchecklist({
-                firstItemChecksAll: false,
+                firstItemChecksAll: true,
                 width: 170,
                 zIndex: 1010,
                 textFormatFunction: function(options) {
@@ -1604,10 +1601,6 @@
             }
         });
     }; //end flexigrid
-
-
-
-
     $.fn.flexReload = function (p) { // function to reload grid
         return this.each(function () {
             if (this.grid && this.p.url) this.grid.populate();

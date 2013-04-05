@@ -5,6 +5,7 @@ TABLE_COLUMNS
 Format:
 
 ::
+
     (
         (column_name, default_state, text-align),
         ...
@@ -31,6 +32,7 @@ dict <Column name>:<function>
 function obtains value and should return new value, for example:
 
 ::
+
     def study_resolver(val):
         if val.find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'
@@ -45,19 +47,19 @@ TABLE_COLUMNS = (
     ('Analysis Id', 'visible', 'left'),
     ('Study', 'visible', 'left'),
     ('Disease', 'visible', 'left'),
-    ('Disease Name', 'hidden', 'left'),#
+    ('Disease Name', 'hidden', 'left'),
     ('Library Type', 'visible', 'left'),
     ('Assembly', 'visible', 'left'),
     ('Center', 'visible', 'left'),
-    ('Center Name', 'hidden', 'left'),#
-    ('Experiment Type', 'hidden', 'left'),#
-    ('Uploaded', 'hidden', 'left'),#
+    ('Center Name', 'hidden', 'left'),
+    ('Experiment Type', 'hidden', 'left'),
+    ('Uploaded', 'hidden', 'left'),
     ('Last modified', 'visible', 'left'),
     ('Sample Type', 'visible', 'left'),
-    ('Sample Type Name', 'hidden', 'left'),#
+    ('Sample Type Name', 'hidden', 'left'),
     ('State', 'visible', 'left'),
     ('Barcode', 'visible', 'left'),
-    ('Sample Accession', 'hidden', 'left'),#
+    ('Sample Accession', 'hidden', 'left'),
     ('Files Size', 'visible', 'right'),
 )
 

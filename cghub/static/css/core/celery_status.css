@@ -21,7 +21,6 @@
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
-.reset-columns-button{margin-bottom:8px;}
 .clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:"";}
 .clearfix:after{clear:both;}
 .hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
@@ -45,7 +44,6 @@
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
-.reset-columns-button{margin-bottom:8px;}
 body{background-image:url(../../img/grid-18px-masked.png);background-repeat:repeat-x;background-position:0 40px;}
 .jumbotron{position:relative;}.jumbotron h1{margin-bottom:9px;font-size:48px;font-weight:bold;letter-spacing:-1px;line-height:1;}
 .jumbotron p{margin-bottom:18px;font-weight:300;}

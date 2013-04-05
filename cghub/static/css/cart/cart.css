@@ -21,7 +21,6 @@
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
-.reset-columns-button{margin-bottom:8px;}
 input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
