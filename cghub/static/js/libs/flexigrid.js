@@ -1566,6 +1566,7 @@
                 checkOnlyDefaultColumns();
                 onComplete(columnSelectMenu);
                 $('#scrollbar1').tinyscrollbar_update();
+                return false;
             });
             onComplete(columnSelectMenu);
         });
