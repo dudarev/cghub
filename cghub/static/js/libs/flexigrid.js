@@ -1472,7 +1472,7 @@
                 });
             }
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
-                if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i])}
+                if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i], false)}
             }
             this.grid.adjustTableWidth();
 
@@ -1505,7 +1505,7 @@
                         // toggle those which are (not checked and in defaults) or (checked and not in defaults)
                         if (!checkbox.checked && defaultColumns.indexOf(checkbox.value) != -1 ||
                             checkbox.checked && defaultColumns.indexOf(checkbox.value) == -1){
-                            grid.toggleCol(checkbox.value);
+                            grid.toggleCol(checkbox.value, !checkbox.checked);
                             setCheckboxStatus(checkbox.value, !checkbox.checked);
                         }
                         if(!checkbox.checked) {
@@ -1536,17 +1536,12 @@
                     var value = $(checkbox).val(),
                         allOption = $(selector).next().next().find('input[value = "(all)"]');
                     if (value != '(all)') {
-                        grid.toggleCol(value)
+                        grid.toggleCol(value, $(checkbox).is(':checked'))
                     } else {
-                        if (!allOption.is(':checked')) {
-                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
-                                if ($(el).is(':checked')) {grid.toggleCol($(el).val())}
-                            })
-                        } else {
-                            $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
-                                if (!$(el).is(':checked')) {grid.toggleCol($(el).val())}
-                            })
-                        }
+                        var is_checked = allOption.is(':checked');
+                        $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                            grid.toggleCol($(el).val(), is_checked)
+                        })
                     }
                     /* update tinyscrollbar */
                     $('#scrollbar1').tinyscrollbar_update();

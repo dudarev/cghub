@@ -145,14 +145,14 @@ def _write_summary_tsv(results):
     csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
 
     csvwriter.writerow([field.lower().replace(' ', '_')
-                        for field, visibility, align in settings.TABLE_COLUMNS])
+                        for field in settings.TABLE_COLUMNS])
     for result in results.Result:
         fields = field_values(result)
 
         row = []
-        for field_name, default_state, align in settings.TABLE_COLUMNS:
+        for field_name in settings.TABLE_COLUMNS:
             value = fields.get(field_name, None)
-            if value == None:
+            if value is None:
                 continue
             row.append(value)
         csvwriter.writerow(row)

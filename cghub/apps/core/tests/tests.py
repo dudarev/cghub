@@ -361,21 +361,19 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(file_size(1234567890), '1,15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible', 'left'), ('Analysis Id', 'hidden', 'left'),
-                                                ('Study', 'visible', 'left'))
+        COLUMNS = ('Disease', 'Analysis Id', 'Study')
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_header(request)
-            self.assertTrue(res.find('<th') != -1)
-            self.assertTrue(res.find(COLUMNS[0][0]) != -1)
-            self.assertTrue(res.find(COLUMNS[1][0]) != -1)
-            self.assertTrue(res.find('visible') != -1)
-            self.assertTrue(res.find('hidden') != -1)
-            self.assertTrue(res.find(COLUMNS[2][0]) == -1)
+            self.assertTrue('<th' in res)
+            self.assertTrue(COLUMNS[0] in res)
+            self.assertTrue(COLUMNS[1] in res)
+            self.assertTrue('visible' in res)
+            self.assertTrue('hidden' not in res)
+            self.assertTrue(COLUMNS[2] not in res)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible', 'left'), ('Analysis Id', 'visible', 'left'),
-                                                ('Study', 'visible', 'left'))
+        COLUMNS = ('Disease', 'Analysis Id', 'Study')
         RESULT = {
                 'disease_abbr': 'COAD',
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
@@ -383,10 +381,10 @@ class TemplateTagsTestCase(TestCase):
                 }
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_row(RESULT)
-            self.assertTrue(res.find('<td') != -1)
-            self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
-            self.assertTrue(res.find(RESULT['analysis_id']) != -1)
-            self.assertTrue(res.find(RESULT['study']) == -1)
+            self.assertTrue('<td' in res)
+            self.assertTrue(RESULT['disease_abbr'] in res)
+            self.assertTrue(RESULT['analysis_id'] in res)
+            self.assertTrue(RESULT['study'] not in res)
         # test value_resolvers
         right_value = 'Right value'
         def value_resolver(value):
