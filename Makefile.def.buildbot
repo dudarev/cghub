@@ -7,7 +7,8 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
 			core.MetadataViewTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
-			cart.CartCacheTestCase cart.CartFormsTestCase \
+			cart.CartClearTestCase cart.CartCacheTestCase \
+			cart.CartFormsTestCase \
 			help
 
 TEST_UI=core.SidebarTestCase core.SearchTestCase core.ColumnSelectTestCase \
