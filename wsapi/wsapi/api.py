@@ -8,6 +8,7 @@ Functions for external use.
 
 """
 import urllib2
+import logging
 
 from lxml import objectify, etree
 from datetime import datetime
@@ -17,6 +18,9 @@ from cache import get_from_cache, save_to_cache
 from utils import get_setting
 
 from api_light import request_light
+
+
+wsapi_request_logger = logging.getLogger('wsapi.request')
 
 
 class Results(object):
@@ -287,6 +291,7 @@ def request(
         if not '=' in query:
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
         url = u'{0}{1}?{2}'.format(server, uri, query)
+        wsapi_request_logger.info(urllib2.unquote(url))
         req = urllib2.Request(url)
         response = urllib2.urlopen(req).read()
         results = objectify.fromstring(response)

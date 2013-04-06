@@ -10,6 +10,7 @@ Implementation of the lightweight way to obtain results from cghub server:
 
 """
 import urllib2
+import logging
 import os
 import hashlib
 import linecache
@@ -21,6 +22,8 @@ from exceptions import QueryRequired
 
 from utils import get_setting
 
+
+wsapi_request_logger = logging.getLogger('wsapi.request')
 
 # we unable to sort results by this fields at server side
 CALCULATED_FIELDS = ('files_size',)
@@ -84,6 +87,7 @@ def load_ids(query, settings):
             get_setting('CGHUB_SERVER', settings),
             get_setting('CGHUB_ANALYSIS_ID_URI', settings),
             query)
+    wsapi_request_logger.info(urllib2.unquote(url))
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
     filename = get_cache_file_name(query, settings)
@@ -127,6 +131,7 @@ def load_attributes(ids, settings):
             get_setting('CGHUB_SERVER', settings),
             get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
             query)
+    wsapi_request_logger.info(urllib2.unquote(url))
     request = urllib2.Request(url)
     response = urllib2.urlopen(request).read()
     results = objectify.fromstring(response)

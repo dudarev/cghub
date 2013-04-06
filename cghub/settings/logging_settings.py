@@ -46,5 +46,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'wsapi.request': {
+            'handlers': ['syslog'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }

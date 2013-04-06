@@ -1,4 +1,5 @@
 import urllib2
+import logging
 
 from xml.sax import handler, parse
 
@@ -6,6 +7,9 @@ from django.conf import settings
 
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.core.utils import is_celery_alive
+
+
+wsapi_request_logger = logging.getLogger('wsapi.request')
 
 
 class CartAttributesParser(handler.ContentHandler):
@@ -89,6 +93,7 @@ def parse_cart_attributes(session_store, attributes, query=None,
                             settings.WSAPI_CGHUB_SERVER,
                             settings.WSAPI_CGHUB_ANALYSIS_DETAIL_URI,
                             query)
+        wsapi_request_logger.info(urllib2.unquote(url))
         req = urllib2.Request(url)
         response = urllib2.urlopen(req)
     else:
