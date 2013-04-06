@@ -18,7 +18,7 @@ class RequestTest(unittest.TestCase):
         self.assertTrue(len(results.Result) > 0)
 
         # cleaning up temp cache directory
-        os.remove(get_cache_file_name('aliquot_id=087484e8-dc3e-461a-be5f-4217b7c39732', True, settings={}))
+        os.remove(get_cache_file_name('aliquot_id=087484e8-dc3e-461a-be5f-4217b7c39732', get_attributes=True, full=False, settings={}))
 
 if __name__ == '__main__':
     unittest.main()

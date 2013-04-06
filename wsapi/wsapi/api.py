@@ -275,7 +275,7 @@ def request(
     # Getting results from the cache
     if not len(results) and not ignore_cache:
         results, cache_errors = get_from_cache(
-            query=query, get_attributes=get_attributes, settings=settings)
+            query=query, get_attributes=get_attributes, full=full, settings=settings)
 
     # Getting results from the server
     if not len(results):
