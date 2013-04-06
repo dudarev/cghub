@@ -58,7 +58,7 @@ class CartAttributesParser(handler.ContentHandler):
 
     def _save_to_cart(self):
         # save file to cart
-        self.current_dict['files_size'] = str(self.files_size)
+        self.current_dict['files_size'] = self.files_size
         # deep copy
         self.cart[self.current_analysis_id] = dict(self.current_dict)
         # cache file
