@@ -78,8 +78,10 @@ class RequestTest(unittest.TestCase):
         the escaped query string
         """
         self.assertEqual(
-            get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]', True, settings={}),
-            get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D', True, settings={})
+            get_cache_file_name('last_modified=[NOW-1DAY%20TO%20NOW]',
+                        get_attributes=True, full=False, settings={}),
+            get_cache_file_name('last_modified=%5BNOW-1DAY%20TO%20NOW%5D',
+                        get_attributes=True, full=False, settings={})
         )
 
 

@@ -35,11 +35,10 @@ class SortingTest(unittest.TestCase):
         for a in attributes_to_remove:
             self.assertRaises(AttributeError, getattr, results.Result, a)
         # new attribute that must be there
-        # FIXME(nanvel): fails after using analysisDetail
-        #self.assertEqual(
-        #        results.Result.analysis_attribute_uri,
-        #        "https://cghub.ucsc.edu/cghub/metadata/analysisFull/e29aa109-d508-4621-9a92-9f7ff7e0018f"
-        #        )
+        self.assertEqual(
+                results.Result.analysis_attribute_uri,
+                "https://cghub.ucsc.edu/cghub/metadata/analysisDetail/e29aa109-d508-4621-9a92-9f7ff7e0018f"
+                )
 
 class XMLMergeTestCase(unittest.TestCase):
     """

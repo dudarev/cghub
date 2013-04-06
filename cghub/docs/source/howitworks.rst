@@ -124,7 +124,7 @@ Caching
 
 There are next types of cache files:
     - api cache:
-        - files obtained by api.py. Theirs names calculated as hash from query used to obtain them
+        - files obtained by api.py. Theirs names calculated as hash from query used to obtain them. If get_attributes==True and full=True, name will contain ‘_full’ before dot. If get_attributes==False, name will contain ‘_short’ before dot 
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
         - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
@@ -214,6 +214,7 @@ Displayed attributes
     - legacy_sample_id (Barcode)
     - library_strategy (Library Type)
     - participant_id (Participant id)
+    - platform (Platform)
     - published_date (Published time)
     - refassem_short_name (Assembly)
     - sample_accession (Sample Accession)

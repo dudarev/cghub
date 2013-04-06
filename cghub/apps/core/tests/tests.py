@@ -156,7 +156,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
-        self.assertContains(response, 'Disease abbr')
+        self.assertContains(response, 'Disease')
         self.assertContains(response, 'Disease Name')
         self.assertContains(response, 'Sample Accession')
         # test raw_xml
@@ -301,8 +301,7 @@ class TemplateTagsTestCase(TestCase):
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
             '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: Harvard (HMS-RK)</li>'
-            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Center</b>: HMS-RK</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
             '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'

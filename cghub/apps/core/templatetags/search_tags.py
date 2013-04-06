@@ -31,6 +31,8 @@ COLUMN_ATTRIBUTES = {
     'Files Size': 'files_size',
     'Library Type': 'library_strategy',
     'Last modified': 'last_modified',
+    'Platform': 'platform',
+    'Platform Name': 'platform',
     'Sample Accession': 'sample_accession',
     'Sample Type': 'sample_type',
     'Sample Type Name': 'sample_type',
@@ -171,6 +173,7 @@ def applied_filters(request):
         'sample_type': request.GET.get('sample_type'),
         'library_strategy': request.GET.get('library_strategy'),
         'disease_abbr': request.GET.get('disease_abbr'),
+        'platform': request.GET.get('platform'),
         'state': request.GET.get('state'),
         'refassem_short_name': request.GET.get('refassem_short_name'),
         'q': request.GET.get('q'),
@@ -334,6 +337,10 @@ def field_values(result):
                          and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
+        'Platform': get_result_attr(result, 'platform'),
+        'Platform Name': get_name_by_code(
+            'platform',
+            get_result_attr(result, 'platform')),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
@@ -351,7 +358,6 @@ def field_values(result):
         # additional fields for details
         'Aliquot id': get_result_attr(result, 'aliquot_id'),
         'Disease abbr': get_result_attr(result, 'disease_abbr'),
-        'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
         'Published time': get_result_attr(result, 'published_date'),
         'Participant id': get_result_attr(result, 'participant_id'),
         'Sample id': get_result_attr(result, 'sample_id'),
