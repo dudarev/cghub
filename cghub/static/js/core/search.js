@@ -7,8 +7,11 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.search = {
-        addToCartErrorTile: 'Error Adding to Cart',
+        addToCartErrorTitle: 'Error Adding to Cart',
         addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
+        reservedChars: '*?',
+        usedReserverCharsTitle: 'Error in Search',
+        usedReserverCharsContent: 'Using * and ? is not allowed in search',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -32,6 +35,7 @@ jQuery(function ($) {
             cghub.search.$manyItemsModal = $('#manyItemsModal');
             cghub.search.$spinner = $('.js-spinner');
             cghub.search.$numResults = $('.js-num-results');
+            cghub.search.$searchField = $('.js-search-field');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -40,6 +44,7 @@ jQuery(function ($) {
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
             cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
+            cghub.search.$searchField.on('keypress', cghub.search.checkSearchField);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -177,11 +182,11 @@ jQuery(function ($) {
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     } else {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     cghub.search.$addFilesButton.removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -235,13 +240,13 @@ jQuery(function ($) {
                         cghub.search.$spinner.hide();
                     }
                     if (data['action']=='error') {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         $($button).removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -425,6 +430,17 @@ jQuery(function ($) {
             start_date = $.datepicker.formatDate('yy/mm/dd', start_date);
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
             return start_date + ' - ' + end_date;
+        },
+        checkSearchField:function(event){
+            if ( event.which == 13 ) {
+                var searchValue = cghub.search.$searchField.val();
+                for (var i = 0; i < cghub.search.reservedChars.length; i++){
+                    if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
+                        event.preventDefault();
+                        cghub.search.showMessage(cghub.search.usedReserverCharsTitle, cghub.search.usedReserverCharsContent);
+                    }
+                }
+            }
         }
     };
     cghub.search.init();
