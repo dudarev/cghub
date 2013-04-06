@@ -273,13 +273,13 @@ class SortWithinCartTestCase(LiveServerTestCase):
 
         attrs = [
             'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
-            'library_strategy', 'refassem_short_name', 'center_name',
+            'library_strategy', 'platform', 'refassem_short_name', 'center_name',
             'center_name', 'analyte_code', 'upload_date', 'last_modified',
             'sample_type', 'sample_type', 'state', 'legacy_sample_id',
             'sample_accession', 'files_size']
 
         for i, attr in enumerate(attrs):
-            if i in (3, 7, 11):
+            if i in (3, 8, 12):
                 continue
 
             # scroll table

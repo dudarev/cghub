@@ -12,8 +12,8 @@ List of columns to display:
 
 Available column_names: 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
-'Last modified', 'Library Type', 'Sample Accession', 'Sample Type',
-'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
+'Last modified', 'Library Type', 'Platform', 'Platform Name', 'Sample Accession',
+'Sample Type', 'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
 
 Styles of the columns:
 
@@ -97,6 +97,12 @@ COLUMN_STYLES = {
     'Last modified': {
         'width': 80, 'align': 'left', 'default_state': 'visible',
         },
+    'Platform': {
+        'width': 100, 'align': 'left', 'default_state': 'visible',
+        },
+    'Platform Name': {
+        'width': 200, 'align': 'left', 'default_state': 'hidden',
+        },
     'Sample Accession': {
         'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
@@ -129,6 +135,8 @@ TABLE_COLUMNS = (
     'Assembly',
     'Center',
     'Center Name',
+    'Platform',
+    'Platform Name',
     'Barcode',
     'Files Size',
     'Analysis Id',
@@ -139,27 +147,30 @@ TABLE_COLUMNS = (
 )
 
 DETAILS_FIELDS = (
-    'State',
-    'Last modified',
-    'Uploaded',
-    'Published time',
+    'Study',
+    'Disease',
+    'Disease Name',
+    'Sample Type',
+    'Sample Type Name',
+    'Experiment Type',
+    'Library Type',
+    'Assembly',
     'Center',
     'Center Name',
-    'Experiment Type',
-    'Study',
+    'Platform',
+    'Platform Name',
+    'Barcode',
+    'Files Size',
+    #'Analysis Id',
+    'Sample Accession',
+    'Uploaded',
+    'Last modified',
+    'State',
+    'Published time',
     'Aliquot id',
-    'Legasy sample id',
-    'Disease abbr',
-    'Disease Name',
-    'Assembly',
     'TSS id',
     'Participant id',
     'Sample id',
-    'Sample Type',
-    'Sample Type Name',
-    'Library Type',
-    'Sample Accession',
-    'Files Size',
 )
 
 def study_resolver(val):

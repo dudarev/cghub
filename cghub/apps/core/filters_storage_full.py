@@ -266,5 +266,12 @@ ALL_FILTERS = OrderedDict([
             ("validating_sample", "Validating sample"),
             ("bad_data", "Bad data"),
         ])
-    })
+    }),
+    ("platform", {
+        "title": "By Platform",
+        "filters": OrderedDict([
+            ("ILLUMINA", "Illumina"),
+            ("ION_TORRENT", "ION Torrent"),
+        ])
+    }),
 ])

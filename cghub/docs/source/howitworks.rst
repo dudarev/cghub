@@ -214,6 +214,7 @@ Displayed attributes
     - legacy_sample_id (Barcode)
     - library_strategy (Library Type)
     - participant_id (Participant id)
+    - platform (Platform)
     - published_date (Published time)
     - refassem_short_name (Assembly)
     - sample_accession (Sample Accession)
