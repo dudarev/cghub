@@ -47,6 +47,8 @@ LOGGING = {
             'propagate': True,
         },
         'wsapi.request': {
+            # use to disable this logger
+            # 'handlers': ['null'],
             'handlers': ['syslog'],
             'level': 'DEBUG',
             'propagate': True,
