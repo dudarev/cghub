@@ -14,16 +14,19 @@ from django.utils.http import urlquote
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_analysis_id, get_wsapi_settings,
                     get_filters_string)
+from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                            get_or_create_cart, get_cart_stats, clear_cart)
+                            get_or_create_cart, get_cart_stats, clear_cart,
+                                                    check_missing_files)
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
                                                     cache_results_task)
 import cghub.apps.cart.utils as cart_utils
 
 from cghub.wsapi.api_light import get_all_ids
+
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -41,7 +44,6 @@ def cart_add_files(request):
         form = AllFilesForm(request.POST)
         if form.is_valid():
             # calculate query
-            attributes = form.cleaned_data['attributes']
             filters = form.cleaned_data['filters']
             filter_str = get_filters_string(filters)
             q = filters.get('q')
@@ -72,7 +74,7 @@ def cart_add_files(request):
                         add_files_to_cart_by_query_task.apply_async(
                             kwargs={
                                     'queries': queries,
-                                    'attributes': attributes,
+                                    'attributes': ATTRIBUTES,
                                     'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
@@ -80,7 +82,7 @@ def cart_add_files(request):
                     add_files_to_cart_by_query_task.apply_async(
                             kwargs={
                                     'queries': queries,
-                                    'attributes': attributes,
+                                    'attributes': ATTRIBUTES,
                                     'session_key': request.session.session_key},
                             task_id=task_id)
                 result = {
@@ -91,7 +93,7 @@ def cart_add_files(request):
                 # files will be added immediately
                 add_files_to_cart_by_query_task(
                         queries=queries,
-                        attributes=attributes,
+                        attributes=ATTRIBUTES,
                         session_key=request.session.session_key)
                 result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
@@ -129,8 +131,12 @@ class CartView(TemplateView):
         offset = offset and offset.isdigit() and int(offset) or 0
         limit = self.request.GET.get('limit')
         limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        """
+        Check for not fully added files
+        """
+        files = check_missing_files(cart[offset:offset + limit])
         return {
-            'results': cart[offset:offset + limit],
+            'results': files,
             'stats': stats,
             'num_results': stats['count']}
 

@@ -444,18 +444,9 @@ class CartFormsTestCase(TestCase):
     def test_all_files_form(self):
 
         test_data_set = [{
-            'attributes': json.dumps(['size', 'center']),
             'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
             'is_valid': True,
         }, {
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': 'bad_attributes',
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': json.dumps(['size', 'center']),
             'filters': json.dumps(['bad', 'filters']),
             'is_valid': False,
         }]
@@ -466,9 +457,6 @@ class CartFormsTestCase(TestCase):
 
         form = AllFilesForm(test_data_set[0])
         form.is_valid()
-        self.assertEqual(
-            form.cleaned_data['attributes'],
-            ['size', 'center'])
         self.assertEqual(
             form.cleaned_data['filters'],
             {'center': '(1,2)', 'state': '(live)'})

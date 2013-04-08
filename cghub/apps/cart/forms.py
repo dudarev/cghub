@@ -31,7 +31,6 @@ class AllFilesForm(forms.Form):
     format to the form - format that can be loaded to json.
     """
     filters = forms.CharField()
-    attributes = forms.CharField()
 
     def clean_filters(self):
         filters = self.cleaned_data.get('filters')
@@ -42,13 +41,3 @@ class AllFilesForm(forms.Form):
         if not isinstance(filters, dict):
             raise forms.ValidationError('filters has not valid value')
         return filters
-
-    def clean_attributes(self):
-        attributes = self.cleaned_data.get('attributes')
-        try:
-            attributes = json.loads(attributes)
-        except (TypeError, ValueError):
-            raise forms.ValidationError("filters value is not valid json")
-        if not isinstance(attributes, list):
-            raise forms.ValidationError('filters has not valid value')
-        return attributes

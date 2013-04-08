@@ -182,16 +182,12 @@ jQuery(function ($) {
             if($button.hasClass('disabled')) return false;
             $($button).addClass('disabled');
             var $form = $button.parents('form');
-            var attributes = [];
-            for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
-                attributes.push(key);
-            }
             var filters = URI.parseQuery(window.location.search);
             if(jQuery.isEmptyObject(filters)) {
                 filters = cghub.search.getFiltersValues()['filters'];
             }
             $.ajax({
-                data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
+                data:$form.serialize() + '&filters=' + JSON.stringify(filters),
                 type:$form.attr('method'),
                 dataType:'json',
                 url:$form.attr('action'),
