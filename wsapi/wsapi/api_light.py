@@ -154,6 +154,9 @@ def get_all_ids(query, settings, ignore_cache=False):
                                 query, parse_sort_by('-' + attr)), settings)
                 if os.path.exists(filename):
                     break
+            if not os.path.exists(filename):
+                filename = get_cache_file_name(query, settings)
+                load_ids(query, settings=settings)
     f = open(filename)
     try:
         items = f.read().split('\n')[1:-1]
