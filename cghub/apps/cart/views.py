@@ -37,6 +37,9 @@ def cart_add_files(request):
         # 'Add all to cart' pressed
         form = AllFilesForm(request.POST)
         if form.is_valid():
+            # add ids to cart
+            
+            # add all attributes in task
             if celery_alive:
                 # check task is already exists
                 if request.session.session_key == None:
@@ -57,17 +60,12 @@ def cart_add_files(request):
                     add_files_to_cart_by_query_task.apply_async(
                             kwargs=kwargs,
                             task_id=task_id)
-                result = {
-                            'action': 'message',
-                            'task_id': task_id,
-                            'content': WILL_BE_ADDED_SOON_CONTENT,
-                            'title': WILL_BE_ADDED_SOON_TITLE}
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query_task(
                         form.cleaned_data,
                         request.session.session_key)
-                result = {'action': 'redirect', 'redirect': reverse('cart_page')}
+            result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
         form = SelectedFilesForm(request.POST)
         if form.is_valid():

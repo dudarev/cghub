@@ -121,6 +121,22 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     linecache.clearcache()
     return items_count, items
 
+def get_all_ids(query, settings, ignore_cache=False):
+    """
+    Return all ids for specified query.
+    Loads them from cghub server or gets from cache if exists and ignore_cache == False.
+    """
+    filename = get_cache_file_name(query, settings)
+    # reload cache if ignore_cache
+    if not os.path.exists(filename) or ignore_cache:
+        load_ids(query, settings=settings)
+    f = open(filename)
+    try:
+        items = f.read().split('\n')[1:-1]
+    except:
+        return []
+    return items
+
 def load_attributes(ids, settings):
     """
     Load attributes for specified set of ids.
