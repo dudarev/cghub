@@ -12,7 +12,8 @@ from django.utils import simplejson as json
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (is_celery_alive,
-                    generate_task_analysis_id, get_wsapi_settings)
+                    generate_task_analysis_id, get_wsapi_settings,
+                    get_filters_string)
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
@@ -21,6 +22,8 @@ from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
                                                     cache_results_task)
 import cghub.apps.cart.utils as cart_utils
+
+from cghub.wsapi.api_light import get_all_ids
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
@@ -37,10 +40,24 @@ def cart_add_files(request):
         # 'Add all to cart' pressed
         form = AllFilesForm(request.POST)
         if form.is_valid():
-            # add ids to cart
-            
+            # calculate query
+            attributes = form.cleaned_data['attributes']
+            filters = form.cleaned_data['filters']
+            filter_str = get_filters_string(filters)
+            q = filters.get('q')
+            if q:
+                query = u"xml_text={0}".format(urlquote(q))
+                query += filter_str
+                queries = [query, query.replace('xml_text', 'analysis_id', 1)]
+            else:
+                query = filter_str[1:]  # remove front ampersand
+                queries = [query]
             # add all attributes in task
             if celery_alive:
+                # add ids to cart
+                for query in queries:
+                    ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
+                    cart_utils.add_ids_to_cart(request, ids)
                 # check task is already exists
                 if request.session.session_key == None:
                     request.session.save()
@@ -53,19 +70,30 @@ def cart_add_files(request):
                     # task already done, reexecute task
                     if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query_task.apply_async(
-                            kwargs=kwargs,
+                            kwargs={
+                                    'queries': queries,
+                                    'attributes': attributes,
+                                    'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
                     # files will be added later by celery task
                     add_files_to_cart_by_query_task.apply_async(
-                            kwargs=kwargs,
+                            kwargs={
+                                    'queries': queries,
+                                    'attributes': attributes,
+                                    'session_key': request.session.session_key},
                             task_id=task_id)
+                result = {
+                            'action': 'redirect',
+                            'redirect': reverse('cart_page'),
+                            'task_id': task_id}
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query_task(
-                        form.cleaned_data,
-                        request.session.session_key)
-            result = {'action': 'redirect', 'redirect': reverse('cart_page')}
+                        queries=queries,
+                        attributes=attributes,
+                        session_key=request.session.session_key)
+                result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
         form = SelectedFilesForm(request.POST)
         if form.is_valid():

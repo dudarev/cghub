@@ -124,7 +124,12 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
 def get_all_ids(query, settings, ignore_cache=False):
     """
     Return all ids for specified query.
-    Loads them from cghub server or gets from cache if exists and ignore_cache == False.
+    Loads them from cghub server or gets from cache if exists
+    and ignore_cache == False.
+
+    :param query: a string with query to send to the server
+    :param ignore_cache: set to True, to restrict using cached ids
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
     filename = get_cache_file_name(query, settings)
     # reload cache if ignore_cache

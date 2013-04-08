@@ -197,7 +197,7 @@ class CartAddItemsTestCase(TestCase):
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertEqual(data['action'], 'message')
+        self.assertEqual(data['action'], 'redirect')
         self.assertTrue(data['task_id'])
         self.assertTrue(self.client.session.session_key)
 

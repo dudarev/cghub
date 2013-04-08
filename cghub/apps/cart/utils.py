@@ -49,6 +49,15 @@ def get_cart_stats(request):
     return stats
 
 
+def add_ids_to_cart(request, ids):
+    """ adds file file_dict to cart """
+    cart = get_or_create_cart(request)
+    for i in ids:
+        if i not in cart:
+            cart[i] = {'analysis_id': i}
+    request.session.modified = True
+
+
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()

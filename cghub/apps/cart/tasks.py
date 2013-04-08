@@ -3,11 +3,9 @@ import datetime
 import os
 
 from django.conf import settings
-from django.utils.http import urlquote
 from celery.task import task
 
 from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
-from cghub.apps.core.utils import get_filters_string
 from cghub.apps.cart.parsers import parse_cart_attributes
 
 from django.contrib.sessions.models import Session
@@ -32,11 +30,12 @@ def cache_results_task(analysis_id, last_modified):
 
 
 @task(ignore_result=True)
-def add_files_to_cart_by_query_task(data, session_key):
+def add_files_to_cart_by_query_task(queries, attributes, session_key):
     """
     Obtains all results for specified query and adds them to cart
 
-    :param data: AllFilesForm form cleaned data: ``{'attributes': [...], 'filters': {...}}``
+    :param queries: list of queries data should be obtained by
+    :param attributes: list of attributes should be added to cart
     :param session_key: Session.session_key
 
     How to change variables stored in session:
@@ -48,23 +47,9 @@ def add_files_to_cart_by_query_task(data, session_key):
     except Session.DoesNotExist:
         return
     # modify session
-    s = SessionStore(session_key=session_key)
-    cart = s.get('cart', {})
-    attributes = data['attributes']
-    filters = data['filters']
-    filter_str = get_filters_string(filters)
-    q = filters.get('q')
-    if q:
-        query = u"xml_text={0}".format(urlquote(q))
-        query += filter_str
-    else:
-        query = filter_str[1:]  # remove front ampersand
-    if 'xml_text' in query:
-        parse_cart_attributes(s, attributes, query=query)
-        parse_cart_attributes(s, attributes,
-                    query=query.replace('xml_text', 'analysis_id', 1))
-    else:
-        parse_cart_attributes(s, attributes, query=query)
+    session_store = SessionStore(session_key=session_key)
+    for query in queries:
+        parse_cart_attributes(session_store, attributes, query=query)
 
 
 # FIXME(nanvel): now cache stored in folders
