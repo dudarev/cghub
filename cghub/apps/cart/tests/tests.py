@@ -18,7 +18,7 @@ from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
-                                                summary, add_ids_to_cart)
+                            summary, add_ids_to_cart, check_missing_files)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
@@ -491,3 +491,13 @@ class CartUtilsTestCase(TestCase):
                 request.session._session['cart'][
                     '7850f073-642a-40a8-b49d-e328f27cfd66']['analysis_id'],
                 '7850f073-642a-40a8-b49d-e328f27cfd66')
+
+    def test_check_missing_files(self):
+        files = [
+            {'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66', 'study': 'live'},
+            {'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec'}]
+        files = check_missing_files(files)
+        # first is unchanged
+        self.assertEqual(len(files[0]), 2)
+        # attributes was loaded for second item
+        self.assertEqual(files[1]['disease_abbr'], 'COAD')
