@@ -23,6 +23,16 @@ preffered queries (allow using the same cache files):
 """
 
 
+TEST_SETTINGS = dict(
+    TABLE_COLUMNS=('Analysis Id', 'State'),
+    COLUMN_STYLES={
+            'Analysis Id': {
+                    'width': 220, 'align': 'left', 'default_state': 'visible'},
+            'State': {
+                    'width': 70, 'align': 'left', 'default_state': 'visible'}}
+)
+
+
 def wsapi_cache_copy(cache_files):
     """
     Copy cache_files from TEST_DATA_DIR to WSAPI_CACHE_DIR
@@ -175,9 +185,6 @@ class SidebarTestCase(LiveServerTestCase):
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
                 self.assertFalse(rb.is_selected())
 
-
-    # FIXME: broke after changes in filters_storage_full
-    '''
     def test_selection(self):
         """
         Select filters, click on submit, check query
@@ -295,14 +302,13 @@ class SidebarTestCase(LiveServerTestCase):
             re.match('.*refassem_short_name=[^&]*HG18*', url))
         self.assertFalse(
             re.match('.*refassem_short_name=[^&]*GRCh37*', url))
-        # state: bad_data+OR+live+OR+validating_sample
+        # state: live+OR+submitted+OR+bad_data
         self.assertTrue(
             re.match('.*state=[^&]*bad_data', url) and
-            re.match('.*state=[^&]*validating_sample', url) and
+            re.match('.*state=[^&]*submitted', url) and
             re.match('.*state=[^&]*live', url))
         self.assertFalse(
-            re.match('.*state=[^&]*submitted', url))
-    '''
+            re.match('.*state=[^&]*uploading', url))
 
     @classmethod
     def tearDownClass(self):
@@ -351,6 +357,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         dp_start.find_element_by_link_text("{}".format(start)).click()
         dp_end.find_element_by_link_text("{}".format(end)).click()
 
+    # FIXME: fails when today is last day of mnth
     def check_custom_date(self, filter_name, dp_values,
             reverse=False, future=False):
         """
@@ -508,7 +515,7 @@ class HelpHintsTestCase(LiveServerTestCase):
 
     def test_help_hints(self):
         driver = self.selenium
-        with self.settings(HELP_HINTS = { 'Analysis Id': 'Help for Analysis Id'}):
+        with self.settings(HELP_HINTS = { 'Study': 'Help for Study'}):
             driver.get(self.live_server_url)
             analysis_ids = driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")
             ac = ActionChains(driver)
@@ -576,8 +583,7 @@ class DetailsTestCase(LiveServerTestCase):
         ac.perform()
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
         assert context_menu.is_displayed()
-        driver.find_element_by_css_selector(".js-details-popup").click()
-        time.sleep(1)
+        driver.find_element_by_css_selector('.js-details-popup').click()
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
         assert popup.is_displayed()
         driver.find_element_by_css_selector(".modal-footer .btn").click()
@@ -620,37 +626,35 @@ class DetailsTestCase(LiveServerTestCase):
         assert xml_containers[0].is_displayed()
         assert not xml_containers[1].is_displayed()
 
-    # FIXME: broke after changes in filters_storage_full
-    '''
     def test_details_page(self):
-        driver = self.selenium
-        driver.get(self.live_server_url)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-        except OSError:
-            pass
-        td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
-        td_text = driver.find_element_by_xpath(
-            "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").text
-        ac = ActionChains(driver)
-        ac.context_click(td)
-        ac.perform()
-        driver.find_element_by_css_selector('.js-details-page').click()
-        time.sleep(5)
-        driver.switch_to_window(driver.window_handles[-1])
-        page_header = driver.find_element_by_class_name('page-header').text
-        assert (td_text in driver.current_url and 'details' in driver.current_url)
-        assert (td_text in page_header and 'details' in page_header)
-        driver.execute_script(
-            "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
-        # try to load analysis xml
-        driver.find_element_by_id('id-download-metadata').click()
-        time.sleep(3)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-        except OSError:
-            assert False, "File metadata.xml wasn't downloaded"
-    '''
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            try:
+                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+            except OSError:
+                pass
+            td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+            td_text = driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").text
+            ac = ActionChains(driver)
+            ac.context_click(td)
+            ac.perform()
+            driver.find_element_by_css_selector('.js-details-page').click()
+            time.sleep(5)
+            driver.switch_to_window(driver.window_handles[-1])
+            page_header = driver.find_element_by_class_name('page-header').text
+            assert (td_text in driver.current_url and 'details' in driver.current_url)
+            assert (td_text in page_header and 'details' in page_header)
+            driver.execute_script(
+                "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
+            # try to load analysis xml
+            driver.find_element_by_id('id-download-metadata').click()
+            time.sleep(3)
+            try:
+                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+            except OSError:
+                assert False, "File metadata.xml wasn't downloaded"
 
 
 class SearchTestCase(LiveServerTestCase):

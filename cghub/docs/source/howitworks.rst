@@ -44,11 +44,11 @@ To add tooltip to, for example, some div element, we should add 'js-commont-tool
 ::
 
     # HTML:
-    <div class="someclass js-common-tooltip" data-tag="some-key">Some content</div>
+    <div class="someclass js-common-tooltip" data-key="some-key">Some content</div>
 
     # help.py:
     HELP_HINTS = {
-        'common:some-tag': 'Some hint' 
+        'common:some-key': 'Some hint' 
 
 Help hints for cells for columns: 'Analysis Id', 'Uploaded', 'Last modified', 'Barcode' and 'File Size' are disabled.
 
