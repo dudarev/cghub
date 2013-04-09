@@ -7,14 +7,11 @@ from django.core.mail import mail_admins
 from django.conf import settings
 
 from cghub.apps.core.filters_storage import ALL_FILTERS
+from cghub.apps.core.attributes import DATE_ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
 
-DATE_ATTRIBUTES = (
-        'last_modified',
-        'upload_date',
-    )
 
 WSAPI_SETTINGS_LIST = (
         'CGHUB_SERVER',
