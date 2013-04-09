@@ -37,6 +37,7 @@
                     <button class="btn add-to-cart-btn" type="submit">Add to cart</button>
                     <button class="btn add-all-to-cart-btn" type="button">Add all to cart</button>
                 </div>
+                <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
             </div>
             {% items_per_page request 10 25 50 %}
             <div class="column-select-label"><span>Columns:</span></div>
