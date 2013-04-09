@@ -1,5 +1,6 @@
 import sys
 import csv
+import urllib2
 
 from StringIO import StringIO
 from lxml import etree, objectify
@@ -10,11 +11,17 @@ from django.conf import settings
 from django.utils import timezone
 
 from cghub.wsapi.api import Results
+from cghub.wsapi.api import request as api_request
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import get_wsapi_settings
+from cghub.apps.core.utils import get_wsapi_settings, get_wsapi_settings
+from cghub.apps.core.attributes import ATTRIBUTES
+
 from cghub.apps.cart.tasks import cache_results_task
 from cghub.apps.cart.cache import AnalysisFileException, get_analysis
+
+
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def get_or_create_cart(request):
@@ -49,10 +56,49 @@ def get_cart_stats(request):
     return stats
 
 
+def add_ids_to_cart(request, ids):
+    """ adds file file_dict to cart """
+    cart = get_or_create_cart(request)
+    for i in ids:
+        if i not in cart:
+            cart[i] = {'analysis_id': i}
+    request.session.modified = True
+
+
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
-        request.session.modified = True
+    request.session['cart_loading'] = False
+    request.session.modified = True
+
+
+def check_missing_files(files):
+    """
+    Check that not only analysis_id attribute filled.
+    If only analysis_id exists, upload missing attributes and modify data
+
+    :param files: list of files attributes
+    """
+    files_to_upload = []
+    for f in files:
+        if len(f) == 1:
+            files_to_upload.append(f['analysis_id'])
+    if files_to_upload:
+        query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
+        result = api_request(
+            query=query,
+            ignore_cache=True,
+            use_api_light=False,
+            settings=WSAPI_SETTINGS)
+        if hasattr(result, 'Result'):
+            result.add_custom_fields()
+            for i in result.Result:
+                for f in files:
+                    if f['analysis_id'] == i.analysis_id:
+                        for attr in ATTRIBUTES:
+                            f[attr] = getattr(i, attr)
+                        break
+    return files
 
 
 def join_analysises(data, short=False, live_only=False):

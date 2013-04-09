@@ -168,10 +168,16 @@ Adding all files to cart
 
 Here are next sequence of actions:
     - when user click 'Add all to cart', transmitted only current query
+    - all ids for specified query will be added to cart immediately (used wsapi cache)
     - then will be created task to obtain all attributes for specified query and fill cart
     - will be checked that every file exists in cache, if not - will be created task to cache it
     - task id transmitted back to user and saves into cookies
     - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
+    - when user opens cart page and attributes for some files will be not loaded yet, missed attributes for current page will be loaded immediately and will be shown alert
+
+User will be unable to remove items from cart, clear cart or sort items in cart until all files are loaded to cart.
+
+If celery will not working, all tasks will be executes as simple functions.
 
 Downloading metadata
 ====================

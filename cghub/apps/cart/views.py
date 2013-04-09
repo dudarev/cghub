@@ -12,35 +12,63 @@ from django.utils import simplejson as json
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (is_celery_alive,
-                    generate_task_analysis_id, get_wsapi_settings)
+                    generate_task_analysis_id, get_wsapi_settings,
+                    get_filters_string)
+from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                            get_or_create_cart, get_cart_stats, clear_cart)
+                            get_or_create_cart, get_cart_stats, clear_cart,
+                                                    check_missing_files)
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
                                                     cache_results_task)
 import cghub.apps.cart.utils as cart_utils
 
+from cghub.wsapi.api_light import get_all_ids
+
+
 WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def cart_add_files(request):
-    WILL_BE_ADDED_SOON_CONTENT = 'Files will be added to your cart soon.'
-    WILL_BE_ADDED_SOON_TITLE = 'Message'
     result = {'action': 'error'}
     if not request.is_ajax():
         raise Http404
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
+    if request.session.session_key == None:
+        request.session.save()
+    # check that we still working on adding files to cart
+    if celery_alive and request.session.get('cart_loading'):
+        result = {
+            'action': 'message',
+            'title': 'Still adding files to cart',
+            'content': 'Please wait, files from your previous request not fully loaded to Your cart'}
+        return HttpResponse(json.dumps(result), mimetype="application/json")
     if filters:
         # 'Add all to cart' pressed
         form = AllFilesForm(request.POST)
         if form.is_valid():
+            # calculate query
+            filters = form.cleaned_data['filters']
+            filter_str = get_filters_string(filters)
+            q = filters.get('q')
+            if q:
+                query = u"xml_text={0}".format(urlquote(q))
+                query += filter_str
+                queries = [query, query.replace('xml_text', 'analysis_id', 1)]
+            else:
+                query = filter_str[1:]  # remove front ampersand
+                queries = [query]
+            # add all attributes in task
             if celery_alive:
+                # add ids to cart
+                for query in queries:
+                    ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
+                    cart_utils.add_ids_to_cart(request, ids)
+                request.session['cart_loading'] = True
                 # check task is already exists
-                if request.session.session_key == None:
-                    request.session.save()
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
@@ -50,23 +78,29 @@ def cart_add_files(request):
                     # task already done, reexecute task
                     if task.state not in (states.RECEIVED, states.STARTED):
                         add_files_to_cart_by_query_task.apply_async(
-                            kwargs=kwargs,
+                            kwargs={
+                                    'queries': queries,
+                                    'attributes': ATTRIBUTES,
+                                    'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
                     # files will be added later by celery task
                     add_files_to_cart_by_query_task.apply_async(
-                            kwargs=kwargs,
+                            kwargs={
+                                    'queries': queries,
+                                    'attributes': ATTRIBUTES,
+                                    'session_key': request.session.session_key},
                             task_id=task_id)
                 result = {
-                            'action': 'message',
-                            'task_id': task_id,
-                            'content': WILL_BE_ADDED_SOON_CONTENT,
-                            'title': WILL_BE_ADDED_SOON_TITLE}
+                            'action': 'redirect',
+                            'redirect': reverse('cart_page'),
+                            'task_id': task_id}
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query_task(
-                        form.cleaned_data,
-                        request.session.session_key)
+                        queries=queries,
+                        attributes=ATTRIBUTES,
+                        session_key=request.session.session_key)
                 result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     else:
         form = SelectedFilesForm(request.POST)
@@ -95,7 +129,7 @@ class CartView(TemplateView):
     def get_context_data(self, **kwargs):
         sort_by = self.request.GET.get('sort_by')
         cart = get_or_create_cart(self.request).values()
-        if sort_by:
+        if sort_by and not self.request.session.get('cart_loading'):
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
         stats = get_cart_stats(self.request)
@@ -103,8 +137,12 @@ class CartView(TemplateView):
         offset = offset and offset.isdigit() and int(offset) or 0
         limit = self.request.GET.get('limit')
         limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        """
+        Check for not fully added files
+        """
+        files = check_missing_files(cart[offset:offset + limit])
         return {
-            'results': cart[offset:offset + limit],
+            'results': files,
             'stats': stats,
             'num_results': stats['count']}
 

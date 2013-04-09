@@ -7,7 +7,7 @@ import shutil
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
-from django.test.client import Client
+from django.test.client import Client, RequestFactory
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 from django.utils import timezone
@@ -17,7 +17,8 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
-from cghub.apps.cart.utils import join_analysises, manifest, metadata, summary
+from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
+                            summary, add_ids_to_cart, check_missing_files)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
@@ -197,7 +198,7 @@ class CartAddItemsTestCase(TestCase):
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertEqual(data['action'], 'message')
+        self.assertEqual(data['action'], 'redirect')
         self.assertTrue(data['task_id'])
         self.assertTrue(self.client.session.session_key)
 
@@ -443,18 +444,9 @@ class CartFormsTestCase(TestCase):
     def test_all_files_form(self):
 
         test_data_set = [{
-            'attributes': json.dumps(['size', 'center']),
             'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
             'is_valid': True,
         }, {
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': 'bad_attributes',
-            'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
-            'is_valid': False,
-        }, {
-            'attributes': json.dumps(['size', 'center']),
             'filters': json.dumps(['bad', 'filters']),
             'is_valid': False,
         }]
@@ -466,8 +458,50 @@ class CartFormsTestCase(TestCase):
         form = AllFilesForm(test_data_set[0])
         form.is_valid()
         self.assertEqual(
-            form.cleaned_data['attributes'],
-            ['size', 'center'])
-        self.assertEqual(
             form.cleaned_data['filters'],
             {'center': '(1,2)', 'state': '(live)'})
+
+
+class CartUtilsTestCase(TestCase):
+
+    def get_request(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        # create request
+        factory = RequestFactory()
+        request = factory.get(reverse('home_page'))
+        request.session = store
+        request.cookies = {}
+        request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        return request
+
+    def test_add_ids_to_cart(self):
+        request = self.get_request()
+        # try to add ids
+        ids = (
+            '7850f073-642a-40a8-b49d-e328f27cfd66',
+            '796e11c8-b873-4c37-88cd-18dcd7f287ec')
+        add_ids_to_cart(request, ids)
+        # check ids saved to session
+        self.assertEqual(
+                request.session._session['cart'][
+                    '7850f073-642a-40a8-b49d-e328f27cfd66']['analysis_id'],
+                '7850f073-642a-40a8-b49d-e328f27cfd66')
+
+    def test_check_missing_files(self):
+        files = [
+            {'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66', 'study': 'live'},
+            {'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec'}]
+        files = check_missing_files(files)
+        # first is unchanged
+        self.assertEqual(len(files[0]), 2)
+        # attributes was loaded for second item
+        self.assertEqual(files[1]['disease_abbr'], 'COAD')

@@ -25,8 +25,12 @@ from utils import get_setting
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
-# we unable to sort results by this fields at server side
-CALCULATED_FIELDS = ('files_size',)
+# we unable to sort results by files_size
+ALLOWED_SORT_BY = ('aliquot_id', 'analysis_id', 'analyte_code', 'center_name',
+    'disease_abbr', 'last_modified', 'legacy_sample_id',
+    'library_strategy', 'participant_id', 'platform', 'published_date',
+    'refassem_short_name', 'sample_accession', 'sample_id', 'sample_type',
+    'state', 'study', 'tss_id', 'upload_date')
 
 
 class IDsParser(handler.ContentHandler):
@@ -101,9 +105,9 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     Get ids for specified query from cache or load from CGHub server.
     """
     q = query
-    if (sort_by and
-        not sort_by in CALCULATED_FIELDS and
-        not sort_by[1:] in CALCULATED_FIELDS):
+    if (sort_by and (
+        sort_by in ALLOWED_SORT_BY or
+        sort_by[1:] in ALLOWED_SORT_BY)):
         q += '&sort_by=' + parse_sort_by(sort_by)
     filename = get_cache_file_name(q, settings)
     # reload cache if ignore_cache
@@ -120,6 +124,45 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
             items.append(line)
     linecache.clearcache()
     return items_count, items
+
+def get_all_ids(query, settings, ignore_cache=False):
+    """
+    Return all ids for specified query.
+    Loads them from cghub server or gets from cache if exists
+    and ignore_cache == False.
+    Sorting is not supported.
+
+    :param query: a string with query to send to the server
+    :param ignore_cache: set to True, to restrict using cached ids
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    filename = get_cache_file_name(query, settings)
+    # reload cache if ignore_cache
+    if ignore_cache:
+        load_ids(query, settings=settings)
+    else:
+        if not os.path.exists(filename):
+            # search for file with sorted ids with same query
+            for attr in ALLOWED_SORT_BY:
+                filename = get_cache_file_name(
+                        '%s&sort_by=%s' % (
+                                query, parse_sort_by(attr)), settings)
+                if os.path.exists(filename):
+                    break
+                filename = get_cache_file_name(
+                        '%s&sort_by=-%s' % (
+                                query, parse_sort_by('-' + attr)), settings)
+                if os.path.exists(filename):
+                    break
+            if not os.path.exists(filename):
+                filename = get_cache_file_name(query, settings)
+                load_ids(query, settings=settings)
+    f = open(filename)
+    try:
+        items = f.read().split('\n')[1:-1]
+    except:
+        return []
+    return items
 
 def load_attributes(ids, settings):
     """

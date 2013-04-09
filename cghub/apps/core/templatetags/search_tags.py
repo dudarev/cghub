@@ -9,37 +9,10 @@ from django.template import Context
 from django.template.loader import select_template
 
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
+from cghub.apps.core.attributes import COLUMN_NAMES, DATE_ATTRIBUTES
 
 register = template.Library()
 
-
-DATE_ATTRIBUTES = (
-    'last_modified',
-    'upload_date',
-    'published_date'
-)
-
-COLUMN_ATTRIBUTES = {
-    'Analysis Id': 'analysis_id',
-    'Assembly':  'refassem_short_name',
-    'Barcode': 'legacy_sample_id',
-    'Center': 'center_name',
-    'Center Name': 'center_name',
-    'Disease': 'disease_abbr',
-    'Disease Name': 'disease_abbr',
-    'Experiment Type': 'analyte_code',
-    'Files Size': 'files_size',
-    'Library Type': 'library_strategy',
-    'Last modified': 'last_modified',
-    'Platform': 'platform',
-    'Platform Name': 'platform',
-    'Sample Accession': 'sample_accession',
-    'Sample Type': 'sample_type',
-    'Sample Type Name': 'sample_type',
-    'State': 'state',
-    'Study': 'study',
-    'Uploaded': 'upload_date',
-}
 
 DEFAULT_CULUMN_STYLE = {
         'width': 100,
@@ -296,7 +269,7 @@ def table_header(request):
     """
     html = ''
     for field_name in settings.TABLE_COLUMNS:
-        col_name = COLUMN_ATTRIBUTES.get(field_name, None)
+        col_name = COLUMN_NAMES.get(field_name, None)
         if col_name is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
