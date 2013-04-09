@@ -50,6 +50,8 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
     session_store = SessionStore(session_key=session_key)
     for query in queries:
         parse_cart_attributes(session_store, attributes, query=query)
+    session_store['cart_loading'] = False
+    session_store.save()
 
 
 # FIXME(nanvel): now cache stored in folders

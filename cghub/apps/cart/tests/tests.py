@@ -464,7 +464,7 @@ class CartFormsTestCase(TestCase):
 
 class CartUtilsTestCase(TestCase):
 
-    def test_add_ids_to_cart(self):
+    def get_request(self):
         # initialize session
         settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
         engine = import_module(settings.SESSION_ENGINE)
@@ -481,6 +481,10 @@ class CartUtilsTestCase(TestCase):
                 expire_date=timezone.now() + datetime.timedelta(days=7),
                 session_key=store.session_key)
         s.save()
+        return request
+
+    def test_add_ids_to_cart(self):
+        request = self.get_request()
         # try to add ids
         ids = (
             '7850f073-642a-40a8-b49d-e328f27cfd66',

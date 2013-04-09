@@ -32,13 +32,20 @@ WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def cart_add_files(request):
-    WILL_BE_ADDED_SOON_CONTENT = 'Files will be added to your cart soon.'
-    WILL_BE_ADDED_SOON_TITLE = 'Message'
     result = {'action': 'error'}
     if not request.is_ajax():
         raise Http404
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
+    if request.session.session_key == None:
+        request.session.save()
+    # check that we still working on adding files to cart
+    if celery_alive and request.session.get('cart_loading'):
+        result = {
+            'action': 'message',
+            'title': 'Still adding files to cart',
+            'content': 'Please wait, files from your previous request not fully loaded to Your cart'}
+        return HttpResponse(json.dumps(result), mimetype="application/json")
     if filters:
         # 'Add all to cart' pressed
         form = AllFilesForm(request.POST)
@@ -60,9 +67,8 @@ def cart_add_files(request):
                 for query in queries:
                     ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
                     cart_utils.add_ids_to_cart(request, ids)
+                request.session['cart_loading'] = True
                 # check task is already exists
-                if request.session.session_key == None:
-                    request.session.save()
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}

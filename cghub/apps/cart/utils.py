@@ -68,7 +68,8 @@ def add_ids_to_cart(request, ids):
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
-        request.session.modified = True
+    request.session['cart_loading'] = False
+    request.session.modified = True
 
 
 def check_missing_files(files):
