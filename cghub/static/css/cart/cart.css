@@ -37,4 +37,4 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .column-select{display:none;}
 .items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
 div.cart-btn-group{padding:15px 0;}
-.cart-content{padding-left:50px;}
+.cart-content{padding-left:50px;}.cart-content .alert a{color:inherit;text-decoration:underline;}
