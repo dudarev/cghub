@@ -129,7 +129,7 @@ class CartView(TemplateView):
     def get_context_data(self, **kwargs):
         sort_by = self.request.GET.get('sort_by')
         cart = get_or_create_cart(self.request).values()
-        if sort_by:
+        if sort_by and not self.request.session.get('cart_loading'):
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
         stats = get_cart_stats(self.request)
