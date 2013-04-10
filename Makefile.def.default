@@ -12,7 +12,7 @@ PYTHON= PYTHONPATH=$(PYTHONPATH) python
 
 TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
-			core.MetadataViewTestCase \
+			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartClearTestCase cart.CartCacheTestCase \
 			cart.CartFormsTestCase cart.CartUtilsTestCase \
