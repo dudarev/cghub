@@ -47,7 +47,14 @@ jQuery(function ($) {
                         var posX = $target.offset().left - $(window).scrollLeft();
                         var posY = $target.offset().top - $(window).scrollTop();
                         var tooltip = $('<div class="tooltip js-tooltip"></div>').html(data['text']).appendTo($('body'));
-                        tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                        var tooltipTop = posY;
+                        if (posY < tooltip.outerHeight()){
+                            tooltipTop += tooltip.outerHeight();//tooltip on bottom
+                        }
+                        else {
+                            tooltipTop -= tooltip.outerHeight();//tooltip on top
+                        }
+                        tooltip.css({top: tooltipTop, left: posX}).fadeIn(100, 'swing');
                     }
                 }
             });
@@ -153,11 +160,11 @@ jQuery(function ($) {
             });
         },
         // for other elements on the page
-        activateCommonTooltipHelp:function ($target) {
+        activateCommonTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.js-common-tooltip', function($target) {
                 return 'common:' + $target.data('key');
             });
-        },
+        }
     };
     cghub.help.init();
 });
