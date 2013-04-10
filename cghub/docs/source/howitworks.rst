@@ -174,6 +174,9 @@ Here are next sequence of actions:
     - task id transmitted back to user and saves into cookies
     - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
     - when user opens cart page and attributes for some files will be not loaded yet, missed attributes for current page will be loaded immediately and will be shown alert
+    - if amount of files to add to cart will be more then ``settings.MANY_FILES``, will be shown confirmation popup for confirming the number
+
+Default ``settings.MANY_FILES`` located in ``cghub/settings/variables.py``.
 
 User will be unable to remove items from cart, clear cart or sort items in cart until all files are loaded to cart.
 
@@ -187,7 +190,7 @@ File with metadata collected from xml files stored in cart cache with analysis i
 .. autofunction:: cghub.apps.cart.utils.join_analysises
 
 Pieces of data
-==========
+==============
 
 Used URI's
 ----------
