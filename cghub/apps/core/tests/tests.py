@@ -13,6 +13,7 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
+from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
@@ -229,6 +230,18 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 '')
+
+
+class ContextProcessorsTestCase(TestCase):
+
+    def test_settings(self):
+        # test cghub.apps.core.context_processors.settings
+        MANY_FILES = 101
+        with self.settings(MANY_FILES=MANY_FILES):
+            factory = RequestFactory()
+            request = factory.get('/')
+            context = RequestContext(request)
+            self.assertEqual(context['MANY_FILES'], MANY_FILES)
 
 
 class TemplateTagsTestCase(TestCase):

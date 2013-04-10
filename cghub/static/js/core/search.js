@@ -29,7 +29,9 @@ jQuery(function ($) {
             cghub.search.$filterSelects = $('select.filter-select');
             cghub.search.$navbarSearchForm = $('form.navbar-search');
             cghub.search.$messageModal = $('#messageModal');
+            cghub.search.$manyItemsModal = $('#manyItemsModal');
             cghub.search.$spinner = $('.js-spinner');
+            cghub.search.$numResults = $('.js-num-results');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -37,6 +39,7 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
+            cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -186,9 +189,21 @@ jQuery(function ($) {
             return false;
         },
         addAllFilesClick:function () {
-            var $button = $(this);
-            if($button.hasClass('disabled')) return false;
-            $($button).addClass('disabled');
+            if($(this).hasClass('disabled')) return false;
+            var files_count = parseInt(cghub.search.$numResults.text(), 10);
+            var many_files = parseInt($(this).parents('form').data('many-files'));
+            if(files_count > many_files) {
+                cghub.search.$manyItemsModal.find('.modal-body p b').text(files_count);
+                cghub.search.$manyItemsModal.modal('show');
+                cghub.search.$manyItemsModal.find('.js-no').focus();
+            } else {
+                cghub.search.addAllFiles();
+            }
+            return false;
+        },
+        addAllFiles:function() {
+            var $button = cghub.search.$addAllFilesButton;
+            $button.addClass('disabled');
             cghub.search.$spinner.show();
             var $form = $button.parents('form');
             var filters = URI.parseQuery(window.location.search);
@@ -231,6 +246,7 @@ jQuery(function ($) {
                     cghub.search.$spinner.hide();
                 }
             });
+            cghub.search.$manyItemsModal.modal('hide');
             return false;
         },
         getFiltersValues:function () {

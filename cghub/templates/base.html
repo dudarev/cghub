@@ -77,6 +77,20 @@
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     </div>
 </div>
+{% comment %}
+    Help text modal
+{% endcomment %}
+<div class="modal fade" id="helpTextModal" tabindex="-1" role="dialog" aria-labelledby="help-text-label" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="modal-label" id="help-text-label"></h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
+
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
