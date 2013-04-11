@@ -20,7 +20,7 @@ from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
 
-from utils import get_setting
+from utils import get_setting, urlopen
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
@@ -92,8 +92,7 @@ def load_ids(query, settings):
             get_setting('CGHUB_ANALYSIS_ID_URI', settings),
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
+    response = urlopen(url)
     filename = get_cache_file_name(query, settings)
     cache_dir = get_setting('CACHE_DIR', settings)
     if not os.path.exists(cache_dir):
@@ -175,8 +174,7 @@ def load_attributes(ids, settings):
             get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
-    request = urllib2.Request(url)
-    response = urllib2.urlopen(request).read()
+    response = urlopen(url).read()
     results = objectify.fromstring(response)
     return results
 

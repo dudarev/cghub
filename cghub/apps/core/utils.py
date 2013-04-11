@@ -21,6 +21,8 @@ WSAPI_SETTINGS_LIST = (
         'USE_CACHE',
         'CACHE_BACKEND',
         'CACHE_DIR',
+        'HTTP_ERROR_ATTEMPTS',
+        'HTTP_ERROR_SLEEP_AFTER',
     )
 
 

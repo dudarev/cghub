@@ -89,7 +89,7 @@ Exceptions
 Utility functions
 -------------------
 
-Only one utility function at the moment to clean cache.
+``wsapi.utils.urlopen`` should be used instead of ``urllib2.urlopen``.
 
 .. automodule:: wsapi.utils
     :members:
