@@ -5,6 +5,8 @@ from xml.sax import handler, parse
 
 from django.conf import settings
 
+from cghub.wsapi.utils import urlopen
+
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.core.utils import is_celery_alive
 
@@ -94,8 +96,7 @@ def parse_cart_attributes(session_store, attributes, query=None,
                             settings.WSAPI_CGHUB_ANALYSIS_DETAIL_URI,
                             query)
         wsapi_request_logger.info(urllib2.unquote(url))
-        req = urllib2.Request(url)
-        response = urllib2.urlopen(req)
+        response = urlopen(url)
     else:
         response = open(file_path, 'r')
     try:
