@@ -20,7 +20,7 @@ from django.http import HttpRequest, QueryDict
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query, only_date)
+                    period_from_query, only_date, valid_id)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_analysis_id)
@@ -454,6 +454,14 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(only_date('2013-02-22T12:00:21Z'), '2013-02-22')
         self.assertEqual(only_date('2013-02-22'), '2013-02-22')
         self.assertEqual(only_date(''), '')
+
+    def test_valid_id_filter(self):
+        invalid = "4df3-9951-442047f0b21c"
+        invalid2 = 'dfgdfuhgouwuwoehgouwehg'
+        valid = "dfa43dff-721a-4df3-9951-442047f0b21c"
+        self.assertTrue(valid_id(valid))
+        self.assertFalse(valid_id(invalid))
+        self.assertFalse(valid_id(invalid2))
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):

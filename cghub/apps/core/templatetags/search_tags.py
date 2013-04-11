@@ -1,5 +1,6 @@
 import urllib
 import datetime
+import re
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape
@@ -371,3 +372,11 @@ def details_table(result):
             continue
         html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
     return html
+
+
+@register.filter
+def valid_id(value):
+    regex = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    if re.match(regex, str(value)):
+        return True
+    return False
