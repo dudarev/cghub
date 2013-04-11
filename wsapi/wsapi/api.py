@@ -15,7 +15,7 @@ from datetime import datetime
 
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
-from utils import get_setting
+from utils import get_setting, urlopen
 
 from api_light import request_light
 
@@ -292,8 +292,7 @@ def request(
             raise ValueError("Query seems to be invalid (no '='): %s" % query)
         url = u'{0}{1}?{2}'.format(server, uri, query)
         wsapi_request_logger.info(urllib2.unquote(url))
-        req = urllib2.Request(url)
-        response = urllib2.urlopen(req).read()
+        response = urlopen(url).read()
         results = objectify.fromstring(response)
 
     # wrap result with extra methods
