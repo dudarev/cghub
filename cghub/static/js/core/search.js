@@ -44,7 +44,6 @@ jQuery(function ($) {
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
             cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
-            cghub.search.$searchField.on('keypress', cghub.search.checkSearchField);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -207,14 +206,18 @@ jQuery(function ($) {
             return false;
         },
         addAllFiles:function() {
+            var filters = URI.parseQuery(window.location.search);
+            if(jQuery.isEmptyObject(filters)) {
+                var filters_values = cghub.search.getFiltersValues();
+                if(filters_values['is_error']) {
+                    return false;
+                }
+                filters = filters_values['filters'];
+            }
             var $button = cghub.search.$addAllFilesButton;
             $button.addClass('disabled');
             cghub.search.$spinner.show();
             var $form = $button.parents('form');
-            var filters = URI.parseQuery(window.location.search);
-            if(jQuery.isEmptyObject(filters)) {
-                filters = cghub.search.getFiltersValues()['filters'];
-            }
             $.ajax({
                 data:$form.serialize() + '&filters=' + JSON.stringify(filters),
                 type:$form.attr('method'),
@@ -256,7 +259,7 @@ jQuery(function ($) {
         },
         getFiltersValues:function () {
             var new_search = URI.parseQuery(window.location.search);
-            var is_error = false;
+            var is_error = !cghub.search.checkSearchField();
             var sections = $('select.filter-select:not(.date-filters)');
             var searchQuery = $('input.search-query').val();
 
@@ -431,16 +434,15 @@ jQuery(function ($) {
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
             return start_date + ' - ' + end_date;
         },
-        checkSearchField:function(event){
-            if ( event.which == 13 ) {
-                var searchValue = cghub.search.$searchField.val();
-                for (var i = 0; i < cghub.search.reservedChars.length; i++){
-                    if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
-                        event.preventDefault();
-                        cghub.search.showMessage(cghub.search.usedReservedCharsTitle, cghub.search.usedReservedCharsContent);
-                    }
+        checkSearchField:function(){
+            var searchValue = cghub.search.$searchField.val();
+            for (var i = 0; i < cghub.search.reservedChars.length; i++){
+                if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
+                    cghub.search.showMessage(cghub.search.usedReservedCharsTitle, cghub.search.usedReservedCharsContent);
+                    return false;
                 }
             }
+            return true;
         }
     };
     cghub.search.init();
