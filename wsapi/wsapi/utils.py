@@ -32,9 +32,9 @@ def urlopen(url):
         try:
             req = urllib2.Request(url)
             return urllib2.urlopen(req)
-        except urllib2.HttpError:
+        except urllib2.URLError:
             time.sleep(HTTP_ERROR_SLEEP_AFTER)
-    raise urllib2.HttpError
+    raise urllib2.URLError
 
 
 def clear_cache(cache_dir, older_than):
