@@ -85,20 +85,20 @@ else
 	@echo Done
 endif
 
-celeryd_stop:
-	ps -ef | grep celery | awk '{print $$2}' | xargs kill -9
-
-celeryd:
-	# -B option is for celerybeat with one worker (scheduling)
+celeryd: celeryd_stop
 	$(MANAGE) celeryd -E -Q celery --pidfile=$(CELERYD_PID)&
 	$(MANAGE) celerybeat --detach --pidfile=$(CELERYBEAT_PID)
 	$(MANAGE) celerycam --detach --pidfile=$(CELERYCAM_PID)
 
+
+celeryd_stop:
+	ps -ef | awk '/python.* celery/&& !/awk/{system("kill " $$2)}'
+
 less:
-	@grunt-less --config cghub/grunt.js less
+	grunt-less --config cghub/grunt.js less
 
 minjs:
-	@grunt --config cghub/grunt.js min
+	grunt --config cghub/grunt.js min
 
 selectfilters:
 	$(MANAGE) selectfilters
@@ -122,6 +122,13 @@ cghub-setup:
 	find ${CGHUB_APP_DIR} -type d |xargs chmod g+rwxs
 	chmod -R g+w ${CGHUB_APP_DIR}
 
+# restart http [checks for FreeBSD and Linux]
+restart:
+ifneq ($(wildcard /usr/local/etc/rc.d/apache22),)
+	sudo /usr/local/etc/rc.d/apache22 restart
+else
+	sudo /etc/init.d/httpd restart
+endif
 
 #
 # end targets

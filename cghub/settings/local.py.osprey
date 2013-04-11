@@ -1,5 +1,6 @@
 # cghub stage/production config file
 import os, pwd
+from utils import proj
 
 # Disable debug stack dump by default.
 DEBUG = False
@@ -9,28 +10,31 @@ ADMINS = (
   ('Mark Diekhans', 'markd@kermodei.com'),
 )
 
-WSAPI_CACHE_DIR = '/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser/local/var/cache/cghub-data-browser/wsapi'
-CART_CACHE_DIR = '/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser/local/var/cache/cghub-data-browser/cart'
+CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser"
+WSAPI_CACHE_DIR = CACHE_DIR + '/wsapi'
+CART_CACHE_DIR = CACHE_DIR + '/cart'
+
+# test against stage for now
+WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
 
 # rabbitmq server
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
-
-XXX_DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cghub_data_browser',
-        'OPTIONS': {
-             # pick up defaults file based on user name, since it must be owned by user
-             'read_default_file': "/usr/local/cghub/cghub-data-browser/my." + pwd.getpwuid(os.geteuid()).pw_name + ".cnf",
-             'init_command': 'SET storage_engine=INNODB',
-             },
-        }
-}
 
 TIME_ZONE = 'America/Los_Angeles'
 
 from logging.handlers import SysLogHandler
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cghub_data_browser',
+        'OPTIONS': {
+             # pick up defaults file based on user name, since it must be owned by user
+             'read_default_file': "/a/markd/cghub/projs/dataBrowser/my." + pwd.getpwuid(os.geteuid()).pw_name + ".cnf",
+             'init_command': 'SET storage_engine=INNODB',
+             },
+        }
+}
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -59,12 +63,24 @@ LOGGING = {
             'class': 'logging.handlers.SysLogHandler', 
             'formatter': 'verbose',
         },
-    },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'simple'
+            },
+        },
     'loggers': {
         'django.request': {
-            'handlers': ['syslog',],
+            'handlers': ['syslog','mail_admins'],
             'level': 'ERROR',
             'propagate': True,
             },
+        'wsapi.request': {
+            # use to disable this logger
+            # 'handlers': ['null'],
+            'handlers': ['syslog', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
+    },
 }

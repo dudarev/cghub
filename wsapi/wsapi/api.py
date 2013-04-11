@@ -337,7 +337,7 @@ def multiple_request(
 
     Returns :class:`wsapi.api.Results` instance
     """
-
+    # FIXME: drop this when CGHub has done away with the need for multiple request hack.
     if isinstance(queries_list, str):
         return request(
             queries_list, offset, limit, sort_by,

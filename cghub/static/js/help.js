@@ -8,7 +8,7 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
-        hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
+        hoverTime: 250, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
         keysIgnore: ['analysis id', 'uploaded', 'last modified', 'barcode', 'files size'],
         init:function () {
