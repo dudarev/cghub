@@ -24,3 +24,4 @@
 h1,h2{padding-bottom:0.5em;}
 ul.help-sections{margin-top:1em;}
 .help-content{padding-left:50px;padding-top:25px;}
+.dl-flow dt{float:left;white-space:nowrap;padding-right:0.7em;}

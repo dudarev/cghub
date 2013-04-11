@@ -1,9 +1,8 @@
 # cghub stage/production config file
 import os, pwd
 
-# Disable debug stack dump by default.
+# Disable debug stack dump by default.  Also causes memory leaks if enabled
 DEBUG = False
-#DEBUG = True
 
 ADMINS = (
   ('Mark Diekhans', 'markd@soe.ucsc.edu'),
@@ -66,5 +65,12 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
             },
+        'wsapi.request': {
+            # use to disable this logger
+            # 'handlers': ['null'],
+            'handlers': ['syslog'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
+    },
 }

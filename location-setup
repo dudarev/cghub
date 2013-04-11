@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-symLinkedFiles='Makefile.def cghub/settings/local.py wsapi/wsapi/settings.py'
+symLinkedFiles='Makefile.def cghub/settings/local.py'
 
 usage="
   location-setup name

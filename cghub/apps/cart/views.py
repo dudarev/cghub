@@ -26,6 +26,7 @@ from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
 import cghub.apps.cart.utils as cart_utils
 
 from cghub.wsapi.api_light import get_all_ids
+from cghub.wsapi import browser_text_search
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -54,10 +55,17 @@ def cart_add_files(request):
             filters = form.cleaned_data['filters']
             filter_str = get_filters_string(filters)
             q = filters.get('q')
+            # FIXME: the API should hide all URL quoting and parameters [markd]
             if q:
-                query = u"xml_text={0}".format(urlquote(q))
-                query += filter_str
-                queries = [query, query.replace('xml_text', 'analysis_id', 1)]
+                # FIXME: temporary hack to work around GNOS not quoting Solr query
+                # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
+                if browser_text_search.useAllMetadataIndex:
+                     query = u"all_metadata={0}".format(urlquote(browser_text_search.ws_query(q))) + filter_str
+                     queries = [query]
+                else:
+                     query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
+                     query += filter_str
+                     queries = [query, u"analysis_id={0}".format(urlquote(q))]
             else:
                 query = filter_str[1:]  # remove front ampersand
                 queries = [query]

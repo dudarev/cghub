@@ -179,6 +179,31 @@ ALL_FILTERS = OrderedDict([
             ("ncRNA-Seq", "ncRNA-Seq"),
         ]),
     }),
+    ("center_name", {
+        "title": "By Center",
+        "filters": OrderedDict([
+            ("BCM", "BCM"),
+            ("BCCAGSC", "BCCAGSC"),
+            ("BI", "BI"),
+            ("HMS-RK", "HMS-RK"),
+            ("UNC-LCCC", "UNC-LCCC"),
+            ("USC-JHU", "USC-JHU"),
+            ("WUGSC", "WUGSC"),
+        ]),
+    }),
+    ("platform", {
+        "title": "By Platform",
+        "filters": OrderedDict([
+            ("LS454", "454"),
+            ("ILLUMINA", "Illumina"),
+            ("HELICOS", "Helicos"),
+            ("ABI_SOLID", "ABI Solid"),
+            ("COMPLETE_GENOMICS", "Complete Genomics"),
+            ("PACBIO_SMRT", "Pacific Biosciences"),
+            ("ION_TORRENT", "Ion Torrent"),
+            ("CAPILLARY", "Capillary electrophoresis"),
+        ])
+    }),
     ('refassem_short_name', {
         'title': 'By Assembly',
         'filters': OrderedDict([
@@ -196,18 +221,6 @@ ALL_FILTERS = OrderedDict([
             ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),
             ('HG19_Broad_variant', 'HG19_Broad_variant'),
             ('NCBI-human-build36', 'NCBI-human-build36'),
-        ]),
-    }),
-    ("center_name", {
-        "title": "By Center",
-        "filters": OrderedDict([
-            ("BCM", "BCM"),
-            ("BCCAGSC", "BCCAGSC"),
-            ("BI", "BI"),
-            ("HMS-RK", "HMS-RK"),
-            ("UNC-LCCC", "UNC-LCCC"),
-            ("USC-JHU", "USC-JHU"),
-            ("WUGSC", "WUGSC",),
         ]),
     }),
     ('upload_date', {
@@ -236,7 +249,7 @@ ALL_FILTERS = OrderedDict([
         ]),
     }),
     ("last_modified", {
-        "title": "By Time Modified",
+        "title": "By Modification Time",
         "filters": OrderedDict([
             ("", {
                 'filter_name': "Any date",
@@ -264,14 +277,8 @@ ALL_FILTERS = OrderedDict([
             ("uploading", "Uploading"),
             ("validating_data", "Validating data"),
             ("validating_sample", "Validating sample"),
+            ("augmenting_data", "Augmenting data"),
             ("bad_data", "Bad data"),
-        ])
-    }),
-    ("platform", {
-        "title": "By Platform",
-        "filters": OrderedDict([
-            ("ILLUMINA", "Illumina"),
-            ("ION_TORRENT", "ION Torrent"),
         ])
     }),
 ])

@@ -21,7 +21,7 @@
         {% else %}
             <h1>
                 Browse available data<br/>
-                <small>Select and add to cart to download data or meta-data</small>
+                <small>Select and add to cart to download data or metadata</small>
             </h1>
         {% endif %}
     </div>
@@ -34,13 +34,13 @@
             {% csrf_token %}
             <div class="btn-toolbar">
                 <div class="btn-group search-btn-group">
-                    <button class="btn add-to-cart-btn" type="submit">Add to cart</button>
-                    <button class="btn add-all-to-cart-btn" type="button">Add all to cart</button>
+                    <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
+                    <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button">Add all to cart</button>
                 </div>
                 <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
             </div>
             {% items_per_page request 10 25 50 %}
-            <div class="column-select-label"><span>Columns:</span></div>
+            <div class="column-select-label js-common-tooltip" data-key="columns-menu">Columns:</div>
             <select class="column-select" multiple>
                 <option value="(all)">(all)</option>
             </select>
@@ -49,8 +49,8 @@
             {% pagination %}
             <div class="btn-toolbar">
                 <div class="btn-group search-btn-group">
-                    <button class="btn  add-to-cart-btn" type="submit">Add to cart</button>
-                    <button class="btn  add-all-to-cart-btn" type="button">Add all to cart</button>
+                    <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
+                    <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button">Add all to cart</button>
                 </div>
             </div>
         </form>

@@ -17,7 +17,7 @@ DATABASES = {
 
 SITE_ID = 1
 
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 LANGUAGE_CODE = 'en-us'
 USE_TZ = True
 

@@ -7,16 +7,64 @@
     {% endif %}
 {% endblock %}
 {% block main_content %}
-    <div class="span6 help-content">
+    <div class="span12 help-content">
         <h2> <a href="{% url help_page %}">Help</a>: Overview </h2>
-        <p>The CGHub Web Graphical User Interface (GUI) main page is divided into three areas:</p>
-		<ol>
-		<li><a href="{% url help_navbar_page %}">The main navigation bar</a><br/>
-			<p><img src="{{ STATIC_URL }}img/help/navbar.png" width="460" height="30" title="A screenshot of the top navigation bar which has a UC Santa Curz link to the CGHub homepage, a search link, a cart link, a help link and a seach box."></p>
-		<li><a href="{% url help_filters_page %}">The left side filters bar</a><br/>	
-			<img src="{{ STATIC_URL }}img/help/filters.png" width="145" height="270" title="A screenshot of the left side navigation bar that has six option to choose from. Center, Sample, Time, Disease, Experiment, and Library Type."></p>
-		<li><a href="{% url help_results_page %}">The the search results area</a><br/>
-			<img src="{{ STATIC_URL }}img/help/results.png" width="460" height="270" title="A screenshot of the main search results area."></p>
-        </ol>
+        <p>
+          The CGHub Data Browser enables users to explore the cancer genomics
+          data at CGHub.  The application use a familiar <em>shopping
+          cart</em> paradigm.  The user browses the available data sets using
+          filters and text searches.  Details of individual data sets can be
+          examined by clicking on the entries in the resulting list. Some or all
+          of the resulting data sets are then added to the <em>cart</em>.
+        </p>
+
+        <p>
+          From the <em>cart</em>, the user may create a manifest file to pass
+          to the <code>gtdownload</code> high-performance transfer client to
+          download the data sets.  The user may also download a summary of the
+          results in TSV (tab-separated values) format, suitable for import
+          into a spreadsheet or download the complete metadata in SRA XML
+          format.
+        </p>
+
+        <p>
+          The CGHub Data Browser makes extensive use of tooltips to assist in
+          using the browser.  Most user interface elements and menu items will
+          pop-up a description if the mouse hovers over the item for 1/4 of a
+          second.  Many of the values in the data list, particularly acronyms
+          and abbreviations, also have tooltips to describe their meaning.
+        </p>
+
+        <h3> <span id="filters">Filters</span> </h3>
+        <p>The primary method of searching for subsets of data is by
+          specifying filters in the left panel.  Both the meaning of the
+          filters and their values are documented by tooltips displayed when
+          hovering over menus.  The results will be the data sets matching the
+          intersection of the filters and a text search, as described below.
+        </p>
+
+        <h3> <span id="text-search">Text Search</span> </h3>
+        <p>A full-text search of the metadata is also supported by entering
+        text in the Search box that appears on the right side of the menu bar.
+        For example, a bar code ID can be entered in this box to search for
+        its occurrence in the metadata.</p>
+
+        <p>Text search results are restricted by the currently applied
+        filters.</p>
+
+        <p>To search the metadata for a phrase (more than one word separated
+        by spaces) enclose the item in quotations (for example: "Illumina
+        TruSeq").</p>
+
+        <p>Multiple text search terms can be entered in the Search box by
+        separating them with spaces.  Results are provided for only entries
+        that meet all the specified search terms.  For example, searching for
+        "RNA-Seq Illlumina" will select only entries having references to both
+        "RNA-Seq" and "Illumina" in their metadata.</p>
+
+        <p>Note: English text in the metadata is very limited. Searches for
+        terms like disease name will produce limited or no results. Use the
+        filters whenever possible.</p>
+ 
     </div>
 {% endblock %}

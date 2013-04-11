@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="span6 help-content">
+        <h2><a href="{% url help_page %}">Help</a>: Reference Assemblies </h2>
+        <p>The reference assembly for a given BAM file is identified in
+          the ANALYSIS metadata XML object.  A single, symbolic
+          identifier in the STANDARD tag short_name
+          attribute identifies the assembly.  All assemblies are based on one
+          of the standard assemblies, initially produced
+          by the <a href="http://www.genome.gov/10001772/">Human Genome Project (HGP)</a> and now
+          produced by the <a href="http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/">
+          Genome Reference Consortium (GRC)</a>.  There are several minor variants of these assemblies
+          used by the NCI sequencing centers.  These are described below.</p>
+
+        <h3>HGP (NCBI) build 36 based assemblies</h3>
+        <dl>
+          <dt><span id="NCBI-human-build36">NCBI-human-build36</span></dt>
+          <dd>- This is the human genome reference assemble build 36 produce by the
+            Human Genome Project. This assembly does not contain a mitochondrial sequence.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/">ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/</a>.
+          </dd>
+          <dt><span id="HG18">HG18</span></dt>
+          <dd>- This is the UCSC variant of the NCBI build 36 genome
+            assembly. It includes the NC_001807 mitochondria sequence, which
+            is not part of NCBI build 36.  The haplotype regions from NCBI
+            build 36 are included and chr*_random pseudo-scaffolds are created
+            by linking the unlocalized scaffolds in an arbitrary order and
+            orientation.
+            The assembly is available at <a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg18/chromosomes/">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg18/chromosomes/</a>.
+          </dd>
+          <dt><span id="NCBI36_BCCAGSC_variant">NCBI36_BCCAGSC_variant</span></dt>
+          <!-- ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/NCBI36_BCCAGSC_variant.README -->
+          <dd>- This is a variant of the full NCBI36 human genome 
+            assembly (assembly accession GCF_000001405.12) used by the British 
+            Columbia Cancer Agency Genome Sciences Centre (BCCAGSC). It is a 
+            subset of the NCBI36 sequences from Ensembl Release 46. The chromosome
+            5 sequence differs from NC_000005.8 in NCBI36 in that bases 
+            70946027..71169807 have been masked with Ns. The chromosome Y sequence
+            differs from NC_000024.8 in NCBI36 in that the pseudo-autosomal 
+            regions (PARs) have been masked with Ns. The unlocalized and alternate
+            loci scaffolds in NCBI36 were excluded from this assembly variant.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/">ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/</a>.
+          </dd>
+          <dt><span id="NCBI36_BCM_variant">NCBI36_BCM_variant</span></dt>
+          <!-- ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/NCBI36_BCM_variant.README --> 
+          <dd>- This is a variant of the full NCBI36 human genome assembly
+            (assembly accession GCF_000001405.12) used by Baylor College of
+            Medicine Human Genome Sequencing Center (BCM-HGSC). The chromosome
+            3 sequence differs from that in NCBI36 in that all ambiguous bases
+            were converted to Ns (the differences from NC_000003.10 are M->N
+            at 60805574 and RR->NN at 60805803..60805804). The unlocalized and
+            alternate loci scaffolds in NCBI36 were excluded from this
+            assembly variant.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/">ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/</a>.
+          </dd>
+          <dt><span id="NCBI36_WUGSC_variant">NCBI36_WUGSC_variant</span></dt>
+          <!-- ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/NCBI36_WUGSC_variant.README --> 
+          <dd>- This is a variant of the full NCBI36 human genome 
+            assembly (assembly accession GCF_000001405.12) used by Washington 
+            University Genome Sequencing Center (WUGSC). It is a subset of the 
+            NCBI36 sequences from Ensembl Release 46. The chromosome 5 sequence 
+            differs from NC_000005.8 in NCBI36 in that bases 70946027..71169807 
+            have been masked with Ns. The chromosome Y sequence differs from 
+            NC_000024.8 in NCBI36 in that the pseudo-autosomal regions (PARs) have
+            been masked with Ns. Two unlocalized chromosome 17 scaffolds 
+            (NT_113932 &  NT_113938) also differ from those in NCBI36 in that the 
+            terminal gaps were dropped. The alternate loci scaffolds in NCBI36 
+            were excluded from this assembly variant.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/">ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/</a>.
+          </dd>
+          <dt><span id="HG18_Broad_variant">HG18_Broad_variant</span></dt>
+          <!-- ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/NCBI36-HG18_Broad_variant.README --> 
+          <dd>- This is a variant of the full NCBI36 human genome assembly
+            (assembly accession GCF_000001405.12) used by the Broad
+            Institute. This set of sequences is derived from the UCSC HG18
+            version of the assembly and includes the chr*_random
+            pseudo-scaffolds created by linking the unlocalized scaffolds in
+            an arbitrary order and orientation. The alternate loci scaffolds
+            are not included in this assembly variant.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/">ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/special_requests/assembly_variants/</a>.
+          </dd>
+        </dl>
+
+        <h3>GRC human build 37 based assemblies</h3>
+        <dl>
+          <dt><span id="GRCh37">GRCh37</span></dt>
+          <dd>- This is the human genome reference assemble GRCh37 produce by the
+            Genome Reference Consortium.  This assembly does not contain a mitochondrial sequence.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genbank/genomes/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/">ftp://ftp.ncbi.nih.gov/genbank/genomes/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/</a>.
+          </dd>
+          <dt><span id="GRCh37-lite">GRCh37-lite</span></dt>
+          <!-- ftp://ftp.ncbi.nih.gov/genbank/genomes/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/README.GRCh37-lite -->
+          <dd>- This is a subset of the full GRCh37 human genome assembly
+            (assembly accession GCA_000001405.1) plus the human mitochondrial
+            genome reference sequence (the "rCRS") from Mitomap.org. This set
+            of sequences excludes all the alternate loci scaffolds of the full
+            GRCh37 assembly, and has the pseudo-autosomal regions (PARs) on
+            chromosome Y masked with Ns. This haploid representation of the
+            genome is provided as a convenience for use in alignment pipelines
+            that cannot handle the multiple placements expected in the PARs
+            and in regions of the genome that are represented by the alternate
+            loci.
+            The assembly is available at <a href="ftp://ftp.ncbi.nih.gov/genbank/genomes/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/">ftp://ftp.ncbi.nih.gov/genbank/genomes/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/</a>.
+          </dd>
+          <dt><span id="HG19">HG19</span></dt>
+          <dd>- This is the UCSC variant of the GRCh37 genome assembly. It
+            includes the NC_001807 mitochondria sequence, which is not part of
+            GRCh37 and differs from the mitochondria sequence in GRCh37-lite .
+            The haplotype regions from NCBI build 36 are included and
+            chr*_random pseudo-scaffolds are created by linking the
+            unlocalized scaffolds in an arbitrary order and orientation.
+            The assembly is available at <a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/</a>.
+          </dd>
+          <dt><span id="GRCh37-lite-+-HPV_Redux-build">GRCh37-lite-+-HPV_Redux-build</span></dt>
+          <dd>- A description and distribution of this assembly variant is not
+            available.</dd>
+          <dt><span id="GRCh37_BI_Variant">GRCh37_BI_Variant</span></dt>
+          <dd>- A description and distribution of this assembly variant is not
+            available.</dd>
+          <dt><span id="HG19_Broad_variant">HG19_Broad_variant</span></dt>
+          <dd>- A description and distribution of this assembly variant is not
+            available.</dd>
+        </dl>
+    </div>
+{% endblock %}

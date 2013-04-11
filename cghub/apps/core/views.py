@@ -13,6 +13,7 @@ from django.views.generic.base import TemplateView, View
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
+from cghub.wsapi import browser_text_search
 
 from cghub.apps.core.utils import (get_filters_string, get_default_query,
                                                     get_wsapi_settings)
@@ -87,14 +88,19 @@ class SearchView(TemplateView):
             sort_by = urllib.quote(sort_by)
         filter_str = get_filters_string(self.request.GET)
 
+        # FIXME: the API should hide all URL quoting and parameters [markd]
         if q:
-            query = u"xml_text={0}".format(urlquote(q))
-            query += filter_str
+            # FIXME: temporary hack to work around GNOS not quoting Solr query
+            if browser_text_search.useAllMetadataIndex:
+                query = u"all_metadata={0}".format(urlquote(browser_text_search.ws_query(q))) + filter_str
+            else:
+                query = u"xml_text={0}".format(urlquote(u"("+q+u")")) + filter_str
         else:
             query = filter_str[1:]  # remove front ampersand
 
         if 'xml_text' in query:
-            queries_list = [query, query.replace('xml_text', 'analysis_id', 1)]
+            # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
+            queries_list = [query, u"analysis_id={0}".format(urlquote(q))]
             results = api_multiple_request(
                 queries_list=queries_list, sort_by=sort_by,
                 offset=offset, limit=limit, settings=WSAPI_SETTINGS)
