@@ -80,7 +80,7 @@ If it is necessary to erase information about filters that were ran use ``-c`` o
 
     $ python manage.py selectfilters -c
 
-Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_TILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
+Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_FILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
 
 ------
 Celery

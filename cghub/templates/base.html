@@ -2,10 +2,10 @@
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>CGHub Data Browser</title>
     <script type="text/javascript" src="{{ STATIC_URL }}js/indexof-ie-fix.js"></script>
     <!--[if lt IE 9]>
-        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="{{ STATIC_URL }}js/libs/html5.js"></script>
     <![endif]-->
     <!--[if IE]>
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery.ui.1.8.16.ie.css"/>
@@ -25,6 +25,8 @@
         href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.standalone.css" media="all">
     <link rel="stylesheet" type="text/css" 
         href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.themeroller.css" media="all">
+    <link rel="stylesheet" type="text/css"
+        href="{{ STATIC_URL }}css/libs/tinyscrollbar/tinyscrollbar.css" media="all">
     {% block extra_header_css %} {% endblock %}
     {% if debug %}
         <script type="text/javascript" src="{{ STATIC_URL }}js/libs/less-1.3.0.min.js"></script>
@@ -35,19 +37,19 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="/">UC SANTA CRUZ</a>
+            <a class="brand" href="https://cghub.ucsc.edu/"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
             <ul class="nav">
-                <li><a href="{% url home_page %}">Search</a></li>
-                <li><a href="{% url cart_page %}">Cart ({{ request.session.cart|length }})</a></li>
-                <li><a href="{% url help_page %}?from={{ request.path }}">Help</a></li>
+                <li><a href="{% url home_page %}"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
+                <li><a href="{% url cart_page %}"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
+                <li><a href="{% url help_page %}?from={{ request.path }}"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
-                    <p class="navbar-text pull-right">CGHub Browser *Beta 1*</p>
+                    <p class="navbar-text pull-right">Data Browser</p>
                 </li>
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
-                <input type="text" class="search-query span2" placeholder="Search" name="q">
+                <input type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q">
             </form>
         </div>
     </div>
@@ -75,23 +77,37 @@
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     </div>
 </div>
+{% comment %}
+    Help text modal
+{% endcomment %}
+<div class="modal fade" id="helpTextModal" tabindex="-1" role="dialog" aria-labelledby="help-text-label" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="modal-label" id="help-text-label"></h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
+
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/libs/ui.dropdownchecklist-1.4-min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.placeholder.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.tinyscrollbar.min.js"></script>
 {% if debug %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap-contextmenu.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.placeholder.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/help.js"></script>
 {% else %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.placeholder.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/base.min.js"></script>
 {% endif %}
 {% block extra_body_js %} {% endblock %}

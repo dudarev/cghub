@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="help-content">
+        <h2> <a href="{% url help_page %}">Help</a>: Application Flow </h2>
+        <div class="span10 pull-left">
+            <img src="{{ STATIC_URL }}img/help/appflow.png" title="Flow of data browser application" alt="Flow of data browser application">
+        </div>
+        <div>
+          <dl class="dl-flow">
+            <dt>Start:</dt><dd><p> Navigating to the CGHub Data Browser (<a href="https://browser.cghub.ucsc.edu/browser/">https://browser.cghub.ucsc.edu/browser/</a>).</p></dd>
+            <dt>1:</dt><dd><p>Select any number of filters, from the left side Filters dropdown
+		 menus, clicking on "Apply filters" when done to invoke a query. In addition to
+		 filter selection, you can type a query string into the Search box on the menu bar
+		 as well.  For more details on the Search box please see "Text Search" on the Help:
+		 Overview page.
+		<b>Note: The search box can be very constraining when used in conjunction with the
+		 filters options, so applying both the filters, and the search box, may yield little to no results.</b></p></dd>
+
+            <dt>2:</dt><dd> <p>Select the "check box" to the left of individual results, or select
+		 the "check box" to the left of the column headers to select all results displayed
+		 on the current page. Click the "Add to cart" button to add these items to
+		 your cart, or  click "Add all to cart" to move  all returned results from
+		 your query to  your cart.
+		<b> Note: Clicking "Add all to cart" may take a bit of
+		 time if you choose to add a large number of items to your cart.</b></p></dd>
+
+            <dt>3:</dt><dd><p>You may find it necessary, once you have added items to your cart,
+		 to apply new filters and add additional items to your cart. To add more items
+		 to your cart simply click on the "Browser" link (in the top menu bar)
+		 to return to the main browser view. From the main browser view, apply
+		 new filters to invoke a new search, and gather additional items for your
+		 cart.
+		<b> Note: Items already in your cart will stay in your cart until you remove them.</b></p></dd>
+
+            <dt>4:</dt><dd><p>You have the option to examine the metadata of the items in your cart before creating <code>manifest.xml</code> file.</p></dd>
+
+            <dt>5:</dt><dd><p>You have two options for examining the metadata of items in your
+		 cart. By examining the <code>metadata.xml</code> file, you can view all associated
+		 metadata related to the items in your cart. In addition, you may also download
+		 a TSV file ("summary.tsv")  that can be imported into a spreadsheet to review the
+		 files in your cart.
+		<b> Note: TSV stands for tab-separated value; most spreadsheet applications will
+		 accept this format. However, MS Excel may only accept this file if you rename
+		 the extension to comma separated value (CSV). </b></p></dd>
+
+            <dt>6:</dt><dd><p>After examining the metadata, you may choose to remove unwanted
+		 items in your cart. To do so select the items to be removed and click on
+		 "Remove from cart" or remove all items from your cart at once by clicking on "Clear cart".<p></dd>
+
+            <dt>7:</dt><dd><p>Before compiling a <code>manifest.xml</code> file to pass to GeneTorrent
+		 check to see if you need to add any more items to your cart.</p></dd>
+
+            <dt>8:</dt><dd><p>Navigate to the "Cart" page and click on "Download manifest"
+		 to create the XML file that GeneTorrent will use to download the BAM files that
+		 go with your cart selections.</p></dd>
+
+            <dt>Finish:</dt><dd><p>Invoke the GeneTorrent program to download the BAMs you have
+		 selected by passing it the <code>manifest.xml</code> file you just created.</p></dd>
+          </dl>
+        </div>
+    </div>
+{% endblock %}

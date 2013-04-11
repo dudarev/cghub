@@ -3,18 +3,18 @@
 {% if res %}
     {% if request.is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
-        <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
+        <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% endif %}
     <table class="table table-bordered">
         {% details_table res %}
     </table>
     {% if request.is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
-        <a href="{% url item_details uuid %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
+        <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% else %}
         <a name="raw-xml"></a>
         <h4>Metadata XML:</h4>
-        <form action="{% url metadata uuid %}" method="POST">
+        <form action="{% url metadata analysis_id %}" method="GET">
             {% csrf_token %}
             <div class="btn-toolbar">
                 <div class="btn-group">
@@ -22,6 +22,8 @@
                     <a id="id-expand-all-button" class="btn">Expand all</a>
                 </div>
                 <div class="btn-group">
+                    <input type="hidden" name="last_modified" value="{{ res.last_modified }}">
+                    <input type="hidden" name="state" value="{{ res.state }}">
                     <button id="id-download-metadata" class="btn">Download XML</button>
                 </div>
             </div>

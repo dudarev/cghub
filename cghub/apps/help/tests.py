@@ -17,20 +17,12 @@ class HelpViewsTestCase(TestCase):
                 response = self.client.get(reverse(pattern.name))
                 self.assertEqual(response.status_code, 200)
 
-    def test_links_to_home(self):
-        response = self.client.get(reverse('help_cart_page'))
-        # two occurances in navigation bar /help/?from=/help/
-        # one in text
-        self.assertContains(response, '/help/', 5)
-        response = self.client.get(reverse('help_search_page'))
-        self.assertContains(response, '/help/', 5)
-
     def test_help_hint_text(self):
         """
         ajax view for obtaining help hints text
         """
         ajax_attrs = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        help_hint_key = 'UUID'
+        help_hint_key = 'Analysis Id'
         help_hint_text = 'Some hint text'
         with self.settings(HELP_HINTS = {help_hint_key: help_hint_text}):
             url = reverse('help_hint')

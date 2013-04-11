@@ -9,15 +9,16 @@ from django.template import Context
 from django.template.loader import select_template
 
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
+from cghub.apps.core.attributes import COLUMN_NAMES, DATE_ATTRIBUTES
 
 register = template.Library()
 
 
-DATE_ATTRIBUTES = (
-    'last_modified',
-    'upload_date',
-    'published_date'
-)
+DEFAULT_CULUMN_STYLE = {
+        'width': 100,
+        'align': 'left',
+        'default_state': 'visible'
+}
 
 
 def period_from_query(query):
@@ -48,18 +49,18 @@ def period_from_query(query):
 def file_size(value):
     """
     Transform number of bytes to value in KB, MB or GB
-    123456 -> 123.46 KB
+    123456 -> 123,46 KB
     """
     try:
         bytes = int(value)
     except ValueError:
         return ''
     if bytes >= 1073741824:
-        return '%.2f GB' % round(bytes / 1073741824., 2)
+        return ('%.2f GB' % round(bytes / 1073741824., 2)).replace('.', ',')
     if bytes >= 1048576:
-        return '%.2f MB' % round(bytes / 1048576., 2)
+        return ('%.2f MB' % round(bytes / 1048576., 2)).replace('.', ',')
     if bytes >= 1024:
-        return '%.2f KB' % round(bytes / 1024., 2)
+        return ('%.2f KB' % round(bytes / 1024., 2)).replace('.', ',')
     return '%d Bytes' % bytes
 
 
@@ -145,6 +146,7 @@ def applied_filters(request):
         'sample_type': request.GET.get('sample_type'),
         'library_strategy': request.GET.get('library_strategy'),
         'disease_abbr': request.GET.get('disease_abbr'),
+        'platform': request.GET.get('platform'),
         'state': request.GET.get('state'),
         'refassem_short_name': request.GET.get('refassem_short_name'),
         'q': request.GET.get('q'),
@@ -244,13 +246,13 @@ def sort_link(request, attribute, link_anchor):
         data['sort_by'] = attribute
         direction_label = ''
 
+    sorting_arrow = direction_label
     if direction_label:
         if direction_label == 'up':
             sorting_arrow = "&nbsp;&uarr;"
         if direction_label == 'down':
             sorting_arrow = "&nbsp;&darr;"
-    else:
-        sorting_arrow = direction_label
+
 
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
@@ -263,87 +265,18 @@ def sort_link(request, attribute, link_anchor):
 @register.simple_tag
 def table_header(request):
     """
-    Return table header ordered accoreding to settings.TABLE_COLUMNS
+    Return table header ordered according to settings.TABLE_COLUMNS
     """
-    COLS = {
-        'Assembly': {
-            'width': 120,
-            'attr': 'refassem_short_name',
-        },
-        'Barcode': {
-            'width': 235,
-            'attr': 'legacy_sample_id',
-        },
-        'Center': {
-            'width': 100,
-            'attr': 'center_name',
-        },
-        'Center Name': {
-            'width': 100,
-            'attr': 'center_name',
-        },
-        'Disease': {
-            'width': 65,
-            'attr': 'disease_abbr',
-        },
-        'Disease Name': {
-            'width': 200,
-            'attr': 'disease_abbr',
-        },
-        'Experiment Type': {
-            'width': 95,
-            'attr': 'analyte_code',
-        },
-        'Files Size': {
-            'width': 75,
-            'attr': 'files_size',
-        },
-        'Library Type': {
-            'width': 100,
-            'attr': 'library_strategy',
-        },
-        'Last modified': {
-            'width': 80,
-            'attr': 'last_modified',
-        },
-        'Sample Accession': {
-            'width': 100,
-            'attr': 'sample_accession',
-        },
-        'Sample Type': {
-            'width': 75,
-            'attr': 'sample_type',
-        },
-        'Sample Type Name': {
-            'width': 150,
-            'attr': 'sample_type',
-        },
-        'State': {
-            'width': 70,
-            'attr': 'state',
-        },
-        'Study': {
-            'width': 100,
-            'attr': 'study',
-        },
-        'Uploaded': {
-            'width': 80,
-            'attr': 'upload_date',
-        },
-        'UUID': {
-            'width': 220,
-            'attr': 'analysis_id',
-        },
-    }
     html = ''
-    for c, ds in settings.TABLE_COLUMNS:
-        col = COLS.get(c, None)
-        if col == None:
+    for field_name in settings.TABLE_COLUMNS:
+        col_name = COLUMN_NAMES.get(field_name, None)
+        if col_name is None:
             continue
+        col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
         html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
-                    width=col['width'],
-                    defaultstate=ds,
-                    link=sort_link(request, col['attr'], c))
+                    width=col_style['width'],
+                    defaultstate=col_style['default_state'],
+                    link=sort_link(request, col_name, field_name))
     return html
 
 
@@ -373,10 +306,14 @@ def field_values(result):
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
         'Files Size': file_size(get_result_attr(result, 'files_size')
-                                or get_result_attr(result, 'files')
-                                and get_result_attr(result, 'files').file[0].filesize),
+                      or get_result_attr(result, 'files')
+                         and get_result_attr(result, 'files').file[0].filesize),
         'Last modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
+        'Platform': get_result_attr(result, 'platform'),
+        'Platform Name': get_name_by_code(
+            'platform',
+            get_result_attr(result, 'platform')),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
@@ -389,12 +326,11 @@ def field_values(result):
         'Study': get_name_by_code(
             'study', get_result_attr(result, 'study')),
         'Uploaded': get_result_attr(result, 'upload_date'),
-        'UUID': get_result_attr(result, 'analysis_id'),
+        'Analysis Id': get_result_attr(result, 'analysis_id'),
 
         # additional fields for details
         'Aliquot id': get_result_attr(result, 'aliquot_id'),
         'Disease abbr': get_result_attr(result, 'disease_abbr'),
-        'Legasy sample id': get_result_attr(result, 'legacy_sample_id'),
         'Published time': get_result_attr(result, 'published_date'),
         'Participant id': get_result_attr(result, 'participant_id'),
         'Sample id': get_result_attr(result, 'sample_id'),
@@ -409,13 +345,14 @@ def table_row(result):
     """
     fields = field_values(result)
     html = ''
-    for field_name, default_state in settings.TABLE_COLUMNS:
+    for field_name in settings.TABLE_COLUMNS:
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
-        if value == None:
+        if value is None:
             continue
-        html += '<td>%s</td>' % value
+        col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
+        html += '<td style="text-align: %s">%s</td>' % (col_style['align'], value)
     return html
 
 
@@ -430,7 +367,7 @@ def details_table(result):
         value = fields.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
-        if value == None:
+        if value is None:
             continue
         html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
     return html

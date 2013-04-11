@@ -9,13 +9,15 @@ Client side LESS compilator is used in developement environment.
 Some requirements should be satisfied to compile static files from LESS
 to CSS and Javascript minification for production environment.
 
-Install both nodejs and npm either via packages
+Install both nodejs 0.8.14 and npm either via packages
 
 https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
 or directly from
 
 http://nodejs.org and http://npm.org
+
+Version 0.8.14 of nodejs is required for grunt 0.3.17.
 
 .. code-block:: bash
 
@@ -25,7 +27,7 @@ Install grunt:
 
 .. code-block:: bash
 
-    sudo npm install -g grunt
+    sudo npm install -g grunt@0.3.17
 
 Install grunt-less:
 

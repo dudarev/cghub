@@ -110,7 +110,7 @@ to keep files is also specified.
 
     # cache.py
 
-    CART_CACHE_DIR = '/tmp/wsapi/'
+    CART_CACHE_DIR = '/tmp/cart/'
     TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
     TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
 
@@ -126,9 +126,10 @@ Number of results per page may be set in ``settings/ui.py``:
 
     DEFAULT_PAGINATOR_LIMIT = 10
 
-Columns ordering and default state
-----------------
-Columns ordering and default state for the results table can be specified in project settings.
+Columns ordering and styles
+---------------------------
+
+Columns ordering, styles and default state for the results table can be specified in project settings.
 Default configuration is located in ``settings/ui.py``:
 
 .. code-block:: python
@@ -136,12 +137,35 @@ Default configuration is located in ``settings/ui.py``:
     # ui.py
 
     TABLE_COLUMNS = (
-    ('UUID', 'visible'),
-    ('Study', 'visible'),
-    ('Disease', 'visible'),
-    ...
+        'Study',
+        'Disease',
+        'Disease Name',
+        'Sample Type',
+        ...
 
-Allowed default states: 'visible', 'hidden'.
+    COLUMN_STYLES = {
+        'Analysis Id': {
+            'width': 220, 'align': 'left', 'default_state': 'visible',
+        },
+        'Assembly': {
+            'width': 120, 'align': 'left', 'default_state': 'visible',
+        },
+        ...
+
+
+If style for column will be not specified, will be used default styles:
+
+.. code-block:: python
+
+    {
+        'width': 100,
+        'align': 'left',
+        'default_state': 'visible'
+    }
+
+Available align values: center, justify, left, right, inherit.
+
+Available default_state values: 'visible', 'hidden'.
 
 Details list ordering
 ---------------------
@@ -153,7 +177,7 @@ Default configuration is located in ``settings/ui.py``:
     # ui.py
 
     DETAILS_FIELDS = (
-    'UUID',
+    'Analysis Id',
     'Study',
     'Disease',
     ...
@@ -252,6 +276,13 @@ Logging
                 'level': 'INFO',
                 'propagate': True,
             },
+            'wsapi.request': {
+                # use to disable this logger
+                # 'handlers': ['null'],
+                'handlers': ['syslog'],
+                'level': 'DEBUG',
+                'propagate': True,
+            }
         },
     }
 

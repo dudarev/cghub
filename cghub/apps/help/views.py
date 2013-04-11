@@ -20,10 +20,6 @@ class HelpView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.GET:
-            if request.GET.get('from', '').startswith('/search'):
-                return HttpResponseRedirect(reverse('help_search_page'))
-            if request.GET.get('from', '').startswith('/cart'):
-                return HttpResponseRedirect(reverse('help_cart_page'))
             return HttpResponseRedirect(reverse('help_page'))
         return super(HelpView, self).dispatch(request, *args, **kwargs)
 

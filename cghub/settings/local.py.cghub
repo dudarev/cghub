@@ -1,16 +1,15 @@
 # cghub stage/production config file
 import os, pwd
 
-# Disable debug stack dump by default.
+# Disable debug stack dump by default.  Also causes memory leaks if enabled
 DEBUG = False
-#DEBUG = True
 
 ADMINS = (
   ('Mark Diekhans', 'markd@soe.ucsc.edu'),
 )
 
-WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser'
-CART_CACHE_DIR = WSAPI_CACHE_DIR
+WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/wsapi'
+CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
 
 # rabbitmq server
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
@@ -66,5 +65,12 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
             },
+        'wsapi.request': {
+            # use to disable this logger
+            # 'handlers': ['null'],
+            'handlers': ['syslog'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
+    },
 }

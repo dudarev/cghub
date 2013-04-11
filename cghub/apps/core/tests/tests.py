@@ -13,6 +13,7 @@ from django.utils import simplejson as json
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
+from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
@@ -21,8 +22,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query, generate_task_uuid,
-                    manifest, metadata, summary)
+                    get_wsapi_settings, get_default_query,
+                    generate_task_analysis_id)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -38,26 +39,46 @@ class WithCacheTestCase(TestCase):
         # >>> get_cache_file_name('xml_text=6d5%2A', True)
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
+        # wsapi cache
         TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
             os.makedirs(settings.WSAPI_CACHE_DIR)
-        for f in self.cache_files:
+        for f in self.wsapi_cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(settings.WSAPI_CACHE_DIR, f)
             )
-        self.default_results = objectify.fromstring(
-            open(os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])).read())
-        self.default_results_count = len(self.default_results.findall('Result'))
+        if self.wsapi_cache_files:
+            path = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
+            if not os.path.exists(path):
+                return
+            self.default_results = objectify.fromstring(
+                open(path).read())
+            self.default_results_count = len(self.default_results.findall('Result'))
 
     def tearDown(self):
-        for f in self.cache_files:
-            os.remove(os.path.join(settings.WSAPI_CACHE_DIR, f))
+        # wsapi cache
+        for f in self.wsapi_cache_files:
+            path = os.path.join(settings.WSAPI_CACHE_DIR, f)
+            if not os.path.exists(path):
+                continue
+            os.remove(path)
+        # cart cache
+        for f in self.cart_cache_files:
+            path = os.path.join(settings.CART_CACHE_DIR, f)
+            if not os.path.exists(path):
+                continue
+            if os.path.isdir(path):
+                # remove cart cache
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
 
 
 class CoreTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
         '35d58c85ed93322dcaacadef5538a455.xml',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
@@ -67,9 +88,9 @@ class CoreTestCase(WithCacheTestCase):
         'aad96e9a8702634a40528d6280187da7.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
-        '71411da734e90beda34360fa47d88b99_ids.cache',
+        '71411da734e90beda34360fa47d88b99.ids',
     ]
-    query = "6d54*"
+    query = "6d54"
 
     def test_index(self):
         response = self.client.get('/')
@@ -105,18 +126,18 @@ class CoreTestCase(WithCacheTestCase):
         self.assertTrue('Found' in response.content)
 
     def test_item_details_view(self):
-        uuid = '12345678-1234-1234-1234-123456789abc'
-        response = self.client.get(reverse('item_details', kwargs={'uuid': uuid}))
+        analysis_id = '12345678-1234-1234-1234-123456789abc'
+        response = self.client.get(reverse('item_details', kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
         from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.cache_files[0])
+        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
         results = api_request(file_name=file_name)
         self.assertTrue(hasattr(results, 'Result'))
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}))
+                        kwargs={'analysis_id': results.Result.analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
         self.assertContains(response, results.Result.center_name)
@@ -127,7 +148,7 @@ class CoreTestCase(WithCacheTestCase):
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'uuid': results.Result.analysis_id}),
+                        kwargs={'analysis_id': results.Result.analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, results.Result.center_name)
@@ -136,7 +157,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Last modified')
-        self.assertContains(response, 'Disease abbr')
+        self.assertContains(response, 'Disease')
         self.assertContains(response, 'Disease Name')
         self.assertContains(response, 'Sample Accession')
         # test raw_xml
@@ -170,7 +191,7 @@ class UtilsTestCase(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(get_wsapi_settings()[key], value)
 
-    def test_generate_task_uuid(self):
+    def test_generate_task_analysis_id(self):
         test_data = [
             {
                 'dict': {'some': 'dict', '1': 2},
@@ -183,32 +204,7 @@ class UtilsTestCase(TestCase):
                 'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
         ]
         for data in test_data:
-            self.assertEqual(generate_task_uuid(**data['dict']), data['result'])
-
-    def test_manifest(self):
-        response = manifest(self.FILES_IN_CART)
-        man = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.IDS_IN_CART[0] in man)
-        self.assertFalse(self.IDS_IN_CART[1] in man)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
-
-    def test_metadata(self):
-        response = metadata(self.FILES_IN_CART)
-        met = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue('<analysis_id>%s</analysis_id>' % id in met)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
-
-    def test_summary_tsv(self):
-        response = summary(self.FILES_IN_CART)
-        sum = response.content
-        for id in self.IDS_IN_CART:
-            self.assertTrue(id in sum)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
-
-    def _check_content_type_and_disposition(self, response, type, filename):
-        self.assertEqual(response['Content-Type'], type)
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+            self.assertEqual(generate_task_analysis_id(**data['dict']), data['result'])
 
     def test_get_default_query(self):
         with self.settings(
@@ -234,6 +230,18 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 '')
+
+
+class ContextProcessorsTestCase(TestCase):
+
+    def test_settings(self):
+        # test cghub.apps.core.context_processors.settings
+        MANY_FILES = 101
+        with self.settings(MANY_FILES=MANY_FILES):
+            factory = RequestFactory()
+            request = factory.get('/')
+            context = RequestContext(request)
+            self.assertEqual(context['MANY_FILES'], MANY_FILES)
 
 
 class TemplateTagsTestCase(TestCase):
@@ -306,8 +314,7 @@ class TemplateTagsTestCase(TestCase):
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
             '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: Harvard (HMS-RK)</li>'
-            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Center</b>: HMS-RK</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
             '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
@@ -361,26 +368,24 @@ class TemplateTagsTestCase(TestCase):
 
     def test_file_size_filter(self):
         self.assertEqual(file_size('123'), '123 Bytes')
-        self.assertEqual(file_size(123456), '120.56 KB')
-        self.assertEqual(file_size(1234567), '1.18 MB')
-        self.assertEqual(file_size(1234567890), '1.15 GB')
+        self.assertEqual(file_size(123456), '120,56 KB')
+        self.assertEqual(file_size(1234567), '1,18 MB')
+        self.assertEqual(file_size(1234567890), '1,15 GB')
 
     def test_table_header_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'hidden'),
-                                                ('Study', 'visible'))
+        COLUMNS = ('Disease', 'Analysis Id', 'Study')
         request = HttpRequest()
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_header(request)
-            self.assertTrue(res.find('<th') != -1)
-            self.assertTrue(res.find(COLUMNS[0][0]) != -1)
-            self.assertTrue(res.find(COLUMNS[1][0]) != -1)
-            self.assertTrue(res.find('visible') != -1)
-            self.assertTrue(res.find('hidden') != -1)
-            self.assertTrue(res.find(COLUMNS[2][0]) == -1)
+            self.assertTrue('<th' in res)
+            self.assertTrue(COLUMNS[0] in res)
+            self.assertTrue(COLUMNS[1] in res)
+            self.assertTrue('visible' in res)
+            self.assertTrue('hidden' not in res)
+            self.assertTrue(COLUMNS[2] not in res)
 
     def test_table_row_tag(self):
-        COLUMNS = (('Disease', 'visible'), ('UUID', 'visible'),
-                                                ('Study', 'visible'))
+        COLUMNS = ('Disease', 'Analysis Id', 'Study')
         RESULT = {
                 'disease_abbr': 'COAD',
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
@@ -388,10 +393,10 @@ class TemplateTagsTestCase(TestCase):
                 }
         with self.settings(TABLE_COLUMNS = COLUMNS[:2]):
             res = table_row(RESULT)
-            self.assertTrue(res.find('<td') != -1)
-            self.assertTrue(res.find(RESULT['disease_abbr']) != -1)
-            self.assertTrue(res.find(RESULT['analysis_id']) != -1)
-            self.assertTrue(res.find(RESULT['study']) == -1)
+            self.assertTrue('<td' in res)
+            self.assertTrue(RESULT['disease_abbr'] in res)
+            self.assertTrue(RESULT['analysis_id'] in res)
+            self.assertTrue(RESULT['study'] not in res)
         # test value_resolvers
         right_value = 'Right value'
         def value_resolver(value):
@@ -402,7 +407,7 @@ class TemplateTagsTestCase(TestCase):
             self.assertNotIn(RESULT['study'], res)
 
     def test_details_table_tag(self):
-        FIELDS = ('UUID', 'Study')
+        FIELDS = ('Analysis Id', 'Study')
         RESULT = {
                 'analysis_id': '6cca55c6-3748-4c05-8a31-0b1a125b39f5',
                 'study': 'phs000178',
@@ -453,13 +458,14 @@ class TemplateTagsTestCase(TestCase):
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
-    cache_files = [
+    cart_cache_files = []
+    wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
-        'af5eb9d62e2bafda2eb3bad59afa5b2d_ids.cache',
+        'af5eb9d62e2bafda2eb3bad59afa5b2d.ids',
         '5c4840476e9f1638af7e4ba9224c8689.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
-    query = "6d54*"
+    query = "6d54"
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -499,15 +505,6 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
             follow=True)
         self.assertTrue('search' in response.redirect_chain[0][0])
 
-    def test_last_modified_if_no_q(self):
-        """
-        Test that if there is not q query, last_modified is substituted.
-        Search with last month.
-        """
-        response = self.client.get(reverse('search_page'), follow=True)
-        self.assertTrue('upload_date' in response.redirect_chain[0][0])
-        self.assertTrue('7DAY' in response.redirect_chain[0][0])
-
 
 class PaginatorUnitTestCase(TestCase):
 
@@ -528,15 +525,32 @@ class PaginatorUnitTestCase(TestCase):
         )
 
 
-class MetadataViewTestCase(TestCase):
-    ID_DETAILS = "4b2235d6-ffe9-4664-9170-d9d2013b395f"
+class MetadataViewTestCase(WithCacheTestCase):
+
+    cart_cache_files = []
+    wsapi_cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
+
+    """
+    Cached files will be used
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
+    """
+    analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
+    last_modified = '2012-10-29T21:56:12Z'
 
     def test_metadata(self):
-        response = self.client.post(reverse('metadata', args=[self.ID_DETAILS]))
-        metadata = response.content
-        self.assertTrue(self.ID_DETAILS in metadata)
+        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        response = self.client.get(
+                    reverse('metadata',
+                    args=[self.analysis_id]),
+                    {'last_modified': self.last_modified, 'state': 'live'})
+        content = response.content
+        self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')
+        if os.path.isdir(path):
+            shutil.rmtree(path)
 
 
 class TaskViewsTestCase(TestCase):

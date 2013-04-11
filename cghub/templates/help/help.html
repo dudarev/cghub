@@ -9,16 +9,17 @@
 {% block main_content %}
     <div class="span6 help-content">
         <h2>Help</h2>
-        Below you will find information on how to navigate and use the Web GUI to gather a Manifest and Metadata XML file:
+        <p>
+          The CGHub Data Browser enables users to explore the cancer genomics
+          data at CGHub. The following pages provide an introduction and guidance on using the
+          browser.  If you have questions or anything is unclear, please
+          e-mail us
+          at <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>.
+        </p>
         <ul class="help-sections">
-            <li><a href="{% url help_overview_page %}">Overview</a></li>
-            <dl>
-                <dt>Direct links to the three sites listed in the overview.
-                    <dd>- <a href="{% url help_navbar_page %}">Navigation Bar</a></li>
-                    <dd>- <a href="{% url help_filters_page %}">Left Side Filter Bar</a></li>
-                    <dd>- <a href="{% url help_results_page %}">Results Area</a></li>
-            <li><a href="{% url help_cart_page %}">Cart</a></li>
-            <li><a href="{% url help_usecase_page %}">Use Case</a></li>
+	  <li><a href="{% url help_overview_page %}">Overview</a></li>
+          <li><a href="{% url help_flow_page %}">Application flow</a></li>
+          <li><a href="{% url help_assemblies_page %}">Reference assemblies</a></li>
         </ul>
     </div>
 {% endblock %}

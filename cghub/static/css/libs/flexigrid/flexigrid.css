@@ -36,7 +36,7 @@
 
 .flexigrid div.hDivBox {
 	float: left;
-	padding-right: 40px;
+	padding-right: 0;
 }
 
 .flexigrid div.bDiv table {

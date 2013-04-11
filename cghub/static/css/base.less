@@ -1,5 +1,11 @@
 @import "libs/bootstrap/less/mixins.less";
 
+/* z indexes */
+@zi_scrollbar: 1000; // specified in tinyscrollbar.css
+@zi_ddcl: 1010; // specified in flexigrid.js and core/search.js
+@zi_tooltip: @zi_ddcl + 100;
+@zi_dp_container: @zi_tooltip + 200;
+
 .navbar {
     .brand {
         padding-top: 10px;
@@ -22,7 +28,7 @@
     padding-left: 10px;
     /* datepickers container */
     .dp-container {
-        z-index: 99;
+        z-index: @zi_dp_container;
         position: absolute;
         top: 0;
         left: 235px;
@@ -65,10 +71,10 @@
 }
 
 .flexigrid {
-	width: 100%;
+    width: 100%;
     // fix selected row highlighting
     div.bDiv {
-        overflow-x: scroll !important;
+        overflow-x: hidden !important;    // don't show scrolls in flexigrid
         overflow-y: hidden !important;
         tr.trSelected td {
             background-color: #d5effc;
@@ -85,24 +91,18 @@
 
 .tooltip {
     position: fixed;
-    z-index: 1000;
     display: none;
     max-width: 250px;
-    background: rgba(0, 0, 0, .8);
+    background: #F8F8C1;
     visibility: visible;
     padding: 5px;
     font-size: 12px;
     opacity: 1;
-    color: #fff;
+    color: #000;
     padding: 5px 6px 4px 10px;
     .border-radius(3px);
-    &:before {
-        display: inline-block;
-        content: '?';
-        position: relative;
-        left: -6px;
-        color: #ffc40d;
-    }
+    border: 1px solid #996;
+    z-index: @zi_tooltip;
 }
 
 /* dropdown menus */

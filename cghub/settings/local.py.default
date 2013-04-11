@@ -8,8 +8,8 @@
 
 # BROKER_URL = "amqp://user:password@host:port/vhost"
 
-# WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser'
-# CART_CACHE_DIR = WSAPI_CACHE_DIR
+# WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/wsapi'
+# CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
 
 # # logging settings, example of using SysLogHandler
 # from logging.handlers import SysLogHandler
@@ -57,6 +57,13 @@
 #             'level': 'INFO',
 #             'propagate': True,
 #         },
+#         'wsapi.request': {
+#             # use to disable this logger
+#             # 'handlers': ['null'],
+#             'handlers': ['syslog'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         }
 #     },
 # }
 

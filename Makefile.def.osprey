@@ -15,9 +15,10 @@ PYTHON= PYTHONPATH=$(PYTHONPATH) python
 
 TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
-			core.MetadataViewTestCase \
+			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
-			cart.CacheTestCase cart.CartFormsTestCase \
+			cart.CartClearTestCase cart.CartCacheTestCase \
+			cart.CartFormsTestCase cart.CartUtilsTestCase \
 			help
 
 TEST_UI=core.SidebarTestCase core.SearchTestCase core.ColumnSelectTestCase \
@@ -27,7 +28,7 @@ TEST_UI=core.SidebarTestCase core.SearchTestCase core.ColumnSelectTestCase \
 
 MANAGE= $(PYTHON) manage.py
 
-localRoot=/a/markd/compbio/cghub/projs/webgui/devel/cghub_data_browser/local
+localRoot=/a/markd/cghub/projs/dataBrowser
 PIDS_DIR=${localRoot}/var/run/celery
 LOGS_DIR=${localRoot}/var/log/celery
 
@@ -37,7 +38,7 @@ CELERYBEAT_PID=$(PIDS_DIR)/celerybeat.pid
 
 # CGHubs specific defs
 CACHE_DIR=${localRoot}/var/cache/cghub-data-browser
-CGHUB_APPROOT_DIR=/a/markd/compbio/cghub/projs/webgui/devel/cghub-data-browser
+CGHUB_APPROOT_DIR=/a/markd/cghub/projs/dataBrowser/cghub-data-browser
 CGHUB_APP_DIR=${CGHUB_APPROOT_DIR}/app
 
 cghubuser = markd

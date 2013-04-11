@@ -35,11 +35,13 @@ jQuery(function ($) {
         // slashes in '/.../' are needed!
         removeFromCart:function () {
             var btn = $(this);
+            if(btn.hasClass('disabled')) return false;
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/remove/'));
         },
         clearCart: function(){
             var btn = $(this);
+            if(btn.hasClass('disabled')) return false;
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/clear/'));
         },

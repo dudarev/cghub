@@ -8,17 +8,19 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
-        hoverTime: 1500, /* time, after which tooltip will be shown, in ms */
+        hoverTime: 250, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
-        keysIgnore: ['uuid', 'uploaded', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['analysis id', 'uploaded', 'last modified', 'barcode', 'files size'],
         init:function () {
             cghub.help.hintUrl = $('body').data('help-hint-url');
             cghub.help.textUrl = $('body').data('help-text-url');
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
-            cghub.help.activateFilterTooltipHelp();
-            cghub.help.activateFilterItemTooltipHelp();
+            cghub.help.activateFilterHeaderTooltipHelp();
+            cghub.help.activateFilterSelectorItemTooltipHelp();
+            cghub.help.activateFilterTextTooltipHelp();
+            cghub.help.activateCommonTooltipHelp();
             cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
@@ -45,7 +47,18 @@ jQuery(function ($) {
                         var posX = $target.offset().left - $(window).scrollLeft();
                         var posY = $target.offset().top - $(window).scrollTop();
                         var tooltip = $('<div class="tooltip js-tooltip"></div>').html(data['text']).appendTo($('body'));
-                        tooltip.css({top: posY - tooltip.outerHeight(), left: posX}).fadeIn(100, 'swing');
+                        var tooltipTop = posY;
+                        var tooltipLeft = posX;
+                        if (posY < tooltip.outerHeight()){
+                            tooltipTop += $target.outerHeight();//tooltip on bottom
+                        }
+                        else {
+                            tooltipTop -= tooltip.outerHeight();//tooltip on top
+                        }
+                        if (tooltipLeft > $(window).width() - 200) {
+                            tooltipLeft -= 100;
+                        }
+                        tooltip.css({top: tooltipTop, left: tooltipLeft}).fadeIn(100, 'swing');
                     }
                 }
             });
@@ -105,32 +118,55 @@ jQuery(function ($) {
                 }, 0);
             });
         },
+        // for headers in results table
         activateTableHeaderTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
-                return $target.text().replace(decodeURI('%C2%A0%E2%86%93'), '');
+                return $target.text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
             });
         },
+        // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
                 if(!$target.text().length) return '';
                 var index = $target.parent().index();
-                var column = $('.hDivBox table').find('tr').eq(0).find('th')
-                .eq(index).text().replace(decodeURI('%C2%A0%E2%86%93'), '');
-                if($.inArray(column.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
-                return column + ':' + $target.text();
+                var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
+                .eq(index).text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return columnName + ':' + $target.text();
             });
         },
-        activateFilterTooltipHelp:function () {
+        // for filter headers
+        activateFilterHeaderTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
-                return $target.text().replace(':', '').replace('By ', '');
+                return 'filter:' + $target.text().replace(':', '').replace('By ', '');
             });
         },
-        activateFilterItemTooltipHelp:function () {
+        // for items in dropdown list when selecting checkboxes with filters
+        activateFilterSelectorItemTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
-                var filter = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
-                filter = filter.replace(':', '').replace('By ', '');
-                if($.inArray(filter.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
-                return filter + ':' + $target.text();
+                var filterName = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
+                filterName = filterName.replace(':', '').replace('By ', '');
+                if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return filterName + ':' + $target.text();
+            });
+        },
+        // for selected filters when dropdown list is closed
+        activateFilterTextTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text-item', function($target) {
+                var filterName = $target.parents('.ui-dropdownchecklist-selector-wrapper').prev().prev().text();
+                filterName = filterName.replace(':', '').replace('By ', '');
+                if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return filterName + ':' + $target.text();
+            });
+        },
+        // for other elements on the page
+        activateCommonTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.js-common-tooltip', function($target) {
+                return 'common:' + $target.data('key');
             });
         }
     };

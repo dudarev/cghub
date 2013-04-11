@@ -7,7 +7,7 @@ SYSLOG_ADDRESS = '/dev/log'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -36,6 +36,11 @@ LOGGING = {
         },
     },
     'loggers': {
+        '': {
+            'handlers': ['syslog'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['syslog'],
             'level': 'ERROR',
@@ -46,5 +51,12 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'wsapi.request': {
+            # use to disable this logger
+            # 'handlers': ['null'],
+            'handlers': ['syslog'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }

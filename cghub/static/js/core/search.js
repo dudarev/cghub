@@ -20,6 +20,7 @@ jQuery(function ($) {
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
             cghub.search.$addFilesForm = $('form#id_add_files_form');
+            cghub.search.$addFilesButton = $('.add-to-cart-btn');
             cghub.search.$addAllFilesButton = $('button.add-all-to-cart-btn');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
             cghub.search.$resetFiltersButton = $('button#id_reset_filters');
@@ -28,6 +29,9 @@ jQuery(function ($) {
             cghub.search.$filterSelects = $('select.filter-select');
             cghub.search.$navbarSearchForm = $('form.navbar-search');
             cghub.search.$messageModal = $('#messageModal');
+            cghub.search.$manyItemsModal = $('#manyItemsModal');
+            cghub.search.$spinner = $('.js-spinner');
+            cghub.search.$numResults = $('.js-num-results');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -35,6 +39,7 @@ jQuery(function ($) {
             cghub.search.$applyFiltersButton.on('click', cghub.search.applyFilters);
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
+            cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -103,12 +108,14 @@ jQuery(function ($) {
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
                         width: 180,
+                        zIndex: 1010,
                         explicitClose: 'close'
                     });
                 } else {
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 180,
+                        zIndex: 1010,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
@@ -133,7 +140,7 @@ jQuery(function ($) {
                 countSelected = 0,
                 color = '#333';
             $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                preview += $(el).find('label').html() + '<br>';
+                preview += '<span class="ui-dropdownchecklist-text-item">' + $(el).find('label').html() + '</span><br>';
                 countSelected++;
             });
             if (countSelected === 0) {
@@ -146,8 +153,14 @@ jQuery(function ($) {
             }
             $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
+            //Bug #1787 delete standard tooltip with text "selecting..."
+            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         addFilesFormSubmit:function () {
+            // disable button
+            if(cghub.search.$addFilesButton.hasClass('disabled')) return false;
+            cghub.search.$addFilesButton.addClass('disabled');
+            cghub.search.$spinner.show();
             // collect all data attributes
             var data = {};
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
@@ -169,55 +182,71 @@ jQuery(function ($) {
                 },
                 error:function (){
                     cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                    cghub.search.$addFilesButton.removeClass('disabled');
+                    cghub.search.$spinner.hide();
                 }
             });
             return false;
         },
         addAllFilesClick:function () {
-            var $button = $(this);
-            if($button.hasClass('disabled')) return false;
-            $($button).addClass('disabled');
-            var $form = $button.parents('form');
-            var attributes = [];
-            for (var key in $($form.find('input[type="checkbox"][name="selected_files"]')[0]).data()) {
-                attributes.push(key);
+            if($(this).hasClass('disabled')) return false;
+            var files_count = parseInt(cghub.search.$numResults.text(), 10);
+            var many_files = parseInt($(this).parents('form').data('many-files'));
+            if(files_count > many_files) {
+                cghub.search.$manyItemsModal.find('.modal-body p b').text(files_count);
+                cghub.search.$manyItemsModal.modal('show');
+                cghub.search.$manyItemsModal.find('.js-no').focus();
+            } else {
+                cghub.search.addAllFiles();
             }
+            return false;
+        },
+        addAllFiles:function() {
+            var $button = cghub.search.$addAllFilesButton;
+            $button.addClass('disabled');
+            cghub.search.$spinner.show();
+            var $form = $button.parents('form');
             var filters = URI.parseQuery(window.location.search);
             if(jQuery.isEmptyObject(filters)) {
                 filters = cghub.search.getFiltersValues()['filters'];
             }
             $.ajax({
-                data:$form.serialize() + '&attributes=' + JSON.stringify(attributes) + '&filters=' + JSON.stringify(filters),
+                data:$form.serialize() + '&filters=' + JSON.stringify(filters),
                 type:$form.attr('method'),
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
+                    if('task_id' in data) {
+                        var tasks = $.cookie('active_tasks');
+                        if(tasks) {
+                            tasks = tasks.split(',');
+                            tasks.push(data['task_id']);
+                            $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
+                        } else {
+                            $.cookie('active_tasks', data['task_id'], { path: '/', expires: 7 });
+                        }
+                    }
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     }
                     if (data['action']=='message') {
                         cghub.search.showMessage(data['title'], data['content']);
-                        if('task_id' in data) {
-                            var tasks = $.cookie('active_tasks');
-                            if(tasks) {
-                                tasks = tasks.split(',');
-                                tasks.push(data['task_id']);
-                                $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
-                            } else {
-                                $.cookie('active_tasks', data['task_id'], { path: '/', expires: 7 });
-                            }
-                        }
+                        $($button).removeClass('disabled');
+                        cghub.search.$spinner.hide();
                     }
                     if (data['action']=='error') {
-                       cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                        cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
+                        $($button).removeClass('disabled');
+                        cghub.search.$spinner.hide();
                     }
-                    $($button).removeClass('disabled');
                 },
                 error:function (){
                     cghub.search.showMessage(cghub.search.addToCartErrorTile, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
+                    cghub.search.$spinner.hide();
                 }
             });
+            cghub.search.$manyItemsModal.modal('hide');
             return false;
         },
         getFiltersValues:function () {
@@ -309,7 +338,7 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
-                    dateFormat: 'yy/mm/dd',
+                    dateFormat: 'yy/mm/dd'
                 });
             });
             return $dp_container;
@@ -374,10 +403,10 @@ jQuery(function ($) {
             }
             var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
             var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
-            if(start_to_now == now_to_end) {start_to_now += 1};
+            if(start_to_now == now_to_end) {start_to_now += 1;}
             var start_str = '[NOW-' + start_to_now + 'DAY';
             var end_str = 'NOW-' + now_to_end + 'DAY]';
-            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]' };
+            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]'; }
             return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
@@ -385,7 +414,7 @@ jQuery(function ($) {
             var current = new Date();
             var current_parsed = Date.parse(current);
             // Get the number of days
-            var values = value.slice(1, -1).split(' TO ')
+            var values = value.slice(1, -1).split(' TO ');
             var start_now = parseInt(values[0].split('-').reverse()[0].slice(0, -3));
             var end_now = parseInt(values[1].split('-').reverse()[0].slice(0, -3));
             // Convert each to date objects

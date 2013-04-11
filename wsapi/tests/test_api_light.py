@@ -9,8 +9,8 @@ from wsapi.api_light import *
 from wsapi.utils import get_setting
 
 
-class SortingTest(unittest.TestCase):
-    """Test functions that do sorting."""
+class ApiLightTest(unittest.TestCase):
+    """Test functions from api_light.py."""
 
     def test_parse_sort_by(self):
         self.assertEqual(
@@ -27,7 +27,7 @@ class SortingTest(unittest.TestCase):
         filepath = get_cache_file_name(query='xml_text=6d51*', settings={})
         self.assertEqual(
                 filepath,
-                '%s47fc9c0916a570ed7970e98508a07a60_ids.cache' % get_setting('CACHE_DIR'))
+                '%s47fc9c0916a570ed7970e98508a07a60.ids' % get_setting('CACHE_DIR'))
 
     def test_get_ids(self):
         """
@@ -37,7 +37,7 @@ class SortingTest(unittest.TestCase):
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
-        f = '47fc9c0916a570ed7970e98508a07a60_ids.cache'
+        f = '47fc9c0916a570ed7970e98508a07a60.ids'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(cache_dir, f))
@@ -46,6 +46,37 @@ class SortingTest(unittest.TestCase):
         self.assertEqual(len(ids[1]), 10)
         self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids[1])
         os.remove(os.path.join(cache_dir, f))
+
+    def test_get_all_ids(self):
+        """
+        Test get all ids from cache if cache file exist
+        """
+        TEST_DATA_DIR = 'tests/test_data/'
+        cache_dir = get_setting('CACHE_DIR')
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+        f = '47fc9c0916a570ed7970e98508a07a60.ids'
+        shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(cache_dir, f))
+        ids = get_all_ids('xml_text=6d51*', settings={})
+        self.assertEqual(len(ids), 10)
+        self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids)
+        os.remove(os.path.join(cache_dir, f))
+        # test sorting doesn't matter
+        # 3c021199146d698d0a72ddbbfb927c41.ids - 'xml_text=6d51*' sorted by study
+        # 47fc9c0916a570ed7970e98508a07a60.ids - 'xml_text=6d51*' unsorted
+        # only 47fc9c0916a570ed7970e98508a07a60.ids contains
+        # '9b62b3c9-e33a-4736-8e65-777777777777'
+        f = '3c021199146d698d0a72ddbbfb927c41.ids'
+        shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(cache_dir, f))
+        ids = get_all_ids('xml_text=6d51*', settings={})
+        self.assertEqual(len(ids), 10)
+        self.assertTrue('9b62b3c9-e33a-4736-8e65-777777777777' in ids)
+        os.remove(os.path.join(cache_dir, f))
+
 
     def test_request_light_no_results(self):
         """
