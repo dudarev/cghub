@@ -1,35 +1,36 @@
+{% load static from staticfiles %}
 <!DOCTYPE HTML>
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <title>CGHub Data Browser</title>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/indexof-ie-fix.js"></script>
+    <script type="text/javascript" src="{% static 'js/indexof-ie-fix.js' %}"></script>
     <!--[if lt IE 9]>
-        <script src="{{ STATIC_URL }}js/libs/html5.js"></script>
+        <script src="{% static 'js/libs/html5.js' %}"></script>
     <![endif]-->
     <!--[if IE]>
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery.ui.1.8.16.ie.css"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/libs/jqueryui/custom-theme/jquery.ui.1.8.16.ie.css' %}"/>
     <![endif]-->
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/less/bootstrap.less"
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/libs/bootstrap/less/bootstrap.less' %}"
               media="all">
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.css" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/libs/flexigrid/flexigrid.css' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/bootstrap/bootstrap.css"
+        <link rel="stylesheet" type="text/css" href="{% static 'css/libs/bootstrap/bootstrap.css' %}"
               media="all">
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/flexigrid/flexigrid.min.css" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/libs/flexigrid/flexigrid.min.css' %}" media="all">
     {% endif %}
     <link rel="stylesheet" type="text/css"
-          href="{{ STATIC_URL }}css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css" media="all">
+          href="{% static 'css/libs/jqueryui/custom-theme/jquery-ui-1.8.16.custom.css' %}" media="all">
     <link rel="stylesheet" type="text/css" 
-        href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.standalone.css" media="all">
+        href="{% static 'css/libs/dropdownchecklist/ui.dropdownchecklist.standalone.css' %}" media="all">
     <link rel="stylesheet" type="text/css" 
-        href="{{ STATIC_URL }}css/libs/dropdownchecklist/ui.dropdownchecklist.themeroller.css" media="all">
+        href="{% static 'css/libs/dropdownchecklist/ui.dropdownchecklist.themeroller.css' %}" media="all">
     <link rel="stylesheet" type="text/css"
-        href="{{ STATIC_URL }}css/libs/tinyscrollbar/tinyscrollbar.css" media="all">
+        href="{% static 'css/libs/tinyscrollbar/tinyscrollbar.css' %}" media="all">
     {% block extra_header_css %} {% endblock %}
     {% if debug %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/libs/less-1.3.0.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/libs/less-1.3.0.min.js' %}"></script>
     {% endif %}
     {% block extra_header_js %} {% endblock %}
 </head>
@@ -49,7 +50,7 @@
                 </li>
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
-                <input type="text" class="search-query span2 js-common-tooltip js-search-field" data-key="search-box" placeholder="Search" name="q">
+                <input type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q">
             </form>
         </div>
     </div>
@@ -92,23 +93,23 @@
 </div>
 
 {% block extra_body_css %} {% endblock %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui-1.8.20.custom.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/URI.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/ui.dropdownchecklist-1.4-min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.placeholder.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.tinyscrollbar.min.js"></script>
+<script type="text/javascript" src="{% static 'js/libs/jquery-1.7.2.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/jquery-ui-1.8.20.custom.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/jquery.cookie.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/URI.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/ui.dropdownchecklist-1.4-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/jquery.placeholder.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/libs/jquery.tinyscrollbar.min.js' %}"></script>
 {% if debug %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap-contextmenu.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/base.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/help.js"></script>
+    <script type="text/javascript" src="{% static 'js/libs/flexigrid.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/bootstrap-contextmenu.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/help.js' %}"></script>
 {% else %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/flexigrid.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/base.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/libs/flexigrid.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/base.min.js' %}"></script>
 {% endif %}
 {% block extra_body_js %} {% endblock %}
 </body>

@@ -9,9 +9,9 @@ jQuery(function ($) {
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
         addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
+        usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
+        usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
         reservedChars: '*?',
-        usedReserverCharsTitle: 'Error in Search',
-        usedReserverCharsContent: 'Using * and ? is not allowed in search',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -35,7 +35,7 @@ jQuery(function ($) {
             cghub.search.$manyItemsModal = $('#manyItemsModal');
             cghub.search.$spinner = $('.js-spinner');
             cghub.search.$numResults = $('.js-num-results');
-            cghub.search.$searchField = $('.js-search-field');
+            cghub.search.$searchField = $('.navbar-search input');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -437,7 +437,7 @@ jQuery(function ($) {
                 for (var i = 0; i < cghub.search.reservedChars.length; i++){
                     if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
                         event.preventDefault();
-                        cghub.search.showMessage(cghub.search.usedReserverCharsTitle, cghub.search.usedReserverCharsContent);
+                        cghub.search.showMessage(cghub.search.usedReservedCharsTitle, cghub.search.usedReservedCharsContent);
                     }
                 }
             }
