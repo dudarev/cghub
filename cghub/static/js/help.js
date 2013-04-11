@@ -48,13 +48,17 @@ jQuery(function ($) {
                         var posY = $target.offset().top - $(window).scrollTop();
                         var tooltip = $('<div class="tooltip js-tooltip"></div>').html(data['text']).appendTo($('body'));
                         var tooltipTop = posY;
+                        var tooltipLeft = posX;
                         if (posY < tooltip.outerHeight()){
-                            tooltipTop += tooltip.outerHeight();//tooltip on bottom
+                            tooltipTop += $target.outerHeight();//tooltip on bottom
                         }
                         else {
                             tooltipTop -= tooltip.outerHeight();//tooltip on top
                         }
-                        tooltip.css({top: tooltipTop, left: posX}).fadeIn(100, 'swing');
+                        if (tooltipLeft > $(window).width() - 200) {
+                            tooltipLeft -= 100;
+                        }
+                        tooltip.css({top: tooltipTop, left: tooltipLeft}).fadeIn(100, 'swing');
                     }
                 }
             });

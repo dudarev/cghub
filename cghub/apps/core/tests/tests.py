@@ -90,7 +90,7 @@ class CoreTestCase(WithCacheTestCase):
         '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
         '71411da734e90beda34360fa47d88b99.ids',
     ]
-    query = "6d54*"
+    query = "6d54"
 
     def test_index(self):
         response = self.client.get('/')
@@ -465,7 +465,7 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
         '5c4840476e9f1638af7e4ba9224c8689.xml',
         '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
     ]
-    query = "6d54*"
+    query = "6d54"
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -504,15 +504,6 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
             reverse('home_page') + '?q={query}'.format(query=self.query),
             follow=True)
         self.assertTrue('search' in response.redirect_chain[0][0])
-
-    def test_last_modified_if_no_q(self):
-        """
-        Test that if there is not q query, last_modified is substituted.
-        Search with last month.
-        """
-        response = self.client.get(reverse('search_page'), follow=True)
-        self.assertTrue('upload_date' in response.redirect_chain[0][0])
-        self.assertTrue('7DAY' in response.redirect_chain[0][0])
 
 
 class PaginatorUnitTestCase(TestCase):
