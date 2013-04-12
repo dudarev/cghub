@@ -18,6 +18,7 @@
             novstripe: false,
             minwidth: 30, //min width of columns
             minheight: 80, //min height of columns
+            saveColWidth: true,
             resizable: true, //allow table resizing
             url: false, //URL if using data from AJAX
             method: 'POST', //data sending method
@@ -88,6 +89,12 @@
                     }).show();
                     cdleft = cdpos;
                 });
+            },
+            colName: function (n) {
+                return $(this.hDiv).find('th:visible:eq('+ n +')').text()
+                        .toLowerCase()
+                        .replace(/ /g,'-')
+                        .replace(/[^\w-]+/g,'');
             },
             fixHeight: function (newH) {
                 newH = false;
@@ -235,7 +242,10 @@
                     if (p.colModel) {
                         var name = p.colModel[n].name;      // Store the widths in the cookies
                         $.cookie('flexiwidths/'+name, nw);
-                    }            
+                    } else if (p.saveColWidth) {
+                        var name = this.colName(n);
+                        $.cookie('flexiwidths/'+name, nw, {path: '/'});
+                    }           
                 } else if (this.vresize) {
                     this.vresize = false;
                 } else if (this.colCopy) {
@@ -1062,6 +1072,19 @@
             }
             if (!p.colmodel) {
                 $(this).attr('axis', 'col' + ci++);
+                // set culumns widths
+                if (p.saveColWidth) {
+                    var name = $(this).text();
+                    if (name.length) {
+                        name = name.toLowerCase()
+                                .replace(/ /g,'-')
+                                .replace(/[^\w-]+/g,'');
+                        var width = $.cookie('flexiwidths/' + name);
+                        if (width != undefined) {
+                            $(this).attr('data-width', width);
+                        }
+                    }
+                }
             }
             $(thdiv).css({
                 textAlign: this.align,
@@ -1452,10 +1475,14 @@
             } else {
                 $.addFlex(this, p);
             }
+            var columns = $('.hDivBox > table > thead > tr > th').slice(1),
+                columnSelectMenu = $('select.column-select'),
+                grid = this.grid,
+                columnsCount = columns.length;
+
             // Take default columns to show
-            var $columns = $('.hDiv th');
             var defaultColumns = [""];
-            $.each($columns, function(n) {
+            $.each(columns, function(n) {
                 if($(this).attr('data-ds') == 'visible') {
                     defaultColumns.push(n.toString());
                 }
@@ -1463,9 +1490,9 @@
             // Hide already hidden columns
             var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
             // set hidden columns according to data-ds attribute if not done yet
-            if(hiddenColumns.length == 1) {
+            if(hiddenColumns.length == 0) {
                 hiddenColumns = [""];
-                $.each($columns, function(n) {
+                $.each(columns, function(n) {
                     if($(this).attr('data-ds') == 'hidden') {
                         hiddenColumns.push(n.toString());
                     }
@@ -1474,13 +1501,10 @@
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
                 if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i], false)}
             }
-            this.grid.adjustTableWidth();
+
+            grid.adjustTableWidth();
 
             // Init the column select menu
-            var columns = $('.hDivBox > table > thead > tr > th').slice(1),
-                columnSelectMenu = $('select.column-select'),
-                grid = this.grid,
-                columnsCount = columns.length;
             // select presented columns
             for (var i = 0; i < columnsCount; i++) {
                 var col = $(columns[i]),
