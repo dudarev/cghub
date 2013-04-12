@@ -28,11 +28,16 @@ from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.core.tests import WithCacheTestCase
 
 
-def add_files_to_cart_dict(ids, selected_files=['file1', 'file2', 'file3']):
+def add_files_to_cart_dict(ids, selected_files=None):
+    if not selected_files:
+        selected_files = ids
     return {'selected_files': selected_files,
-            'attributes': '{"file1":{"analysis_id":"%s", "files_size": 1048576, "state": "live"},'
-                           '"file2":{"analysis_id":"%s", "files_size": 1048576, "state": "live"},'
-                           '"file3":{"analysis_id":"%s", "files_size": 1048576, "state": "bad_data"}}' % ids}
+            'attributes': '{{"{0}":{{"analysis_id":"{0}", "files_size": 1048576, '
+                '"state": "live", "last_modified": "2012-10-29T21:56:12Z"}},'
+                '"{1}":{{"analysis_id":"{1}", "files_size": 1048576, '
+                '"state": "live", "last_modified": "2012-10-29T21:56:12Z"}},'
+                '"{2}":{{"analysis_id":"{2}", "files_size": 1048576, '
+                '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z"}}}}'.format(*ids)}
 
 
 class CartTestCase(TestCase):
@@ -69,7 +74,8 @@ class CartTestCase(TestCase):
         self.client.post(url,
                          add_files_to_cart_dict(
                              ids=self.RANDOM_IDS,
-                             selected_files=['file1', 'file1', 'file1']
+                             selected_files=[self.RANDOM_IDS[0], self.RANDOM_IDS[0],
+                                                        self.RANDOM_IDS[0]]
                          ),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # go to cart page
@@ -228,7 +234,7 @@ class CartCacheTestCase(WithCacheTestCase):
                         '2012-10-29T21:56:12Z'),
                 os.path.join(
                         settings.CART_CACHE_DIR,
-                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisFull.xml'))
+                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisFull.xml'))
         self.assertEqual(
                 get_cart_cache_file_path(
                         '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
@@ -236,10 +242,14 @@ class CartCacheTestCase(WithCacheTestCase):
                         short=True),
                 os.path.join(
                         settings.CART_CACHE_DIR,
-                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisShort.xml'))
+                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisShort.xml'))
 
     def test_save_to_cart_cache(self):
-        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        path = os.path.join(
+                            settings.CART_CACHE_DIR,
+                            self.analysis_id[:2],
+                            self.analysis_id[2:4],
+                            self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
         path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
@@ -252,14 +262,18 @@ class CartCacheTestCase(WithCacheTestCase):
         self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
         shutil.rmtree(path)
         # check exception raises when file does not exists
-        bad_analysis_id = 'bad-analysis-id'
-        path = os.path.join(settings.CART_CACHE_DIR, bad_analysis_id)
+        bad_analysis_id = 'badanalysisid'
+        path = os.path.join(
+                    settings.CART_CACHE_DIR,
+                    bad_analysis_id[:2],
+                    bad_analysis_id[2:4],
+                    bad_analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
         try:
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'File for analysis_id=bad-analysis-id, '
+            self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
                 'which was last modified 2012-10-29T21:56:12Z not exists, '
                 'may be it was updated')
         else:
@@ -267,7 +281,11 @@ class CartCacheTestCase(WithCacheTestCase):
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check case when file was updated
-        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        path = os.path.join(
+                        settings.CART_CACHE_DIR,
+                        self.analysis_id[:2],
+                        self.analysis_id[2:4],
+                        self.analysis_id)
         try:
             save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
         except AnalysisFileException:
@@ -286,7 +304,11 @@ class CartCacheTestCase(WithCacheTestCase):
 
     def test_get_analysis(self):
         # test get_analysis_path
-        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        path = os.path.join(
+                            settings.CART_CACHE_DIR,
+                            self.analysis_id[:2],
+                            self.analysis_id[2:4],
+                            self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
         analysis_path = get_analysis_path(self.analysis_id, self.last_modified)

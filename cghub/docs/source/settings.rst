@@ -16,6 +16,8 @@ It is possible to set some settings for wsapi app.
     WSAPI_USE_CACHE = True
     WSAPI_CACHE_BACKEND = 'simple'
     WSAPI_CACHE_DIR = '/tmp/wsapi/'
+    WSAPI_HTTP_ERROR_ATTEMPTS = 5
+    WSAPI_HTTP_ERROR_SLEEP_AFTER = 1
 
 Celery
 ----------
