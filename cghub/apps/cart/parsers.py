@@ -24,7 +24,6 @@ class CartAttributesParser(handler.ContentHandler):
         self.cache_files = cache_files
         self.celery_alive = is_celery_alive()
         self.cart = self.session_store.get('cart', {})
-        self.current_element = ''
         self.current_dict = {}
         self.current_analysis_id = ''
         self.files_size = 0
@@ -37,18 +36,16 @@ class CartAttributesParser(handler.ContentHandler):
         # assembly: analysis_xml/ANALYSIS_SET/ANALYSIS/ANALYSIS_TYPE/REFERENCE_ALIGNMENT/ASSEMBLY/STANDARD[short_name]
         if name == 'STANDARD' and 'short_name' in attrs:
             self.current_dict['assembly'] = attrs['short_name']
-        self.current_element = name
 
     def endElement(self, name):
         # files_size
         # file_size: files/file/filesize
-        if self.current_element == 'filesize':
+        if name == 'filesize':
             self.files_size += int(self.content)
-        if self.current_element == 'analysis_id':
+        if name == 'analysis_id':
             self.current_analysis_id = self.content
-        if self.current_element in self.current_dict:
-            self.current_dict[self.current_element] = self.content
-        self.current_element = ''
+        if name in self.current_dict:
+            self.current_dict[name] = self.content
         if name == 'Result':
             self._save_to_cart()
 

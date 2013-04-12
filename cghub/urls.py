@@ -13,7 +13,6 @@ urlpatterns = patterns(
     url(r'^search/$', SearchView.as_view(), name='search_page'),
     url(r'^details/(?P<analysis_id>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
-        #dfa43dff-721a-4df3-9951-442047f0b21c
         ItemDetailsView.as_view(), name='item_details'),
     url(r'^metadata/(?P<analysis_id>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',

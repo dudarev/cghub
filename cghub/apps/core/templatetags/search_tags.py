@@ -1,6 +1,6 @@
 import urllib
 import datetime
-import re
+
 from django import template
 from django.utils.http import urlencode
 from django.utils.html import escape

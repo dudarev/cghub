@@ -40,18 +40,15 @@ class IDsParser(handler.ContentHandler):
     """
 
     def __init__(self, filename):
-        self.current_element = ''
         self.f = open(filename, 'w')
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
         self.content = ''
-        self.current_element = name
 
     def endElement(self, name):
-        if self.current_element in ('Hits', 'analysis_id'):
+        if name in ('Hits', 'analysis_id'):
             self.f.write('%s\n' % self.content)
-        self.current_element = ''
 
     def characters(self, content):
         self.content += content
