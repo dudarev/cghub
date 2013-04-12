@@ -31,26 +31,27 @@ class CartAttributesParser(handler.ContentHandler):
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
+        self.content = ''
         # assembly: analysis_xml/ANALYSIS_SET/ANALYSIS/ANALYSIS_TYPE/REFERENCE_ALIGNMENT/ASSEMBLY/STANDARD[short_name]
         if name == 'STANDARD' and 'short_name' in attrs:
             self.current_dict['assembly'] = attrs['short_name']
         self.current_element = name
 
     def endElement(self, name):
+        # files_size
+        # file_size: files/file/filesize
+        if self.current_element == 'filesize':
+            self.files_size += int(self.content)
+        if self.current_element == 'analysis_id':
+            self.current_analysis_id = self.content
+        if self.current_element in self.current_dict:
+            self.current_dict[self.current_element] = self.content
         self.current_element = ''
         if name == 'Result':
             self._save_to_cart()
 
     def characters(self, content):
-        # files_size
-        # file_size: files/file/filesize
-        if self.current_element == 'filesize':
-            self.files_size += int(content)
-            return
-        if self.current_element == 'analysis_id':
-            self.current_analysis_id = content
-        if self.current_element in self.current_dict:
-            self.current_dict[self.current_element] = content
+        self.content += content
 
     def endDocument(self):
         self.session_store['cart'] = self.cart

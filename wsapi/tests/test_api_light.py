@@ -45,6 +45,7 @@ class ApiLightTest(unittest.TestCase):
         self.assertEqual(ids[0], 10)
         self.assertEqual(len(ids[1]), 10)
         self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids[1])
+
         os.remove(os.path.join(cache_dir, f))
 
     def test_get_all_ids(self):
@@ -62,6 +63,7 @@ class ApiLightTest(unittest.TestCase):
         ids = get_all_ids('xml_text=6d51*', settings={})
         self.assertEqual(len(ids), 10)
         self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids)
+
         os.remove(os.path.join(cache_dir, f))
         # test sorting doesn't matter
         # 3c021199146d698d0a72ddbbfb927c41.ids - 'xml_text=6d51*' sorted by study

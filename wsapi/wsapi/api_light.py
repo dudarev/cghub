@@ -45,14 +45,16 @@ class IDsParser(handler.ContentHandler):
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
+        self.content = ''
         self.current_element = name
 
     def endElement(self, name):
+        if self.current_element in ('Hits', 'analysis_id'):
+            self.f.write('%s\n' % self.content)
         self.current_element = ''
 
     def characters(self, content):
-        if self.current_element in ('Hits', 'analysis_id'):
-            self.f.write('%s\n' % content)
+        self.content += content
 
     def endDocument(self):
         self.f.close()
