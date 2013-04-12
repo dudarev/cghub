@@ -38,14 +38,20 @@ def get_cart_cache_file_path(analysis_id, last_modified, short=False):
     """
     Calculate path to cache file
 
+    c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+    would become:
+    c9/d9/c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+
     :param analysis_id: file analysis_id
     :param last_modified: file last_modified
     :short: if True - will be returned path to file contains cutted amount of attributes
     """
     return os.path.join(
             settings.CART_CACHE_DIR,
-            analysis_id or '',
-            last_modified or '',
+            analysis_id[:2],
+            analysis_id[2:4],
+            analysis_id,
+            last_modified,
             'analysis{0}.xml'.format('Short' if short else 'Full'))
 
 
@@ -60,6 +66,11 @@ def save_to_cart_cache(analysis_id, last_modified):
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
     Raise AnalysisFileException if file does not exist or was updated
+
+    c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+    would become:
+    c9/d9/c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+
     """
     # to protect files outside cache dir
     if (not analysis_id or
@@ -73,12 +84,15 @@ def save_to_cart_cache(analysis_id, last_modified):
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):
         os.makedirs(path)
-    path = os.path.join(path, analysis_id)
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    path = os.path.join(path, last_modified)
-    if not os.path.isdir(path):
-        os.makedirs(path)
+    folders = (
+                analysis_id[:2],
+                analysis_id[2:4],
+                analysis_id,
+                last_modified)
+    for folder in folders:
+        path = os.path.join(path, folder)
+        if not os.path.isdir(path):
+            os.makedirs(path)
     path_full = os.path.join(path, 'analysisFull.xml')
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
