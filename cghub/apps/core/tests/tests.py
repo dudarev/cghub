@@ -23,7 +23,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_analysis_id)
+                    generate_task_analysis_id, generate_tmp_file_name)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -230,6 +230,11 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 '')
+
+    def test_generate_tmp_file_name(self):
+        """ smoke test for generate_tmp_file_nam function """
+        name = generate_tmp_file_name()
+        self.assertIn('.tmp', name)
 
 
 class ContextProcessorsTestCase(TestCase):
