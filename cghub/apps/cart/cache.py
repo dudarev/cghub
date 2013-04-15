@@ -8,7 +8,7 @@ from django.conf import settings
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
 
-from cghub.apps.core.utils import get_wsapi_settings
+from cghub.apps.core.utils import get_wsapi_settings, generate_tmp_file_name
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -106,11 +106,18 @@ def save_to_cart_cache(analysis_id, last_modified):
             raise AnalysisFileException(analysis_id, last_modified)
         if result.Result.last_modified != last_modified:
             raise AnalysisFileException(analysis_id, last_modified)
-        with open(path_full, 'w') as f:
+        # example tmp file name: 14985-MainThread-my-pc.tmp
+        path_tmp = os.path.join(path, generate_tmp_file_name())
+        with open(path_tmp, 'w') as f:
             f.write(result.tostring())
-        with open(path_short, 'w') as f:
+            f.close()
+        # manage in a atomic manner
+        os.rename(path_tmp, path_full)
+        with open(path_tmp, 'w') as f:
             result.remove_attributes()
             f.write(result.tostring())
+            f.close()
+        os.rename(path_tmp, path_short)
 
 
 def get_analysis_path(analysis_id, last_modified, short=False):

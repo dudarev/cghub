@@ -1,7 +1,10 @@
+import os
 import sys
 import urllib
 import traceback
 import hashlib
+import threading
+import socket
 
 from django.core.mail import mail_admins
 from django.conf import settings
@@ -71,6 +74,16 @@ def get_wsapi_settings():
         if setting != None:
             wsapi_settings[name] = setting
     return wsapi_settings
+
+
+def generate_tmp_file_name():
+    """
+    Returns filename in next format:
+    pid-threadId-host.tmp
+    """
+    return '{pid}-{thread}-{host}.tmp'.format(
+                    pid=os.getpid(), thread=threading.current_thread().name,
+                    host=socket.gethostname())
 
 
 def generate_task_analysis_id(**d):
