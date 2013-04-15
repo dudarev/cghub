@@ -74,7 +74,10 @@ def get_cache_file_name(query, settings):
     # Prevent getting different file names because of 
     # percent escaping
     query = urllib2.unquote(query.encode("utf8"))
-    query = urllib2.quote(query)
+    if '&' in query:
+        query = query.split('&')
+        query.sort()
+        query = '&'.join(query)
     md5 = hashlib.md5(query)
     cache_file_name = u'{0}.ids'.format(md5.hexdigest())
     cache_file_name = os.path.join(
