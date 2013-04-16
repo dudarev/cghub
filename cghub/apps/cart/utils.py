@@ -5,6 +5,9 @@ import urllib2
 from StringIO import StringIO
 from lxml import etree, objectify
 
+from celery import states
+from djcelery.models import TaskState
+
 from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
@@ -14,7 +17,8 @@ from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import get_wsapi_settings, get_wsapi_settings
+from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
+                                            generate_task_id)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.tasks import cache_results_task
@@ -99,6 +103,34 @@ def check_missing_files(files):
                             f[attr] = getattr(i, attr)
                         break
     return files
+
+
+def cache_file(analysis_id, last_modified, asinc=False):
+    """
+    Create celery task if asinc==True, or execute task function.
+    Previously check that task was not created yet.
+    """
+    if not asinc:
+        cache_results_task(analysis_id, last_modified)
+        return
+    task_id = generate_task_id(analysis_id=analysis_id, last_modified=last_modified)
+    try:
+        task = TaskState.objects.get(task_id=task_id)
+        # task failed, reexecute task
+        if task.state == states.FAILURE:
+            # restart
+            cache_results_task.apply_async(
+                    kwargs={
+                        'analysis_id': analysis_id,
+                        'last_modified': last_modified},
+                    task_id=task_id)
+    except TaskState.DoesNotExist:
+        # run
+        cache_results_task.apply_async(
+                    kwargs={
+                        'analysis_id': analysis_id,
+                        'last_modified': last_modified},
+                    task_id=task_id)
 
 
 def join_analysises(data, short=False, live_only=False):

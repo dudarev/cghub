@@ -4,6 +4,9 @@ import shutil
 import datetime
 import shutil
 
+from celery import states
+from djcelery.models import TaskState
+
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
@@ -18,7 +21,8 @@ from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
-                            summary, add_ids_to_cart, check_missing_files)
+                            summary, add_ids_to_cart, check_missing_files,
+                            cache_file)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
@@ -26,6 +30,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
 from cghub.apps.cart.parsers import parse_cart_attributes
 
 from cghub.apps.core.tests import WithCacheTestCase
+from cghub.apps.core.utils import generate_task_id
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -221,7 +226,7 @@ class CartCacheTestCase(WithCacheTestCase):
     last_modified2 = '2013-03-04T00:22:02Z'
 
     wsapi_cache_files = [
-            '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
+            '1222c973df912b058f0f6c0c52e18184.xml',
             '4d3fee9f8557fc0de585af248b598c44.xml',
             'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
     ]
@@ -395,6 +400,39 @@ class CartCacheTestCase(WithCacheTestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename=%s' % filename)
+
+    def test_cache_file(self):
+        # asinc == False
+        # {CART_CACHE_DIR}/7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/ should be created
+        path = os.path.join(
+                            settings.CART_CACHE_DIR,
+                            self.analysis_id[:2],
+                            self.analysis_id[2:4],
+                            self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        cache_file(
+                analysis_id=self.analysis_id, last_modified=self.last_modified,
+                asinc=False)
+        self.assertTrue(os.path.isdir(path))
+        shutil.rmtree(path)
+        # asinc = True
+        cache_file(
+                analysis_id=self.analysis_id, last_modified=self.last_modified,
+                asinc=True)
+        self.assertTrue(os.path.isdir(path))
+        shutil.rmtree(path)
+        # asinc = True, and task already exists
+        task_id = generate_task_id(
+                analysis_id=self.analysis_id, last_modified=self.last_modified)
+        ts = TaskState(
+                    state=states.SUCCESS, task_id=task_id,
+                    tstamp=timezone.now())
+        ts.save()
+        cache_file(
+                analysis_id=self.analysis_id, last_modified=self.last_modified,
+                asinc=True)
+        self.assertFalse(os.path.isdir(path))
 
 
 class CartParsersTestCase(TestCase):

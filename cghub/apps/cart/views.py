@@ -12,17 +12,16 @@ from django.utils import simplejson as json
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (is_celery_alive,
-                    generate_task_analysis_id, get_wsapi_settings,
+                    generate_task_id, get_wsapi_settings,
                     get_filters_string)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, clear_cart,
-                                                    check_missing_files)
+                                        check_missing_files, cache_file)
 from cghub.apps.cart.cache import is_cart_cache_exists
-from cghub.apps.cart.tasks import (add_files_to_cart_by_query_task,
-                                                    cache_results_task)
+from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
 import cghub.apps.cart.utils as cart_utils
 
 from cghub.wsapi.api_light import get_all_ids
@@ -80,7 +79,7 @@ def cart_add_files(request):
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
-                task_id = generate_task_analysis_id(**kwargs)
+                task_id = generate_task_id(**kwargs)
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
@@ -120,10 +119,7 @@ def cart_add_files(request):
                 analysis_id = attributes[f].get('analysis_id')
                 last_modified = attributes[f].get('last_modified')
                 if not is_cart_cache_exists(analysis_id, last_modified):
-                    if celery_alive:
-                        cache_results_task.delay(analysis_id, last_modified)
-                    else:
-                        cache_results_task(analysis_id, last_modified)
+                    cache_file(analysis_id, last_modified, celery_alive)
             result = {'action': 'redirect', 'redirect': reverse('cart_page')}
     return HttpResponse(json.dumps(result), mimetype="application/json")
 
