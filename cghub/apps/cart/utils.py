@@ -180,7 +180,8 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     :param short: if True - file will be contains only most necessary attributes
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
-    yield '<ResultSet date="%s">' % datetime.datetime.strftime(timezone.now(), '%Y-%d-%m %H:%M:%S')
+    yield '<ResultSet date="%s">' % datetime.datetime.strftime(
+                                    timezone.now(), '%Y-%d-%m %H:%M:%S')
     yield '<Hits>%d</Hits>' % len(data)
     counter = 0
     downloadable_size = 0
