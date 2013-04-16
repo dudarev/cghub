@@ -16,6 +16,11 @@ WSAPI_SETTINGS = get_wsapi_settings()
 # use wsapi cache when testing
 USE_WSAPI_CACHE = 'test' in sys.argv
 
+RESULT_START = '<Result id="1">'
+RESULT_STOP = '</Result>'
+FSIZE_START = '<filesize>'
+FSIZE_STOP = '</filesize>'
+
 
 class AnalysisFileException(Exception):
     """
@@ -150,3 +155,33 @@ def get_analysis(analysis_id, last_modified, short=False):
         save_to_cart_cache(analysis_id, last_modified)
     result = Results.from_file(path, settings=WSAPI_SETTINGS)
     return result
+
+
+def get_analysis_xml(analysis_id, last_modified, short=False):
+    """
+    Returns part of xml file (Result content) stored in cache, and files size
+
+    :param analysis_id: file analysis_id
+    :param last_modified: file last_modified
+    :param short: if True - will be returned path to file contains cutted amount of attributes
+
+    Returns:
+    (xml, files_size)
+    """
+    path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
+    if not os.path.exists(path):
+        # if file not exists or was updated - AnalysisFileException exception will be raised
+        save_to_cart_cache(analysis_id, last_modified)
+    with open(path, 'r') as f:
+        result = f.read()
+    start = result.find(RESULT_START) + len(RESULT_START)
+    stop = result.find(RESULT_STOP)
+    result = result[start:stop]
+    # find files size
+    files_size = 0
+    start = result.find(FSIZE_START)
+    while start != -1:
+        stop = result.find(FSIZE_STOP, start + 1)
+        files_size += int(result[start+len(FSIZE_START):stop])
+        start = result.find(FSIZE_START, start + 1)
+    return result, files_size
