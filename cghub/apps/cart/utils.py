@@ -23,7 +23,8 @@ from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.tasks import cache_results_task
-from cghub.apps.cart.cache import AnalysisFileException, get_analysis
+from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
+                                                        get_analysis_xml)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -170,6 +171,39 @@ def join_analysises(data, short=False, live_only=False):
     return _empty_results()
 
 
+def analysis_xml_iterator(data, short=False, live_only=False):
+    """
+    Return xml for files with specified ids.
+    If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
+
+    :param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
+    :param short: if True - file will be contains only most necessary attributes
+    :param live_only: if True - files with state attribute != 'live' will be not included to results
+    """
+    yield '<ResultSet date="%s">' % datetime.datetime.strftime(timezone.now(), '%Y-%d-%m %H:%M:%S')
+    yield '<Hits>%d</Hits>' % len(data)
+    counter = 0
+    downloadable_size = 0
+    for f in data:
+        if live_only and data[analysis_id].get('state') != 'live':
+            continue
+        counter += 1
+        yield '<Result id="%d">' % counter
+        xml, files_size = get_analysis_xml(
+                            analysis_id=f,
+                            last_modified=data[f].get('last_modified'),
+                            short=short)
+        downloadable_size += files_size
+        yield xml
+        yield '</Result>'
+    yield ('<ResultSummary><downloadable_file_count>{count}</downloadable_file_count>' +
+            '<downloadable_file_size units="GB">{size}</downloadable_file_size>' +
+            '<state_count><live>{count}</live></state_count>' +
+            '</ResultSummary></ResultSet>').format(
+                        count=counter,
+                        size=str(round(downloadable_size/1073741824.*100)/100))
+
+
 def manifest(data):
     results = join_analysises(data, live_only=True, short=True)
     mfio = _stream_with_xml(results)
@@ -179,9 +213,7 @@ def manifest(data):
 
 
 def metadata(data):
-    results = join_analysises(data)
-    mfio = _stream_with_xml(results)
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response = HttpResponse(analysis_xml_iterator(data), content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 

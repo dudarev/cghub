@@ -22,7 +22,7 @@ from django.conf import settings
 from cghub.settings.utils import PROJECT_ROOT
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
                             summary, add_ids_to_cart, check_missing_files,
-                            cache_file)
+                            cache_file, analysis_xml_iterator)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
@@ -372,6 +372,18 @@ class CartCacheTestCase(WithCacheTestCase):
         content = result.tostring()
         self.assertTrue(self.analysis_id in content)
         self.assertFalse(self.analysis_id2 in content)
+
+    def test_analysis_xml_iterator(self):
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+        iterator = analysis_xml_iterator(data)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('ResultSet', result)
+        self.assertIn('Result id="1"', result)
+        self.assertIn('Result id="2"', result)
 
     def test_manifest(self):
         data = {
