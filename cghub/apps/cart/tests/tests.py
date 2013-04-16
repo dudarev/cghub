@@ -226,7 +226,7 @@ class CartCacheTestCase(WithCacheTestCase):
     last_modified2 = '2013-03-04T00:22:02Z'
 
     wsapi_cache_files = [
-            '1b14aa46247842d46ff72d3ed0bf1ab5.xml',
+            '1222c973df912b058f0f6c0c52e18184.xml',
             '4d3fee9f8557fc0de585af248b598c44.xml',
             'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
     ]
