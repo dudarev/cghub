@@ -423,16 +423,29 @@ class CartCacheTestCase(WithCacheTestCase):
         self.assertTrue(os.path.isdir(path))
         shutil.rmtree(path)
         # asinc = True, and task already exists
+        now = timezone.now()
         task_id = generate_task_id(
                 analysis_id=self.analysis_id, last_modified=self.last_modified)
         ts = TaskState(
                     state=states.SUCCESS, task_id=task_id,
-                    tstamp=timezone.now())
+                    tstamp=now)
         ts.save()
         cache_file(
                 analysis_id=self.analysis_id, last_modified=self.last_modified,
                 asinc=True)
         self.assertFalse(os.path.isdir(path))
+        # if task was created more than 5 days ago
+        old_time = now - datetime.timedelta(days=7)
+        ts.tstamp = old_time
+        ts.save()
+        cache_file(
+                analysis_id=self.analysis_id, last_modified=self.last_modified,
+                asinc=True)
+        self.assertTrue(os.path.isdir(path))
+        # check that tstamp was updated
+        self.assertNotEqual(
+                    TaskState.objects.get(task_id=task_id).tstamp,
+                    old_time)
 
 
 class CartParsersTestCase(TestCase):

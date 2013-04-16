@@ -1,6 +1,7 @@
 import sys
 import csv
 import urllib2
+import datetime
 
 from StringIO import StringIO
 from lxml import etree, objectify
@@ -117,8 +118,11 @@ def cache_file(analysis_id, last_modified, asinc=False):
     try:
         task = TaskState.objects.get(task_id=task_id)
         # task failed, reexecute task
-        if task.state == states.FAILURE:
+        if (task.state == states.FAILURE or
+            task.tstamp < timezone.now() - datetime.timedelta(days=5)):
             # restart
+            task.tstamp = timezone.now()
+            task.save()
             cache_results_task.apply_async(
                     kwargs={
                         'analysis_id': analysis_id,
