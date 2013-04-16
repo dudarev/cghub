@@ -65,9 +65,9 @@ class CartAttributesParser(handler.ContentHandler):
         last_modified = self.current_dict['last_modified']
         # add task to cache file if not cached yet
         if self.cache_files and not is_cart_cache_exists(
-                self.current_analysis_id, last_modified) and self.celery_alive:
-            from cghub.apps.cart.tasks import cache_results_task
-            cache_results_task.delay(self.current_analysis_id, last_modified)
+                        self.current_analysis_id, last_modified):
+            from cghub.apps.cart.utils import cache_file
+            cache_file(self.current_analysis_id, last_modified, self.celery_alive)
         # reset current dict
         for i in self.current_dict:
             self.current_dict[i] = ''

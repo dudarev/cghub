@@ -86,9 +86,9 @@ def generate_tmp_file_name():
                     host=socket.gethostname())
 
 
-def generate_task_analysis_id(**d):
+def generate_task_id(**d):
     """
-    Generate analysis_id from dict
+    Generate task id from dict
     """
     result = [str(v) for v in d.values()]
     result.sort()

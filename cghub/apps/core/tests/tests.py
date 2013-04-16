@@ -23,7 +23,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_analysis_id, generate_tmp_file_name)
+                    generate_task_id, generate_tmp_file_name)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -65,14 +65,11 @@ class WithCacheTestCase(TestCase):
             os.remove(path)
         # cart cache
         for f in self.cart_cache_files:
-            path = os.path.join(settings.CART_CACHE_DIR, f)
-            if not os.path.exists(path):
-                continue
+            path = os.path.join(
+                    settings.CART_CACHE_DIR, f[:2], f[2:4], f)
             if os.path.isdir(path):
                 # remove cart cache
                 shutil.rmtree(path)
-            else:
-                os.remove(path)
 
 
 class CoreTestCase(WithCacheTestCase):
@@ -191,7 +188,7 @@ class UtilsTestCase(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(get_wsapi_settings()[key], value)
 
-    def test_generate_task_analysis_id(self):
+    def test_generate_task_id(self):
         test_data = [
             {
                 'dict': {'some': 'dict', '1': 2},
@@ -204,7 +201,7 @@ class UtilsTestCase(TestCase):
                 'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
         ]
         for data in test_data:
-            self.assertEqual(generate_task_analysis_id(**data['dict']), data['result'])
+            self.assertEqual(generate_task_id(**data['dict']), data['result'])
 
     def test_get_default_query(self):
         with self.settings(
