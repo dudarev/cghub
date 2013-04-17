@@ -6,7 +6,7 @@ PYTHONPATH=$(CURDIR):$(CURDIR)/$(PROJECT_NAME):$(CURDIR)/$(PROJECT_API)
 TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
-			core.TaskViewsTestCase \
+			core.TaskViewsTestCase core.SettingsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartClearTestCase cart.CartCacheTestCase \
 			cart.CartFormsTestCase cart.CartUtilsTestCase \

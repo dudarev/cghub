@@ -857,7 +857,7 @@ class SearchTestCase(LiveServerTestCase):
                     'Analysis Id', 'Study', 'Disease', 'Disease Name',
                     'Library Type', 'Assembly', 'Center',
                     'Center Name', 'Experiment Type', 'Uploaded',
-                    'Last modified', 'Sample Type', 'Sample Type Name', 
+                    'Modified', 'Sample Type', 'Sample Type Name', 
                     'State', 'Barcode', 'Sample Accession', 'Files Size'
         ]
         self.selenium.get(self.live_server_url)

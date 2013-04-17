@@ -313,7 +313,7 @@ def field_values(result, humanize_files_size=True):
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
         'Files Size': files_size,
-        'Last modified': get_result_attr(result, 'last_modified'),
+        'Modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
         'Platform': get_result_attr(result, 'platform'),
         'Platform Name': get_name_by_code(

@@ -152,7 +152,7 @@ def join_analysises(data, short=False, live_only=False):
     for analysis_id in data:
         if live_only and data[analysis_id].get('state') != 'live':
             continue
-        last_modified = str(data[analysis_id].get('last_modified'))
+        last_modified = data[analysis_id].get('last_modified')
         try:
             result = get_analysis(analysis_id, last_modified, short=short)
         except AnalysisFileException:
@@ -188,12 +188,15 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     for f in data:
         if live_only and data[analysis_id].get('state') != 'live':
             continue
-        counter += 1
-        yield '<Result id="%d">' % counter
-        xml, files_size = get_analysis_xml(
+        try:
+            xml, files_size = get_analysis_xml(
                             analysis_id=f,
                             last_modified=data[f].get('last_modified'),
                             short=short)
+        except AnalysisFileException:
+            continue
+        counter += 1
+        yield '<Result id="%d">' % counter
         downloadable_size += files_size
         yield xml
         yield '</Result>'
@@ -270,9 +273,7 @@ def _write_summary_tsv(results):
         row = []
         for field_name in settings.TABLE_COLUMNS:
             value = fields.get(field_name, None)
-            if value is None:
-                continue
-            row.append(value)
+            row.append(value or '')
         csvwriter.writerow(row)
 
     stringio.seek(0)
