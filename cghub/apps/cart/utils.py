@@ -120,7 +120,7 @@ def cache_file(analysis_id, last_modified, asinc=False):
         task = TaskState.objects.get(task_id=task_id)
         # task failed, reexecute task
         if (task.state == states.FAILURE or
-            task.tstamp < timezone.now() - datetime.timedelta(days=5)):
+            task.tstamp < timezone.now() - datetime.timedelta(days=2)):
             # restart
             task.tstamp = timezone.now()
             task.save()
@@ -152,7 +152,7 @@ def join_analysises(data, short=False, live_only=False):
     for analysis_id in data:
         if live_only and data[analysis_id].get('state') != 'live':
             continue
-        last_modified = data[analysis_id].get('last_modified')
+        last_modified = str(data[analysis_id].get('last_modified'))
         try:
             result = get_analysis(analysis_id, last_modified, short=short)
         except AnalysisFileException:
@@ -209,13 +209,15 @@ def manifest(data):
     results = join_analysises(data, live_only=True, short=True)
     mfio = _stream_with_xml(results)
     response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
+    response['Content-Disposition'] = 'attachment; filename=manifest_%s.xml' % (
+                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
     return response
 
 
 def metadata(data):
     response = HttpResponse(analysis_xml_iterator(data), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+    response['Content-Disposition'] = 'attachment; filename=metadata_%s.xml' % (
+                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
     return response
 
 
@@ -224,7 +226,8 @@ def summary(data):
     results.add_custom_fields()
     mfio = _write_summary_tsv(results)
     response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
+    response['Content-Disposition'] = 'attachment; filename=summary_%s.tsv' % (
+                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
     return response
 
 
@@ -262,7 +265,7 @@ def _write_summary_tsv(results):
     csvwriter.writerow([field.lower().replace(' ', '_')
                         for field in settings.TABLE_COLUMNS])
     for result in results.Result:
-        fields = field_values(result)
+        fields = field_values(result, humanize_files_size=False)
 
         row = []
         for field_name in settings.TABLE_COLUMNS:
