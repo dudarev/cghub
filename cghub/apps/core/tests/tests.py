@@ -545,12 +545,12 @@ class MetadataViewTestCase(WithCacheTestCase):
         content = response.content
         self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')
+        self.assertIn('attachment; filename=metadata_', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
 
 
-class TaskViewsTestCase():
+class TaskViewsTestCase(TestCase):
 
     def test_celery_task_status(self):
         task_id = 'someid'

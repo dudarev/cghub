@@ -291,7 +291,13 @@ def get_result_attr(result, attr):
     return ''
 
 
-def field_values(result):
+def field_values(result, humanize_files_size=True):
+    files_size = (
+                    get_result_attr(result, 'files_size')
+                    or get_result_attr(result, 'files')
+                    and get_result_attr(result, 'files').file[0].filesize)
+    if humanize_files_size:
+        files_size = file_size(files_size)
     return {
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
@@ -306,9 +312,7 @@ def field_values(result):
         'Experiment Type': get_name_by_code(
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
-        'Files Size': file_size(get_result_attr(result, 'files_size')
-                      or get_result_attr(result, 'files')
-                         and get_result_attr(result, 'files').file[0].filesize),
+        'Files Size': files_size,
         'Last modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
         'Platform': get_result_attr(result, 'platform'),
