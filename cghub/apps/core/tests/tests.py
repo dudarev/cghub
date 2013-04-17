@@ -17,6 +17,8 @@ from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
+from cghub.wsapi.api import Results
+
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
@@ -25,6 +27,9 @@ from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, generate_tmp_file_name)
 from cghub.apps.core.filters_storage import ALL_FILTERS
+
+
+TEST_DATA_DIR = 'cghub/test_data/'
 
 
 class WithCacheTestCase(TestCase):
@@ -40,7 +45,6 @@ class WithCacheTestCase(TestCase):
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         # wsapi cache
-        TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
             os.makedirs(settings.WSAPI_CACHE_DIR)
         for f in self.wsapi_cache_files:
@@ -150,7 +154,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertNotContains(response, 'Expand all')
         self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
-        self.assertContains(response, 'Last modified')
+        self.assertContains(response, 'Modified')
         self.assertContains(response, 'Disease')
         self.assertContains(response, 'Disease Name')
         self.assertContains(response, 'Sample Accession')
@@ -577,3 +581,30 @@ class TaskViewsTestCase(TestCase):
         task_state.save()
         data = get_response()
         self.assertEqual(data['status'], 'failure')
+
+
+class SettingsTestCase(TestCase):
+
+    def test_table_columns_and_details_fields(self):
+        """
+        Check that all names from
+        settings.TABLE_COLUMNS and
+        settings.DETAILS_FILEDS exists
+        """
+        FILE_NAME = '871693661c3a3ed7898913da0de0c952.xml'
+
+        from cghub.apps.core.attributes import COLUMN_NAMES
+        from cghub.apps.core.templatetags.search_tags import field_values
+        names = list(settings.TABLE_COLUMNS)
+        for name in names:
+            self.assertIn(name, COLUMN_NAMES)
+        for name in settings.DETAILS_FIELDS:
+            if name not in names:
+                names.append(name)
+        result = Results.from_file(
+                        os.path.join(TEST_DATA_DIR, FILE_NAME),
+                        get_wsapi_settings())
+        result.add_custom_fields()
+        field_values_dict = field_values(result.Result)
+        for name in names:
+            self.assertIn(name, field_values_dict)
