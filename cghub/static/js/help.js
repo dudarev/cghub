@@ -10,13 +10,16 @@ jQuery(function ($) {
     cghub.help = {
         hoverTime: 250, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
-        keysIgnore: ['analysis id', 'uploaded', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['analysis id', 'uploaded', 'modified', 'barcode', 'files size',
+                'aliquot id', 'tss id', 'participant id', 'sample id'],
         init:function () {
             cghub.help.hintUrl = $('body').data('help-hint-url');
             cghub.help.textUrl = $('body').data('help-text-url');
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
+            cghub.help.activateDetailsHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
+            cghub.help.activateDetailsValueTooltipHelp();
             cghub.help.activateFilterHeaderTooltipHelp();
             cghub.help.activateFilterSelectorItemTooltipHelp();
             cghub.help.activateFilterTextTooltipHelp();
@@ -126,15 +129,30 @@ jQuery(function ($) {
                         .replace(decodeURI('%C2%A0%E2%86%91'), '');
             });
         },
+        // for headers in details table
+        activateDetailsHeaderTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('#itemDetailsModal table th', function($target) {
+                return $target.text();
+            });
+        },
         // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
-                if(!$target.text().length) return '';
+                if(!$target.text().trim().length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
                 .eq(index).text()
                         .replace(decodeURI('%C2%A0%E2%86%93'), '')
                         .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return columnName + ':' + $target.text();
+            });
+        },
+        // for values in details table
+        activateDetailsValueTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('#itemDetailsModal table td', function($target) {
+                if(!$target.text().trim().length) return '';
+                var columnName = $target.parent().find('th').text();
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();
             });
