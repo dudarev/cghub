@@ -57,7 +57,8 @@ jQuery(function ($) {
                         }
                         if(status=='failure') {
                             cghub.base.$messageModal.find('.modal-label').text('Error Adding to Cart');
-                            cghub.base.$messageModal.find('.modal-body').html('There was an error while adding to the cart. Please contact admin.');
+                            cghub.base.$messageModal.find('.modal-body').html(
+                                'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>');
                             cghub.base.$messageModal.modal();
                         }
                     }

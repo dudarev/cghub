@@ -57,6 +57,11 @@ LOGGING = {
             'handlers': ['syslog'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'cart.add': {
+            'handlers': ['syslog'],
+            'level': 'ERROR',
+            'propagate': True,
         }
     },
 }

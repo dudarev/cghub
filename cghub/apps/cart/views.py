@@ -1,4 +1,5 @@
 import datetime
+import logging
 from operator import itemgetter
 
 from celery import states
@@ -30,10 +31,13 @@ from cghub.wsapi import browser_text_search
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
+logger = logging.getLogger('cart.add')
+
 
 def cart_add_files(request):
     result = {'action': 'error'}
     if not request.is_ajax():
+        logger.error('Non ajax request')
         raise Http404
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
@@ -41,6 +45,7 @@ def cart_add_files(request):
         request.session.save()
     # check that we still working on adding files to cart
     if celery_alive and request.session.get('cart_loading'):
+        logger.error('Still adding files to cart from you previous request')
         result = {
             'action': 'message',
             'title': 'Still adding files to cart',
@@ -91,6 +96,7 @@ def cart_add_files(request):
                                     'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
+                    logger.error('Celery task doesn\'t exist yet. Files will be added later')
                     # files will be added later by celery task
                     add_files_to_cart_by_query_task.apply_async(
                             kwargs={

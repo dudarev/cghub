@@ -8,7 +8,7 @@ jQuery(function ($) {
     }
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
-        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
         usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
         usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
         reservedChars: '*?',
