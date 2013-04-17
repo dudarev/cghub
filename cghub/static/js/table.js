@@ -132,7 +132,7 @@ jQuery(function ($) {
                 cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
                 cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
                 cghub.table.placeFlexigridScrollbar();
-                cghub.table.$scrollbar.css('opacity', '1');
+                cghub.table.$scrollbar.css('visibility', 'visible');
             }
         }
     }

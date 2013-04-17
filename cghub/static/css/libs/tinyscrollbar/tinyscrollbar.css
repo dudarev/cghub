@@ -1,7 +1,7 @@
 /* Some lines are redudant. I just want to make sure its clear what is needed for a single instance.
 
 /* Examples - Tiny Scrollbar */
-#scrollbar1 { clear: both; margin: 10px 0 20px; opacity: 0;}
+#scrollbar1 {clear: both; margin: 10px 0 20px; visibility: hidden; }
 #scrollbar1 .viewport { height: 500px; overflow: hidden; position: relative; }
 #scrollbar1 .overview { list-style: none; position: absolute; left: 0; top: 0; }
 #scrollbar1 .thumb .end,
