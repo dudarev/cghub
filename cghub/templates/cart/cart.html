@@ -38,9 +38,9 @@
                     </div>
 
                     <div class="btn-group cart-btn-group">
-                        <button class="btn cart-download-manifest">Download manifest</button>
-                        <button class="btn cart-download-metadata">Download metadata</button>
-                        <button class="btn cart-download-summary">Download summary TSV</button>
+                        <button class="btn cart-download-manifest{% if loading %} disabled{% endif %}">Download manifest</button>
+                        <button class="btn cart-download-metadata{% if loading %} disabled{% endif %}">Download metadata</button>
+                        <button class="btn cart-download-summary{% if loading %} disabled{% endif %}">Download summary TSV</button>
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
@@ -58,9 +58,9 @@
                     </div>
 
                     <div class="btn-group cart-btn-group">
-                        <button class="btn cart-download-manifest">Download manifest</button>
-                        <button class="btn cart-download-metadata">Download metadata</button>
-                        <button class="btn cart-download-summary">Download summary TSV</button>
+                        <button class="btn cart-download-manifest{% if loading %} disabled{% endif %}">Download manifest</button>
+                        <button class="btn cart-download-metadata{% if loading %} disabled{% endif %}">Download metadata</button>
+                        <button class="btn cart-download-summary{% if loading %} disabled{% endif %}">Download summary TSV</button>
                     </div>
                 </div>
             {% else %}

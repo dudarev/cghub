@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% load static from staticfiles %}
 {% block extra_header_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}" media="all">
 {% endblock %}
 {% block main_content %}
-<div class="span6">
+<div class="span6 offset1">
     <h1>Error</h1>
     Server error. Please contact <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>.
 </div>

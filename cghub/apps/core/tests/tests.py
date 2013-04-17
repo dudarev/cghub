@@ -23,7 +23,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_analysis_id)
+                    generate_task_id, generate_tmp_file_name)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -65,14 +65,11 @@ class WithCacheTestCase(TestCase):
             os.remove(path)
         # cart cache
         for f in self.cart_cache_files:
-            path = os.path.join(settings.CART_CACHE_DIR, f)
-            if not os.path.exists(path):
-                continue
+            path = os.path.join(
+                    settings.CART_CACHE_DIR, f[:2], f[2:4], f)
             if os.path.isdir(path):
                 # remove cart cache
                 shutil.rmtree(path)
-            else:
-                os.remove(path)
 
 
 class CoreTestCase(WithCacheTestCase):
@@ -80,15 +77,12 @@ class CoreTestCase(WithCacheTestCase):
     cart_cache_files = []
     wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
-        '35d58c85ed93322dcaacadef5538a455.xml',
-        '5c4840476e9f1638af7e4ba9224c8689.xml',
-        '871693661c3a3ed7898913da0de0c952.xml',
-        '9824a6de49af620ba53c45c13ceccef0.xml',
-        '9ff0ad7159cf4c2c360cc8070576e08a.xml',
         'aad96e9a8702634a40528d6280187da7.xml',
-        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
-        '28e1cf619d26bdab58fcab5e7a2b9e6c.xml',
+        '871693661c3a3ed7898913da0de0c952.xml',
         '71411da734e90beda34360fa47d88b99.ids',
+        '6c07a89c26455632b391a1e3ee4452d9.ids',
+        'ab238f588a22c521293788e91bf828a0.ids',
+        'b7eb2401915f718c2ee6e4797e472426.ids',
     ]
     query = "6d54"
 
@@ -191,7 +185,7 @@ class UtilsTestCase(TestCase):
         with self.settings(**{'WSAPI_%s' % key: value}):
             self.assertEqual(get_wsapi_settings()[key], value)
 
-    def test_generate_task_analysis_id(self):
+    def test_generate_task_id(self):
         test_data = [
             {
                 'dict': {'some': 'dict', '1': 2},
@@ -204,7 +198,7 @@ class UtilsTestCase(TestCase):
                 'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
         ]
         for data in test_data:
-            self.assertEqual(generate_task_analysis_id(**data['dict']), data['result'])
+            self.assertEqual(generate_task_id(**data['dict']), data['result'])
 
     def test_get_default_query(self):
         with self.settings(
@@ -230,6 +224,11 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 '')
+
+    def test_generate_tmp_file_name(self):
+        """ smoke test for generate_tmp_file_nam function """
+        name = generate_tmp_file_name()
+        self.assertIn('.tmp', name)
 
 
 class ContextProcessorsTestCase(TestCase):
@@ -461,9 +460,7 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
     cart_cache_files = []
     wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
-        'af5eb9d62e2bafda2eb3bad59afa5b2d.ids',
-        '5c4840476e9f1638af7e4ba9224c8689.xml',
-        '34a5eed3bc34ef7db3c91e9b72fce3b1.xml',
+        '6c07a89c26455632b391a1e3ee4452d9.ids'
     ]
     query = "6d54"
 
@@ -527,7 +524,7 @@ class PaginatorUnitTestCase(TestCase):
 
 class MetadataViewTestCase(WithCacheTestCase):
 
-    cart_cache_files = []
+    cart_cache_files = ['7b9cd36a-8cbb-4e25-9c08-d62099c15ba1']
     wsapi_cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
 
     """
@@ -553,7 +550,7 @@ class MetadataViewTestCase(WithCacheTestCase):
             shutil.rmtree(path)
 
 
-class TaskViewsTestCase(TestCase):
+class TaskViewsTestCase():
 
     def test_celery_task_status(self):
         task_id = 'someid'

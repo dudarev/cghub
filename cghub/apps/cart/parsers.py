@@ -5,6 +5,8 @@ from xml.sax import handler, parse
 
 from django.conf import settings
 
+from cghub.wsapi.utils import urlopen
+
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.core.utils import is_celery_alive
 
@@ -22,7 +24,6 @@ class CartAttributesParser(handler.ContentHandler):
         self.cache_files = cache_files
         self.celery_alive = is_celery_alive()
         self.cart = self.session_store.get('cart', {})
-        self.current_element = ''
         self.current_dict = {}
         self.current_analysis_id = ''
         self.files_size = 0
@@ -31,26 +32,25 @@ class CartAttributesParser(handler.ContentHandler):
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
+        self.content = ''
         # assembly: analysis_xml/ANALYSIS_SET/ANALYSIS/ANALYSIS_TYPE/REFERENCE_ALIGNMENT/ASSEMBLY/STANDARD[short_name]
         if name == 'STANDARD' and 'short_name' in attrs:
             self.current_dict['assembly'] = attrs['short_name']
-        self.current_element = name
 
     def endElement(self, name):
-        self.current_element = ''
+        # files_size
+        # file_size: files/file/filesize
+        if name == 'filesize':
+            self.files_size += int(self.content)
+        if name == 'analysis_id':
+            self.current_analysis_id = self.content
+        if name in self.current_dict:
+            self.current_dict[name] = self.content
         if name == 'Result':
             self._save_to_cart()
 
     def characters(self, content):
-        # files_size
-        # file_size: files/file/filesize
-        if self.current_element == 'filesize':
-            self.files_size += int(content)
-            return
-        if self.current_element == 'analysis_id':
-            self.current_analysis_id = content
-        if self.current_element in self.current_dict:
-            self.current_dict[self.current_element] = content
+        self.content += content
 
     def endDocument(self):
         self.session_store['cart'] = self.cart
@@ -65,9 +65,9 @@ class CartAttributesParser(handler.ContentHandler):
         last_modified = self.current_dict['last_modified']
         # add task to cache file if not cached yet
         if self.cache_files and not is_cart_cache_exists(
-                self.current_analysis_id, last_modified) and self.celery_alive:
-            from cghub.apps.cart.tasks import cache_results_task
-            cache_results_task.delay(self.current_analysis_id, last_modified)
+                        self.current_analysis_id, last_modified):
+            from cghub.apps.cart.utils import cache_file
+            cache_file(self.current_analysis_id, last_modified, self.celery_alive)
         # reset current dict
         for i in self.current_dict:
             self.current_dict[i] = ''
@@ -94,8 +94,7 @@ def parse_cart_attributes(session_store, attributes, query=None,
                             settings.WSAPI_CGHUB_ANALYSIS_DETAIL_URI,
                             query)
         wsapi_request_logger.info(urllib2.unquote(url))
-        req = urllib2.Request(url)
-        response = urllib2.urlopen(req)
+        response = urlopen(url)
     else:
         response = open(file_path, 'r')
     try:

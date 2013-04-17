@@ -128,7 +128,7 @@ There are next types of cache files:
         - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
         - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
-        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: {CART_CACHE_DIR}/{analysis_id}/{last_modified}/analysis[Full|Short].xml
+        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: ``{CART_CACHE_DIR}/{analysis_id[:2]}/{analysis_id[2:4]}/{analysis_id}/{last_modified}/analysis[Full|Short].xml``
 
 Folders where cache should be stored specified in settings (CART_CACHE_DIR).
 
@@ -168,13 +168,13 @@ Adding all files to cart
 
 Here are next sequence of actions:
     - when user click 'Add all to cart', transmitted only current query
+    - if amount of files to add to cart will be more then ``settings.MANY_FILES``, will be shown confirmation popup for confirming the number
     - all ids for specified query will be added to cart immediately (used wsapi cache)
     - then will be created task to obtain all attributes for specified query and fill cart
     - will be checked that every file exists in cache, if not - will be created task to cache it
     - task id transmitted back to user and saves into cookies
     - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
     - when user opens cart page and attributes for some files will be not loaded yet, missed attributes for current page will be loaded immediately and will be shown alert
-    - if amount of files to add to cart will be more then ``settings.MANY_FILES``, will be shown confirmation popup for confirming the number
 
 Default ``settings.MANY_FILES`` located in ``cghub/settings/variables.py``.
 

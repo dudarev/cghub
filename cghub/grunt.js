@@ -48,6 +48,13 @@ module.exports = function (grunt) {
                     compress:true
                 }
             },
+            core_error: {
+                src:cssStaticFolder + 'core/error.less',
+                dest:cssStaticFolder + 'core/error.css',
+                options:{
+                    compress:true
+                }
+            },
             flexigrid:{
                 src:cssStaticFolder + 'libs/flexigrid/flexigrid.css',
                 dest:cssStaticFolder + 'libs/flexigrid/flexigrid.min.css',

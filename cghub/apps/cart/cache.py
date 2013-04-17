@@ -8,13 +8,18 @@ from django.conf import settings
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
 
-from cghub.apps.core.utils import get_wsapi_settings
+from cghub.apps.core.utils import get_wsapi_settings, generate_tmp_file_name
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
 # use wsapi cache when testing
 USE_WSAPI_CACHE = 'test' in sys.argv
+
+RESULT_START = '<Result id="1">'
+RESULT_STOP = '</Result>'
+FSIZE_START = '<filesize>'
+FSIZE_STOP = '</filesize>'
 
 
 class AnalysisFileException(Exception):
@@ -38,14 +43,20 @@ def get_cart_cache_file_path(analysis_id, last_modified, short=False):
     """
     Calculate path to cache file
 
+    c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+    would become:
+    c9/d9/c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+
     :param analysis_id: file analysis_id
     :param last_modified: file last_modified
     :short: if True - will be returned path to file contains cutted amount of attributes
     """
     return os.path.join(
             settings.CART_CACHE_DIR,
-            analysis_id or '',
-            last_modified or '',
+            analysis_id[:2],
+            analysis_id[2:4],
+            analysis_id,
+            last_modified,
             'analysis{0}.xml'.format('Short' if short else 'Full'))
 
 
@@ -60,6 +71,11 @@ def save_to_cart_cache(analysis_id, last_modified):
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
     Raise AnalysisFileException if file does not exist or was updated
+
+    c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+    would become:
+    c9/d9/c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
+
     """
     # to protect files outside cache dir
     if (not analysis_id or
@@ -73,12 +89,15 @@ def save_to_cart_cache(analysis_id, last_modified):
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):
         os.makedirs(path)
-    path = os.path.join(path, analysis_id)
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    path = os.path.join(path, last_modified)
-    if not os.path.isdir(path):
-        os.makedirs(path)
+    folders = (
+                analysis_id[:2],
+                analysis_id[2:4],
+                analysis_id,
+                last_modified)
+    for folder in folders:
+        path = os.path.join(path, folder)
+        if not os.path.isdir(path):
+            os.makedirs(path)
     path_full = os.path.join(path, 'analysisFull.xml')
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
@@ -92,11 +111,18 @@ def save_to_cart_cache(analysis_id, last_modified):
             raise AnalysisFileException(analysis_id, last_modified)
         if result.Result.last_modified != last_modified:
             raise AnalysisFileException(analysis_id, last_modified)
-        with open(path_full, 'w') as f:
+        # example tmp file name: 14985-MainThread-my-pc.tmp
+        path_tmp = os.path.join(path, generate_tmp_file_name())
+        with open(path_tmp, 'w') as f:
             f.write(result.tostring())
-        with open(path_short, 'w') as f:
+            f.close()
+        # manage in a atomic manner
+        os.rename(path_tmp, path_full)
+        with open(path_tmp, 'w') as f:
             result.remove_attributes()
             f.write(result.tostring())
+            f.close()
+        os.rename(path_tmp, path_short)
 
 
 def get_analysis_path(analysis_id, last_modified, short=False):
@@ -129,3 +155,33 @@ def get_analysis(analysis_id, last_modified, short=False):
         save_to_cart_cache(analysis_id, last_modified)
     result = Results.from_file(path, settings=WSAPI_SETTINGS)
     return result
+
+
+def get_analysis_xml(analysis_id, last_modified, short=False):
+    """
+    Returns part of xml file (Result content) stored in cache, and files size
+
+    :param analysis_id: file analysis_id
+    :param last_modified: file last_modified
+    :param short: if True - will be returned path to file contains cutted amount of attributes
+
+    Returns:
+    (xml, files_size)
+    """
+    path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
+    if not os.path.exists(path):
+        # if file not exists or was updated - AnalysisFileException exception will be raised
+        save_to_cart_cache(analysis_id, last_modified)
+    with open(path, 'r') as f:
+        result = f.read()
+    start = result.find(RESULT_START) + len(RESULT_START)
+    stop = result.find(RESULT_STOP)
+    result = result[start:stop]
+    # find files size
+    files_size = 0
+    start = result.find(FSIZE_START)
+    while start != -1:
+        stop = result.find(FSIZE_STOP, start + 1)
+        files_size += int(result[start+len(FSIZE_START):stop])
+        start = result.find(FSIZE_START, start + 1)
+    return result, files_size

@@ -20,7 +20,7 @@ from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
 
-from utils import get_setting
+from utils import get_setting, urlopen
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
@@ -40,19 +40,18 @@ class IDsParser(handler.ContentHandler):
     """
 
     def __init__(self, filename):
-        self.current_element = ''
         self.f = open(filename, 'w')
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
-        self.current_element = name
+        self.content = ''
 
     def endElement(self, name):
-        self.current_element = ''
+        if name in ('Hits', 'analysis_id'):
+            self.f.write('%s\n' % self.content)
 
     def characters(self, content):
-        if self.current_element in ('Hits', 'analysis_id'):
-            self.f.write('%s\n' % content)
+        self.content += content
 
     def endDocument(self):
         self.f.close()
@@ -75,7 +74,10 @@ def get_cache_file_name(query, settings):
     # Prevent getting different file names because of 
     # percent escaping
     query = urllib2.unquote(query.encode("utf8"))
-    query = urllib2.quote(query)
+    if '&' in query:
+        query = query.split('&')
+        query.sort()
+        query = '&'.join(query)
     md5 = hashlib.md5(query)
     cache_file_name = u'{0}.ids'.format(md5.hexdigest())
     cache_file_name = os.path.join(
@@ -92,8 +94,7 @@ def load_ids(query, settings):
             get_setting('CGHUB_ANALYSIS_ID_URI', settings),
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
+    response = urlopen(url)
     filename = get_cache_file_name(query, settings)
     cache_dir = get_setting('CACHE_DIR', settings)
     if not os.path.exists(cache_dir):
@@ -175,8 +176,7 @@ def load_attributes(ids, settings):
             get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
-    request = urllib2.Request(url)
-    response = urllib2.urlopen(request).read()
+    response = urlopen(url).read()
     results = objectify.fromstring(response)
     return results
 

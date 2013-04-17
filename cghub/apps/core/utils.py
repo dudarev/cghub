@@ -1,7 +1,10 @@
+import os
 import sys
 import urllib
 import traceback
 import hashlib
+import threading
+import socket
 
 from django.core.mail import mail_admins
 from django.conf import settings
@@ -21,6 +24,8 @@ WSAPI_SETTINGS_LIST = (
         'USE_CACHE',
         'CACHE_BACKEND',
         'CACHE_DIR',
+        'HTTP_ERROR_ATTEMPTS',
+        'HTTP_ERROR_SLEEP_AFTER',
     )
 
 
@@ -71,9 +76,19 @@ def get_wsapi_settings():
     return wsapi_settings
 
 
-def generate_task_analysis_id(**d):
+def generate_tmp_file_name():
     """
-    Generate analysis_id from dict
+    Returns filename in next format:
+    pid-threadId-host.tmp
+    """
+    return '{pid}-{thread}-{host}.tmp'.format(
+                    pid=os.getpid(), thread=threading.current_thread().name,
+                    host=socket.gethostname())
+
+
+def generate_task_id(**d):
+    """
+    Generate task id from dict
     """
     result = [str(v) for v in d.values()]
     result.sort()
