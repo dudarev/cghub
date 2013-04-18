@@ -402,7 +402,7 @@ class CartCacheTestCase(WithCacheTestCase):
         content = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest_')
+        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
 
     def test_metadata(self):
         data = {
@@ -412,7 +412,7 @@ class CartCacheTestCase(WithCacheTestCase):
         content = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata_')
+        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
 
     def test_summary(self):
         data = {
@@ -424,7 +424,7 @@ class CartCacheTestCase(WithCacheTestCase):
                             for field in settings.TABLE_COLUMNS))
         self.assertTrue(self.analysis_id in content)
         self.assertTrue(self.analysis_id2 in content)
-        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary_')
+        self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
 
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)

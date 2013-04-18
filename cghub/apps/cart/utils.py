@@ -233,15 +233,13 @@ def manifest(data):
     results = join_analysises(data, live_only=True, short=True)
     mfio = _stream_with_xml(results)
     response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=manifest_%s.xml' % (
-                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
+    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
 def metadata(data):
     response = HttpResponse(analysis_xml_iterator(data), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=metadata_%s.xml' % (
-                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
+    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
@@ -250,8 +248,7 @@ def summary(data):
     results.add_custom_fields()
     mfio = _write_summary_tsv(results)
     response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename=summary_%s.tsv' % (
-                        datetime.datetime.strftime(timezone.now(), '%y%m%d_%H%M'))
+    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
 

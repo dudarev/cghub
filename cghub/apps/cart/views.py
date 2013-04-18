@@ -1,4 +1,5 @@
 import datetime
+import logging
 from operator import itemgetter
 
 from celery import states
@@ -32,26 +33,33 @@ from cghub.wsapi import browser_text_search
 
 WSAPI_SETTINGS = get_wsapi_settings()
 
+cart_logger = logging.getLogger('cart')
 
-def cart_add_files(request):
-    result = {'action': 'error'}
-    if not request.is_ajax():
-        raise Http404
-    filters = request.POST.get('filters')
-    celery_alive = is_celery_alive()
-    if request.session.session_key == None:
-        request.session.save()
-    # check that we still working on adding files to cart
-    if celery_alive and request.session.get('task_id'):
-        result = {
-            'action': 'message',
-            'title': 'Still adding files to cart',
-            'content': 'Please wait, files from your previous request not fully loaded to Your cart'}
-        return HttpResponse(json.dumps(result), mimetype="application/json")
-    if filters:
-        # 'Add all to cart' pressed
-        form = AllFilesForm(request.POST)
-        if form.is_valid():
+
+def cart_add_selected_files(request, celery_alive):
+    form = SelectedFilesForm(request.POST)
+    if form.is_valid():
+        try:
+            attributes = form.cleaned_data['attributes']
+            selected_files = request.POST.getlist('selected_files')
+            for f in selected_files:
+                add_file_to_cart(request, attributes[f])
+                analysis_id = attributes[f].get('analysis_id')
+                last_modified = attributes[f].get('last_modified')
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                        cache_file(analysis_id, last_modified, celery_alive)
+            return {'action': 'redirect', 'redirect': reverse('cart_page')}
+        except Exception as e:
+            cart_logger.error('Error while adding to cart: %s' % unicode(e))
+    else:
+        cart_logger.error('SelectedFilesForm not valid: %s' % unicode(form.errors))
+
+
+def cart_add_all_files(request, celery_alive):
+    # 'Add all to cart' pressed
+    form = AllFilesForm(request.POST)
+    if form.is_valid():
+        try:
             # calculate query
             filters = form.cleaned_data['filters']
             filter_str = get_filters_string(filters)
@@ -61,12 +69,13 @@ def cart_add_files(request):
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
                 if browser_text_search.useAllMetadataIndex:
-                     query = u"all_metadata={0}".format(urlquote(browser_text_search.ws_query(q))) + filter_str
-                     queries = [query]
+                    query = u"all_metadata={0}".format(
+                                urlquote(browser_text_search.ws_query(q))) + filter_str
+                    queries = [query]
                 else:
-                     query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
-                     query += filter_str
-                     queries = [query, u"analysis_id={0}".format(urlquote(q))]
+                    query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
+                    query += filter_str
+                    queries = [query, u"analysis_id={0}".format(urlquote(q))]
             else:
                 query = filter_str[1:]  # remove front ampersand
                 queries = [query]
@@ -78,8 +87,8 @@ def cart_add_files(request):
                     cart_utils.add_ids_to_cart(request, ids)
                 # check task is already exists
                 kwargs = {
-                        'data': form.cleaned_data,
-                        'session_key': request.session.session_key}
+                            'data': form.cleaned_data,
+                            'session_key': request.session.session_key}
                 task_id = generate_task_id(**kwargs)
                 request.session['task_id'] = task_id
                 try:
@@ -90,9 +99,9 @@ def cart_add_files(request):
                         task.save()
                         add_files_to_cart_by_query_task.apply_async(
                             kwargs={
-                                    'queries': queries,
-                                    'attributes': ATTRIBUTES,
-                                    'session_key': request.session.session_key},
+                                        'queries': queries,
+                                        'attributes': ATTRIBUTES,
+                                        'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
                     # files will be added later by celery task
@@ -106,29 +115,41 @@ def cart_add_files(request):
                                     'attributes': ATTRIBUTES,
                                     'session_key': request.session.session_key},
                             task_id=task_id)
-                result = {
-                            'action': 'redirect',
-                            'redirect': reverse('cart_page'),
-                            'task_id': task_id}
+                return {
+                        'action': 'redirect',
+                        'redirect': reverse('cart_page'),
+                        'task_id': task_id}
             else:
                 # files will be added immediately
                 add_files_to_cart_by_query_task(
                         queries=queries,
                         attributes=ATTRIBUTES,
                         session_key=request.session.session_key)
-                result = {'action': 'redirect', 'redirect': reverse('cart_page')}
+                return {'action': 'redirect', 'redirect': reverse('cart_page')}
+        except Exception as e:
+            cart_logger.error('Error while adding all files to cart: %s' % unicode(e))
     else:
-        form = SelectedFilesForm(request.POST)
-        if form.is_valid():
-            attributes = form.cleaned_data['attributes']
-            selected_files = request.POST.getlist('selected_files')
-            for f in selected_files:
-                add_file_to_cart(request, attributes[f])
-                analysis_id = attributes[f].get('analysis_id')
-                last_modified = attributes[f].get('last_modified')
-                if not is_cart_cache_exists(analysis_id, last_modified):
-                    cache_file(analysis_id, last_modified, celery_alive)
-            result = {'action': 'redirect', 'redirect': reverse('cart_page')}
+        cart_logger.error('AllFilesForm not valid: %s' % unicode(form.errors))
+
+
+def cart_add_files(request):
+    if not request.is_ajax():
+        raise Http404
+    filters = request.POST.get('filters')
+    celery_alive = is_celery_alive()
+    if request.session.session_key == None:
+        request.session.save()
+    # check that we still working on adding files to cart
+    if celery_alive and request.session.get('task_id'):
+        result = {
+            'action': 'message',
+            'title': 'Still adding files to cart',
+            'content': 'Please wait, files from your previous request not fully loaded to Your cart'}
+    elif filters:
+        result = cart_add_all_files(request, celery_alive)
+    else:
+        result = cart_add_selected_files(request, celery_alive)
+    result = result or {'action': 'error'}
     return HttpResponse(json.dumps(result), mimetype="application/json")
 
 
