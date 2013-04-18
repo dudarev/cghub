@@ -57,8 +57,12 @@ def get_cart_stats(request):
     cart = get_or_create_cart(request)
     stats = {'count': len(cart), 'size': 0}
     for analysis_id, f in cart.iteritems():
-        if 'files_size' in f and isinstance(f['files_size'], (int, long)):
-            stats['size'] += f['files_size']
+        if 'files_size' in f:
+            try:
+                size = int(f['files_size'])
+            except TypeError, ValueError:
+                size = 0
+            stats['size'] += size
     return stats
 
 
@@ -74,8 +78,24 @@ def add_ids_to_cart(request, ids):
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
-    request.session['cart_loading'] = False
     request.session.modified = True
+
+
+def cart_remove_files_without_attributes(request):
+    """
+    Remove files from cart where last_modified not specified.
+    Return number of removed files.
+    """
+    cart = get_or_create_cart(request)
+    to_remove = []
+    for analysis_id, f in cart.iteritems():
+        if 'last_modified' not in f:
+            to_remove.append(analysis_id)
+    for analysis_id in to_remove:
+        del cart[analysis_id]
+    if to_remove:
+        request.session.modified = True
+    return len(to_remove)
 
 
 def check_missing_files(files):
@@ -188,10 +208,11 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     for f in data:
         if live_only and data[analysis_id].get('state') != 'live':
             continue
+        last_modified = data[f].get('last_modified')
         try:
             xml, files_size = get_analysis_xml(
                             analysis_id=f,
-                            last_modified=data[f].get('last_modified'),
+                            last_modified=last_modified,
                             short=short)
         except AnalysisFileException:
             continue
