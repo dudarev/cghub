@@ -188,10 +188,11 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     for f in data:
         if live_only and data[analysis_id].get('state') != 'live':
             continue
+        last_modified = data[f].get('last_modified')
         try:
             xml, files_size = get_analysis_xml(
                             analysis_id=f,
-                            last_modified=data[f].get('last_modified'),
+                            last_modified=last_modified,
                             short=short)
         except AnalysisFileException:
             continue

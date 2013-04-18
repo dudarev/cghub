@@ -20,6 +20,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
+
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
                             summary, add_ids_to_cart, check_missing_files,
                             cache_file, analysis_xml_iterator)
@@ -28,6 +29,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from cghub.apps.cart.parsers import parse_cart_attributes
+from cghub.apps.cart.tasks import cache_results_task
 
 from cghub.apps.core.tests import WithCacheTestCase
 from cghub.apps.core.utils import generate_task_id
@@ -306,6 +308,12 @@ class CartCacheTestCase(WithCacheTestCase):
             self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
+
+    def test_cache_results_task(self):
+        """
+        Check that exception not rised when passed not existed analysis_id/last_modified pair
+        """
+        cache_results_task(self.analysis_id, '1900-10-29T21:56:12Z')
 
     def test_get_analysis(self):
         # test get_analysis_path
