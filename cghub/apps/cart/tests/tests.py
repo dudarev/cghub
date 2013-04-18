@@ -20,14 +20,17 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
+
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
                             summary, add_ids_to_cart, check_missing_files,
-                            cache_file, analysis_xml_iterator)
+                            cache_file, analysis_xml_iterator,
+                            cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from cghub.apps.cart.parsers import parse_cart_attributes
+from cghub.apps.cart.tasks import cache_results_task
 
 from cghub.apps.core.tests import WithCacheTestCase
 from cghub.apps.core.utils import generate_task_id
@@ -306,6 +309,12 @@ class CartCacheTestCase(WithCacheTestCase):
             self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
+
+    def test_cache_results_task(self):
+        """
+        Check that exception not rised when passed not existed analysis_id/last_modified pair
+        """
+        cache_results_task(self.analysis_id, '1900-10-29T21:56:12Z')
 
     def test_get_analysis(self):
         # test get_analysis_path
@@ -597,3 +606,28 @@ class CartUtilsTestCase(TestCase):
         self.assertEqual(len(files[0]), 2)
         # attributes was loaded for second item
         self.assertEqual(files[1]['disease_abbr'], 'COAD')
+
+    def test_cart_remove_files_without_attributes(self):
+        request = self.get_request()
+        request.session['cart'] = {
+            '7850f073-642a-40a8-b49d-e328f27cfd66': {
+                'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
+                'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '226e11c8-b873-4c37-88cd-18dcd7f28733': {
+                'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},
+            '116e11c8-b873-4c37-88cd-18dcd7f28744': {
+                'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
+        }
+        cart_remove_files_without_attributes(request)
+        self.assertEqual(len(request.session._session['cart']), 2)
+        self.assertIn(
+                '7850f073-642a-40a8-b49d-e328f27cfd66',
+                request.session._session['cart'])
+        self.assertNotIn(
+                '226e11c8-b873-4c37-88cd-18dcd7f28733',
+                request.session._session['cart'])

@@ -6,6 +6,9 @@ import hashlib
 import threading
 import socket
 
+from celery import states
+from djcelery.models import TaskState
+
 from django.core.mail import mail_admins
 from django.conf import settings
 
@@ -94,6 +97,22 @@ def generate_task_id(**d):
     result.sort()
     md5 = hashlib.md5(''.join(result))
     return md5.hexdigest()
+
+
+def is_task_done(task_id):
+    """
+    Returns True if task state in (SUCCESS, FAILURE, IGNORED, REVOKED) or task does not exists
+    Also return  True if celery doesn't work properly
+    """
+    try:
+        task = TaskState.objects.get(task_id=task_id)
+        if task.state in (
+                    states.SUCCESS, states.FAILURE, states.IGNORED,
+                                                    states.REVOKED):
+            return True
+    except TaskState.DoesNotExist:
+        return True
+    return not is_celery_alive()
 
 
 def is_celery_alive():

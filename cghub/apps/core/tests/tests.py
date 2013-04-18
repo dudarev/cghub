@@ -25,7 +25,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query, only_date)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_id, generate_tmp_file_name)
+                    generate_task_id, generate_tmp_file_name,
+                    is_task_done)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -233,6 +234,21 @@ class UtilsTestCase(TestCase):
         """ smoke test for generate_tmp_file_nam function """
         name = generate_tmp_file_name()
         self.assertIn('.tmp', name)
+
+    def test_is_task_done(self):
+        task_id = 'some-id-0000'
+        # not existed task
+        self.assertTrue(is_task_done(task_id))
+        task_state = TaskState.objects.create(
+                                        state=states.STARTED,
+                                        task_id=task_id,
+                                        tstamp=timezone.now())
+        # waiting
+        self.assertFalse(is_task_done(task_id))
+        task_state.state = states.FAILURE
+        task_state.save()
+        # task is done
+        self.assertTrue(is_task_done(task_id))
 
 
 class ContextProcessorsTestCase(TestCase):

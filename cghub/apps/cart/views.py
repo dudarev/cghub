@@ -9,17 +9,19 @@ from django.views.generic.base import TemplateView, View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
+from django.utils import timezone
 from django.utils.http import urlquote
 
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_id, get_wsapi_settings,
-                    get_filters_string)
+                    get_filters_string, is_task_done)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, clear_cart,
-                                        check_missing_files, cache_file)
+                            check_missing_files, cache_file,
+                            cart_remove_files_without_attributes)
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
 import cghub.apps.cart.utils as cart_utils
@@ -40,7 +42,7 @@ def cart_add_files(request):
     if request.session.session_key == None:
         request.session.save()
     # check that we still working on adding files to cart
-    if celery_alive and request.session.get('cart_loading'):
+    if celery_alive and request.session.get('task_id'):
         result = {
             'action': 'message',
             'title': 'Still adding files to cart',
@@ -74,16 +76,18 @@ def cart_add_files(request):
                 for query in queries:
                     ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
                     cart_utils.add_ids_to_cart(request, ids)
-                request.session['cart_loading'] = True
                 # check task is already exists
                 kwargs = {
                         'data': form.cleaned_data,
                         'session_key': request.session.session_key}
                 task_id = generate_task_id(**kwargs)
+                request.session['task_id'] = task_id
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
                     if task.state not in (states.RECEIVED, states.STARTED):
+                        task.state = states.RETRY
+                        task.save()
                         add_files_to_cart_by_query_task.apply_async(
                             kwargs={
                                     'queries': queries,
@@ -92,6 +96,10 @@ def cart_add_files(request):
                             task_id=task_id)
                 except TaskState.DoesNotExist:
                     # files will be added later by celery task
+                    task = TaskState(
+                                state=states.RETRY, tstamp=timezone.now(),
+                                task_id=task_id)
+                    task.save()
                     add_files_to_cart_by_query_task.apply_async(
                             kwargs={
                                     'queries': queries,
@@ -132,8 +140,18 @@ class CartView(TemplateView):
 
     def get_context_data(self, **kwargs):
         sort_by = self.request.GET.get('sort_by')
+        # check any tasks to add files to cart
+        task_id = self.request.session.get('task_id')
+        missed_files = 0
+        if task_id and is_task_done(task_id):
+            # remove task_id from session and remove files with
+            # not completely loaded attributes
+            # and show error message in case if ones exists
+            missed_files = cart_remove_files_without_attributes(
+                                                        self.request)
+            del self.request.session['task_id']
         cart = get_or_create_cart(self.request).values()
-        if sort_by and not self.request.session.get('cart_loading'):
+        if sort_by and not self.request.session.get('task_id'):
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
         stats = get_cart_stats(self.request)
@@ -148,6 +166,7 @@ class CartView(TemplateView):
         return {
             'results': files,
             'stats': stats,
+            'missed_files': missed_files,
             'num_results': stats['count']}
 
 
