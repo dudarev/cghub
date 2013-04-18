@@ -183,6 +183,8 @@ jQuery(function ($) {
                         window.location.href = data['redirect'];
                     } else {
                         cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.search.$addFilesButton.removeClass('disabled');
+                        cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
