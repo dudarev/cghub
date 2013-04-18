@@ -23,7 +23,8 @@ from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
                             summary, add_ids_to_cart, check_missing_files,
-                            cache_file, analysis_xml_iterator)
+                            cache_file, analysis_xml_iterator,
+                            cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
@@ -605,3 +606,28 @@ class CartUtilsTestCase(TestCase):
         self.assertEqual(len(files[0]), 2)
         # attributes was loaded for second item
         self.assertEqual(files[1]['disease_abbr'], 'COAD')
+
+    def test_cart_remove_files_without_attributes(self):
+        request = self.get_request()
+        request.session['cart'] = {
+            '7850f073-642a-40a8-b49d-e328f27cfd66': {
+                'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
+                'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '226e11c8-b873-4c37-88cd-18dcd7f28733': {
+                'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},
+            '116e11c8-b873-4c37-88cd-18dcd7f28744': {
+                'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
+        }
+        cart_remove_files_without_attributes(request)
+        self.assertEqual(len(request.session._session['cart']), 2)
+        self.assertIn(
+                '7850f073-642a-40a8-b49d-e328f27cfd66',
+                request.session._session['cart'])
+        self.assertNotIn(
+                '226e11c8-b873-4c37-88cd-18dcd7f28733',
+                request.session._session['cart'])

@@ -134,6 +134,7 @@ jQuery(function ($) {
                     cghub.search.ddclOnComplete(select);
                 }
             }
+            $('.sidebar').css('visibility', 'visible');
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
