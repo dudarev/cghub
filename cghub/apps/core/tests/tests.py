@@ -565,7 +565,7 @@ class MetadataViewTestCase(WithCacheTestCase):
         content = response.content
         self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
-        self.assertIn('attachment; filename=metadata_', response['Content-Disposition'])
+        self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
 
