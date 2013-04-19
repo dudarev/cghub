@@ -16,8 +16,8 @@ from wsapi.api import request as api_request
 
 """
 preffered queries (allow using the same cache files):
-"6d711*" - returns one result
-"6d1*" - for many results
+"6d711" - returns one result
+"6d1" - for many results
 
 "bad-analysis-id" - bad id
 """
@@ -850,7 +850,7 @@ class SearchTestCase(LiveServerTestCase):
         'f5aa9c674cf08d95920510a239babbcb.ids'
     )
 
-    query = "6d5*"
+    query = "6d5"
 
     @classmethod
     def setUpClass(self):
@@ -865,16 +865,29 @@ class SearchTestCase(LiveServerTestCase):
         super(SearchTestCase, self).tearDownClass()
         wsapi_cache_remove(self.wsapi_cache_files)
 
+    # FIXME(nanvel): Is this can be moved to tearDownClass ?
     def tearDown(self):
         self.selenium.delete_all_cookies()
 
+    # FIXME(nanvel): * is deprecated
+    # FIXME(nanvel): is this used ?
     def search(self, text="6d1*"):
+        """
+        Enters query to search field and submit form
+        """
         element = self.selenium.find_element_by_name("q")
         element.clear()
         element.send_keys(text)
         element.submit()
 
     def test_no_results(self):
+        """
+        Enter bad query, submit, check that not results was found.
+        1. Go to search page
+        2. Enter query ('some text')
+        3. Submit form
+        4. Check that 'No results found.' displayed
+        """
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
@@ -886,6 +899,7 @@ class SearchTestCase(LiveServerTestCase):
         assert result.text == "No results found."
 
     def test_url(self):
+        # FIXME(nanvel): merge in previous test
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
@@ -895,22 +909,43 @@ class SearchTestCase(LiveServerTestCase):
         assert "/search/?q=6d71test" in self.selenium.current_url
 
     def test_search_result(self):
+        """
+        Check results exists if right query entered.
+        1. Go to search page
+        2. Enter query
+        3. Submit
+        4. Check that results exists
+        """
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d711*")
+        element.send_keys("6d711")
         element.submit()
         time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
+        # FIXME(nanvel): check that table visible
 
     def test_count_pages(self):
+        """
+        Check 10, 25, 50 items per page links.
+        1. Go to search page
+        2. Enter query (with more than 50 results)
+        3. Submit
+        4. Check that 10 rows in table
+        5. Click 25
+        6. Check that 25 rows in table
+        7. Click 50
+        8. Check that 50 rows in table
+        """
+        # FIXME(nanvel): go to results immediately (insert q=6d1 in url)
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d1*")
+        element.send_keys("6d1")
         element.submit()
         time.sleep(3)
+        # FIXME(nanvel): check that 10 lines viewed
         self.selenium.find_element_by_link_text("25").click()
         assert 25 == len(self.selenium.find_elements_by_xpath(
             "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
@@ -919,11 +954,22 @@ class SearchTestCase(LiveServerTestCase):
             "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
 
     def test_pagination(self):
+        """
+        Check that pagination works.
+        1. Go to search page
+        2. Enter query
+        3. Submit
+        4. Check that results exists
+        5. Find link to second page in pagination and click it
+        6. Check that table filled
+        """
+        # FIXME(nanvel): maybe update queries because we now use 6d1 instead 6d1*
         self.selenium.get(self.live_server_url)
         element = self.selenium.find_element_by_name("q")
         element.clear()
-        element.send_keys("6d1*")
+        element.send_keys("6d1")
         element.submit()
+        # FIXME(nanvel): maybe use less pause
         time.sleep(5)
         assert "Found" in self.selenium.find_element_by_xpath(
             "/html/body/div[2]/div[2]/div[2]").text
@@ -933,43 +979,10 @@ class SearchTestCase(LiveServerTestCase):
         assert 10 == len(self.selenium.find_elements_by_xpath(
             "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
 
-    # FIXME: broke after changes in filters_storage_full
-    '''
-    def test_filtering_shown(self):
-        self.selenium.get(self.live_server_url)
-
-        # unselect all in Center
-        center_id = get_filter_id(self.selenium, 'center_name')
-        self.selenium.execute_script("$('#ddcl-{0}').click()".format(center_id))
-        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
-        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
-        # select Baylor and Harvard
-        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(center_id))
-        self.selenium.execute_script("$('#ddcl-{0}-i4').click()".format(center_id))
-
-        # unselect all in Assembly
-        assembly_id = get_filter_id(self.selenium, 'refassem_short_name')
-        self.selenium.execute_script("$('#ddcl-{0}').click()".format(assembly_id))
-        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
-        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
-        # select NCBI36/HG18
-        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(assembly_id))
-
-        self.search()
-
-        # check filters is shown
-        filter = (self.selenium.find_element_by_css_selector(
-            "#ddcl-{0} > span:first-child > span".format(center_id)))
-        self.assertEqual(filter.text, u'Baylor\nHarvard')
-        
-        filter2 = (self.selenium.find_element_by_css_selector(
-            "#ddcl-{0} > span:first-child > span".format(assembly_id)))
-        self.assertEqual(filter2.text, u'NCBI36/HG18')
-    '''
-
     def test_pagination_links(self):
+        # FIXME(nanvel): interrate with test_pagination
         self.selenium.get(self.live_server_url)
-        self.search("6d1*")
+        self.search("6d1")
 
         found = (self.selenium.find_element_by_css_selector(
             ".base-content > div:nth-child(2)"))
@@ -1005,6 +1018,57 @@ class SearchTestCase(LiveServerTestCase):
             current = self.selenium.find_element_by_link_text(str(page_num))
             self.__link_is_active(current)
 
+    def test_applied_filters_display(self):
+        """
+        Check that applied filters displayed.
+        1. Go to search page
+        2. Open 'By center' filter, unselect all
+        3. Select 1-st and 4-th items (Baylor, Harvard)
+        4. Open 'By Assembly' filter, unselect all items        
+        5. Select first item (NCBI36/HG18)
+        6. Submit form
+        7. Check that selected filters visible in sidebar
+        8. Check that applied filters visible in 'Applied filters'
+        """
+        self.selenium.get(self.live_server_url)
+
+        # TODO(nanvel): add filter by date here
+
+        # unselect all in Center
+        center_id = get_filter_id(self.selenium, 'center_name')
+        self.selenium.execute_script("$('#ddcl-{0}').click()".format(center_id))
+        # FIXME(nanvel): is it unselect all? What value by default?
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
+        # select Baylor and Harvard
+        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(center_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i4').click()".format(center_id))
+
+        # unselect all in Assembly
+        assembly_id = get_filter_id(self.selenium, 'refassem_short_name')
+        self.selenium.execute_script("$('#ddcl-{0}').click()".format(assembly_id))
+        # FIXME(nanvel): is it unselect all ?
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
+        self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
+        # select NCBI36/HG18
+        self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(assembly_id))
+
+        # FIXME(nanvel): it's confusing, just click 'Submit'
+        self.search()
+
+        # check filters is shown
+        filter = (self.selenium.find_element_by_css_selector(
+            "#ddcl-{0} > span:first-child > span".format(center_id)))
+        # FIXME(nanvel): format was changed
+        self.assertEqual(filter.text, u'Baylor\nHarvard')
+        
+        filter2 = (self.selenium.find_element_by_css_selector(
+            "#ddcl-{0} > span:first-child > span".format(assembly_id)))
+        self.assertEqual(filter2.text, u'NCBI36/HG18')
+
+        # TODO(nanvel): check filters visible in 'Applied filters'
+
+    # FIXME(nanvel): is this can be removed ?
     def __parent_has_class(self, child, class_name):
         parent = child.find_element_by_xpath("..")
         self.assertEqual(u'{}'.format(class_name),
@@ -1017,6 +1081,11 @@ class SearchTestCase(LiveServerTestCase):
         self.__parent_has_class(link, 'active')
 
     def test_sorting_order(self):
+        """
+        Test that sorting works properly
+        """
+        # FIXME(nanvel): extend description ^
+        # FIXME(nanvel): test only few columns
         columns = [
                     'Analysis Id', 'Study', 'Disease', 'Disease Name',
                     'Library Type', 'Assembly', 'Center',
@@ -1065,7 +1134,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
     cart_cache_files = (
                 'c7e49b79-2f7d-1584-e040-ad451e410b1c',
     )
-    query = "6d711*"
+    query = "6d711"
 
     @classmethod
     def setUpClass(self):
@@ -1083,25 +1152,43 @@ class ColumnSelectTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.wsapi_cache_files)
         cart_cache_remove(self.cart_cache_files)
 
-    def select_columns(self, driver, location):
+    def check_select_columns(self, driver, location):
+        """
+        Check that displayed columns selection works.
+        1. Uncheck all columns one by one
+        2. After every click, check that all previous columns are hidden and all next are visible
+        3. Also check that last column takes all free space
+        4. Click on '(all)'
+        5. Check that all columns visible
+        :param location: 'search' or 'cart'
+        """
+        # FIXME(nanvel): can we simply use self.selenium ?
+        # TODO(nanvel): Add test for default columns
+        # FIXME(nanvel): is delay necessary here ?
         time.sleep(2)
-        column_count = len(driver.find_elements_by_xpath("//div[@class='hDivBox']/table/thead/tr/th")) - 1
+        # get columns count
+        column_count = len(driver.find_elements_by_xpath(
+                        "//div[@class='hDivBox']/table/thead/tr/th")) - 1
         # Find select on search or cart page
         if location == 'search':
-            select = driver.find_element_by_xpath("//form[@id='id_add_files_form']/span/span\
-                /span[@class='ui-dropdownchecklist-text']")
+            select = driver.find_element_by_xpath(
+                        "//form[@id='id_add_files_form']/span/span\
+                        /span[@class='ui-dropdownchecklist-text']")
         elif location == 'cart':
-            select = driver.find_element_by_css_selector("#ddcl-1 > span:first-child > span")
+            select = driver.find_element_by_css_selector(
+                        "#ddcl-1 > span:first-child > span")
         select.click()
-        # Unselecting one by one
+        # Uncheck one by one
         r = range(column_count)
         for i in r:
             driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (i + 1)).click()
+            # check that all previous columns are hidden
             for j in r[:(i + 1)]:
                 driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+            # check that all next columns are visible
             for j in r[(i + 1):]:
                 driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
@@ -1125,22 +1212,30 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
+            # FIXME(nanvel): Why is it?
             driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (x + 1)).click()        
+        # FIXME(nanvel): Why is it?
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+        # close DDCL
+        # FIXME(nanvel): Why is it?
         select.click()
 
-    # FIXME: broke after changes in filters_storage_full
-    '''
     def test_column_select(self):
+        """
+        Check that select/unselect visible columns feature works properly
+        1. Go to search page
+        2. Check columns selection
+        3. Select all items in cart and click 'Add to cart' (user will be redirected to cart page)
+        4. Check columns selection on cart page
+        """
         driver = self.selenium
+        # TODO(nanvel): good decission
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
-
-        self.select_columns(driver, 'search')
+        self.check_select_columns(driver, 'search')
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
         time.sleep(2)
-        self.select_columns(driver, 'cart')
-    '''
+        self.check_select_columns(driver, 'cart')
 
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
@@ -1162,9 +1257,14 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         super(ResetFiltersButtonTestCase, self).tearDownClass()
         wsapi_cache_remove(self.wsapi_cache_files)
 
-    # FIXME: broke after changes in filters_storage_full
-    '''
+    # TODO(nanvel): check saving last query here
+    # FIXME(nanvel): simplify test
+
     def test_reset_filters_button(self):
+        """
+        
+        """
+        # FIXME(nanvel): add description ^
         driver = self.selenium
         driver.get(self.live_server_url)
 
@@ -1237,6 +1337,7 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
                 "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
             self.assertNotEqual(filter2.text, text2)
 
+        # FIXME(nanvel): What this doing ?
         applied_filters3 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
         try:
             applied_filters4 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[3]")
@@ -1244,4 +1345,3 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
             pass
         else:
             self.assertTrue(filter2.text not in applied_filters4.text)
-    '''
