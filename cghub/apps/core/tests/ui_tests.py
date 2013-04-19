@@ -32,7 +32,9 @@ TEST_SETTINGS = dict(
                     'width': 70, 'align': 'left', 'default_state': 'visible'}}
 )
 
-
+"""
+FIXME(nanvel): maybe simply specify new CACHE_DIR with already existed cache files
+"""
 def wsapi_cache_copy(cache_files):
     """
     Copy cache_files from TEST_DATA_DIR to WSAPI_CACHE_DIR
@@ -85,6 +87,7 @@ def back_to_bytes(*args):
             result.append(float_result * 1024.)
         else:
             result.append()
+    # FIXME(nanvel): why tuple returns
     return result[0], result[1]
 
 
@@ -95,6 +98,7 @@ def get_filter_id(driver, filter_name):
     """
     el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
+    # FIXME(nanvel): check this
     driver.execute_script(
             "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(el_id))
     return el_id
@@ -109,11 +113,21 @@ class SidebarTestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        # FIXME(nanvel): maybe possible decrease it or use in other tests
+        # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
         self.selenium.implicitly_wait(5)
         super(SidebarTestCase, self).setUpClass()
         wsapi_cache_copy(self.wsapi_cache_files)
 
     def test_select_all(self):
+        """
+        1. Open 'By Center' filter (Selected all items by default)
+        2. Click on '(all)'
+        3. Check that all checkboxes unchecked
+        4. Click on '(all)'
+        5. Check that all checkboxes checked
+        """
+        # FIXME(nanvel): check that uploaded small amount of data
         driver = self.selenium
         driver.get(self.live_server_url)
 
@@ -121,31 +135,43 @@ class SidebarTestCase(LiveServerTestCase):
         self.selenium.find_element_by_id("ddcl-{0}".format(center_id)).click()
 
         # by center has 8 centers, i0 - deselect all, i1-i7 - selections
+        # click on 'All' to deselect all and check that no one selected
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
         for i in range(1, 8):
             cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
             self.assertFalse(cb.is_selected())
 
         # click again - select all
+        # check that all centers selected
         driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
         for i in range(1, 8):
             cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
             self.assertTrue(cb.is_selected())
 
     def test_select_date(self):
+        """
+        1. Open 'By Time Modified' filter
+        2. Select 'Any date' option
+        3. Check that other options unchecked
+        4. Click on 'Today' option
+        5. Check that other unchecked
+        6. Open 'By Upload Time' filter
+        7. Go To 2
+        """
+        # FIXME(nanvel): check that uploaded small amount of data (maybe using custom settings for tests will fix this)
         driver = self.selenium
         driver.get(self.live_server_url)
         driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
 
-        # Time modified
+        # Open 'By Time Modified' filter
         last_modified_id = get_filter_id(driver, 'last_modified')
         driver.find_element_by_xpath(
             "//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+
         # click the first selection
         i_click = 0
-
-        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
+        # check that other options are unselected
         for i in range(0, 5):
             if not i == i_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
@@ -153,23 +179,22 @@ class SidebarTestCase(LiveServerTestCase):
 
         # click on first option
         i_click = 1
-
-        # check that other options unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
+        # check that other options unselected
         for i in range(0, 5):
             if not i == i_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
                 self.assertFalse(rb.is_selected())
 
-        # Upload date
+        # open 'By Upload Time' filter
         upload_date_id = get_filter_id(driver, 'upload_date')
         driver.find_element_by_xpath(
             "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+        
         # select first option
         z_click = 0
-
-        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
+        # check that other options are unselected
         for i in range(0, 5):
             if not i == z_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
@@ -177,9 +202,8 @@ class SidebarTestCase(LiveServerTestCase):
 
         # select second option
         z_click = 1
-
-        # check that other options are unselected
         driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
+        # check that other options are unselected
         for i in range(0, 5):
             if not i == z_click:
                 rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
@@ -188,16 +212,39 @@ class SidebarTestCase(LiveServerTestCase):
     def test_selection(self):
         """
         Select filters, click on submit, check query
+        1. Open 'By Study' filter, unselect all
+        2. Select first item (phs000178)
+        3. Open 'By Center' filter, unselect all
+        4. Select first 3 items (BCM, BCCAGSC, BI)
+        5. Open 'By Sample Type' filter, unselect all
+        6. Select first 3 options (10, 12, 20)
+        7. Open 'By Disease' filter, unselect all
+        8. Select first 3 items (LAML, BLCA, LGG)
+        9. Open 'By Experiment Type' filter, unselect all
+        10. Select first 3 items (D, H, R)
+        11. Open 'By Library Type' filter, unselect all
+        12. Select first 3 options (Bisulfite-Seq, OTHER, RNA-Seq)
+        13. Open 'By Assembly' filter, unselect all
+        14. Select fist option (NCBI36*+OR+HG18*)
+        15. Open 'By State' filter (live by default)
+        16. Select all, unselect all, select 1,2,5 options (bad_data, live, validating_sample)
+        17. Click on 'Apply filters'
+        18. Check that only selected filters options exists in url
+        
         """
+        # FIXME: add filter by platform
         driver = self.selenium
         driver.get(self.live_server_url)
 
         # study: phs000178
+        # FIXME(nanvel): for now not all options selected by default, should work right after using custom settings for tests
         study_id = get_filter_id(driver, 'study')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(study_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(study_id)).click()
         driver.find_element_by_id("ddcl-{0}-i1".format(study_id)).click()
+        # and close filter DDCL
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(study_id)).click()
+
         # center: BCM+OR+BCCAGSC+OR+BI
         center_id = get_filter_id(driver, 'center_name')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
@@ -206,6 +253,7 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i2".format(center_id)).click()
         driver.find_element_by_id("ddcl-{0}-i3".format(center_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(center_id)).click()
+
         # sample type: 10+OR+12+OR+20
         sample_type_id = get_filter_id(driver, 'sample_type')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(sample_type_id)).click()
@@ -214,6 +262,7 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i2".format(sample_type_id)).click()
         driver.find_element_by_id("ddcl-{0}-i3".format(sample_type_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(sample_type_id)).click()
+
         # disease_abbr: LAML+OR+BLCA+OR+LGG'
         disease_abbr_id = get_filter_id(driver, 'disease_abbr')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(disease_abbr_id)).click()
@@ -222,7 +271,8 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i2".format(disease_abbr_id)).click()
         driver.find_element_by_id("ddcl-{0}-i3".format(disease_abbr_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(disease_abbr_id)).click()
-        # analyte_code: D+OR+H+OR+R
+
+        # analyte_code (By Experiment Type): D+OR+H+OR+R
         analyte_code_id = get_filter_id(driver, 'analyte_code')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(analyte_code_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(analyte_code_id)).click()
@@ -230,7 +280,8 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i2".format(analyte_code_id)).click()
         driver.find_element_by_id("ddcl-{0}-i3".format(analyte_code_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(analyte_code_id)).click()
-        # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
+
+        # library_strategy (Library Type): Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
         library_strategy_id = get_filter_id(driver, 'library_strategy')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(library_strategy_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(library_strategy_id)).click()
@@ -238,12 +289,14 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i2".format(library_strategy_id)).click()
         driver.find_element_by_id("ddcl-{0}-i3".format(library_strategy_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(library_strategy_id)).click()
-        # refassem_short_name: NCBI36*+OR+HG18*
+
+        # refassem_short_name (By Assembly): NCBI36*+OR+HG18*
         refassem_short_name_id = get_filter_id(driver, 'refassem_short_name')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(refassem_short_name_id)).click()
         driver.find_element_by_id("ddcl-{0}-i0".format(refassem_short_name_id)).click()
         driver.find_element_by_id("ddcl-{0}-i1".format(refassem_short_name_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(refassem_short_name_id)).click()
+
         # state: bad_data+OR+live+OR+validating_sample
         state_id = get_filter_id(driver, 'state')
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(state_id)).click()
@@ -254,10 +307,11 @@ class SidebarTestCase(LiveServerTestCase):
         driver.find_element_by_id("ddcl-{0}-i5".format(state_id)).click()
         self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(state_id)).click()
 
+        # submit form
         driver.find_element_by_id("id_apply_filters").click()
 
+        # check that all selected filters options exists in url
         url = driver.current_url
-
         # study: phs000178
         self.assertTrue('phs000178' in url)
         self.assertFalse('TCGA_MUT_BENCHMARK_4' in url)
@@ -309,6 +363,7 @@ class SidebarTestCase(LiveServerTestCase):
             re.match('.*state=[^&]*live', url))
         self.assertFalse(
             re.match('.*state=[^&]*uploading', url))
+        # FIXME(nanvel): add filter by platform (after custom settings for tests will be implemented)
 
     @classmethod
     def tearDownClass(self):
@@ -317,10 +372,8 @@ class SidebarTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.wsapi_cache_files)
 
 
+# FIXME(nanvel): rename this testcase ?
 class CustomDatepickersTestCase(LiveServerTestCase):
-    """
-    Check custom period selecting
-    """
 
     wsapi_cache_files = (
         '71411da734e90beda34360fa47d88b99.ids',
@@ -341,6 +394,9 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.wsapi_cache_files)
 
     def set_datepicker_date(self, start, end, year=None, month=None):
+        """
+        Select start and end dates in custom period popup
+        """
         driver = self.selenium
         dp_start = driver.find_element_by_id('dp-start')
         dp_end = driver.find_element_by_id('dp-end')
@@ -357,13 +413,18 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         dp_start.find_element_by_link_text("{}".format(start)).click()
         dp_end.find_element_by_link_text("{}".format(end)).click()
 
-    # FIXME: fails when today is last day of mnth
-    def check_custom_date(self, filter_name, dp_values,
-            reverse=False, future=False):
+    def check_custom_date(
+            self, filter_name, dp_values, reverse=False, future=False):
         """
-        Helper function for checking whether or not new custom date filter
-        is displayed in date filter input.
+        Check that right date displayed in specified date filter.
+
+        :param filter_name: 'last_modified' or 'upload_date'
+        :param dp_values: for example {'start': 31, 'end': 31, 'month': 11, 'year': 2013}
+        :param reverse: if True - swap start and end values
+        :param future: set dates from yesterday to now
         """
+        # FIXME(nanvel): is future really usefull ?
+        # FIXME(nanvel): fails when today is last day of mnth
         driver = self.selenium
         filter_id = get_filter_id(driver, filter_name)
 
@@ -378,53 +439,92 @@ class CustomDatepickersTestCase(LiveServerTestCase):
             dp_values['month'] = timezone.now().date().month
         else:
             dp_values['month'] += 1
+        # add forward zero for dates and months with values from 1 to 9
         for key in dp_values:
             if len(str(dp_values[key])) == 1:
                  dp_values[key] = '0' + str(dp_values[key])
 
         # Check custom date is displayed in filter input
         filter_input = driver.find_element_by_id("ddcl-{0}".format(filter_id))
-        filter_text = filter_input.find_element_by_css_selector('.ui-dropdownchecklist-text').text
+        filter_text = filter_input.find_element_by_css_selector(
+                                    '.ui-dropdownchecklist-text').text
+        # FIXME(nanvel): month and year can be different
         text = "{0}/{1}/{2} - {0}/{1}/{3}".format(
             dp_values['year'], dp_values['month'],
             dp_values['start'], dp_values['end'])
         assert text in filter_text.strip()
 
+    # FIXME(nanvel): merge this 3 tests in one
+    # And create 2 tests: one for upload_date (full) and one for last_modified (superficially)
+
     def test_custom_datepickers_future_date(self):
+        """
+        1. Go to main page
+        2. Open 'By Upload Time filter'
+        3. Click 'Pick period', check that custom period form visible
+        4. Click 'Cancel' in the form, check that form invisible
+        5. Click 'Pick Period', select date
+        6. Click 'Submit' in the custom period form
+        7. Check that in 'By Upload Date' filter displayed right date
+        8. Open 'By Time Modified' filter
+        9. Click 'Pick Period', select date
+        10. Click 'Submit' in the custom period form
+        11. Check that in 'By Time Modified' filter displayed right date
+        """
         driver = self.selenium
         driver.get(self.live_server_url)
+        # we shouldn't use dates near the end or beginning of month
         dp_values = {
-            'start': 31, 'end': 31, 'month': 11,
+            'start': 15, 'end': 15, 'month': 11,
             'year': timezone.now().date().year}
         last_modified_id = get_filter_id(driver, 'last_modified')
         upload_date_id = get_filter_id(driver, 'upload_date')
+        # FIXME(nanvel): We shoudnt use analyte_code here only to move screen
         analyte_code_id = get_filter_id(driver, 'analyte_code')
 
         driver.execute_script(
             "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
                 analyte_code_id))
 
+        # -- open custom perio popup and than cloase it
+        # open 'By Upload Time' filter
         driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        # click 'Pick period'
+        driver.find_element_by_css_selector(
+                '#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        # FIXME(nanvel): check that custom period form visible
+        # click 'Cancel'
         driver.find_element_by_css_selector("button.btn-cancel.btn").click()
+        # FIXME(nanvel): check that custom period popup closed
 
+        # open 'By Upload Time' filter
         driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
+        # click 'Pick period'
+        driver.find_element_by_css_selector(
+                '#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
+        # set dates
+        self.set_datepicker_date(
+                dp_values['start'], dp_values['end'], dp_values['month'])
+        # click 'Submin' in custom period popup
         driver.find_element_by_css_selector("button.btn-submit.btn").click()
-
-        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-        driver.find_element_by_css_selector("button.btn-cancel.btn").click()
-
-        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-        driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-        self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['month'])
-        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+        # check selected date
         self.check_custom_date('upload_date', dp_values, future=True)
+
+        # the same for last_modified (By Time Modified)
+        # FIXME(nanvel): we can test last_modified superficially
+        driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
+        driver.find_element_by_css_selector(
+                '#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
+        self.set_datepicker_date(
+                dp_values['start'], dp_values['end'], dp_values['month'])
+        driver.find_element_by_css_selector("button.btn-submit.btn").click()
+        # check selected date
+        # FIXME(nanvel): should be used different days for last_modified and upload_time,
+        # to catch cases when one custom period form cange both filters values
         self.check_custom_date('last_modified', dp_values, future=True)
 
     def test_custom_datepickers_wrong_date(self):
+        # FIXME(nanvel): should be merged in one function
         driver = self.selenium
         driver.get(self.live_server_url)
         dp_values = {
@@ -461,6 +561,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
         self.check_custom_date('last_modified', dp_values, reverse=True)
 
     def test_custom_datepickers_right_date(self):
+        # FIXME(nanvel): should be merged in one function
         driver = self.selenium
         driver.get(self.live_server_url)
         dp_values = {
@@ -513,7 +614,17 @@ class HelpHintsTestCase(LiveServerTestCase):
         super(HelpHintsTestCase, self).tearDownClass()
         wsapi_cache_remove(self.wsapi_cache_files)
 
+    # FIXME(nanvel): more tests for different tooltips (in table cells,
+    # table headers, filters, selected filters, filters headers,
+    # details values, details headers, tooltips for header links)
+
     def test_help_hints(self):
+        """
+        Check that tooltip appears
+        1. Move cursor to element
+        2. Wait
+        3. Check that tooltip visible
+        """
         driver = self.selenium
         with self.settings(HELP_HINTS = { 'Study': 'Help for Study'}):
             driver.get(self.live_server_url)
@@ -557,57 +668,100 @@ class DetailsTestCase(LiveServerTestCase):
         wsapi_cache_remove(self.wsapi_cache_files)
         cart_cache_remove(self.cart_cache_files)
 
+    # FIXME(nanvel): maybe use self.selenium instead driver ?
     def check_popup_shows(self, driver):
+        """
+        Check that details popup appears when clicking on table cell or
+        when select related item in table cell context menu.
+        1. Check that details popup invisible
+        2. Click on table cell
+        3. Check that popup visible
+        4. Click on 'Close' button in popup
+        5. Check that popup invisible
+        6. Open table cell context menu
+        7. Click related context menu item
+        8. Check that details popup is visible
+        9. Close details popup
+        """
         ac = ActionChains(driver)
-        # test clicking on row leads to details popup opening
+        # check that popup not displayed yet
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
         assert not popup.is_displayed()
+        # click on table cell
         td = driver.find_element_by_xpath(
             "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
         td.click()
+        # FIXME(nanvel): is Analysis ID in second row ?
+        # fix this after custom settings for tests will be implemented
         uuid = driver.find_element_by_xpath(
             "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
+        # FIXME(nanvel): Is this timeout necessary ?
         time.sleep(4)
+        # FIXME(nanvel): should we search for popup once more ?
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        # check that popup displayed
         assert popup.is_displayed()
         assert uuid in driver.find_element_by_css_selector('#details-label').text
+        # close popup
         driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
         time.sleep(1)
+        # FIXME(nanvel): check that popup closed
         # test clicking on 'Details' option from context menu leads to details popup opening
+
+        # try to open popup from context menu
         context_menu = driver.find_element_by_css_selector('#table-context-menu')
-        assert not context_menu.is_displayed()
+        # check that popup is invisible
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
-        time.sleep(1)
         assert not popup.is_displayed()
+        # try to open popup using context menu
         ac.context_click(td)
         ac.perform()
-        context_menu = driver.find_element_by_css_selector('#table-context-menu')
-        assert context_menu.is_displayed()
+        # check that context menu is visible
+        driver.find_element_by_css_selector('#table-context-menu').is_displayed()
+        # click on context menu row
         driver.find_element_by_css_selector('.js-details-popup').click()
+        # FIXME(nanvel): should we search for popup once more ?
         popup = driver.find_element_by_css_selector('#itemDetailsModal')
         assert popup.is_displayed()
-        driver.find_element_by_css_selector(".modal-footer .btn").click()
+        # close popup
+        driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+        time.sleep(1)
 
-    # FIXME: broke after changes in filters_storage_full
-    '''
     def test_details_popups(self):
+        """
+        Check that details popup shows on search and cart page.
+        1. Go to search page
+        2. Check that popup shows (using check_popup_shows) on search page
+        3. Check first checkbox in table
+        4. Click 'Add to cart' button
+        5. Check that popups shows on cart page
+        """
         driver = self.selenium
         driver.get(self.live_server_url)
         self.check_popup_shows(driver)
+        # add one file to cart (then user will be redirected to cart page)
         driver.find_element_by_xpath(
                 "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div/input".format(1)
                 ).click()
         driver.find_element_by_css_selector('.add-to-cart-btn').click()
         time.sleep(4)
         self.check_popup_shows(driver)
-    '''
 
     def test_xml_display(self):
+        """
+        Go to details page and check 'Collapse all/Expand all' feature.
+        1. Go to search page
+        2. Click on link to item details page (cell context menu)
+        3. ...
+        """
+        # FIXME(nanvel): extend description ^
         driver = self.selenium
         driver.get(self.live_server_url)
+        # FIXME(nanvel): open details page from context menu, not from details popup
         td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
         td.click()
         time.sleep(3)
+        # FIXME(nanvel): Maybe create common function for this
         driver.execute_script(
             "$('.modal-body').scrollTop($('.raw-xml-link').position().top);")
         driver.find_element_by_css_selector('.raw-xml-link').click()
@@ -620,6 +774,7 @@ class DetailsTestCase(LiveServerTestCase):
         collapsed_xml = xml_containers[0].find_elements_by_class_name('Element')
         expanded_xml = xml_containers[1].find_elements_by_class_name('Element')
         assert len(expanded_xml) > len(collapsed_xml)
+        # FIXME(nanvel): what xml containers are ?
         assert not xml_containers[0].is_displayed()
         assert xml_containers[1].is_displayed()
         driver.find_element_by_css_selector('#id-collapse-all-button').click()
@@ -627,14 +782,21 @@ class DetailsTestCase(LiveServerTestCase):
         assert not xml_containers[1].is_displayed()
 
     def test_details_page(self):
+        """
+        Go to details page and try to download metadata.
+        
+        """
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
+            # remove existing metadata file if exists
             try:
                 os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
             except OSError:
                 pass
+            # FIXME(nanvel): move this to separate function and use in previous tests
             td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+            # FIXME(nanvel): is analysis_id in tr[1]/td[2] ? Check this after custom settings for tests will be implemented
             td_text = driver.find_element_by_xpath(
                 "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").text
             ac = ActionChains(driver)
@@ -646,11 +808,13 @@ class DetailsTestCase(LiveServerTestCase):
             page_header = driver.find_element_by_class_name('page-header').text
             assert (td_text in driver.current_url and 'details' in driver.current_url)
             assert (td_text in page_header and 'details' in page_header)
+            # scroll page to Metadata down load button (make it visible)
             driver.execute_script(
                 "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
             # try to load analysis xml
             driver.find_element_by_id('id-download-metadata').click()
             time.sleep(3)
+            # check that metadata file was downloaded
             try:
                 os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
             except OSError:

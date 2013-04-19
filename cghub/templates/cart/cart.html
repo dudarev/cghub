@@ -19,12 +19,12 @@
         <div>
             {% if loading %}
             <div class="alert">
-                <strong>Warning!</strong> Still obtaining files ... Some functionality are unavailable. <a href=".">Reload</a>
+                <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href=".">Reload to check > for completion.</a>
             </div>
             {% else %}
             {% if missed_files %}
                 <div class="alert alert-error">
-                    <strong>Error!</strong> Few files was not added to your cart ({{ missed_files }}).
+                    <strong>Notice:</strong> Few files was not added to your cart ({{ missed_files }}).
                 </div>
             {% endif %}
             <span>
