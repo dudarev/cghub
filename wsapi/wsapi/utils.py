@@ -34,7 +34,7 @@ def urlopen(url):
             return urllib2.urlopen(req)
         except urllib2.URLError:
             time.sleep(HTTP_ERROR_SLEEP_AFTER)
-    raise urllib2.URLError
+    raise urllib2.URLError('No response after %d attempts' % HTTP_ERROR_ATTEMPTS)
 
 
 def clear_cache(cache_dir, older_than):
