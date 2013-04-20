@@ -10,12 +10,10 @@ from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import (
-                            wsapi_cache_copy,
-                            wsapi_cache_remove,
+                            wsapi_cache_copy, wsapi_cache_remove,
                             cart_cache_remove)
 from cghub.apps.core.templatetags.search_tags import (
-                            get_name_by_code,
-                            get_sample_type_by_code,
+                            get_name_by_code, get_sample_type_by_code,
                             file_size)
 
 
@@ -43,12 +41,14 @@ class LinksNavigationsTestCase(LiveServerTestCase):
         time.sleep(2)
 
     def test_home_link(self):
+        # FIXME(nanvel): merge with previous test
         self.selenium.get("{url}/{path}".format(url=self.live_server_url,
                                         path="help"))
         self.selenium.find_element_by_partial_link_text("Search").click()
         time.sleep(2)
 
     def test_help_link(self):
+        # FIXME(nanvel): merge in one test with previous
         self.selenium.get(self.live_server_url)
         self.selenium.find_element_by_partial_link_text("Help").click()
         time.sleep(2)
@@ -72,7 +72,7 @@ class CartUITestCase(LiveServerTestCase):
     unselected = [
         'beddd009-4efb-471f-bc4e-d872b50daa0f',
     ]
-    query = "6d50*"
+    query = "6d50"
 
     @classmethod
     def setUpClass(self):
@@ -87,6 +87,7 @@ class CartUITestCase(LiveServerTestCase):
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
         wsapi_cache_copy(self.wsapi_cache_files)
+        # FIXME(nanvel): is this used ?
         # calculate uuid for items on the first page
         lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
         analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
@@ -100,41 +101,71 @@ class CartUITestCase(LiveServerTestCase):
         cart_cache_remove(self.cart_cache_files)
 
     def test_cart(self):
+        """
+        1. Go to search page
+        2. Check that no selected files in table
+        3. Click on 'Select all' checkbox
+        4. Check that all checkboxes in table checked
+        5. Click on 'Select all' checkbox once more (uncheck all checkboxes)
+        6. Select ferst two items
+        7. Click on 'Add to cart' button
+        8. Check that files were really added to cart
+        9. Check that no other files were added to cart
+        10. Check that dosplayed right files count and size
+        11. Remove downloaded before manifest, metadata and summary if exists
+        12. Try to download manifest.xml
+        13. Try to download metadata.xml
+        14. Try to download summary.tsv
+        15. Get cart stats
+        16. Click 'Remove files from cart'
+        17. Get cart stats, check that files count was decremented by 1
+        18. Click on 'Clear cart'
+        19. Check that cart is empty
+        """
+        # FIXME(nanvel): may be rename test ?
         # test adding item to cart
         driver = self.selenium
         driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
-        # Test Select all link in search results
+        # check that no selected items
         for analysis_id in self.page_analysis_ids:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % analysis_id)
             assert not checkbox.is_selected()
 
+        # toggle 'Select all' checkbox
         btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
+        # check that all checkboxes in table checked
         for analysis_id in self.page_analysis_ids:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % analysis_id)
             assert checkbox.is_selected()
 
+        # toggle 'Select all' checkbox (uncheck)
         btn = driver.find_element_by_css_selector('input.js-select-all')
         btn.click()
 
         # Select two items for adding to cart
+        # FIXME(nanvel): is self.selected exists in results ?
+        # FIXME(nanvel): maybe simply select first 2 items ?
         for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % analysis_id)
             checkbox.click()
 
+        # click on 'Add to cart'
         btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
         btn.click()
         time.sleep(3)
         assert driver.current_url == '%s/cart/' % self.live_server_url
 
+        # check that files were added to cart and analysis_ids of them exists in table 
         for analysis_id in self.selected:
             checkbox = driver.find_element_by_css_selector(
                 'input[value="%s"]' % analysis_id)
+        # check that other files were not added to the cart
         for analysis_id in self.unselected:
             try:
                 checkbox = driver.find_element_by_css_selector(
@@ -144,38 +175,20 @@ class CartUITestCase(LiveServerTestCase):
                 pass
 
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+        # FIXME(nanvel): files size can be changed, can we make it constant while testing ?
         assert stat.text == 'Files in your cart: 2 (9,68 GB)'
-
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
         assert cart_link.text == 'Cart (2)'
 
+        # 'Select all' feature tested on search page, and it uses the same js
 
-        # Testing 'Select all' button in the cart
-        for analysis_id in self.selected:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert not checkbox.is_selected()
-
-        btn = driver.find_element_by_css_selector('input.js-select-all')
-        btn.click()
-        driver.implicitly_wait(1)
-
-        for analysis_id in self.selected:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert checkbox.is_selected()
-
-        # check file downloading
+        # check files downloading
         try:
             os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
             os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
             os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
         except OSError:
             pass
-
-        checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % self.selected[0])
-        checkbox.click()
 
         # download Manifest XML
         btn = driver.find_element_by_class_name('cart-download-manifest')
@@ -204,7 +217,12 @@ class CartUITestCase(LiveServerTestCase):
         except OSError:
             assert False, "File summary.tsv wasn't downloaded"
 
-        # remove items from cart
+        # select first file in table
+        checkbox = driver.find_element_by_css_selector(
+                'input[value="%s"]' % self.selected[0])
+        checkbox.click()
+
+        # remove seleted files
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
         assert 'Files in your cart: {0}'.format(len(self.selected)) in stat.text
 
@@ -224,10 +242,10 @@ class CartUITestCase(LiveServerTestCase):
         btn = driver.find_element_by_class_name('cart-clear')
         btn.click()
         stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: {0} (0 Bytes)'.format(len(self.selected) - 2)
+        assert stat.text == 'Files in your cart: 0 (0 Bytes)'
 
         cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 2)
+        assert cart_link.text == 'Cart (0)'
 
         message = driver.find_element_by_xpath('//form[@action="/cart/action/"]//p')
         assert message.text == 'Your cart is empty!'
@@ -245,7 +263,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
     cart_cache_files = (
                     'c7e49b79-2f7d-1584-e040-ad451e410b1c')
 
-    query = "6d711*"
+    query = "6d711"
 
     @classmethod
     def setUpClass(self):
@@ -271,6 +289,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
         driver.find_element_by_css_selector('input.js-select-all').click()
         driver.find_element_by_css_selector('button.add-to-cart-btn').click()
 
+        # FIXME(nanvel): make it simple, check only few columns, not all
         attrs = [
             'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
             'library_strategy', 'platform', 'refassem_short_name', 'center_name',
