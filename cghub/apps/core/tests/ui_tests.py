@@ -598,6 +598,7 @@ class CustomDatepickersTestCase(LiveServerTestCase):
 
 
 class HelpHintsTestCase(LiveServerTestCase):
+    # FIXME(nanvel): move this tests to apps.help.tests.ui_tests.py
 
     wsapi_cache_files = ('71411da734e90beda34360fa47d88b99.ids',)
 
