@@ -1,6 +1,7 @@
 import time
 import re
 import os, shutil
+from urllib import unquote
 from datetime import datetime
 
 from selenium import webdriver
@@ -13,6 +14,8 @@ from django.utils import timezone
 
 from cghub.wsapi.api import request as api_request
 from cghub.settings.utils import root
+from cghub.apps.core.filters_storage import ALL_FILTERS
+from cghub.apps.core.attributes import DATE_ATTRIBUTES
 
 
 """
@@ -115,24 +118,20 @@ TEST_SETTINGS = dict(
 )
 
 
-def back_to_bytes(*args):
+def back_to_bytes(size_str):
     """
-    Converts File Size back to bytes for comparing purposes
+    Converts File Size back to bytes for comparing purposes.
+
+    :param size_str: '10.11 GB', for example
     """
-    files = [str(ar) for ar in args]
-    result = []
-    for file_name in files:
-        float_result = float(file_name.split(' ')[0].replace(',', '.'))
-        if file_name.endswith('GB'):
-            result.append(float_result * 1073741824.)
-        elif file_name.endswith('MB'):
-            result.append(float_result * 1048576.)
-        elif file_name.endswith('KB'):
-            result.append(float_result * 1024.)
-        else:
-            result.append()
-    # FIXME(nanvel): why tuple returns
-    return result[0], result[1]
+    float_result = float(size_str.split(' ')[0].replace(',', '.'))
+    if size_str.endswith('GB'):
+        return float_result * 1073741824.
+    elif size_str.endswith('MB'):
+        return float_result * 1048576.
+    elif size_str.endswith('KB'):
+        return float_result * 1024.
+    return 0
 
 
 def get_filter_id(driver, filter_name):
@@ -142,10 +141,15 @@ def get_filter_id(driver, filter_name):
     """
     el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
-    # FIXME(nanvel): check this
-    driver.execute_script(
-            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(el_id))
     return el_id
+
+
+def scroll_page_to_filter(driver, filter_id):
+    """
+    Scroll page to element (makes it visible fo user).
+    """
+    driver.execute_script(
+            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(filter_id))
 
 
 class SidebarTestCase(LiveServerTestCase):
@@ -172,24 +176,25 @@ class SidebarTestCase(LiveServerTestCase):
         5. Check that all checkboxes checked
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): check that uploaded small amount of data
             driver = self.selenium
             driver.get(self.live_server_url)
 
             center_id = get_filter_id(driver, 'center_name')
             self.selenium.find_element_by_id("ddcl-{0}".format(center_id)).click()
 
-            # by center has 8 centers, i0 - deselect all, i1-i7 - selections
+            # get centers count
+            centers_count = len(ALL_FILTERS['center_name']['filters'])
+            # by center has <centers_count> centers, i0 - deselect all, i1-i<centers_count> - selections
             # click on 'All' to deselect all and check that no one selected
             driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
-            for i in range(1, 8):
+            for i in range(1, centers_count + 1):
                 cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
                 self.assertFalse(cb.is_selected())
 
             # click again - select all
             # check that all centers selected
             driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
-            for i in range(1, 8):
+            for i in range(1, centers_count + 1):
                 cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
                 self.assertTrue(cb.is_selected())
 
@@ -204,7 +209,6 @@ class SidebarTestCase(LiveServerTestCase):
         7. Go To 2
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): check that uploaded small amount of data (maybe using custom settings for tests will fix this)
             driver = self.selenium
             driver.get(self.live_server_url)
             driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
@@ -257,160 +261,77 @@ class SidebarTestCase(LiveServerTestCase):
 
     def test_selection(self):
         """
-        Select filters, click on submit, check query
-        1. Open 'By Study' filter, unselect all
-        2. Select first item (phs000178)
-        3. Open 'By Center' filter, unselect all
-        4. Select first 3 items (BCM, BCCAGSC, BI)
-        5. Open 'By Sample Type' filter, unselect all
-        6. Select first 3 options (10, 12, 20)
-        7. Open 'By Disease' filter, unselect all
-        8. Select first 3 items (LAML, BLCA, LGG)
-        9. Open 'By Experiment Type' filter, unselect all
-        10. Select first 3 items (D, H, R)
-        11. Open 'By Library Type' filter, unselect all
-        12. Select first 3 options (Bisulfite-Seq, OTHER, RNA-Seq)
-        13. Open 'By Assembly' filter, unselect all
-        14. Select fist option (NCBI36*+OR+HG18*)
-        15. Open 'By State' filter (live by default)
-        16. Select all, unselect all, select 1,2,5 options (bad_data, live, validating_sample)
-        17. Click on 'Apply filters'
-        18. Check that only selected filters options exists in url
+        1. Walk over filters from filters_storage.
+        2. Open every filter and select few items.
+        3. Click on 'Apply filters'
+        4. Check that only selected filters options exists in url
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): add filter by platform
-            # FIXME(nanvel): get filters names from filters_storage
             driver = self.selenium
             driver.get(self.live_server_url)
-
-            # study: phs000178
-            # FIXME(nanvel): for now not all options selected by default, should work right after using custom settings for tests
-            study_id = get_filter_id(driver, 'study')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(study_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(study_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(study_id)).click()
-            # and close filter DDCL
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(study_id)).click()
-
-            # center: BCM+OR+BCCAGSC+OR+BI
-            center_id = get_filter_id(driver, 'center_name')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(center_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(center_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(center_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i3".format(center_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(center_id)).click()
-
-            # sample type: 10+OR+12+OR+20
-            sample_type_id = get_filter_id(driver, 'sample_type')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(sample_type_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(sample_type_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(sample_type_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i3".format(sample_type_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(sample_type_id)).click()
-
-            # disease_abbr: LAML+OR+BLCA+OR+LGG'
-            disease_abbr_id = get_filter_id(driver, 'disease_abbr')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(disease_abbr_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(disease_abbr_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(disease_abbr_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(disease_abbr_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i3".format(disease_abbr_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(disease_abbr_id)).click()
-
-            # analyte_code (By Experiment Type): D+OR+H+OR+R
-            analyte_code_id = get_filter_id(driver, 'analyte_code')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(analyte_code_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(analyte_code_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(analyte_code_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(analyte_code_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i3".format(analyte_code_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(analyte_code_id)).click()
-
-            # library_strategy (Library Type): Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
-            library_strategy_id = get_filter_id(driver, 'library_strategy')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(library_strategy_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(library_strategy_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(library_strategy_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(library_strategy_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i3".format(library_strategy_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(library_strategy_id)).click()
-
-            # refassem_short_name (By Assembly): NCBI36*+OR+HG18*
-            refassem_short_name_id = get_filter_id(driver, 'refassem_short_name')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(refassem_short_name_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(refassem_short_name_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(refassem_short_name_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(refassem_short_name_id)).click()
-
-            # state: bad_data+OR+live+OR+validating_sample
-            state_id = get_filter_id(driver, 'state')
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:first-child > span".format(state_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(state_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(state_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i1".format(state_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i2".format(state_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i5".format(state_id)).click()
-            self.selenium.find_element_by_css_selector("#ddcl-{0} > span:last-child > span".format(state_id)).click()
+            unselected_options = []
+            selected_options_values = {}
+            selected_options_ids = {}
+            # create list of options to select
+            for f in ALL_FILTERS:
+                options = ALL_FILTERS[f]['filters']
+                if f in DATE_ATTRIBUTES:
+                    # select second option (Today - '[NOW-1DAY+TO+NOW]')
+                    selected_options_ids[f] = [1]
+                    selected_options_values[f] = ['[NOW-1DAY+TO+NOW]']
+                elif len(options) > 3:
+                    # select first 3 items
+                    selected_options_ids[f] = [1, 2, 3]
+                    selected_options_values[f] = []
+                    for i in options:
+                        selected_options_values[f].append(i)
+                        if len(selected_options_values[f]) > 2:
+                            break
+                else:
+                    # select select first item
+                    selected_options_ids[f] = [1]
+                    for i in options:
+                        selected_options_values[f] = [i]
+                        break
+            # create list of unselected options:
+            for f in ALL_FILTERS:
+                for i in ALL_FILTERS[f]['filters']:
+                    if i not in selected_options_values[f]:
+                        unselected_options.append(i)
+            # select filters options
+            for f in selected_options_values:
+                # open filter DDCL
+                filter_id = get_filter_id(driver, f)
+                scroll_page_to_filter(driver, filter_id)
+                self.selenium.find_element_by_css_selector(
+                        "#ddcl-{0} > span:first-child > span".format(filter_id)).click()
+                # if some items selected by default, select all
+                if f in TEST_SETTINGS['DEFAULT_FILTERS']:
+                    driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
+                # unselect all
+                driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
+                # select necessary options
+                for i in selected_options_ids[f]:
+                    driver.find_element_by_id("ddcl-{0}-i{1}".format(filter_id, i)).click()
+                # and close filter DDCL
+                self.selenium.find_element_by_css_selector(
+                        "#ddcl-{0} > span:last-child > span".format(filter_id)).click()
 
             # submit form
             driver.find_element_by_id("id_apply_filters").click()
+            url = unquote(driver.current_url)
 
             # check that all selected filters options exists in url
-            url = driver.current_url
-            # study: phs000178
-            self.assertTrue('phs000178' in url)
-            self.assertFalse('TCGA_MUT_BENCHMARK_4' in url)
-            # center: BCM+OR+BCCAGSC+OR+BI
-            self.assertTrue(
-                'BCM' in url and
-                'BCCAGSC' in url and
-                'BI' in url)
-            self.assertFalse(
-                'UNC-LCCC' in url)
-            # sample type: 10+OR+12+OR+20
-            self.assertTrue(
-                re.match('.*sample_type=[^&]*10', url) and
-                re.match('.*sample_type=[^&]*12', url) and
-                re.match('.*sample_type=[^&]*20', url))
-            self.assertFalse(
-                re.match('.*sample_type=[^&]*14', url))
-            # disease_abbr: LAML+OR+BLCA+OR+LGG
-            self.assertTrue(
-                re.match('.*disease_abbr=[^&]*LAML', url) and
-                re.match('.*disease_abbr=[^&]*BLCA', url) and
-                re.match('.*disease_abbr=[^&]*LGG', url))
-            self.assertFalse(
-                re.match('.*disease_abbr=[^&]*GBM', url))
-            # analyte_code: D+OR+H+OR+R
-            self.assertTrue(
-                re.match('.*analyte_code=[^&]*D', url) and
-                re.match('.*analyte_code=[^&]*H', url) and
-                re.match('.*analyte_code=[^&]*R', url))
-            self.assertFalse(
-                re.match('.*analyte_code=[^&]*T', url))
-            # library_strategy: Bisulfite-Seq+OR+OTHER+OR+RNA-Seq
-            self.assertTrue(
-                re.match('.*library_strategy=[^&]*Bisulfite-Seq', url) and
-                re.match('.*library_strategy=[^&]*OTHER', url) and
-                re.match('.*library_strategy=[^&]*RNA-Seq', url))
-            self.assertFalse(
-                re.match('.*library_strategy=[^&]*WXS', url))
-            # refassem_short_name: NCBI36*+OR+HG18*
-            self.assertTrue(
-                re.match('.*refassem_short_name=[^&]*NCBI36*', url) and
-                re.match('.*refassem_short_name=[^&]*HG18*', url))
-            self.assertFalse(
-                re.match('.*refassem_short_name=[^&]*GRCh37*', url))
-            # state: live+OR+submitted+OR+bad_data
-            self.assertTrue(
-                re.match('.*state=[^&]*bad_data', url) and
-                re.match('.*state=[^&]*submitted', url) and
-                re.match('.*state=[^&]*live', url))
-            self.assertFalse(
-                re.match('.*state=[^&]*uploading', url))
-            # FIXME(nanvel): add filter by platform (after custom settings for tests will be implemented)
+            for f in selected_options_values:
+                options = selected_options_values[f]
+                for option in options:
+                    self.assertIn(option.replace(' ', '+'), url)
+            # check that no unselected options in url
+            for i in unselected_options:
+                self.assertNotIn('(%s+' % i, url)
+                self.assertNotIn('+%s+' % i, url)
+                self.assertNotIn('+%s)' % i, url)
+                self.assertNotIn('(%s)' % i, url)
 
 
 # FIXME(nanvel): rename this testcase ?
