@@ -2,7 +2,7 @@ import time
 import re
 import os, shutil
 from urllib import unquote
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -272,6 +272,7 @@ class SidebarTestCase(LiveServerTestCase):
             unselected_options = []
             selected_options_values = {}
             selected_options_ids = {}
+
             # create list of options to select
             for f in ALL_FILTERS:
                 options = ALL_FILTERS[f]['filters']
@@ -298,6 +299,7 @@ class SidebarTestCase(LiveServerTestCase):
                 for i in ALL_FILTERS[f]['filters']:
                     if i not in selected_options_values[f]:
                         unselected_options.append(i)
+
             # select filters options
             for f in selected_options_values:
                 # open filter DDCL
@@ -326,6 +328,7 @@ class SidebarTestCase(LiveServerTestCase):
                 options = selected_options_values[f]
                 for option in options:
                     self.assertIn(option.replace(' ', '+'), url)
+
             # check that no unselected options in url
             for i in unselected_options:
                 self.assertNotIn('(%s+' % i, url)
@@ -334,225 +337,159 @@ class SidebarTestCase(LiveServerTestCase):
                 self.assertNotIn('(%s)' % i, url)
 
 
-# FIXME(nanvel): rename this testcase ?
-class CustomDatepickersTestCase(LiveServerTestCase):
+class CustomPeriodTestCase(LiveServerTestCase):
+
+    year = date.today().year
+    TEST_DATES = (
+        {
+            'start': date(year, 2, 10),
+            'end': date(year, 2, 15),
+            'res_start': date(year, 2, 10),
+            'res_end': date(year, 2, 15)},
+        { # another month
+            'start': date(year, 1, 10),
+            'end': date(year, 3, 15),
+            'res_start': date(year, 1, 10),
+            'res_end': date(year, 3, 15)},
+        { # today
+            'start': date(year, 2, 10),
+            'end': date(year, 2, 10),
+            'res_start': date(year, 2, 9),
+            'res_end': date(year, 2, 10)},
+        { # future
+            'start': date(year, 2, 10),
+            'end': date.today() + timedelta(days=10),
+            'res_start': date(year, 2, 10),
+            'res_end': date.today()},
+        { # swapped
+            'start': date(year, 2, 15),
+            'end': date(year, 2, 10),
+            'res_start': date(year, 2, 10),
+            'res_end': date(year, 2, 15)},
+    )
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(CustomDatepickersTestCase, self).setUpClass()
+        super(CustomPeriodTestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(CustomDatepickersTestCase, self).tearDownClass()
+        super(CustomPeriodTestCase, self).tearDownClass()
 
-    def set_datepicker_date(self, start, end, year=None, month=None):
+    def set_datepicker_date(self, start, end):
         """
         Select start and end dates in custom period popup
+
+        :param start: start date (datetime.date object)
+        :param end: end date (datetime.date object)
         """
         driver = self.selenium
         dp_start = driver.find_element_by_id('dp-start')
         dp_end = driver.find_element_by_id('dp-end')
-        if year:
-            dp_start.find_element_by_css_selector('.ui-datepicker-year').click()
-            dp_start.find_element_by_css_selector("option[value='{0}']".format(year)).click()
-            dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
-            dp_end.find_element_by_css_selector("option[value='{0}']".format(year)).click()
-        if month or month == 0:
-            dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
-            dp_start.find_element_by_css_selector("option[value='{0}']".format(month)).click()
-            dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
-            dp_end.find_element_by_css_selector("option[value='{0}']".format(month)).click()
-        dp_start.find_element_by_link_text("{}".format(start)).click()
-        dp_end.find_element_by_link_text("{}".format(end)).click()
+        # set year
+        dp_start.find_element_by_css_selector('.ui-datepicker-year').click()
+        dp_start.find_element_by_css_selector("option[value='{0}']".format(start.year)).click()
+        dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
+        dp_end.find_element_by_css_selector("option[value='{0}']".format(end.year)).click()
+        # set month
+        dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
+        dp_start.find_element_by_css_selector("option[value='{0}']".format(start.month - 1)).click()
+        dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
+        dp_end.find_element_by_css_selector("option[value='{0}']".format(end.month - 1)).click()
+        # set days
+        dp_start.find_element_by_link_text("{}".format(start.day)).click()
+        dp_end.find_element_by_link_text("{}".format(end.day)).click()
 
-    def check_custom_date(
-            self, filter_name, dp_values, reverse=False, future=False):
+    def check_custom_date(self, filter_name, start, end):
         """
         Check that right date displayed in specified date filter.
 
         :param filter_name: 'last_modified' or 'upload_date'
-        :param dp_values: for example {'start': 31, 'end': 31, 'month': 11, 'year': 2013}
-        :param reverse: if True - swap start and end values
-        :param future: set dates from yesterday to now
+        :param start: start date (datetime.date object)
+        :param end: end date (datetime.date object)
         """
-        # FIXME(nanvel): is future really usefull ?
-        # FIXME(nanvel): fails when today is last day of mnth
         driver = self.selenium
         filter_id = get_filter_id(driver, filter_name)
-
-        dp_values = dict(dp_values)
-        if reverse:
-            tmp = dp_values['start']
-            dp_values['start'] = dp_values['end']
-            dp_values['end'] = tmp
-        elif future:
-            dp_values['start'] = timezone.now().date().day - 1
-            dp_values['end'] = timezone.now().date().day
-            dp_values['month'] = timezone.now().date().month
-        else:
-            dp_values['month'] += 1
-        # add forward zero for dates and months with values from 1 to 9
-        for key in dp_values:
-            if len(str(dp_values[key])) == 1:
-                 dp_values[key] = '0' + str(dp_values[key])
 
         # Check custom date is displayed in filter input
         filter_input = driver.find_element_by_id("ddcl-{0}".format(filter_id))
         filter_text = filter_input.find_element_by_css_selector(
                                     '.ui-dropdownchecklist-text').text
-        # FIXME(nanvel): month and year can be different
-        text = "{0}/{1}/{2} - {0}/{1}/{3}".format(
-            dp_values['year'], dp_values['month'],
-            dp_values['start'], dp_values['end'])
+        text = "{0} - {1}".format(
+                        datetime.strftime(start, '%Y/%m/%d'),
+                        datetime.strftime(end, '%Y/%m/%d'))
         assert text in filter_text.strip()
 
-    # FIXME(nanvel): merge this 3 tests in one
-    # And create 2 tests: one for upload_date (full) and one for last_modified (superficially)
-
-    def test_custom_datepickers_future_date(self):
+    def test_custom_upload_date(self):
         """
-        1. Go to main page
-        2. Open 'By Upload Time filter'
-        3. Click 'Pick period', check that custom period form visible
-        4. Click 'Cancel' in the form, check that form invisible
-        5. Click 'Pick Period', select date
-        6. Click 'Submit' in the custom period form
-        7. Check that in 'By Upload Date' filter displayed right date
-        8. Open 'By Time Modified' filter
-        9. Click 'Pick Period', select date
-        10. Click 'Submit' in the custom period form
-        11. Check that in 'By Time Modified' filter displayed right date
+        1. Open 'By Upload Time' filter
+        2. Click on 'Custom period' button
+        3. Check that custom period popup visible
+        4. Click 'Cancel', check that popup closed
+        5. Open filter, click 'Custom period'
+        6. Select period
+        7. Clcik 'Submit'
+        8. Check that displayed right period as filter value
+        9. Repeat 5-8 for different periods (TEST_DATES)
         """
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            # we shouldn't use dates near the end or beginning of month
-            dp_values = {
-                'start': 15, 'end': 15, 'month': 11,
-                'year': timezone.now().date().year}
-            last_modified_id = get_filter_id(driver, 'last_modified')
-            upload_date_id = get_filter_id(driver, 'upload_date')
-            # FIXME(nanvel): We shoudnt use analyte_code here only to move screen
-            analyte_code_id = get_filter_id(driver, 'analyte_code')
+            # scroll to 'By Upload Time' filter
+            filter_id = get_filter_id(driver, 'upload_date')
+            scroll_page_to_filter(driver, filter_id)
 
-            driver.execute_script(
-                "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
-                    analyte_code_id))
-
-            # -- open custom perio popup and than cloase it
-            # open 'By Upload Time' filter
-            driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-            # click 'Pick period'
+            # check popup displayed and cancel button works
+            self.assertFalse(driver.find_elements_by_css_selector('.dp-container'))
+            driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
             driver.find_element_by_css_selector(
-                    '#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-            # FIXME(nanvel): check that custom period form visible
+                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+            # check that popup is visible
+            self.assertTrue(driver.find_element_by_css_selector('.dp-container').is_displayed())
             # click 'Cancel'
-            driver.find_element_by_css_selector("button.btn-cancel.btn").click()
-            # FIXME(nanvel): check that custom period popup closed
+            driver.find_element_by_css_selector('button.btn-cancel.btn').click()
+            self.assertFalse(driver.find_elements_by_css_selector('.dp-container'))
 
-            # open 'By Upload Time' filter
-            driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-            # click 'Pick period'
+            # check different periods submit
+            for dates in self.TEST_DATES:
+                # select period
+                driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
+                driver.find_element_by_css_selector(
+                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+                self.set_datepicker_date(dates['start'], dates['end'])
+                # click 'Submin' in custom period popup
+                driver.find_element_by_css_selector("button.btn-submit.btn").click()
+                # check that displayed right period
+                self.check_custom_date('upload_date', dates['res_start'], dates['res_end'])
+
+    def test_custom_last_modified(self):
+        """
+        1. Open 'By Time Modified' filter
+        2. Click on 'Custom period' button
+        3. Select period
+        4. Clcik 'Submit'
+        5. Check that displayed right period as filter value
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            # scroll to 'By Time Modified' filter
+            filter_id = get_filter_id(driver, 'last_modified')
+            scroll_page_to_filter(driver, filter_id)
+
+            dates = self.TEST_DATES[0]
+            # select period
+            driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
             driver.find_element_by_css_selector(
-                    '#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-            # set dates
-            self.set_datepicker_date(
-                    dp_values['start'], dp_values['end'], dp_values['month'])
+                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+            self.set_datepicker_date(dates['start'], dates['end'])
             # click 'Submin' in custom period popup
             driver.find_element_by_css_selector("button.btn-submit.btn").click()
-            # check selected date
-            self.check_custom_date('upload_date', dp_values, future=True)
-
-            # the same for last_modified (By Time Modified)
-            # FIXME(nanvel): we can test last_modified superficially
-            driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-            driver.find_element_by_css_selector(
-                    '#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-            self.set_datepicker_date(
-                    dp_values['start'], dp_values['end'], dp_values['month'])
-            driver.find_element_by_css_selector("button.btn-submit.btn").click()
-            # check selected date
-            # FIXME(nanvel): should be used different days for last_modified and upload_time,
-            # to catch cases when one custom period form cange both filters values
-            self.check_custom_date('last_modified', dp_values, future=True)
-
-    def test_custom_datepickers_wrong_date(self):
-        with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): should be merged in one function
-            driver = self.selenium
-            driver.get(self.live_server_url)
-            dp_values = {
-                'start': 2, 'end': 1,
-                'year': timezone.now().date().year,
-                'month': timezone.now().date().month}
-
-            last_modified_id = get_filter_id(driver, 'last_modified')
-            upload_date_id = get_filter_id(driver, 'upload_date')
-            analyte_code_id = get_filter_id(driver, 'analyte_code')
-
-            driver.execute_script(
-                "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
-                    analyte_code_id))
-
-            driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-            driver.find_element_by_css_selector("button.btn-cancel.btn").click()
-
-            driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-            self.set_datepicker_date(dp_values['start'], dp_values['end'])
-            driver.find_element_by_css_selector("button.btn-submit.btn").click()
-
-            driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-            driver.find_element_by_css_selector("button.btn-cancel.btn").click()
-
-            driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-            self.set_datepicker_date(dp_values['start'], dp_values['end'])
-            driver.find_element_by_css_selector("button.btn-submit.btn").click()
-            self.check_custom_date('upload_date', dp_values, reverse=True)
-            self.check_custom_date('last_modified', dp_values, reverse=True)
-
-    def test_custom_datepickers_right_date(self):
-        with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): should be merged in one function
-            driver = self.selenium
-            driver.get(self.live_server_url)
-            dp_values = {
-                'start': 1, 'end': 2,
-                'year': 2012, 'month': 0}
-
-            last_modified_id = get_filter_id(driver, 'last_modified')
-            upload_date_id = get_filter_id(driver, 'upload_date')
-            analyte_code_id = get_filter_id(driver, 'analyte_code')
-
-            driver.execute_script(
-                "$('body').scrollTop($('#ddcl-{0}').position().top);".format(
-                    analyte_code_id))
-
-            driver.find_element_by_id("ddcl-{0}".format(upload_date_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(upload_date_id)).click()
-            self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
-            driver.find_element_by_css_selector("button.btn-submit.btn").click()
-
-            driver.find_element_by_id("ddcl-{0}".format(last_modified_id)).click()
-            driver.find_element_by_css_selector('#ddcl-{0}-ddw .js-pick-period'.format(last_modified_id)).click()
-            self.set_datepicker_date(dp_values['start'], dp_values['end'], dp_values['year'], dp_values['month'])
-            driver.find_element_by_css_selector("button.btn-submit.btn").click()
-            self.check_custom_date('upload_date', dp_values)
-            self.check_custom_date('last_modified', dp_values)
-
-            driver.execute_script(
-                    "$('body').scrollTop($('#id_apply_filters').position().top);")
-            driver.find_element_by_id("id_apply_filters").click()
-
-            applied_filters = driver.find_element_by_css_selector('.applied-filters')
-            assert 'Uploaded' in applied_filters.text
-            assert 'Modified' in applied_filters.text
+            # check that displayed right period
+            self.check_custom_date('last_modified', dates['res_start'], dates['res_end'])
 
 
 class HelpHintsTestCase(LiveServerTestCase):
