@@ -138,7 +138,7 @@ jQuery(function ($) {
         // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
-                if(!$target.text().trim().length) return '';
+                if(!$.trim($target.text()).length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
                 .eq(index).text()
@@ -151,7 +151,7 @@ jQuery(function ($) {
         // for values in details table
         activateDetailsValueTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('#itemDetailsModal table td', function($target) {
-                if(!$target.text().trim().length) return '';
+                if(!$.trim($target.text()).length) return '';
                 var columnName = $target.parent().find('th').text();
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();
