@@ -380,6 +380,10 @@ jQuery(function ($) {
                         var $block = $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper');
                         var $select = $block.prev().prev();
                         $block.find('input').prop('checked', false).change(function() {
+                            // select clicked option
+                            $select.find('option').attr('selected', false);
+                            $select.find('option[value = "' + $(this).val() + '"]').attr('selected', 'selected');
+                            // delete custom period option
                             $select.find('.js-custom-option').remove();
                             $select.dropdownchecklist("refresh");
                         });
