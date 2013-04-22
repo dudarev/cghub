@@ -73,9 +73,19 @@ jQuery(function ($) {
                 var section = $select.attr('data-section');
                 if(section in filters) {
                     if(section == 'refassem_short_name') {
-                        for(var i=0; i<filters[section].length; i++) {
-                            $select.find('option[value*="' + filters[section][i] + '"]').attr('selected', 'selected');
-                        }
+                        $select.find('option').each(function(j, opt) {
+                            var values = $(opt).val().split(' OR ');
+                            var enable_option = true;
+                            for(var i=0; i<values.length; i++) {
+                                if($.inArray(values[i], filters[section]) == -1) {
+                                    enable_option = false;
+                                    break;
+                                }
+                            }
+                            if(enable_option) {
+                                $(opt).attr('selected', 'selected');
+                            }
+                        });
                     } else if (section == 'last_modified' || section == 'upload_date') {
                         var value = filters[section][0];
                         var time_filter = $select.find('option[value = "' + value + '"]');
