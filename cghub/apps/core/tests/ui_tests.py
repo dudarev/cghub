@@ -510,8 +510,7 @@ class DetailsTestCase(LiveServerTestCase):
         self.selenium.quit()
         super(DetailsTestCase, self).tearDownClass()
 
-    # FIXME(nanvel): maybe use self.selenium instead driver ?
-    def check_popup_shows(self, driver):
+    def check_popup_shows(self):
         """
         Check that details popup appears when clicking on table cell or
         when select related item in table cell context menu.
@@ -521,54 +520,37 @@ class DetailsTestCase(LiveServerTestCase):
         4. Click on 'Close' button in popup
         5. Check that popup invisible
         6. Open table cell context menu
-        7. Click related context menu item
-        8. Check that details popup is visible
-        9. Close details popup
+        7. Check that details button exists in context menu
         """
-        with self.settings(**TEST_SETTINGS):
-            ac = ActionChains(driver)
-            # check that popup not displayed yet
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert not popup.is_displayed()
-            # click on table cell
-            td = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[{0}]/td[{1}]".format(1, 2))
-            td.click()
-            # FIXME(nanvel): is Analysis ID in second row ?
-            # fix this after custom settings for tests will be implemented
-            uuid = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[{0}]/td[2]".format(1)).text
-            # FIXME(nanvel): Is this timeout necessary ?
-            time.sleep(4)
-            # FIXME(nanvel): should we search for popup once more ?
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            # check that popup displayed
-            assert popup.is_displayed()
-            assert uuid in driver.find_element_by_css_selector('#details-label').text
-            # close popup
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-            time.sleep(1)
-            # FIXME(nanvel): check that popup closed
-            # test clicking on 'Details' option from context menu leads to details popup opening
-
-            # try to open popup from context menu
-            context_menu = driver.find_element_by_css_selector('#table-context-menu')
-            # check that popup is invisible
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert not popup.is_displayed()
-            # try to open popup using context menu
-            ac.context_click(td)
-            ac.perform()
-            # check that context menu is visible
-            driver.find_element_by_css_selector('#table-context-menu').is_displayed()
-            # click on context menu row
-            driver.find_element_by_css_selector('.js-details-popup').click()
-            # FIXME(nanvel): should we search for popup once more ?
-            popup = driver.find_element_by_css_selector('#itemDetailsModal')
-            assert popup.is_displayed()
-            # close popup
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
-            time.sleep(1)
+        driver = self.selenium
+        ac = ActionChains(driver)
+        # check that popup not displayed yet
+        popup = driver.find_element_by_css_selector('#itemDetailsModal')
+        assert not popup.is_displayed()
+        # click on table cell
+        td = driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+        td.click()
+        # analysis_id consist in first column
+        uuid = driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]").get_attribute('data-analysis_id')
+        time.sleep(3)
+        # check that popup displayed
+        assert popup.is_displayed()
+        assert uuid in driver.find_element_by_css_selector('#details-label').text
+        # close popup
+        driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+        time.sleep(1)
+        assert not popup.is_displayed()
+        # check context menu
+        context_menu = driver.find_element_by_css_selector('#table-context-menu')
+        assert not context_menu.is_displayed()
+        ac.context_click(td)
+        ac.perform()
+        # check that context menu is visible
+        assert context_menu.is_displayed()
+        # check that details popup button visible
+        assert driver.find_element_by_css_selector('.js-details-popup').is_displayed()
 
     def test_details_popups(self):
         """
@@ -582,33 +564,31 @@ class DetailsTestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            self.check_popup_shows(driver)
+            self.check_popup_shows()
             # add one file to cart (then user will be redirected to cart page)
             driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[{0}]/td[1]/div/input".format(1)
+                    "//div[@class='bDiv']/table/tbody/tr[1]/td[1]/div/input"
                     ).click()
             driver.find_element_by_css_selector('.add-to-cart-btn').click()
-            time.sleep(4)
-            self.check_popup_shows(driver)
+            time.sleep(5)
+            self.check_popup_shows()
 
     def test_xml_display(self):
         """
         Go to details page and check 'Collapse all/Expand all' feature.
         1. Go to search page
         2. Click on link to item details page (cell context menu)
-        3. ...
+        3. Check that url contains #raw-xml
+        4. Check that collapse/expand future works properly
         """
         with self.settings(**TEST_SETTINGS):
             # FIXME(nanvel): extend description ^
             driver = self.selenium
             driver.get(self.live_server_url)
-            # FIXME(nanvel): open details page from context menu, not from details popup
+            # Click on 'Metadata XML' in details popup
             td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
             td.click()
             time.sleep(3)
-            # FIXME(nanvel): Maybe create common function for this
-            driver.execute_script(
-                "$('.modal-body').scrollTop($('.raw-xml-link').position().top);")
             driver.find_element_by_css_selector('.raw-xml-link').click()
             time.sleep(3)
             assert '#raw-xml' in driver.current_url
@@ -619,7 +599,6 @@ class DetailsTestCase(LiveServerTestCase):
             collapsed_xml = xml_containers[0].find_elements_by_class_name('Element')
             expanded_xml = xml_containers[1].find_elements_by_class_name('Element')
             assert len(expanded_xml) > len(collapsed_xml)
-            # FIXME(nanvel): what xml containers are ?
             assert not xml_containers[0].is_displayed()
             assert xml_containers[1].is_displayed()
             driver.find_element_by_css_selector('#id-collapse-all-button').click()
@@ -629,21 +608,23 @@ class DetailsTestCase(LiveServerTestCase):
     def test_details_page(self):
         """
         Go to details page and try to download metadata.
+        1. Remove downloaded metadata.xml if exists
+        2. Open row context menu and click 'Show details in new window'
+        3. Click on 'Download XML' button
+        4. Check that file downloaded
         """
-        # FIXME(nanvel): extend description ^
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            # remove existing metadata file if exists
+            # remove saved metadata file if exists
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 pass
-            # FIXME(nanvel): move this to separate function and use in previous tests
             td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
-            # FIXME(nanvel): is analysis_id in tr[1]/td[2] ? Check this after custom settings for tests will be implemented
-            td_text = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").text
+            analysis_id = driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]").get_attribute('data-analysis_id')
+            # open row context menu and click 'Show details in new window'
             ac = ActionChains(driver)
             ac.context_click(td)
             ac.perform()
@@ -651,17 +632,17 @@ class DetailsTestCase(LiveServerTestCase):
             time.sleep(5)
             driver.switch_to_window(driver.window_handles[-1])
             page_header = driver.find_element_by_class_name('page-header').text
-            assert (td_text in driver.current_url and 'details' in driver.current_url)
-            assert (td_text in page_header and 'details' in page_header)
-            # scroll page to Metadata down load button (make it visible)
+            assert (analysis_id in driver.current_url and 'details' in driver.current_url)
+            assert (analysis_id in page_header and 'details' in page_header)
+            # scroll page to Metadata download button (make it visible)
             driver.execute_script(
                 "$(window).scrollTop($('#id-download-metadata').offset().top - 100);")
-            # try to load analysis xml
+            # try to download analysis xml
             driver.find_element_by_id('id-download-metadata').click()
             time.sleep(3)
             # check that metadata file was downloaded
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 

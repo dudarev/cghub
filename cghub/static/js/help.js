@@ -131,7 +131,7 @@ jQuery(function ($) {
         },
         // for headers in details table
         activateDetailsHeaderTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('#itemDetailsModal table th', function($target) {
+            cghub.help.activateTooltipsForSelector('table.js-details-table th', function($target) {
                 return $target.text();
             });
         },
@@ -150,7 +150,7 @@ jQuery(function ($) {
         },
         // for values in details table
         activateDetailsValueTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('#itemDetailsModal table td', function($target) {
+            cghub.help.activateTooltipsForSelector('table.js-details-table td', function($target) {
                 if(!$.trim($target.text()).length) return '';
                 var columnName = $target.parent().find('th').text();
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
