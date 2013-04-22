@@ -15,7 +15,7 @@ from django.utils import timezone
 from cghub.wsapi.api import request as api_request
 from cghub.settings.utils import root
 from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES
+from cghub.apps.core.attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 
 
 """
@@ -73,6 +73,9 @@ TEST_SETTINGS = dict(
         'Analysis Id': {
             'width': 220, 'align': 'left', 'default_state': 'visible',
         },
+        'Assembly': {
+            'width': 120, 'align': 'left', 'default_state': 'visible',
+        },
         'Center': {
             'width': 100, 'align': 'left', 'default_state': 'visible',
         },
@@ -110,7 +113,7 @@ TEST_SETTINGS = dict(
     DEFAULT_FILTERS = {
         'study': ('phs000178','*Other_Sequencing_Multiisolate'),
         'state': ('live',),
-        'upload_date': '[NOW-1DAY+TO+NOW]',
+        'upload_date': '[NOW-7DAY+TO+NOW]',
     },
     # use existing cache
     WSAPI_CACHE_DIR=TEST_CACHE_DIR,
@@ -265,6 +268,7 @@ class SidebarTestCase(LiveServerTestCase):
         2. Open every filter and select few items.
         3. Click on 'Apply filters'
         4. Check that only selected filters options exists in url
+        5. Check 'Applied filter(s):' list
         """
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
@@ -330,11 +334,23 @@ class SidebarTestCase(LiveServerTestCase):
                     self.assertIn(option.replace(' ', '+'), url)
 
             # check that no unselected options in url
-            for i in unselected_options:
-                self.assertNotIn('(%s+' % i, url)
-                self.assertNotIn('+%s+' % i, url)
-                self.assertNotIn('+%s)' % i, url)
-                self.assertNotIn('(%s)' % i, url)
+            for option in unselected_options:
+                self.assertNotIn('(%s+' % option, url)
+                self.assertNotIn('+%s+' % option, url)
+                self.assertNotIn('+%s)' % option, url)
+                self.assertNotIn('(%s)' % option, url)
+
+            # check that applied filters exists in 'Applied filter(s)' list
+            applied_filters = self.selenium.find_element_by_xpath(
+                                    "//div[@class='applied-filters']/ul").text
+            for f in selected_options_values:
+                if f in DATE_ATTRIBUTES:
+                    return
+                options = selected_options_values[f]
+                for option in options:
+                    self.assertIn(option, applied_filters)
+            for option in unselected_options:
+                self.assertIn(option, applied_filters)
 
 
 class CustomPeriodTestCase(LiveServerTestCase):
@@ -649,8 +665,6 @@ class DetailsTestCase(LiveServerTestCase):
 
 class SearchTestCase(LiveServerTestCase):
 
-    query = "6d5"
-
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
@@ -662,20 +676,8 @@ class SearchTestCase(LiveServerTestCase):
         self.selenium.quit()
         super(SearchTestCase, self).tearDownClass()
 
-    # FIXME(nanvel): Is this can be moved to tearDownClass ?
     def tearDown(self):
         self.selenium.delete_all_cookies()
-
-    # FIXME(nanvel): * is deprecated
-    # FIXME(nanvel): is this used ?
-    def search(self, text="6d1*"):
-        """
-        Enters query to search field and submit form
-        """
-        element = self.selenium.find_element_by_name("q")
-        element.clear()
-        element.send_keys(text)
-        element.submit()
 
     def test_no_results(self):
         """
@@ -691,217 +693,135 @@ class SearchTestCase(LiveServerTestCase):
             element.clear()
             element.send_keys("some text")
             element.submit()
-            time.sleep(2)
+            time.sleep(3)
             result = self.selenium.find_element_by_xpath(
                 "//div[contains(@class,'base-container')]/div/h4")
             assert result.text == "No results found."
 
-    def test_url(self):
-        with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): merge in previous test
-            self.selenium.get(self.live_server_url)
-            element = self.selenium.find_element_by_name("q")
-            element.clear()
-            element.send_keys("6d71test")
-            element.submit()
-            time.sleep(2)
-            assert "/search/?q=6d71test" in self.selenium.current_url
-
     def test_search_result(self):
         """
         Check results exists if right query entered.
-        1. Go to search page
-        2. Enter query
-        3. Submit
-        4. Check that results exists
+        1. Go to search page (used default query)
+        3. Check that results exists
+        4. Check that table displayed
         """
         with self.settings(**TEST_SETTINGS):
             self.selenium.get(self.live_server_url)
-            element = self.selenium.find_element_by_name("q")
-            element.clear()
-            element.send_keys("6d711")
-            element.submit()
-            time.sleep(5)
+            time.sleep(3)
             assert "Found" in self.selenium.find_element_by_xpath(
                     "/html/body/div[2]/div[2]/div[2]").text
-            # FIXME(nanvel): check that table visible
+            # check that table displayed
+            assert self.selenium.find_element_by_id('id_add_files_form')
 
     def test_count_pages(self):
         """
         Check 10, 25, 50 items per page links.
-        1. Go to search page
-        2. Enter query (with more than 50 results)
-        3. Submit
-        4. Check that 10 rows in table
-        5. Click 25
-        6. Check that 25 rows in table
-        7. Click 50
-        8. Check that 50 rows in table
+        1. Go to search page (with more than 50 results)
+        2. Check that 10 rows in table
+        3. Click 25
+        4. Check that 25 rows in table
+        5. Click 50
+        6. Check that 50 rows in table
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): go to results immediately (insert q=6d1 in url)
             self.selenium.get(self.live_server_url)
-            element = self.selenium.find_element_by_name("q")
-            element.clear()
-            element.send_keys("6d1")
-            element.submit()
             time.sleep(3)
-            # FIXME(nanvel): check that 10 lines viewed
+            assert 10 == len(self.selenium.find_elements_by_xpath(
+                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
             self.selenium.find_element_by_link_text("25").click()
             assert 25 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
             self.selenium.find_element_by_link_text("50").click()
             assert 50 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
 
     def test_pagination(self):
         """
         Check that pagination works.
         1. Go to search page
-        2. Enter query
-        3. Submit
-        4. Check that results exists
+        2. Check that results exists
+        3. Check that no offset in url
+        4. Check that first page and 'Prev' links disabled
         5. Find link to second page in pagination and click it
         6. Check that table filled
+        7. Check that url contains offset and limit
+        8. Go throw few pages to last page
+        9. Check that current page link disabled
+        10. Click 'Prev'
+        11. Check that pages_count - 1 page selected
         """
+
+        def link_state(link):
+            """
+            Returns True if link is active
+            """
+            parent = link.find_element_by_xpath("..")
+            # disabled buttons Next and Prev and
+            # active page button counts disabled
+            return not parent.get_attribute('class') in ('disabled', 'active',)
+
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): maybe update queries because we now use 6d1 instead 6d1*
             self.selenium.get(self.live_server_url)
-            element = self.selenium.find_element_by_name("q")
-            element.clear()
-            element.send_keys("6d1")
-            element.submit()
-            # FIXME(nanvel): maybe use less pause
-            time.sleep(5)
-            assert "Found" in self.selenium.find_element_by_xpath(
-                    "/html/body/div[2]/div[2]/div[2]").text
+            time.sleep(3)
+
+            # check that results exists
             assert 10 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+            assert 'offset' not in self.selenium.current_url
+
+            # initially 'Prev' and '1' links should be disabled
+            prev = self.selenium.find_element_by_link_text('Prev')
+            assert not link_state(prev)
+            first = self.selenium.find_element_by_link_text('1')
+            assert not link_state(first)
+
+            # got to second page
             self.selenium.find_element_by_link_text("2").click()
             assert 10 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[6]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+            # check that url contains offset and limit
+            assert 'offset=10&limit=10' in self.selenium.current_url
 
-    def test_pagination_links(self):
-        with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): interrate with test_pagination
-            self.selenium.get(self.live_server_url)
-            self.search("6d1")
+            found = self.selenium.find_element_by_xpath(
+                                    "/html/body/div[2]/div[2]/div[2]")
+            pages_count = (int(found.text.split()[1]) / 10) + 1
 
-            found = (self.selenium.find_element_by_css_selector(
-                    ".base-content > div:nth-child(2)"))
-            try:
-                page_count = (int(found.text.split()[1]) / 10) + 1
-            except:
-                page_count = None
+            # check other pages
+            for page in (2, pages_count,):
+                self.selenium.find_element_by_link_text(str(page)).click()
+                a = self.selenium.find_element_by_link_text(str(page))
+                assert not link_state(a)
 
-            if page_count:
-                # initially 'Prev' and '1' links should be disabled
-                prev = self.selenium.find_element_by_link_text('Prev')
-                self.__link_is_disabled(prev)
-                first = self.selenium.find_element_by_link_text('1')
-                self.__link_is_active(first)
+            # check 'Prev'
+            self.selenium.find_element_by_link_text('Prev').click()
+            current = self.selenium.find_element_by_link_text(str(pages_count - 1))
+            assert not link_state(current)
 
-                # check other pages
-                for page_num in (2, 3, page_count):
-                    self.selenium.find_element_by_link_text(str(page_num)).click()
-                    a = self.selenium.find_element_by_link_text(str(page_num))
-                    self.__link_is_active(a)
-
-                # 'Next' link should be disabled in case when last page selected
-                next = self.selenium.find_element_by_link_text('Next')
-                self.__link_is_disabled(next)
-
-                # check 'Prev'
-                self.selenium.find_element_by_link_text('Prev').click()
-                current = self.selenium.find_element_by_link_text(str(page_num - 1))
-                self.__link_is_active(current)
-
-                # check 'Next'
-                self.selenium.find_element_by_link_text('Next').click()
-                current = self.selenium.find_element_by_link_text(str(page_num))
-                self.__link_is_active(current)
-
-    def test_applied_filters_display(self):
-        """
-        Check that applied filters displayed.
-        1. Go to search page
-        2. Open 'By center' filter, unselect all
-        3. Select 1-st and 4-th items (Baylor, Harvard)
-        4. Open 'By Assembly' filter, unselect all items        
-        5. Select first item (NCBI36/HG18)
-        6. Submit form
-        7. Check that selected filters visible in sidebar
-        8. Check that applied filters visible in 'Applied filters'
-        """
-        with self.settings(**TEST_SETTINGS):
-            self.selenium.get(self.live_server_url)
-
-            # TODO(nanvel): add filter by date here
-
-            # unselect all in Center
-            center_id = get_filter_id(self.selenium, 'center_name')
-            self.selenium.execute_script("$('#ddcl-{0}').click()".format(center_id))
-            # FIXME(nanvel): is it unselect all? What value by default?
-            self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
-            self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(center_id))
-            # select Baylor and Harvard
-            self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(center_id))
-            self.selenium.execute_script("$('#ddcl-{0}-i4').click()".format(center_id))
-
-            # unselect all in Assembly
-            assembly_id = get_filter_id(self.selenium, 'refassem_short_name')
-            self.selenium.execute_script("$('#ddcl-{0}').click()".format(assembly_id))
-            # FIXME(nanvel): is it unselect all ?
-            self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
-            self.selenium.execute_script("$('#ddcl-{0}-i0').click()".format(assembly_id))
-            # select NCBI36/HG18
-            self.selenium.execute_script("$('#ddcl-{0}-i1').click()".format(assembly_id))
-
-            # FIXME(nanvel): it's confusing, just click 'Submit'
-            self.search()
-
-            # check filters is shown
-            filter = (self.selenium.find_element_by_css_selector(
-                    "#ddcl-{0} > span:first-child > span".format(center_id)))
-            # FIXME(nanvel): format was changed
-            self.assertEqual(filter.text, u'Baylor\nHarvard')
-
-            filter2 = (self.selenium.find_element_by_css_selector(
-                    "#ddcl-{0} > span:first-child > span".format(assembly_id)))
-            self.assertEqual(filter2.text, u'NCBI36/HG18')
-
-            # TODO(nanvel): check filters visible in 'Applied filters'
-
-    # FIXME(nanvel): is this can be removed ?
-    def __parent_has_class(self, child, class_name):
-        parent = child.find_element_by_xpath("..")
-        self.assertEqual(u'{}'.format(class_name),
-                         parent.get_attribute('class'))
-
-    def __link_is_disabled(self, link):
-        self.__parent_has_class(link, 'disabled')
-
-    def __link_is_active(self, link):
-        self.__parent_has_class(link, 'active')
 
     def test_sorting_order(self):
         """
-        Test that sorting works properly
+        Test that sorting works properly.
+        1. Go to search page (default query)
+        2. Walk throw table columns
+        3. Click on column header to select descending ordering
+        4. Get top value in clumn
+        5. Click on column header once more to select ascending ordering
+        6. Get top value in column and compare in with previous
+        7. Repeat 3..6 for every column
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): extend description ^
-            # FIXME(nanvel): test only few columns
-            columns = [
-                    'Analysis Id', 'Study', 'Disease', 'Disease Name',
-                    'Library Type', 'Assembly', 'Center',
-                    'Center Name', 'Experiment Type', 'Uploaded',
-                    'Modified', 'Sample Type', 'Sample Type Name', 
-                    'State', 'Barcode', 'Sample Accession', 'Files Size'
-            ]
             self.selenium.get(self.live_server_url)
-            for i, column in enumerate(columns):
-                if i in (3, 7, 11):
+            for i, column in enumerate(TEST_SETTINGS['TABLE_COLUMNS']):
+                # walk over all visible table columns
+                if TEST_SETTINGS['COLUMN_STYLES'][column]['default_state'] == 'hidden':
                     continue
+                # sorting by keys, not by names
+                if 'Name' in column:
+                    continue
+                # codes uses here and ordering by full name
+                if column == 'Sample Type':
+                    continue
+                attr = COLUMN_NAMES[column]
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
@@ -909,7 +829,7 @@ class SearchTestCase(LiveServerTestCase):
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
-                # getting first element in column
+                # getting top element in the column
                 selector = ".bDiv > table td:nth-child({})".format(i + 2)
                 first = self.selenium.find_element_by_css_selector(selector).text
 
@@ -924,7 +844,8 @@ class SearchTestCase(LiveServerTestCase):
                         first == ' ' or second == ' '):
                     if column == 'Files Size':
                         # GB == GB, MB == MB, etc.
-                        first, second = back_to_bytes(first, second)
+                        first = back_to_bytes(first)
+                        second = back_to_bytes(second)
                         self.assertLessEqual(first, second)
                     else:
                         self.assertLessEqual(first, second)
