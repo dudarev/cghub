@@ -6,7 +6,8 @@ Storage file for filters
         'title': 'section_title',
         'filters': {
             'filter_value': 'filter_title',
-        }
+        },
+        'selectFilter': True,
     }
 }
 
@@ -21,10 +22,14 @@ For dates it has special format:
             'filter_value': {
                 'filter_name': 'filter_title',
                 'filter_id': 'filter_id'
-            }
+            },
+        'selectFilter': True,
         }
     }
 }
+
+'selectFilter' is True or unspecified, apply the select filter algorithm to
+this filter.  Defaults to True in not specified.
 
 """
 
@@ -47,6 +52,8 @@ DATE_FILTERS_HTML_IDS = OrderedDict([
 #
 # Keep names in sync with app/cghub/settings/help.py
 
+# FIXME: would be good to have these class
+
 ALL_FILTERS = OrderedDict([
     ("study", {
         "title": "By Study",
@@ -54,7 +61,8 @@ ALL_FILTERS = OrderedDict([
             ("phs000178", "TCGA"),
             ("*Other_Sequencing_Multiisolate", "CCLE"),
             ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
-        ])
+        ]),
+        "selectFilter": False,
     }),
     ("disease_abbr", {
         "title": "By Disease",
@@ -186,10 +194,13 @@ ALL_FILTERS = OrderedDict([
             ("BCCAGSC", "BCCAGSC"),
             ("BI", "BI"),
             ("HMS-RK", "HMS-RK"),
+            ("UCSC", "UCSC"),
             ("UNC-LCCC", "UNC-LCCC"),
             ("USC-JHU", "USC-JHU"),
             ("WUGSC", "WUGSC"),
+            ("CGHUB", "CGHub"),
         ]),
+        "selectFilter": False,
     }),
     ("platform", {
         "title": "By Platform",
@@ -209,6 +220,7 @@ ALL_FILTERS = OrderedDict([
         'filters': OrderedDict([
             ('NCBI36* OR HG18*', 'NCBI36/HG18 based'),
             ('GRCh37* OR HG19*', 'GRCh37/HG19 based'),
+            ('NCBI-human-build36', 'NCBI-human-build36'),
             ('HG18', 'HG18'),
             ('HG18_Broad_variant', 'HG18_Broad_variant'),
             ('NCBI36_BCCAGSC_variant', 'NCBI36_BCCAGSC_variant'),
@@ -220,8 +232,8 @@ ALL_FILTERS = OrderedDict([
             ('HG19', 'HG19'),
             ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),
             ('HG19_Broad_variant', 'HG19_Broad_variant'),
-            ('NCBI-human-build36', 'NCBI-human-build36'),
         ]),
+        "selectFilter": False,
     }),
     ('upload_date', {
         'title': 'By Upload Time',
@@ -247,6 +259,7 @@ ALL_FILTERS = OrderedDict([
                 'filter_name': 'Last 12 months',
             }),
         ]),
+        "selectFilter": False,
     }),
     ("last_modified", {
         "title": "By Modification Time",
@@ -267,18 +280,21 @@ ALL_FILTERS = OrderedDict([
                 "filter_name": "Last 12 months",
                 "filter_id": "id_date_year"}),
         ]),
+        "selectFilter": False,
     }),
     ("state", {
         "title": "By State",
         "filters": OrderedDict([
             ("live", "Live"),
+            ("suppressed", "Suppressed"),
+            ("redacted", "Redacted"),
             ("submitted", "Submitted"),
-            ("supressed", "Supressed"),
             ("uploading", "Uploading"),
             ("validating_data", "Validating data"),
             ("validating_sample", "Validating sample"),
             ("augmenting_data", "Augmenting data"),
             ("bad_data", "Bad data"),
-        ])
+        ]),
+        "selectFilter": False,
     }),
 ])

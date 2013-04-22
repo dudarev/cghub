@@ -1,16 +1,18 @@
 Test case ID	Description	Expected outcome 
-Links navigations		 
+	Browser	Note version	Firefox	Chrome	IE-10	IE-9	IE-8
+	Tester	
+Links navigations		
 LINKS-1	Links (Home, Cart, Help) lead to correct pages.	Expected pages are open when links are clicked. 
-LINKS-2	Access application without trailing slash in URL.	Application behaves as expected for all links. 
-Sidebar navigation		 
-SIDEBAR-1	Clicking (all) checkbox selects or deselects all in that category.	 
-SIDEBAR-2	Only one category can be selected for category	Radio buttons allow to select only one category for this special category. 
+LINKS-2	Access application without trailing slash in URL. I.E. "https://stage-browser.cghub.ucsc.edu"	Application behaves as expected for all links. 
+Sidebar navigation		
+SIDEBAR-1	Clicking (all) checkbox selects or deselects all in that category.	
+SIDEBAR-2	Data filters should only allow either one first age range or the age range from the calander to be selected.	Age values are exclusive and setting an age value clears the explict period select.  Selecting a period from the calendar clears the age value. 
 SIDEBAR-3	Correct link is created when only some values are selected	When a user clicks correct page is displayed. Try applying selections in several categories. 
-SIDEBAR-4	'Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button, applied filters are reset. 
+SIDEBAR-4	Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button, applied filters are reset. 
 SIDEBAR-5	Time filters have 'Pick period' option.	When chosing 'Pick period' option in time filters, form with two datepickers are shown. 
-Search		 
-SEARCH-1	Entering a search term and hitting enter leads to correct page	When a user enters a search term, for instace, '6d1*' (without quotes) it goes to correct page: '/search/?q=6d1*'. 
-SEARCH-2	No search results when nothing is found	A message is displayed when no results are found: 
+Search		
+SEARCH-1	Entering a search term and hitting enter leads to correct page	(6d1* is no longer supported, should result in a diaglog saying so) try a2
+SEARCH-2	No search results when nothing is found	A message is displayed when no results are found:  (try aaa)
 SEARCH-3	Results are paginated if more than 10	If more than 10 results are returned, they are grouped in groups of 10. 
 SEARCH-4	Total number of results is shown	A page with results has a message 
 SEARCH-5	Used filters are shown	On search results page a message about used filters is shown. For example: 
@@ -18,21 +20,31 @@ SEARCH-6	Page navigation links	Links , , 1, 2, etc. lead to correct search resul
 SEARCH-7	Sorting is done by clicking table headlines	When a user clicks table headers, sorting is made and sorting order is displayed. When the link is clicked again, the order is reversed and new order is displayed. 
 SEARCH-8	Select Items per page of 25, then 50	More items are displays 
 SEARCH-9	Fewer columns fill all space of the table.	When selected fewer columns, they fill all free space in the table. No blank space should be on the right side. 
-SEARCH-10	When focusing table cell or column for more than 2 seconds help hint appears.	When user focuses a column or cell of a results table for more than 2 seconds, tooltip with help info appears. 
+SEARCH-10	When focusing table cell or column with tooltips for more than 1/2 second help hint appears.  Tooltips should be on all headers and on abbreviation column values.  They will not appear on name or identifier columns.	Correct tooltip appears 
 SEARCH-11	When table row is clicked, popup with details is shown.	When user clicks on a table row, popup with details appears. Details also include link to details page with raw XML displayed.
 SEARCH-12	Raw XML on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' or 'Expand all' button XML data is collapsed and expanded respectively. 
-Cart		 
+SEARCH-13	Type search of aa* (no quotes)	get error that search is not supported.
+SEARCH-14	3-users search at a time simultaneous search - with different library strategies  [WGS, WXS, and RNA-Seq	Resulting load on system is handled "gracefully"  - no system error messages, crashes, etc
+SEARCH-15	3-way simultaneous "Add all to Cart"  (with items from 3-way simultaneous search task above)	All return results in a reasonable time period and can be added to the cart.
+SEARCH-16	2-way simultaneous test.  Person A and B using IE10.  Person A selects centers BCM thru HMS-RK. Person B flltering on the rest starting at UNC-LCCC.  Both filter at once, create cart when results appear, and then each downloading manifest and then metadata.	Both sessions handled without interrupt or system hang.  long delay for person A likely but expecting positive add to cart (and message provided was appropriate) and successful manifest downloads.
+SEARCH-17	Check use of unsupported metaseach characters in text box.   Enter aaa* in the search box and hit enter  (from RM 1915)	Page saying that one shouldn't be using * or ? in searches.
+SEARCH-18	Check search box done not  persistence when browser window is closed and revisited.  	Search box should be empty. [WILL FAIL, FEATURE NOT IMPLEMENTED]
+Cart		
 CART-1	Items from search results may be added to cart by selecting checkboxes	When button is clicked, selected items will be added to cart. User will be redirected to the cart page. 
-CART-2	'Select all' checkbox selects all items	Checkbox in header of the table can check or uncheck all other checkboxes in the table.
+CART-2	Select all' checkbox selects all items	Checkbox in header of the table can check or uncheck all other checkboxes in the table.
 CART-3	Cart statistics on cart page	There is information on cart page: number of files in cart and total size of them. 
-CART-4	Number of files in the cart is shown in Cart navigation link	For instance, 
+CART-4	Number of files in the cart is shown in Cart navigation link	For instance, the cart link in the navigator bar next to browser and help (top left) has the total number of itmes in the cart "Cart (1386)"
 CART-5	Items may be removed from the cart	When checkboxes are checked and 'Remove from cart' button is clicked, the corresponding items will be removed from the cart. 
-CART-6	All items may be romeved from cart by click on 'Clear cart' button	When user clicks 'Clear cart' button, cart is being cleared, no matter if checkboxes are selected or not. 
-CART-7	Select all checkbox works the same way as in search results	see CART-2 
+CART-6	All items may be removed from cart by click on 'Clear cart' button	When user clicks 'Clear cart' button, cart is being cleared, no matter if checkboxes are selected or not. 
+CART-7	Select all checkbox works the same way, on the cart page, as in "browser search results area (main results area/home page)	see CART-2 
 CART-8	Headers may sort cart content	When clicking cart table headers, table content  is sorted correspondingly See SEARCH-7 
 CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart should be downloaded in XML format.  
 CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button is clicked, metadata for all items in the cart should be downloaded in XML format. 
 CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart should be downloaded in TSV format. 
 CART-12	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
-CART-13	'Add all to cart' button adds all files to cart.	'Add all to cart' button when clicked adds all files from search results to the cart. 
-
+CART-13	Add all to cart' button adds all files to cart.	Add all to cart' button when clicked adds all files from search results to the cart. 
+		
+SIDEBAR-6	check states	augmenting_data bad_data live redacted submitted suppressed uploading validating_data validating_sample
+SIDEBAR-7	check center list 	BCCAGSC WUGSC BI HMS-RK UNC-LCCC BCM UCSC CGHUB USC-JHU
+GENERAL-1	Check for FOUC.   Start web browser or refresh the current page if you're already on a search result page of the browser.	The page should load with the correct table layout and dimension right from the beginning.  No "Flash Of Unstyled Content".
+UNITTEST-1	Run unit test (make test)	Long running, no errors expect

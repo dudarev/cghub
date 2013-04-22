@@ -3,7 +3,7 @@ import shutil
 import os
 from django.utils import unittest
 from wsapi.api import request
-from wsapi.utils import get_setting
+from wsapi.utils import get_setting,  makedirs_group_write
 
 
 class PaginationTestCase(unittest.TestCase):
@@ -24,7 +24,7 @@ class PaginationTestCase(unittest.TestCase):
         TEST_DATA_DIR = 'tests/test_data/'
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),

@@ -57,11 +57,11 @@ def file_size(value):
     except ValueError:
         return ''
     if bytes >= 1073741824:
-        return ('%.2f GB' % round(bytes / 1073741824., 2)).replace('.', ',')
+        return ('%.2f GB' % round(bytes / 1073741824., 2))
     if bytes >= 1048576:
-        return ('%.2f MB' % round(bytes / 1048576., 2)).replace('.', ',')
+        return ('%.2f MB' % round(bytes / 1048576., 2))
     if bytes >= 1024:
-        return ('%.2f KB' % round(bytes / 1024., 2)).replace('.', ',')
+        return ('%.2f KB' % round(bytes / 1024., 2))
     return '%d Bytes' % bytes
 
 

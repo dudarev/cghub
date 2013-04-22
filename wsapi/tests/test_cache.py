@@ -6,7 +6,7 @@ import unittest
 import datetime, time
 
 from wsapi.api import request, Results
-from wsapi.utils import clear_cache, get_setting
+from wsapi.utils import clear_cache, get_setting, makedirs_group_write
 
 
 TEST_DATA_DIR = 'tests/test_data/'
@@ -30,7 +30,7 @@ class CacheTest(unittest.TestCase):
 
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         for f in self.cache_files + self.bad_cache_file:
             shutil.copy(
                     os.path.join(TEST_DATA_DIR, f),
