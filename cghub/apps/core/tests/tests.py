@@ -388,9 +388,9 @@ class TemplateTagsTestCase(TestCase):
 
     def test_file_size_filter(self):
         self.assertEqual(file_size('123'), '123 Bytes')
-        self.assertEqual(file_size(123456), '120,56 KB')
-        self.assertEqual(file_size(1234567), '1,18 MB')
-        self.assertEqual(file_size(1234567890), '1,15 GB')
+        self.assertEqual(file_size(123456).replace('.', ','), '120,56 KB')
+        self.assertEqual(file_size(1234567).replace('.', ','), '1,18 MB')
+        self.assertEqual(file_size(1234567890).replace('.', ','), '1,15 GB')
 
     def test_table_header_tag(self):
         COLUMNS = ('Disease', 'Analysis Id', 'Study')
