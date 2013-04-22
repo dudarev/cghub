@@ -18,6 +18,7 @@ from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
 
 from cghub.wsapi.api import Results
+from cghub.wsapi.utils import makedirs_group_write
 
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
@@ -47,7 +48,7 @@ class WithCacheTestCase(TestCase):
 
         # wsapi cache
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
-            os.makedirs(settings.WSAPI_CACHE_DIR)
+            makedirs_group_write(settings.WSAPI_CACHE_DIR)
         for f in self.wsapi_cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
@@ -387,9 +388,9 @@ class TemplateTagsTestCase(TestCase):
 
     def test_file_size_filter(self):
         self.assertEqual(file_size('123'), '123 Bytes')
-        self.assertEqual(file_size(123456), '120,56 KB')
-        self.assertEqual(file_size(1234567), '1,18 MB')
-        self.assertEqual(file_size(1234567890), '1,15 GB')
+        self.assertEqual(file_size(123456).replace('.', ','), '120,56 KB')
+        self.assertEqual(file_size(1234567).replace('.', ','), '1,18 MB')
+        self.assertEqual(file_size(1234567890).replace('.', ','), '1,15 GB')
 
     def test_table_header_tag(self):
         COLUMNS = ('Disease', 'Analysis Id', 'Study')

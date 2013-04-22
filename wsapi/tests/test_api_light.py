@@ -6,7 +6,7 @@ import shutil
 import unittest
 
 from wsapi.api_light import *
-from wsapi.utils import get_setting
+from wsapi.utils import get_setting, makedirs_group_write
 
 
 class ApiLightTest(unittest.TestCase):
@@ -36,7 +36,7 @@ class ApiLightTest(unittest.TestCase):
         TEST_DATA_DIR = 'tests/test_data/'
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         f = 'ec0d99a4758829215ef1d7730bb19eb4.ids'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
@@ -54,7 +54,7 @@ class ApiLightTest(unittest.TestCase):
         TEST_DATA_DIR = 'tests/test_data/'
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         f = 'ec0d99a4758829215ef1d7730bb19eb4.ids'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),

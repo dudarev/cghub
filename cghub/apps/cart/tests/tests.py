@@ -21,9 +21,10 @@ from django.conf import settings
 
 from cghub.settings.utils import PROJECT_ROOT
 
-from cghub.apps.cart.utils import (join_analysises, manifest, metadata,
+from cghub.apps.cart.utils import (manifest, metadata,
                             summary, add_ids_to_cart, check_missing_files,
                             cache_file, analysis_xml_iterator,
+                            summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
@@ -359,29 +360,6 @@ class CartCacheTestCase(WithCacheTestCase):
         self.assertIn('analysis_id', xml)
         self.assertEqual(size, 168328325)
 
-    def test_join_analysises(self):
-        data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
-        result = join_analysises(data)
-        content = result.tostring()
-        self.assertTrue(self.analysis_id in content)
-        self.assertTrue(self.analysis_id2 in content)
-        # check full by default
-        self.assertIn('analysis_xml', content)
-        # check live only
-        data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'submitted'}}
-        result = join_analysises(data)
-        content = result.tostring()
-        self.assertTrue(self.analysis_id in content)
-        self.assertTrue(self.analysis_id2 in content)
-        result = join_analysises(data, live_only=True)
-        content = result.tostring()
-        self.assertTrue(self.analysis_id in content)
-        self.assertFalse(self.analysis_id2 in content)
-
     def test_analysis_xml_iterator(self):
         data = {
             self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
@@ -393,6 +371,20 @@ class CartCacheTestCase(WithCacheTestCase):
         self.assertIn('ResultSet', result)
         self.assertIn('Result id="1"', result)
         self.assertIn('Result id="2"', result)
+
+    def test_summary_tsv_iterator(self):
+        data = {
+            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
+            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+        iterator = summary_tsv_iterator(data)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('center', result)
+        self.assertIn('analysis_id', result)
+        self.assertIn(self.last_modified[:10], result)
+        self.assertIn(self.analysis_id, result)
+        self.assertIn(self.analysis_id2, result)
 
     def test_manifest(self):
         data = {

@@ -19,6 +19,9 @@ from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
 FILTERS_USED_FILE_NAME = os.path.join(
                             os.path.dirname(__file__),
                             '../../is_filter_used.pkl')
+
+# FIXME: markd believes this works around slow queries and should be
+# dropped when speedup is done.
 DATE_RANGES = [
     'upload_date=[NOW-1DAY%20TO%20NOW]',
     'upload_date=[NOW-7DAY%20TO%20NOW]',
@@ -27,6 +30,8 @@ DATE_RANGES = [
     'upload_date=[NOW-3MONTH%20TO%20NOW]',
     'upload_date=[NOW-6MONTH%20TO%20NOW]',
     'upload_date=[NOW-12MONTH%20TO%20NOW]',
+    'upload_date=[NOW-24MONTH%20TO%20NOW]',
+    'upload_date=[NOW-48MONTH%20TO%20NOW]',
     '',
 ]
 
@@ -85,6 +90,7 @@ class Command(BaseCommand):
             help='cleans previously pickled checked filters'),
     )
 
+    # FIXME: exceeds max sane function length, break into more functions
     def handle(self, *args, **options):
         self.stdout.write('Checking filters\n')
         if options['clean']:
@@ -95,7 +101,7 @@ class Command(BaseCommand):
         # populate dict is_filter_used
         # { (filter_name, filter_value): True/False }
         for key in ALL_FILTERS:
-            if key in ('last_modified', 'upload_date'):
+            if not ALL_FILTERS[key].get('selectFilter', True):
                 continue
             self.stdout.write(key)
             self.stdout.write('\n')
@@ -122,14 +128,13 @@ class Command(BaseCommand):
 
         # delete those filters that are not used
         for key in ALL_FILTERS:
-            if key in ('last_modified', 'upload_date'):
-                continue
-            self.stdout.write(key)
-            self.stdout.write('\n')
-            for filter in ALL_FILTERS[key]['filters']:
-                if not is_filter_used[(key, filter)]:
-                    self.stdout.write('  deleting %s\n' % filter)
-                    del ALL_FILTERS[key]['filters'][filter]
+            if ALL_FILTERS[key].get('selectFilter', True):
+                self.stdout.write(key)
+                self.stdout.write('\n')
+                for filter in ALL_FILTERS[key]['filters']:
+                    if not is_filter_used[(key, filter)]:
+                        self.stdout.write('  deleting %s\n' % filter)
+                        del ALL_FILTERS[key]['filters'][filter]
 
         # write needed filters to json-file
         json_filters = open(JSON_FILTERS_FILE_NAME, 'w')

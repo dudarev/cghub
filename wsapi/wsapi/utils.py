@@ -51,3 +51,13 @@ def clear_cache(cache_dir, older_than):
                     ) < older_than:
                 os.remove(os.path.join(cache_dir,f))
     pass
+
+# FIXME: not necessarily the best place for this, but right now
+# shared with app and api
+def makedirs_group_write(path):
+    "create a directory, including missing parents, ensuring it has group write permissions"
+    old_mask = os.umask(0002)
+    try:
+        os.makedirs(path)
+    finally:
+        os.umask(old_mask)

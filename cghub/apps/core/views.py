@@ -21,7 +21,7 @@ from cghub.apps.cart.utils import metadata
 
 
 DEFAULT_QUERY = get_default_query()
-DEFAULT_SORT_BY = '-upload_date'
+DEFAULT_SORT_BY = None
 WSAPI_SETTINGS = get_wsapi_settings()
 
 

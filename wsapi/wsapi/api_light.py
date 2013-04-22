@@ -20,8 +20,7 @@ from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
 
-from utils import get_setting, urlopen
-
+from utils import get_setting, urlopen, makedirs_group_write
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
@@ -73,7 +72,7 @@ def get_cache_file_name(query, settings):
     """
     # Prevent getting different file names because of 
     # percent escaping
-    query = urllib2.unquote(query.encode("utf8"))
+    query = urllib2.unquote(query.encode("utf8")).replace('+', ' ')
     if '&' in query:
         query = query.split('&')
         query.sort()
@@ -98,7 +97,7 @@ def load_ids(query, settings):
     filename = get_cache_file_name(query, settings)
     cache_dir = get_setting('CACHE_DIR', settings)
     if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
+        makedirs_group_write(cache_dir)
     parse(response, IDsParser(filename))
 
 def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):

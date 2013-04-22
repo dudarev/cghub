@@ -13,7 +13,6 @@
 .base-sidebar .dp-container .text-error{color:#ff0000;margin-left:10px;}
 .base-sidebar .dp-container .btn-cancel{margin-left:10px;}
 .base-sidebar .sidebar{padding-left:15px;visibility:hidden;}
-.base-sidebar #id_reset_filters{margin-left:12px;}
 .base-content{width:78%;min-width:980px;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
@@ -40,7 +39,7 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .column-select-label>span{margin-right:5px;}
 .column-select{display:none;}
 .items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
-div.search-btn-group{padding:15px 0;}
+div.search-btn-group{padding:15px 0;white-space:nowrap;}
 form.search-form{margin:175px 0;text-align:center;}form.search-form input{font-size:20px;font-weight:normal;padding:14px 24px;margin-right:10px;width:30%;}
 .filter-select{display:none;}
 .applied-filters{margin-top:5px;}.applied-filters ul{list-style-type:none;margin-left:20px;}.applied-filters ul li{padding:2px 0;}.applied-filters ul li b{font-weight:normal;padding:0 2px;border-bottom:1px dotted #222;}
