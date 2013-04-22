@@ -14,7 +14,7 @@ HELP_HINTS = {
     # Filters headers and buttons
     ##
     'common:filters-bar': 'Filter by metadata attributes',
-    'filter:Study': 'Filter by research study that the generated the data set',
+    'filter:Study': 'Filter by research study that generated the data set',
     'filter:Disease': 'Filter by disease',
     'filter:Sample Type': 'Filer by the type of the biological sample that was sequences',
     'filter:Library Type': 'Filter by the type of library protocol',
@@ -25,7 +25,7 @@ HELP_HINTS = {
     'filter:Modification Time': 'Filter by date the metadata was last modified',
     'filter:State': 'Filter by current state of the data at CGHub',
     'filter:Platform': 'Filter by sequencing platform',
-    'common:filters-reset-button': 'Reset the filters to their default state',
+    'common:filters-reset-button': 'Reset the filters and search text to their default state',
     'common:filters-apply-button': 'Run a search with the specified filters',
 
     ##
@@ -33,7 +33,7 @@ HELP_HINTS = {
     ##
     'Study:TCGA': 'The Cancer Genome Atlas',
     'Study:CCLE': 'Cancer Cell Line Encyclopedia',
-    'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4',
+    'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
 
     ##
     # Center abbreviations [warning: DCC center short names are not the same and not used]
@@ -80,7 +80,7 @@ HELP_HINTS = {
     ##
     # Column descriptions
     ##
-    'Study': 'Research study that the generated the data set',
+    'Study': 'Research study that generated the data set',
     'Disease': 'Disease abbreviation',
     'Disease Name': 'Disease name',
     'Library Type': 'Library protocol',
@@ -106,7 +106,7 @@ HELP_HINTS = {
     'Library Type:RNA-Seq': 'Transcriptome Sequencing',
     'Library Type:VALIDATION': 'Re-sequencing to verify mutation calls',
     'Library Type:WGS': 'Whole Genome Sequencing',
-    'Library Type:WXS': 'Whole Exeome Sequencing',
+    'Library Type:WXS': 'Whole Exome Sequencing',
     'Library Type:miRNA-Seq': 'micro-RNA Sequencing ',
     'Library Type:OTHER': 'Uncategorized library strategy',
 
@@ -145,11 +145,12 @@ HELP_HINTS = {
     ##
     # State
     ##
-    'State:Bad data': 'Data file(s) failed the checksum process after being uploaded to CGHub',
+    'State:Bad data': 'Data files failed the checksum process after being uploaded to CGHub',
     'State:Live': 'Data is available for downloaded',
-    'State:Submitted': 'Metadata has passed validation but waiting on uploading of data file(s)',
-    'State:Uploading': 'Uploading the data file(s) has started',
-    'State:Validating sample': 'State during which additional sample metadata is collected from the DCC, before live',
+    'State:Submitted': 'Metadata has passed validation, waiting on uploading of data file(s)',
+    'State:Uploading': 'Uploading the data file(s) is in progress',
+    'State:Validating sample': 'Additional sample metadata is collected from the DCC',
+    'State:Augmenting data': 'Supplementary data files are being added to the data set, temporarily unavailable for download',
 
     ##
     # Sample type
@@ -188,7 +189,7 @@ HELP_HINTS = {
     'common:browser-link': 'Main browser page',
     'common:cart-link': 'Management page for items you have selected',
     'common:help-link': 'Information on how to use the data browser',
-    'common:search-box': 'Text search of metadata. <a href="../help/assemblies#NCBI-human-build36">Click here for more detailed Information</a>.',
+    'common:search-box': 'Text search of metadata. <a href="../help/overview#text-search">Click here for more detailed Information</a>.',
     'common:cghub-home-page-link': 'CGHub home page',
     
     ##

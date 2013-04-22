@@ -14,8 +14,8 @@ CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser"
 WSAPI_CACHE_DIR = CACHE_DIR + '/wsapi'
 CART_CACHE_DIR = CACHE_DIR + '/cart'
 
-# test against stage for now
-WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
+# for testing against stage
+#WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
 
 # rabbitmq server
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
@@ -53,13 +53,14 @@ LOGGING = {
     },
     'handlers': {
         'mail_admins': {
-            'level': 'ERROR',
+            'level': 'WARNING',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'syslog':{ 
             'address': '/dev/log',
-            'level':'ERROR', 
+            'facility': SysLogHandler.LOG_LOCAL6, 
+            'level':'DEBUG', 
             'class': 'logging.handlers.SysLogHandler', 
             'formatter': 'verbose',
         },
@@ -70,9 +71,19 @@ LOGGING = {
             },
         },
     'loggers': {
+        '': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
+        'django': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
         'django.request': {
-            'handlers': ['syslog','mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['syslog'],
+            'level': 'WARNING',
             'propagate': True,
             },
         'wsapi.request': {
@@ -81,6 +92,11 @@ LOGGING = {
             'handlers': ['syslog', 'console'],
             'level': 'DEBUG',
             'propagate': True,
-        }
-    },
+            },
+        'celery': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
+        },
 }

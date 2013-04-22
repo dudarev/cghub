@@ -7,6 +7,7 @@ from django.conf import settings
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
+from cghub.wsapi.utils import makedirs_group_write
 
 from cghub.apps.core.utils import get_wsapi_settings, generate_tmp_file_name
 
@@ -88,7 +89,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         return
     path = settings.CART_CACHE_DIR
     if not os.path.isdir(path):
-        os.makedirs(path)
+        makedirs_group_write(path)
     folders = (
                 analysis_id[:2],
                 analysis_id[2:4],
@@ -97,7 +98,7 @@ def save_to_cart_cache(analysis_id, last_modified):
     for folder in folders:
         path = os.path.join(path, folder)
         if not os.path.isdir(path):
-            os.makedirs(path)
+            makedirs_group_write(path)
     path_full = os.path.join(path, 'analysisFull.xml')
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):

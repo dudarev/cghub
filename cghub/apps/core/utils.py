@@ -133,3 +133,4 @@ def is_celery_alive():
         message = traceback.format_exc()
         mail_admins(subject, message, fail_silently=True)
         return False
+
