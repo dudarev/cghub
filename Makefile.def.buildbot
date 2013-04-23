@@ -13,10 +13,11 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			cart.CartParsersTestCase \
 			help
 
-TEST_UI=core.SidebarTestCase core.SearchTestCase core.ColumnSelectTestCase \
-			core.ColumnsFillTableWidthTestCase core.ResetFiltersButtonTestCase \
-			cart.LinksNavigationsTestCase cart.CartUITestCase \
-			cart.SortWithinCartTestCase cart.AddAllToCartButtonTestCase
+TEST_UI=core.SidebarTestCase core.CustomPeriodTestCase \
+			core.DetailsTestCase core.SearchTestCase \
+			core.ColumnSelectTestCase core.ResetFiltersTestCase \
+			core.HelpHintsTestCase \
+			cart.NavigationLinksTestCase cart.CartUITestCase
 
 MANAGE= PYTHONPATH=$(PYTHONPATH) python manage.py
 
