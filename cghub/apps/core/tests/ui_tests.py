@@ -945,7 +945,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             self.check_select_columns('cart')
 
 
-class ResetFiltersButtonTestCase(LiveServerTestCase):
+class ResetFilteTestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
@@ -959,91 +959,56 @@ class ResetFiltersButtonTestCase(LiveServerTestCase):
         super(ResetFiltersButtonTestCase, self).tearDownClass()
 
     # TODO(nanvel): check saving last query here
-    # FIXME(nanvel): simplify test
+
+    def get_selected_filters(self):
+        """
+        Return selected filters as text.
+        '(all)' skipped
+        """
+        texts = self.selenium.find_elements_by_css_selector(
+                    '.base-sidebar .ui-dropdownchecklist-text > span')
+        filters = ''
+        for text in texts:
+            filters += text.text
+        return filters
 
     def test_reset_filters_button(self):
         """
-        
+        1. Go to search page (default query)
+        2. Remember default filters
+        3. Set not default filter
+        4. Submit, check that some other filters are selected besides default
+        5. Reset filters
+        6. Compare filters with remembered ones
         """
-        # FIXME(nanvel): add description ^
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
 
-            # Apply filters on Center Name
-            center_id = get_filter_id(driver, 'center_name')
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
-            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id)).click()
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(center_id)).click()
+            # remember filters
+            default_filters = self.get_selected_filters()
 
-            # Set time filters to 'Any date'
-            last_modified_id = get_filter_id(driver, 'last_modified')
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(last_modified_id)).click()
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
-            upload_date_id = get_filter_id(driver, 'upload_date')
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(upload_date_id)).click()
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+            # find filter that not exists in defaults and set it
+            for f in ALL_FILTERS:
+                if (
+                        f not in TEST_SETTINGS['DEFAULT_FILTERS'] and
+                        f not in DATE_ATTRIBUTES and
+                        len(ALL_FILTERS[f]['filters']) > 3):
+                    filter_name = f
+                    break
 
-            # Apply filters on Sample Type
-            sample_type_id = get_filter_id(driver, 'sample_type')
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(sample_type_id)).click()
-            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).click()
-            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(sample_type_id)).click()
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(sample_type_id)).click()
+            # select first 2 options in filter
+            filter_id = get_filter_id(driver, filter_name)
+            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(filter_id)).click()
+            driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(filter_id)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(filter_id)).click()
+            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(filter_id)).click()
+
+            # apply filters
             driver.find_element_by_id("id_apply_filters").click()
+            self.assertNotEqual(default_filters, self.get_selected_filters())
 
-            # Make sure that filters are applied
-            applied_filters1 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
-            applied_filters2 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[2]")
-            filter1 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i4']".format(center_id))
-            filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
-            filter3 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(sample_type_id))
-            self.assertTrue(filter1.text in applied_filters1.text)
-            self.assertTrue(filter2.text in applied_filters2.text)
-            self.assertTrue(filter3.text in applied_filters2.text)
-
-            for i in range(3):
-                text1 = driver.find_element_by_xpath(
-                        "//div[@class='bDiv']//table//tbody//tr[%d]//td[9]/div" % (i + 1)).text
-                text2 = driver.find_element_by_xpath(
-                        "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
-                self.assertEqual(filter1.text, text1)
-                self.assertEqual(filter2.text, text2)
-
-            # Reset filters
+            # try to reset filters
             driver.find_element_by_id("id_reset_filters").click()
-            time.sleep(5)
-
-            driver.execute_script(
-                "$('.viewport')"
-                ".scrollLeft($('thead tr th[axis=col13]')"
-                ".position().left)")
-
-            driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()
-            tmp_text = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']//table//tbody//tr[1]//td[14]/div").text
-            if tmp_text == driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id)).text:
-                driver.execute_script(
-                    "$('.viewport')"
-                    ".scrollLeft($('thead tr th[axis=col13]')"
-                    ".position().left)")
-                driver.find_element_by_xpath("//div[@class='hDivBox']/table/thead/tr/th[14]").click()
-            time.sleep(2)
-            filter2 = driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(sample_type_id))
-            for i in range(3):
-                text2 = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']//table//tbody//tr[%d]//td[14]/div" % (i + 1)).text
-                self.assertNotEqual(filter2.text, text2)
-
-            # FIXME(nanvel): What this doing ?
-            applied_filters3 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[1]")
-            try:
-                applied_filters4 = driver.find_element_by_xpath("//div[@class='applied-filters']//ul//li[3]")
-            except:
-                pass
-            else:
-                self.assertTrue(filter2.text not in applied_filters4.text)
+            self.assertEqual(default_filters, self.get_selected_filters())
