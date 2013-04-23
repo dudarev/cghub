@@ -163,7 +163,7 @@ jQuery(function ($) {
         },
         // for filter headers
         activateFilterHeaderTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar label > b', function($target) {
                 return 'filter:' + $target.text().replace(':', '').replace('By ', '');
             });
         },

@@ -1235,7 +1235,7 @@ class HelpHintsTestCase(LiveServerTestCase):
 
             # filter header
             study_filter_header = driver.find_elements_by_css_selector(
-                            ".sidebar h5")[0]
+                            ".sidebar label > b")[0]
             self.check_tooltip(study_filter_header)
             # seleted filters
             study_selected_option = driver.find_elements_by_css_selector(
