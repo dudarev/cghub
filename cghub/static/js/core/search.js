@@ -136,7 +136,7 @@ jQuery(function ($) {
                     cghub.search.ddclOnComplete(select);
                 }
                 // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
-                $(select).next().find('.ui-dropdownchecklist-selector').attr("id", $(select).prev().attr('for'));
+                $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
         },
