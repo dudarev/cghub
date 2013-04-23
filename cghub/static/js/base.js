@@ -8,6 +8,9 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.base = {
+        usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
+        usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
+        reservedChars: '*?',
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
@@ -18,10 +21,18 @@ jQuery(function ($) {
             cghub.base.$navbarListItem = $('div.navbar ul li');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.taskStatusURL = $('body').data('task-status-url');
+            cghub.base.$messageModal = $('#messageModal');
+            cghub.base.$searchForm = $('form.navbar-search');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
             cghub.base.activateTaskStatusChecking();
+            cghub.base.$searchForm.on('submit', cghub.base.checkSearchField);
+        },
+        showMessage: function (title, content) {
+            cghub.base.$messageModal.find('.modal-label').text(title);
+            cghub.base.$messageModal.find('.modal-body').html(content);
+            cghub.base.$messageModal.modal();
         },
         defineActiveLink:function () {
             cghub.base.$navbarAnchors.each(cghub.base.resetActiveLink);
@@ -70,6 +81,16 @@ jQuery(function ($) {
             if($.browser.msie) {
                 $('input[placeholder]').css({'height': '18px', 'line-height': '18px'})
             }
+        },
+        checkSearchField:function(){
+            var searchValue = $(this).find('input').val();
+            for (var i = 0; i < cghub.base.reservedChars.length; i++){
+                if (searchValue.indexOf(cghub.base.reservedChars[i]) != -1){
+                    cghub.base.showMessage(cghub.base.usedReservedCharsTitle, cghub.base.usedReservedCharsContent);
+                    return false;
+                }
+            }
+            return true;
         }
     };
     cghub.base.init();

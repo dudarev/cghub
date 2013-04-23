@@ -9,9 +9,6 @@ jQuery(function ($) {
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
         addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
-        usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
-        usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
-        reservedChars: '*?',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -48,11 +45,6 @@ jQuery(function ($) {
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
             return false;
-        },
-        showMessage: function (title, content) {
-            cghub.search.$messageModal.find('.modal-label').text(title);
-            cghub.search.$messageModal.find('.modal-body').html(content);
-            cghub.search.$messageModal.modal();
         },
         parseAppliedFilters: function () {
             var filters = {};
@@ -192,13 +184,13 @@ jQuery(function ($) {
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     } else {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         cghub.search.$addFilesButton.removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     cghub.search.$addFilesButton.removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -251,18 +243,18 @@ jQuery(function ($) {
                         window.location.href = data['redirect'];
                     }
                     if (data['action']=='message') {
-                        cghub.search.showMessage(data['title'], data['content']);
+                        cghub.base.showMessage(data['title'], data['content']);
                         $($button).removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                     if (data['action']=='error') {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         $($button).removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -449,9 +441,9 @@ jQuery(function ($) {
         },
         checkSearchField:function(){
             var searchValue = cghub.search.$searchField.val();
-            for (var i = 0; i < cghub.search.reservedChars.length; i++){
-                if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
-                    cghub.search.showMessage(cghub.search.usedReservedCharsTitle, cghub.search.usedReservedCharsContent);
+            for (var i = 0; i < cghub.base.reservedChars.length; i++){
+                if (searchValue.indexOf(cghub.base.reservedChars[i]) != -1){
+                    cghub.base.showMessage(cghub.base.usedReservedCharsTitle, cghub.base.usedReservedCharsContent);
                     return false;
                 }
             }
