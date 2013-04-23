@@ -233,7 +233,7 @@ class UtilsTestCase(TestCase):
 
     def test_generate_tmp_file_name(self):
         """
-        smoke test for generate_tmp_file_nam function
+        smoke test for generate_tmp_file_name function
         """
         name = generate_tmp_file_name()
         self.assertIn('.tmp', name)

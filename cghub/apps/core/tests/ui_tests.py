@@ -853,23 +853,18 @@ class SearchTestCase(LiveServerTestCase):
 
 class ColumnSelectTestCase(LiveServerTestCase):
 
-    query = "6d711"
-
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(ColumnSelectTestCase, self).setUpClass()
-        # FIXME(nanvel): is this works now?
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
-        self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
 
-    def check_select_columns(self, driver, location):
+    def check_select_columns(self, location):
         """
         Check that displayed columns selection works.
         1. Uncheck all columns one by one
@@ -880,10 +875,9 @@ class ColumnSelectTestCase(LiveServerTestCase):
 
         :param location: 'search' or 'cart'
         """
-        # FIXME(nanvel): can we simply use self.selenium ?
         # TODO(nanvel): Add test for default columns
-        # FIXME(nanvel): is delay necessary here ?
-        time.sleep(2)
+
+        driver = self.selenium
         # get columns count
         column_count = len(driver.find_elements_by_xpath(
                         "//div[@class='hDivBox']/table/thead/tr/th")) - 1
@@ -896,7 +890,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             select = driver.find_element_by_css_selector(
                         "#ddcl-1 > span:first-child > span")
         select.click()
-        # Uncheck one by one
+        # uncheck one by one
         r = range(column_count)
         for i in r:
             driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (i + 1)).click()
@@ -912,7 +906,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
-            # Check that last column takes all free space
+            # check that last column takes all free space
             if i < column_count - 1:
                 full_width = driver.find_element_by_class_name('hDiv').value_of_css_property('width')[:-2]
                 full_width = int(full_width.split('.')[0])
@@ -922,39 +916,33 @@ class ColumnSelectTestCase(LiveServerTestCase):
                     if col.is_displayed():
                         all_columns_width += col.size.get('width', 0)
                 self.assertTrue(full_width - all_columns_width < 3)
-        # Select (all) option
+        # select (all) option
         driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
         r2 = range(column_count)
         for x in r2:
             driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
-            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
-            # FIXME(nanvel): Why is it?
-            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (x + 1)).click()        
-        # FIXME(nanvel): Why is it?
-        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()       
         # close DDCL
-        # FIXME(nanvel): Why is it?
         select.click()
 
     def test_column_select(self):
         """
         Check that select/unselect visible columns feature works properly
-        1. Go to search page
+        1. Go to search page (default query)
         2. Check columns selection
         3. Select all items in cart and click 'Add to cart' (user will be redirected to cart page)
         4. Check columns selection on cart page
         """
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
-            # TODO(nanvel): good decission
-            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
-            self.check_select_columns(driver, 'search')
+            driver.get(self.live_server_url)
+            self.check_select_columns('search')
             driver.find_element_by_css_selector('input.js-select-all').click()
             driver.find_element_by_css_selector('button.add-to-cart-btn').click()
-            time.sleep(2)
-            self.check_select_columns(driver, 'cart')
+            time.sleep(5)
+            self.check_select_columns('cart')
 
 
 class ResetFiltersButtonTestCase(LiveServerTestCase):
