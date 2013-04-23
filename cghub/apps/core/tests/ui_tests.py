@@ -1,6 +1,5 @@
 import time
-import re
-import os, shutil
+import os
 from urllib import unquote
 from datetime import datetime, date, timedelta
 
@@ -10,21 +9,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from django.test import LiveServerTestCase
 from django.conf import settings
-from django.utils import timezone
 
-from cghub.wsapi.api import request as api_request
 from cghub.settings.utils import root
 from cghub.apps.core.filters_storage import ALL_FILTERS
 from cghub.apps.core.attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 
-
-"""
-preffered queries (allow using the same cache files):
-"6d711" - returns one result
-"6d1" - for many results
-
-"bad-analysis-id" - bad id
-"""
 
 TEST_CACHE_DIR = root('test_cache')
 
@@ -167,8 +156,12 @@ class SidebarTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(SidebarTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def test_select_all(self):
         """
@@ -392,8 +385,12 @@ class CustomPeriodTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(CustomPeriodTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def set_datepicker_date(self, start, end):
         """
@@ -523,8 +520,12 @@ class DetailsTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(DetailsTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def check_popup_shows(self):
         """
@@ -673,6 +674,7 @@ class SearchTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(SearchTestCase, self).tearDownClass()
 
@@ -861,8 +863,12 @@ class ColumnSelectTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def check_select_columns(self, location):
         """
@@ -955,8 +961,12 @@ class ResetFilteTestCase(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(ResetFiltersButtonTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     # TODO(nanvel): check saving last query here
 

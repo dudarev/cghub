@@ -15,40 +15,52 @@ from cghub.apps.core.templatetags.search_tags import (
                             file_size)
 
 
-class LinksNavigationsTestCase(LiveServerTestCase):
+class NavigationLinksTestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(LinksNavigationsTestCase, self).setUpClass()
+        super(NavigationLinksTestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(LinksNavigationsTestCase, self).tearDownClass()
+        super(NavigationLinksTestCase, self).tearDownClass()
 
-    def test_cart_link(self):
-        with self.settings(**TEST_SETTINGS):
-            self.selenium.get(self.live_server_url)
-            self.selenium.find_element_by_partial_link_text("Cart").click()
-            time.sleep(2)
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
-    def test_home_link(self):
+    def test_lins(self):
+        """
+        1. Go to search page (default query)
+        2. Click on 'Cart' link
+        3. Check url
+        4. Click on 'Help' link
+        5. Check url
+        6. Clcik on 'Search' link
+        7. Check url
+        """
+        driver = self.selenium
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): merge with previous test
-            self.selenium.get("{url}/{path}".format(url=self.live_server_url,
-                                        path="help"))
-            self.selenium.find_element_by_partial_link_text("Search").click()
-            time.sleep(2)
-
-    def test_help_link(self):
-        with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): merge in one test with previous
-            self.selenium.get(self.live_server_url)
-            self.selenium.find_element_by_partial_link_text("Help").click()
-            time.sleep(2)
+            # search page
+            driver.get(self.live_server_url)
+            assert '/cart/' not in driver.current_url
+            assert '/help/' not in driver.current_url
+            # go to cart page
+            driver.find_element_by_partial_link_text("Cart").click()
+            time.sleep(3)
+            assert '/cart/' in driver.current_url
+            # go to help page
+            driver.find_element_by_partial_link_text("Help").click()
+            time.sleep(3)
+            assert '/help/' in driver.current_url
+            # got back to search page
+            driver.find_element_by_partial_link_text("Browser").click()
+            time.sleep(3)
+            assert '/cart/' not in driver.current_url
+            assert '/help/' not in driver.current_url
 
 
 class CartUITestCase(LiveServerTestCase):
