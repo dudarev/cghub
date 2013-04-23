@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from cghub.apps.core.tests.ui_tests import TEST_SETTINGS
+from cghub.apps.core.tests.ui_tests import TEST_SETTINGS, TEST_CACHE_DIR
 from cghub.apps.core.templatetags.search_tags import (
                             get_name_by_code, get_sample_type_by_code,
                             file_size)
@@ -64,23 +64,7 @@ class NavigationLinksTestCase(LiveServerTestCase):
 
 
 class CartUITestCase(LiveServerTestCase):
-    wsapi_cache_files = (
-                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
-                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
-                    '4d3fee9f8557fc0de585af248b598c44.xml',
-                    )
-    cart_cache_files = (
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-                    )
 
-    selected = [
-        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-        '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58'
-    ]
-    unselected = [
-        'beddd009-4efb-471f-bc4e-d872b50daa0f',
-    ]
     query = "6d50"
 
     @classmethod
@@ -89,17 +73,12 @@ class CartUITestCase(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", settings.WSAPI_CACHE_DIR)
+        fp.set_preference("browser.download.dir", TEST_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
-        # FIXME(nanvel): is this used ?
-        # calculate uuid for items on the first page
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
-        analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
-        self.page_analysis_ids = analysis_id[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
     def tearDownClass(self):
@@ -108,34 +87,38 @@ class CartUITestCase(LiveServerTestCase):
 
     def test_cart(self):
         """
-        1. Go to search page
-        2. Check that no selected files in table
-        3. Click on 'Select all' checkbox
-        4. Check that all checkboxes in table checked
-        5. Click on 'Select all' checkbox once more (uncheck all checkboxes)
-        6. Select ferst two items
-        7. Click on 'Add to cart' button
-        8. Check that files were really added to cart
-        9. Check that no other files were added to cart
-        10. Check that dosplayed right files count and size
-        11. Remove downloaded before manifest, metadata and summary if exists
-        12. Try to download manifest.xml
-        13. Try to download metadata.xml
-        14. Try to download summary.tsv
-        15. Get cart stats
-        16. Click 'Remove files from cart'
-        17. Get cart stats, check that files count was decremented by 1
-        18. Click on 'Clear cart'
-        19. Check that cart is empty
+        1. Go to search page (with q = self.query)
+        2. Click on 'Select all' checkbox
+        3. Check that all checkboxes in table checked
+        4. Click on 'Select all' checkbox once more (uncheck all checkboxes)
+        5. Select ferst two items
+        6. Click on 'Add to cart' button
+        7. Check that files were really added to cart
+        8. Check that no other files were added to cart
+        9. Check that dosplayed right files count
+        10. Remove downloaded manifest, metadata and summary downloaded before if exists
+        11. Try to download manifest.xml
+        12. Try to download metadata.xml
+        13. Try to download summary.tsv
+        14. Get cart stats
+        15. Click 'Remove files from cart'
+        16. Get cart stats, check that files count was decremented by 1
+        17. Click on 'Clear cart'
+        18. Check that cart is empty
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): may be rename test ?
-            # test adding item to cart
+            # test adding items to cart
             driver = self.selenium
             driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
+            # get all analysis_ids on the page
+            page_analysis_ids = []
+            for i in driver.find_elements_by_css_selector('.data-table-checkbox'):
+                page_analysis_ids.append(i.get_attribute('value'))
+            assert len(page_analysis_ids) > 4
+
             # check that no selected items
-            for analysis_id in self.page_analysis_ids:
+            for analysis_id in page_analysis_ids:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
                 assert not checkbox.is_selected()
@@ -145,7 +128,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
 
             # check that all checkboxes in table checked
-            for analysis_id in self.page_analysis_ids:
+            for analysis_id in page_analysis_ids:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
                 assert checkbox.is_selected()
@@ -155,9 +138,9 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
 
             # Select two items for adding to cart
-            # FIXME(nanvel): is self.selected exists in results ?
-            # FIXME(nanvel): maybe simply select first 2 items ?
-            for analysis_id in self.selected:
+            selected = page_analysis_ids[:2]
+            unselected = page_analysis_ids[-2:]
+            for analysis_id in selected:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
                 checkbox.click()
@@ -169,21 +152,16 @@ class CartUITestCase(LiveServerTestCase):
             assert driver.current_url == '%s/cart/' % self.live_server_url
 
             # check that files were added to cart and analysis_ids of them exists in table 
-            for analysis_id in self.selected:
+            for analysis_id in selected:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
             # check that other files were not added to the cart
-            for analysis_id in self.unselected:
-                try:
-                    checkbox = driver.find_element_by_css_selector(
+            for analysis_id in unselected:
+                assert not driver.find_elements_by_css_selector(
                             'input[value="%s"]' % analysis_id)
-                    assert False, "Element mustn't be found on the page"
-                except NoSuchElementException:
-                    pass
 
             stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-            # FIXME(nanvel): files size can be changed, can we make it constant while testing ?
-            assert stat.text == 'Files in your cart: 2 (9,68 GB)'
+            assert 'Files in your cart: 2' in stat.text
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
             assert cart_link.text == 'Cart (2)'
 
@@ -191,9 +169,9 @@ class CartUITestCase(LiveServerTestCase):
 
             # check files downloading
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
-                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-                os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
             except OSError:
                 pass
 
@@ -202,7 +180,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
             except OSError:
                 assert False, "File manifest.xml wasn't downloaded"
 
@@ -211,7 +189,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 
@@ -220,30 +198,30 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
+                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
             except OSError:
                 assert False, "File summary.tsv wasn't downloaded"
 
             # select first file in table
             checkbox = driver.find_element_by_css_selector(
-                    'input[value="%s"]' % self.selected[0])
+                    'input[value="%s"]' % selected[0])
             checkbox.click()
 
-            # remove seleted files
             stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-            assert 'Files in your cart: {0}'.format(len(self.selected)) in stat.text
+            assert 'Files in your cart: {0}'.format(len(selected)) in stat.text
 
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-            assert cart_link.text == 'Cart ({0})'.format(len(self.selected))
+            assert cart_link.text == 'Cart ({0})'.format(len(selected))
 
+            # remove seleted files
             btn = driver.find_element_by_class_name('cart-remove')
             btn.click()
 
             stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-            assert 'Files in your cart: {0}'.format(len(self.selected) - 1) in stat.text
+            assert 'Files in your cart: {0}'.format(len(selected) - 1) in stat.text
 
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-            assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 1)
+            assert cart_link.text == 'Cart ({0})'.format(len(selected) - 1)
 
             # test 'clear cart' button
             btn = driver.find_element_by_class_name('cart-clear')
