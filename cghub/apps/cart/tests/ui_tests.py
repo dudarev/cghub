@@ -9,10 +9,12 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from cghub.apps.core.tests.ui_tests import TEST_SETTINGS, TEST_CACHE_DIR
+from cghub.apps.core.tests.ui_tests import (
+                        TEST_SETTINGS, TEST_CACHE_DIR, back_to_bytes)
 from cghub.apps.core.templatetags.search_tags import (
                             get_name_by_code, get_sample_type_by_code,
                             file_size)
+from cghub.apps.core.attributes import COLUMN_NAMES
 
 
 class NavigationLinksTestCase(LiveServerTestCase):
@@ -238,89 +240,66 @@ class CartUITestCase(LiveServerTestCase):
 
 class SortWithinCartTestCase(LiveServerTestCase):
 
-    query = "6d711"
-
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[4])._lxml_results
-        self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(SortWithinCartTestCase, self).tearDownClass()
 
     def test_sort_within_cart(self):
+        """
+        1. Go to search page (default query)
+        2. Add select all files in page
+        3. 
+        """
         with self.settings(**TEST_SETTINGS):
-            # add first 10 items to cart for sorting
+            # go to search page
             driver = self.selenium
-            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            driver.get(self.live_server_url)
 
+            # add first 10 items to cart for sorting
             driver.find_element_by_css_selector('input.js-select-all').click()
             driver.find_element_by_css_selector('button.add-to-cart-btn').click()
+            time.sleep(3)
 
-            # FIXME(nanvel): make it simple, check only few columns, not all
-            attrs = [
-                'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
-                'library_strategy', 'platform', 'refassem_short_name', 'center_name',
-                'center_name', 'analyte_code', 'upload_date', 'last_modified',
-                'sample_type', 'sample_type', 'state', 'legacy_sample_id',
-                'sample_accession', 'files_size']
-
-            for i, attr in enumerate(attrs):
-                if i in (3, 8, 12):
+            for i, column in enumerate(TEST_SETTINGS['TABLE_COLUMNS']):
+                # walk over all visible table columns
+                if TEST_SETTINGS['COLUMN_STYLES'][column]['default_state'] == 'hidden':
                     continue
+                if column == 'Sample Type':
+                    continue
+                attr = COLUMN_NAMES[column]
+                # scroll table
+                self.selenium.execute_script("$('.viewport')"
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1));
+                # after first click element element is asc sorted
+                self.selenium.find_element_by_partial_link_text(column).click()
+
+                # getting top element in the column
+                selector = ".bDiv > table td:nth-child({})".format(i + 2)
+                first = self.selenium.find_element_by_css_selector(selector).text
 
                 # scroll table
-                if i > 5:
-                    time.sleep(1)
-                    driver.execute_script("$('.viewport')"
-                            ".scrollLeft($('.sort-link[href*=%s]')"
-                            ".parents('th').position().left);" % attr)
-                time.sleep(3)
-                sort_link = driver.find_element_by_xpath(
-                        '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
-                sort_link.click()
-                # get list with sorted attributes
-                results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[1], sort_by=attr).Result
-                sorted_attr = [getattr(r, attr) for r in results]
+                self.selenium.execute_script("$('.viewport')"
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1));
+                # resort
+                self.selenium.find_element_by_partial_link_text(column).click()
+                second = self.selenium.find_element_by_css_selector(selector).text
 
-                for j in range(self.items_count):
-                    text = driver.find_element_by_xpath(
-                            '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]/div' % (j + 1, i + 2)).text
-                    if attr == 'sample_type':
-                        self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
-                    elif attr in ('analyte_code', 'study', 'state'):
-                        self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
-                    elif attr == 'files_size':
-                        self.assertEqual(text.strip(), file_size(sorted_attr[j]))
-                    elif attr in ('upload_date', 'last_modified'):
-                        self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
+                if not (first == 'None' or second == 'None' or
+                        first == ' ' or second == ' '):
+                    if column == 'Files Size':
+                        # GB == GB, MB == MB, etc.
+                        first = back_to_bytes(first)
+                        second = back_to_bytes(second)
+                        self.assertLessEqual(first, second)
                     else:
-                        self.assertEqual(text.strip(), str(sorted_attr[j]))
-                # reverse sorting
-                time.sleep(1)
-                driver.execute_script("$('.viewport')"
-                        ".scrollLeft($('.sort-link[href*=%s]')"
-                        ".parents('th').position().left);" % attr);
-                sort_link = driver.find_element_by_xpath(
-                        '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
-                sort_link.click()
-
-                sorted_attr.reverse()
-                for j in range(self.items_count):
-                    text = driver.find_element_by_xpath(
-                            '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                    if attr == 'sample_type':
-                        self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
-                    elif attr in ('analyte_code', 'study', 'state'):
-                        self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
-                    elif attr == 'files_size':
-                        self.assertEqual(text.strip(), file_size(sorted_attr[j]))
-                    elif attr in ('upload_date', 'last_modified'):
-                        self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
-                    else:
-                        self.assertEqual(text.strip(), str(sorted_attr[j]))
+                        self.assertLessEqual(first, second)
