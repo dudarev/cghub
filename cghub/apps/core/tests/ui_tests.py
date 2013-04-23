@@ -808,7 +808,7 @@ class SearchTestCase(LiveServerTestCase):
         3. Click on column header to select descending ordering
         4. Get top value in clumn
         5. Click on column header once more to select ascending ordering
-        6. Get top value in column and compare in with previous
+        6. Get top value in column and compare it with previous
         7. Repeat 3..6 for every column
         """
         with self.settings(**TEST_SETTINGS):

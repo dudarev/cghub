@@ -1,19 +1,13 @@
 import time, os
 
-from wsapi.api import request as api_request
-
 from django.test import LiveServerTestCase
 from django.conf import settings
 
-from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import (
                         TEST_SETTINGS, TEST_CACHE_DIR, back_to_bytes)
-from cghub.apps.core.templatetags.search_tags import (
-                            get_name_by_code, get_sample_type_by_code,
-                            file_size)
 from cghub.apps.core.attributes import COLUMN_NAMES
 
 
@@ -255,8 +249,14 @@ class SortWithinCartTestCase(LiveServerTestCase):
     def test_sort_within_cart(self):
         """
         1. Go to search page (default query)
-        2. Add select all files in page
-        3. 
+        2. Select all files in table
+        3. Click 'Add files to cart' (user will be redirected to cart page)
+        4. Walk throw table columns
+        5. Click on column header to select descending ordering
+        6. Get top value in clumn
+        7. Click on column header once more to select ascending ordering
+        8. Get top value in column and compare it with previous
+        9. Repeat 5..8 for every column
         """
         with self.settings(**TEST_SETTINGS):
             # go to search page
