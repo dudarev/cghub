@@ -951,19 +951,19 @@ class ColumnSelectTestCase(LiveServerTestCase):
             self.check_select_columns('cart')
 
 
-class ResetFilteTestCase(LiveServerTestCase):
+class ResetFiltersTestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ResetFiltersButtonTestCase, self).setUpClass()
+        super(ResetFiltersTestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(ResetFiltersButtonTestCase, self).tearDownClass()
+        super(ResetFiltersTestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -1022,3 +1022,66 @@ class ResetFilteTestCase(LiveServerTestCase):
             # try to reset filters
             driver.find_element_by_id("id_reset_filters").click()
             self.assertEqual(default_filters, self.get_selected_filters())
+
+
+# tests for help app
+
+HELP_TEST_SETTINGS = dict(TEST_SETTINGS)
+HELP_TEST_SETTINGS['HELP_HINTS'] = {
+        'filter:Study': 'Filter by research study that generated the data set',
+        'common:filters-reset-button': 'Reset the filters and search text to their default state',
+        'Study:TCGA': 'The Cancer Genome Atlas',
+        'Study:CCLE': 'Cancer Cell Line Encyclopedia',
+        'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
+        'Study': 'Research study that generated the data set',
+}
+
+class HelpHintsTestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(HelpHintsTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(HelpHintsTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
+    def get_column_number_by_name(self, name):
+        counter = 0
+        for col in TEST_SETTINGS['TABLE_COLUMNS']:
+            if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'hidden':
+                continue
+            counter += 1
+            if col == name:
+                return counter + 1
+
+    def test_help_hints(self):
+        """
+        Check that tooltip appears
+        1. Go to search page (default query)
+        2. Move cursor to Study header
+        3. Wait
+        4. Check that tooltip visible
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            ac = ActionChains(driver)
+            study_header = driver.find_element_by_xpath(
+                "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(
+                                self.get_column_number_by_name('Study')))
+            # check that no tooltips displayed
+            assert not driver.find_elements_by_css_selector('.js-tooltip')
+            ac.move_to_element(study_header)
+            ac.perform()
+            time.sleep(3)
+            tooltip = driver.find_element_by_css_selector('.js-tooltip')
+            assert tooltip.is_displayed()
+

@@ -81,6 +81,9 @@ class CartUITestCase(LiveServerTestCase):
         self.selenium.quit()
         super(CartUITestCase, self).tearDownClass()
 
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
     def test_cart(self):
         """
         1. Go to search page (with q = self.query)
@@ -245,6 +248,9 @@ class SortWithinCartTestCase(LiveServerTestCase):
         time.sleep(1)
         self.selenium.quit()
         super(SortWithinCartTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def test_sort_within_cart(self):
         """
