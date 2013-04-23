@@ -28,7 +28,7 @@ class NavigationLinksTestCase(LiveServerTestCase):
     def tearDown(self):
         self.selenium.delete_all_cookies()
 
-    def test_lins(self):
+    def test_links(self):
         """
         1. Go to search page (default query)
         2. Click on 'Cart' link
