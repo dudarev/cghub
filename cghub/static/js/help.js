@@ -126,7 +126,9 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
                 return $target.text()
                         .replace(decodeURI('%C2%A0%E2%86%93'), '')
-                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
             });
         },
         // for headers in details table
@@ -143,7 +145,9 @@ jQuery(function ($) {
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
                 .eq(index).text()
                         .replace(decodeURI('%C2%A0%E2%86%93'), '')
-                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();
             });
