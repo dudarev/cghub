@@ -1038,19 +1038,39 @@ class ColumnSelectTestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
+            select = driver.find_element_by_xpath(
+                        "//form[@id='id_add_files_form']/span/span\
+                        /span[@class='ui-dropdownchecklist-text']")
             # select (all) option
-            driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+            select.click()
+            driver.find_element_by_class_name('js-select-all').click()
             # count visible columns
-            column_count = len(driver.find_elements_by_xpath(
+            columns_count = len(driver.find_elements_by_xpath(
                         "//div[@class='hDivBox']/table/thead/tr/th")) - 1
             visible = 0
-            for i in range(column_count):
+            for i in range(columns_count):
                 driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % i)
                 if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
                     visible += 1
-            print column_count, visible
+            self.assertEqual(visible, columns_count)
+            # click on 'Reset to defaults'
+            select.click()
+            driver.find_element_by_class_name('js-default-columns').click()
+            # recount columns
+            visible = 0
+            for i in range(columns_count):
+                driver.execute_script("$('.viewport')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % i)
+                if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
+                    visible += 1
+            default_count = 0
+            for col in TEST_SETTINGS['TABLE_COLUMNS']:
+                if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'visible':
+                    default_count += 1
+            self.assertEqual(visible, default_count)
 
 
 class ResetFiltersTestCase(LiveServerTestCase):
