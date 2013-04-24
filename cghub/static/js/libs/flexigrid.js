@@ -1484,7 +1484,7 @@
             var defaultColumns = [""];
             $.each(columns, function(n) {
                 if($(this).attr('data-ds') == 'visible') {
-                    defaultColumns.push(n.toString());
+                    defaultColumns.push((n+1).toString());
                 }
             });
             // Hide already hidden columns

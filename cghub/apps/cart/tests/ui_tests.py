@@ -1,4 +1,5 @@
-import time, os
+import time
+import os
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -57,6 +58,40 @@ class NavigationLinksTestCase(LiveServerTestCase):
             time.sleep(3)
             assert '/cart/' not in driver.current_url
             assert '/help/' not in driver.current_url
+
+
+class AddToCartTestCase(LiveServerTestCase):
+
+    query = "6d50"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = webdriver.Firefox()
+        self.selenium.implicitly_wait(5)
+        super(AddToCartTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(AddToCartTestCase, self).tearDownClass()
+
+    def test_add_all_to_cart(self):
+        """
+        Check that confirmation popup appears when trying to add
+        more than settings.MANY_FILES files count.
+        1. Go to search page (with q=query - 7 results)
+        2. Set settings.MANY_FILES == 1
+        3. Try to add all items to cart
+        4. Check that confirmation popup is visible
+        """
+        custom_settings = dict(TEST_SETTINGS)
+        custom_settings['MANY_FILES'] = 1
+        with self.settings(**custom_settings):
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            driver.find_element_by_class_name('add-all-to-cart-btn').click()
+            time.sleep(1)
+            assert driver.find_element_by_id('manyItemsModal').is_displayed()
 
 
 class CartUITestCase(LiveServerTestCase):
@@ -150,7 +185,7 @@ class CartUITestCase(LiveServerTestCase):
             time.sleep(3)
             assert driver.current_url == '%s/cart/' % self.live_server_url
 
-            # check that files were added to cart and analysis_ids of them exists in table 
+            # check that files were added to cart and analysis_ids of them exists in table
             for analysis_id in selected:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
@@ -284,7 +319,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -295,7 +330,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_css_selector(selector).text

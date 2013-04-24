@@ -33,7 +33,7 @@ TEST_SETTINGS = dict(
         'Uploaded',
         'Modified',
     ),
-    DETAILS_FIELDS = (
+    DETAILS_FIELDS=(
         'Study',
         'Barcode',
         'Disease',
@@ -58,7 +58,7 @@ TEST_SETTINGS = dict(
         'Participant id',
         'Sample id',
     ),
-    COLUMN_STYLES = {
+    COLUMN_STYLES={
         'Analysis Id': {
             'width': 220, 'align': 'left', 'default_state': 'visible',
         },
@@ -99,8 +99,8 @@ TEST_SETTINGS = dict(
             'width': 80, 'align': 'left', 'default_state': 'hidden',
         },
     },
-    DEFAULT_FILTERS = {
-        'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+    DEFAULT_FILTERS={
+        'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
         'state': ('live',),
         'upload_date': '[NOW-7DAY+TO+NOW]',
     },
@@ -131,7 +131,8 @@ def get_filter_id(driver, filter_name):
     Helper function for getting sidebar filter id.
     Makes filter tests easier to maintain.
     """
-    el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
+    el = driver.find_element_by_css_selector(
+                "select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
     return el_id
 
@@ -141,7 +142,87 @@ def scroll_page_to_filter(driver, filter_id):
     Scroll page to element (makes it visible fo user).
     """
     driver.execute_script(
-            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(filter_id))
+        "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(
+                                                            filter_id))
+
+
+class CoreUITestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
+        self.selenium.implicitly_wait(5)
+        super(CoreUITestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(CoreUITestCase, self).tearDownClass()
+
+    def test_access_without_trailing_slash(self):
+        """
+        Access application without trailing slash in URL.
+        I.E. "https://stage-browser.cghub.ucsc.edu/search"
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            # default self.live_server_url == 'http://localhost:8081'
+            driver.get('%s/search' % self.live_server_url)
+            assert driver.find_elements_by_css_selector('.applied-filters')
+
+    def test_search_field(self):
+        """
+        Entering a search term and hitting enter leads to correct page.
+        Check it on search, cart and help pages.
+        1. Go to search page
+        2. Enter query with '*' or '?'
+        3. Sumit
+        4. Check that popup visible
+        5. Close popup
+        6. Enter query, submit
+        7. Check for 'search' and 'q' in url
+        8. Go to cart page
+        9. Repeat 2-7
+        10. Go to help page
+        11. Repeat 2-7
+        """
+        def check_good_query(key='123'):
+            driver = self.selenium
+            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field.clear()
+            search_field.send_keys(key)
+            search_field.submit()
+            time.sleep(3)
+            assert 'search' in driver.current_url
+            assert 'q=%s' % key in driver.current_url
+
+        def check_bad_query(key='bad*'):
+            """
+            Check use of unsupported metaseach characters in text box.
+            """
+            driver = self.selenium
+            # check popup invisible
+            popup = driver.find_element_by_id('messageModal')
+            assert not popup.is_displayed()
+            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field.clear()
+            search_field.send_keys(key)
+            search_field.submit()
+            # check popup visible
+            time.sleep(1)
+            assert popup.is_displayed()
+            popup.find_element_by_css_selector(".modal-header .close").click()
+            time.sleep(1)
+
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            for page in ('search', 'cart', 'help'):
+                driver.get('%s/%s' % (self.live_server_url, page))
+                assert 'q=' not in driver.current_url
+                check_bad_query()
+                check_good_query()
 
 
 class SidebarTestCase(LiveServerTestCase):
@@ -149,8 +230,6 @@ class SidebarTestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
-        # FIXME(nanvel): maybe possible decrease it or use in other tests
-        # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
         self.selenium.implicitly_wait(5)
         super(SidebarTestCase, self).setUpClass()
 
@@ -236,7 +315,7 @@ class SidebarTestCase(LiveServerTestCase):
             upload_date_id = get_filter_id(driver, 'upload_date')
             driver.find_element_by_xpath(
                 "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
-        
+
             # select first option
             z_click = 0
             driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
@@ -355,22 +434,26 @@ class CustomPeriodTestCase(LiveServerTestCase):
             'end': date(year, 2, 15),
             'res_start': date(year, 2, 10),
             'res_end': date(year, 2, 15)},
-        { # another month
+        {
+            # another month
             'start': date(year, 1, 10),
             'end': date(year, 3, 15),
             'res_start': date(year, 1, 10),
             'res_end': date(year, 3, 15)},
-        { # today
+        {
+            # today
             'start': date(year, 2, 10),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 9),
             'res_end': date(year, 2, 10)},
-        { # future
+        {
+            # future
             'start': date(year, 2, 10),
             'end': date.today() + timedelta(days=10),
             'res_start': date(year, 2, 10),
             'res_end': date.today()},
-        { # swapped
+        {
+            # swapped
             'start': date(year, 2, 15),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 10),
@@ -799,7 +882,6 @@ class SearchTestCase(LiveServerTestCase):
             current = self.selenium.find_element_by_link_text(str(pages_count - 1))
             assert not link_state(current)
 
-
     def test_sorting_order(self):
         """
         Test that sorting works properly.
@@ -825,9 +907,10 @@ class SearchTestCase(LiveServerTestCase):
                     continue
                 attr = COLUMN_NAMES[column]
                 # scroll table
-                self.selenium.execute_script("$('.viewport')"
+                self.selenium.execute_script(
+                        "$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -838,7 +921,7 @@ class SearchTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_css_selector(selector).text
@@ -866,9 +949,6 @@ class ColumnSelectTestCase(LiveServerTestCase):
         time.sleep(1)
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
-
-    def tearDown(self):
-        self.selenium.delete_all_cookies()
 
     def check_select_columns(self, location):
         """
@@ -929,7 +1009,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
-            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()       
+            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
         # close DDCL
         select.click()
 
@@ -949,6 +1029,53 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver.find_element_by_css_selector('button.add-to-cart-btn').click()
             time.sleep(5)
             self.check_select_columns('cart')
+
+    def test_default_columns_button(self):
+        """
+        Check that 'Reset to defaults' button works properly.
+        1. Open search page (default query)
+        2. Make all columns visible (check '(all)')
+        3. Count visible columns
+        4. Click on 'Reset to defaults'
+        5. Count visible columns
+        6. Compare obtained numbers with settings
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            select = driver.find_element_by_xpath(
+                        "//form[@id='id_add_files_form']/span/span\
+                        /span[@class='ui-dropdownchecklist-text']")
+            # select (all) option
+            select.click()
+            driver.find_element_by_class_name('js-select-all').click()
+            # count visible columns
+            columns_count = len(driver.find_elements_by_xpath(
+                        "//div[@class='hDivBox']/table/thead/tr/th")) - 1
+            visible = 0
+            for i in range(columns_count):
+                driver.execute_script("$('.viewport')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % i)
+                if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
+                    visible += 1
+            self.assertEqual(visible, columns_count)
+            # click on 'Reset to defaults'
+            select.click()
+            driver.find_element_by_class_name('js-default-columns').click()
+            # recount columns
+            visible = 0
+            for i in range(columns_count):
+                driver.execute_script("$('.viewport')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % i)
+                if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
+                    visible += 1
+            default_count = 0
+            for col in TEST_SETTINGS['TABLE_COLUMNS']:
+                if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'visible':
+                    default_count += 1
+            self.assertEqual(visible, default_count)
 
 
 class ResetFiltersTestCase(LiveServerTestCase):
@@ -1028,30 +1155,25 @@ class ResetFiltersTestCase(LiveServerTestCase):
 
 HELP_TEST_SETTINGS = dict(TEST_SETTINGS)
 HELP_TEST_SETTINGS['HELP_HINTS'] = {
-        'filter:Study': 'Filter by research study that generated the data set',
-        'common:filters-reset-button': 'Reset the filters and search text to their default state',
-        'Study:TCGA': 'The Cancer Genome Atlas',
-        'Study:CCLE': 'Cancer Cell Line Encyclopedia',
-        'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
-        'Study': 'Research study that generated the data set',
+    'filter:Study': 'Filter by research study that generated the data set',
+    'common:filters-reset-button': 'Reset the filters and search text to their default state',
+    'Study:TCGA': 'The Cancer Genome Atlas',
+    'Study:CCLE': 'Cancer Cell Line Encyclopedia',
+    'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
+    'Study': 'Research study that generated the data set',
 }
+
 
 class HelpHintsTestCase(LiveServerTestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
-        super(HelpHintsTestCase, self).setUpClass()
-
-    @classmethod
-    def tearDownClass(self):
-        time.sleep(1)
-        self.selenium.quit()
-        super(HelpHintsTestCase, self).tearDownClass()
 
     def tearDown(self):
-        self.selenium.delete_all_cookies()
+        time.sleep(1)
+        self.selenium.quit()
 
     def get_column_number_by_name(self, name):
         counter = 0
@@ -1062,26 +1184,128 @@ class HelpHintsTestCase(LiveServerTestCase):
             if col == name:
                 return counter + 1
 
-    def test_help_hints(self):
+    def check_tooltip(self, target):
         """
-        Check that tooltip appears
+        Check that tooltip appears if place cursor on it and wait few seconds
+        """
+        assert not self.selenium.find_elements_by_css_selector('.js-tooltip')
+        self.ac.move_to_element(target)
+        self.ac.perform()
+        time.sleep(3)
+        tooltip = self.selenium.find_element_by_css_selector('.js-tooltip')
+        assert tooltip.is_displayed()
+        # hide tooltip
+        search_field = self.selenium.find_element_by_css_selector('.navbar-search .search-query')
+        search_field.click()
+        time.sleep(1)
+
+    def test_help_hints_in_table(self):
+        """
+        Check that tooltip appears.
         1. Go to search page (default query)
-        2. Move cursor to Study header
-        3. Wait
-        4. Check that tooltip visible
+        2. Check tooltip for table header (move cursor to target, wait, check tooltip displayed)
+        3. Check tooltip for table cells
         """
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            ac = ActionChains(driver)
+
+            # table header
             study_header = driver.find_element_by_xpath(
                 "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(
                                 self.get_column_number_by_name('Study')))
-            # check that no tooltips displayed
-            assert not driver.find_elements_by_css_selector('.js-tooltip')
-            ac.move_to_element(study_header)
-            ac.perform()
-            time.sleep(3)
-            tooltip = driver.find_element_by_css_selector('.js-tooltip')
-            assert tooltip.is_displayed()
+            self.check_tooltip(study_header)
+            # table cell
+            study_cell = driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr/td[{0}]/div".format(
+                                self.get_column_number_by_name('Study')))
+            self.check_tooltip(study_cell)
 
+    def test_help_hints_in_filters(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for filter header
+        3. Check tooltip for selected filter options
+        4. Check tooltip for filter options
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # filter header
+            study_filter_header = driver.find_elements_by_css_selector(
+                            ".sidebar h5")[0]
+            self.check_tooltip(study_filter_header)
+            # seleted filters
+            study_selected_option = driver.find_elements_by_css_selector(
+                            ".sidebar .ui-dropdownchecklist-text-item")[0]
+            self.check_tooltip(study_selected_option)
+            # open Study DDCL
+            study_id = get_filter_id(driver, 'study')
+            self.selenium.find_element_by_id("ddcl-{0}".format(study_id)).click()
+            # filter options
+            study_filter_option = driver.find_elements_by_css_selector(
+                            ".sidebar .ui-dropdownchecklist-item label")[1]
+            self.check_tooltip(study_filter_option)
+
+    def test_help_hints_common(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for reset button (common)
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # reset button (common tooltip)
+            driver.execute_script(
+                "$(window).scrollTop($('#id_reset_filters').offset().top - 100);")
+            reset_button = driver.find_element_by_id("id_reset_filters")
+            self.check_tooltip(reset_button)
+
+    def test_help_hints_in_details_popup(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Open details popup
+        3. Check tooltip for details table title
+        4. Check tooltip for details table item
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # open details popup
+            driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").click()
+            time.sleep(3)
+            # details table titles
+            details_title = driver.find_elements_by_css_selector(
+                                            "#itemDetailsModal th")[0]
+            self.check_tooltip(details_title)
+            # details table values
+            details_value = driver.find_elements_by_css_selector(
+                                            "#itemDetailsModal td")[0]
+            self.check_tooltip(details_value)
+
+    def test_help_hints_on_details_page(self):
+        """
+        Check that tooltip appears.
+        1. Go to details page
+        2. Check tooltip for details table title
+        3. Check tooltip for details table item
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get('%s/details/%s/' % (
+                    self.live_server_url, 'f0b7370f-8473-415b-86e7-9cb1d96c1411'))
+            # details table titles
+            details_title = driver.find_elements_by_css_selector(
+                                            ".js-details-table th")[0]
+            self.check_tooltip(details_title)
+            # details table values
+            details_value = driver.find_elements_by_css_selector(
+                                            ".js-details-table td")[0]
+            self.check_tooltip(details_value)
