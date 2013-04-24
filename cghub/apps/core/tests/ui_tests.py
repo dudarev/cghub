@@ -176,17 +176,19 @@ class CoreUITestCase(LiveServerTestCase):
         Entering a search term and hitting enter leads to correct page.
         Check it on search, cart and help pages. 
         1. Go to search page
-        2. Enter query, submit
-        3. Check for 'search' and 'q' in url
-        4. Go to cart page
-        5. Repeat 2-3
-        6. Go to help page
-        7. Repeat 2-3
+        2. Enter query with '*' or '?'
+        3. Sumit
+        4. Check that popup visible
+        5. Close popup
+        6. Enter query, submit
+        7. Check for 'search' and 'q' in url
+        8. Go to cart page
+        9. Repeat 2-7
+        10. Go to help page
+        11. Repeat 2-7
         """
-        def check_q_on_page(page, key='123'):
+        def check_good_query(key='123'):
             driver = self.selenium
-            driver.get('%s/%s' % (self.live_server_url, page))
-            assert 'q=' not in driver.current_url
             search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
             search_field.clear()
             search_field.send_keys(key)
@@ -195,10 +197,31 @@ class CoreUITestCase(LiveServerTestCase):
             assert 'search' in driver.current_url
             assert 'q=%s' % key in driver.current_url
 
+        def check_bad_query(key='bad*'):
+            """
+            Check use of unsupported metaseach characters in text box.
+            """
+            driver = self.selenium
+            # check popup invisible
+            popup = driver.find_element_by_id('messageModal')
+            assert not popup.is_displayed()
+            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field.clear()
+            search_field.send_keys(key)
+            search_field.submit()
+            # check popup visible
+            time.sleep(1)
+            assert popup.is_displayed()
+            popup.find_element_by_css_selector(".modal-header .close").click()
+            time.sleep(1)
+
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             for page in ('search', 'cart', 'help'):
-                check_q_on_page(page)
+                driver.get('%s/%s' % (self.live_server_url, page))
+                assert 'q=' not in driver.current_url
+                check_bad_query()
+                check_good_query()
 
 
 class SidebarTestCase(LiveServerTestCase):
