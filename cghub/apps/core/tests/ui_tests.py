@@ -131,7 +131,8 @@ def get_filter_id(driver, filter_name):
     Helper function for getting sidebar filter id.
     Makes filter tests easier to maintain.
     """
-    el = driver.find_element_by_css_selector("select[data-section='{0}'] + span".format(filter_name))
+    el = driver.find_element_by_css_selector(
+                "select[data-section='{0}'] + span".format(filter_name))
     el_id = el.get_attribute('id').split('-')[-1]
     return el_id
 
@@ -169,6 +170,35 @@ class CoreUITestCase(LiveServerTestCase):
             # default self.live_server_url == 'http://localhost:8081'
             driver.get('%s/search' % self.live_server_url)
             assert driver.find_elements_by_css_selector('.applied-filters')
+
+    def test_search_field(self):
+        """
+        Entering a search term and hitting enter leads to correct page.
+        Check it on search, cart and help pages. 
+        1. Go to search page
+        2. Enter query, submit
+        3. Check for 'search' and 'q' in url
+        4. Go to cart page
+        5. Repeat 2-3
+        6. Go to help page
+        7. Repeat 2-3
+        """
+        def check_q_on_page(page, key='123'):
+            driver = self.selenium
+            driver.get('%s/%s' % (self.live_server_url, page))
+            assert 'q=' not in driver.current_url
+            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field.clear()
+            search_field.send_keys(key)
+            search_field.submit()
+            time.sleep(3)
+            assert 'search' in driver.current_url
+            assert 'q=%s' % key in driver.current_url
+
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            for page in ('search', 'cart', 'help'):
+                check_q_on_page(page)
 
 
 class SidebarTestCase(LiveServerTestCase):
