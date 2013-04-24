@@ -1,4 +1,5 @@
-import time, os
+import time
+import os
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -84,7 +85,7 @@ class AddToCartTestCase(LiveServerTestCase):
         4. Check that confirmation popup is visible
         """
         custom_settings = dict(TEST_SETTINGS)
-        custom_settings['MANY_FILES'] = 1 
+        custom_settings['MANY_FILES'] = 1
         with self.settings(**custom_settings):
             driver = self.selenium
             driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
@@ -184,7 +185,7 @@ class CartUITestCase(LiveServerTestCase):
             time.sleep(3)
             assert driver.current_url == '%s/cart/' % self.live_server_url
 
-            # check that files were added to cart and analysis_ids of them exists in table 
+            # check that files were added to cart and analysis_ids of them exists in table
             for analysis_id in selected:
                 checkbox = driver.find_element_by_css_selector(
                         'input[value="%s"]' % analysis_id)
@@ -318,7 +319,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -329,7 +330,7 @@ class SortWithinCartTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_css_selector(selector).text

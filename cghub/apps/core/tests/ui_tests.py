@@ -33,7 +33,7 @@ TEST_SETTINGS = dict(
         'Uploaded',
         'Modified',
     ),
-    DETAILS_FIELDS = (
+    DETAILS_FIELDS=(
         'Study',
         'Barcode',
         'Disease',
@@ -58,7 +58,7 @@ TEST_SETTINGS = dict(
         'Participant id',
         'Sample id',
     ),
-    COLUMN_STYLES = {
+    COLUMN_STYLES={
         'Analysis Id': {
             'width': 220, 'align': 'left', 'default_state': 'visible',
         },
@@ -99,8 +99,8 @@ TEST_SETTINGS = dict(
             'width': 80, 'align': 'left', 'default_state': 'hidden',
         },
     },
-    DEFAULT_FILTERS = {
-        'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+    DEFAULT_FILTERS={
+        'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
         'state': ('live',),
         'upload_date': '[NOW-7DAY+TO+NOW]',
     },
@@ -142,7 +142,8 @@ def scroll_page_to_filter(driver, filter_id):
     Scroll page to element (makes it visible fo user).
     """
     driver.execute_script(
-            "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(filter_id))
+        "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(
+                                                            filter_id))
 
 
 class CoreUITestCase(LiveServerTestCase):
@@ -174,7 +175,7 @@ class CoreUITestCase(LiveServerTestCase):
     def test_search_field(self):
         """
         Entering a search term and hitting enter leads to correct page.
-        Check it on search, cart and help pages. 
+        Check it on search, cart and help pages.
         1. Go to search page
         2. Enter query with '*' or '?'
         3. Sumit
@@ -314,7 +315,7 @@ class SidebarTestCase(LiveServerTestCase):
             upload_date_id = get_filter_id(driver, 'upload_date')
             driver.find_element_by_xpath(
                 "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
-        
+
             # select first option
             z_click = 0
             driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
@@ -433,22 +434,26 @@ class CustomPeriodTestCase(LiveServerTestCase):
             'end': date(year, 2, 15),
             'res_start': date(year, 2, 10),
             'res_end': date(year, 2, 15)},
-        { # another month
+        {
+            # another month
             'start': date(year, 1, 10),
             'end': date(year, 3, 15),
             'res_start': date(year, 1, 10),
             'res_end': date(year, 3, 15)},
-        { # today
+        {
+            # today
             'start': date(year, 2, 10),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 9),
             'res_end': date(year, 2, 10)},
-        { # future
+        {
+            # future
             'start': date(year, 2, 10),
             'end': date.today() + timedelta(days=10),
             'res_start': date(year, 2, 10),
             'res_end': date.today()},
-        { # swapped
+        {
+            # swapped
             'start': date(year, 2, 15),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 10),
@@ -877,7 +882,6 @@ class SearchTestCase(LiveServerTestCase):
             current = self.selenium.find_element_by_link_text(str(pages_count - 1))
             assert not link_state(current)
 
-
     def test_sorting_order(self):
         """
         Test that sorting works properly.
@@ -903,9 +907,10 @@ class SearchTestCase(LiveServerTestCase):
                     continue
                 attr = COLUMN_NAMES[column]
                 # scroll table
-                self.selenium.execute_script("$('.viewport')"
+                self.selenium.execute_script(
+                        "$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
@@ -916,7 +921,7 @@ class SearchTestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.viewport')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1));
+                        ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_css_selector(selector).text
@@ -1004,7 +1009,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver.execute_script("$('.viewport')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
-            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()       
+            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
         # close DDCL
         select.click()
 
@@ -1157,6 +1162,7 @@ HELP_TEST_SETTINGS['HELP_HINTS'] = {
     'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
     'Study': 'Research study that generated the data set',
 }
+
 
 class HelpHintsTestCase(LiveServerTestCase):
 
