@@ -1025,6 +1025,33 @@ class ColumnSelectTestCase(LiveServerTestCase):
             time.sleep(5)
             self.check_select_columns('cart')
 
+    def test_default_columns_button(self):
+        """
+        Check that 'Reset to defaults' button works properly.
+        1. Open search page (default query)
+        2. Make all columns visible (check '(all)')
+        3. Count visible columns
+        4. Click on 'Reset to defaults'
+        5. Count visible columns
+        6. Compare obtained numbers with settings
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            # select (all) option
+            driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+            # count visible columns
+            column_count = len(driver.find_elements_by_xpath(
+                        "//div[@class='hDivBox']/table/thead/tr/th")) - 1
+            visible = 0
+            for i in range(column_count):
+                driver.execute_script("$('.viewport')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".position().left)" % i)
+                if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
+                    visible += 1
+            print column_count, visible
+
 
 class ResetFiltersTestCase(LiveServerTestCase):
 
