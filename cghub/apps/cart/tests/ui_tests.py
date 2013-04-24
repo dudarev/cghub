@@ -59,6 +59,40 @@ class NavigationLinksTestCase(LiveServerTestCase):
             assert '/help/' not in driver.current_url
 
 
+class AddToCartTestCase(LiveServerTestCase):
+
+    query = "6d50"
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = webdriver.Firefox()
+        self.selenium.implicitly_wait(5)
+        super(AddToCartTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        self.selenium.quit()
+        super(AddToCartTestCase, self).tearDownClass()
+
+    def test_add_all_to_cart(self):
+        """
+        Check that confirmation popup appears when trying to add
+        more than settings.MANY_FILES files count.
+        1. Go to search page (with q=query - 7 results)
+        2. Set settings.MANY_FILES == 1
+        3. Try to add all items to cart
+        4. Check that confirmation popup is visible
+        """
+        custom_settings = dict(TEST_SETTINGS)
+        custom_settings['MANY_FILES'] = 1 
+        with self.settings(**custom_settings):
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            driver.find_element_by_class_name('add-all-to-cart-btn').click()
+            time.sleep(1)
+            assert driver.find_element_by_id('manyItemsModal').is_displayed()
+
+
 class CartUITestCase(LiveServerTestCase):
 
     query = "6d50"
