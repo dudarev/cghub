@@ -197,10 +197,12 @@ def applied_filters(request):
         # Filters by assembly can use complex queries
         if f == 'refassem_short_name':
             for value in ALL_FILTERS[f]['filters']:
-                for i in filters:
-                    if value.find(i) != -1:
-                        filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                options = value.split(' OR ')
+                for option in options:
+                    if option not in filters:
                         break
+                else:
+                    filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
