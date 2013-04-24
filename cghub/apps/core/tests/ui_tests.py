@@ -144,13 +144,38 @@ def scroll_page_to_filter(driver, filter_id):
             "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(filter_id))
 
 
+class CoreUITestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
+        self.selenium.implicitly_wait(5)
+        super(CoreUITestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(CoreUITestCase, self).tearDownClass()
+
+    def test_access_without_trailing_slash(self):
+        """
+        Access application without trailing slash in URL.
+        I.E. "https://stage-browser.cghub.ucsc.edu/search"
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            # default self.live_server_url == 'http://localhost:8081'
+            driver.get('%s/search' % self.live_server_url)
+            assert driver.find_elements_by_css_selector('.applied-filters')
+
+
 class SidebarTestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
-        # FIXME(nanvel): maybe possible decrease it or use in other tests
-        # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
         self.selenium.implicitly_wait(5)
         super(SidebarTestCase, self).setUpClass()
 
@@ -866,9 +891,6 @@ class ColumnSelectTestCase(LiveServerTestCase):
         time.sleep(1)
         self.selenium.quit()
         super(ColumnSelectTestCase, self).tearDownClass()
-
-    def tearDown(self):
-        self.selenium.delete_all_cookies()
 
     def check_select_columns(self, location):
         """
