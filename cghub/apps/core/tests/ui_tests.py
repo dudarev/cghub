@@ -1070,6 +1070,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             for col in TEST_SETTINGS['TABLE_COLUMNS']:
                 if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'visible':
                     default_count += 1
+                    print col
             self.assertEqual(visible, default_count)
 
 
