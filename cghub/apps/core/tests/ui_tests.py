@@ -1103,30 +1103,24 @@ class ResetFiltersTestCase(LiveServerTestCase):
 
 HELP_TEST_SETTINGS = dict(TEST_SETTINGS)
 HELP_TEST_SETTINGS['HELP_HINTS'] = {
-        'filter:Study': 'Filter by research study that generated the data set',
-        'common:filters-reset-button': 'Reset the filters and search text to their default state',
-        'Study:TCGA': 'The Cancer Genome Atlas',
-        'Study:CCLE': 'Cancer Cell Line Encyclopedia',
-        'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
-        'Study': 'Research study that generated the data set',
+    'filter:Study': 'Filter by research study that generated the data set',
+    'common:filters-reset-button': 'Reset the filters and search text to their default state',
+    'Study:TCGA': 'The Cancer Genome Atlas',
+    'Study:CCLE': 'Cancer Cell Line Encyclopedia',
+    'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
+    'Study': 'Research study that generated the data set',
 }
 
 class HelpHintsTestCase(LiveServerTestCase):
 
-    @classmethod
-    def setUpClass(self):
+    def setUp(self):
         self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
-        super(HelpHintsTestCase, self).setUpClass()
-
-    @classmethod
-    def tearDownClass(self):
-        time.sleep(1)
-        self.selenium.quit()
-        super(HelpHintsTestCase, self).tearDownClass()
 
     def tearDown(self):
-        self.selenium.delete_all_cookies()
+        time.sleep(1)
+        self.selenium.quit()
 
     def get_column_number_by_name(self, name):
         counter = 0
@@ -1137,26 +1131,128 @@ class HelpHintsTestCase(LiveServerTestCase):
             if col == name:
                 return counter + 1
 
-    def test_help_hints(self):
+    def check_tooltip(self, target):
         """
-        Check that tooltip appears
+        Check that tooltip appears if place cursor on it and wait few seconds
+        """
+        assert not self.selenium.find_elements_by_css_selector('.js-tooltip')
+        self.ac.move_to_element(target)
+        self.ac.perform()
+        time.sleep(3)
+        tooltip = self.selenium.find_element_by_css_selector('.js-tooltip')
+        assert tooltip.is_displayed()
+        # hide tooltip
+        search_field = self.selenium.find_element_by_css_selector('.navbar-search .search-query')
+        search_field.click()
+        time.sleep(1)
+
+    def test_help_hints_in_table(self):
+        """
+        Check that tooltip appears.
         1. Go to search page (default query)
-        2. Move cursor to Study header
-        3. Wait
-        4. Check that tooltip visible
+        2. Check tooltip for table header (move cursor to target, wait, check tooltip displayed)
+        3. Check tooltip for table cells
         """
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            ac = ActionChains(driver)
+
+            # table header
             study_header = driver.find_element_by_xpath(
                 "//div[@class='hDivBox']/table/thead/tr/th[{0}]/div/a".format(
                                 self.get_column_number_by_name('Study')))
-            # check that no tooltips displayed
-            assert not driver.find_elements_by_css_selector('.js-tooltip')
-            ac.move_to_element(study_header)
-            ac.perform()
-            time.sleep(3)
-            tooltip = driver.find_element_by_css_selector('.js-tooltip')
-            assert tooltip.is_displayed()
+            self.check_tooltip(study_header)
+            # table cell
+            study_cell = driver.find_element_by_xpath(
+                "//div[@class='bDiv']/table/tbody/tr/td[{0}]/div".format(
+                                self.get_column_number_by_name('Study')))
+            self.check_tooltip(study_cell)
 
+    def test_help_hints_in_filters(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for filter header
+        3. Check tooltip for selected filter options
+        4. Check tooltip for filter options
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # filter header
+            study_filter_header = driver.find_elements_by_css_selector(
+                            ".sidebar h5")[0]
+            self.check_tooltip(study_filter_header)
+            # seleted filters
+            study_selected_option = driver.find_elements_by_css_selector(
+                            ".sidebar .ui-dropdownchecklist-text-item")[0]
+            self.check_tooltip(study_selected_option)
+            # open Study DDCL
+            study_id = get_filter_id(driver, 'study')
+            self.selenium.find_element_by_id("ddcl-{0}".format(study_id)).click()
+            # filter options
+            study_filter_option = driver.find_elements_by_css_selector(
+                            ".sidebar .ui-dropdownchecklist-item label")[1]
+            self.check_tooltip(study_filter_option)
+
+    def test_help_hints_common(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for reset button (common)
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # reset button (common tooltip)
+            driver.execute_script(
+                "$(window).scrollTop($('#id_reset_filters').offset().top - 100);")
+            reset_button = driver.find_element_by_id("id_reset_filters")
+            self.check_tooltip(reset_button)
+
+    def test_help_hints_in_details_popup(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Open details popup
+        3. Check tooltip for details table title
+        4. Check tooltip for details table item
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            # open details popup
+            driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").click()
+            time.sleep(3)
+            # details table titles
+            details_title = driver.find_elements_by_css_selector(
+                                            "#itemDetailsModal th")[0]
+            self.check_tooltip(details_title)
+            # details table values
+            details_value = driver.find_elements_by_css_selector(
+                                            "#itemDetailsModal td")[0]
+            self.check_tooltip(details_value)
+
+    def test_help_hints_on_details_page(self):
+        """
+        Check that tooltip appears.
+        1. Go to details page
+        2. Check tooltip for details table title
+        3. Check tooltip for details table item
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get('%s/details/%s/' % (
+                    self.live_server_url, 'f0b7370f-8473-415b-86e7-9cb1d96c1411'))
+            # details table titles
+            details_title = driver.find_elements_by_css_selector(
+                                            ".js-details-table th")[0]
+            self.check_tooltip(details_title)
+            # details table values
+            details_value = driver.find_elements_by_css_selector(
+                                            ".js-details-table td")[0]
+            self.check_tooltip(details_value)
