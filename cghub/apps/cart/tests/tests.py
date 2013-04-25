@@ -488,8 +488,16 @@ class CartParsersTestCase(TestCase):
                 expire_date=timezone.now() + datetime.timedelta(days=7),
                 session_key=store.session_key)
         s.save()
+        # prefill cart by ids
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        session_data['cart'] = {}
+        session_data['cart']['5464f590-587a-4590-8145-f683410ec407'] = {'analysis_id': '5464f590-587a-4590-8145-f683410ec407'}
+        session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319'] = {'analysis_id': 'ff258e70-4a00-45b4-bda9-9134b05c0319'}
+        session.session_data = Session.objects.encode(session_data)
+        session.save()
         attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
-                                            'assembly', 'files_size']
+                                        'assembly', 'files_size', 'analysis_id']
         session_store = SessionStore(session_key=self.client.session.session_key)
         parse_cart_attributes(session_store, attributes, file_path=self.test_file,
                                                     cache_files=False)

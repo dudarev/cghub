@@ -57,6 +57,8 @@ class CartAttributesParser(handler.ContentHandler):
         self.session_store.save()
 
     def _save_to_cart(self):
+        if self.current_dict['analysis_id'] not in self.cart:
+            return
         # save file to cart
         self.current_dict['files_size'] = self.files_size
         # deep copy

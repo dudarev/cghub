@@ -27,7 +27,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, generate_tmp_file_name,
-                    is_task_done)
+                    is_task_done, decrease_start_date)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -252,6 +252,23 @@ class UtilsTestCase(TestCase):
         task_state.save()
         # task is done
         self.assertTrue(is_task_done(task_id))
+
+    def test_decrease_start_date(self):
+        TEST_DATA = {
+            'last_modified=[NOW-60DAY TO NOW-56DAY]&state=(live)':
+                    'last_modified=%5BNOW-61DAY%20TO%20NOW-56DAY%5D&state=(live)',
+            'upload_date=[NOW-2MONTH TO NOW-1MONTH]&state=(live)':
+                    'upload_date=%5BNOW-63DAY%20TO%20NOW-1MONTH%5D&state=(live)',
+            'upload_date=[NOW-10DAY TO NOW-3DAY]&last_modified=[NOW-1YEAR TO NOW-3DAY]':
+                    'upload_date=%5BNOW-11DAY%20TO%20NOW-3DAY%5D&last_modified=%5BNOW-367DAY%20TO%20NOW-3DAY%5D',
+            'state=(live)': 'state=(live)',
+            'last_modified=[]': 'last_modified=[]',
+            'upload_date=%5BNOW-16DAY%20TO%20NOW-15DAY%5D&state=%28live%29':
+                    'upload_date=%5BNOW-17DAY%20TO%20NOW-15DAY%5D&state=%28live%29'
+        }
+
+        for i in TEST_DATA:
+            self.assertEqual(decrease_start_date(i), TEST_DATA[i])
 
 
 class ContextProcessorsTestCase(TestCase):

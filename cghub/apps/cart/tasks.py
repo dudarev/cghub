@@ -2,14 +2,16 @@ import glob
 import datetime
 import os
 
-from django.conf import settings
 from celery.task import task
+
+from django.conf import settings
+from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 
 from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
 from cghub.apps.cart.parsers import parse_cart_attributes
 
-from django.contrib.sessions.models import Session
-from django.contrib.sessions.backends.db import SessionStore
+from cghub.apps.core.utils import decrease_start_date
 
 
 @task(ignore_result=True)
@@ -49,7 +51,8 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
     # modify session
     session_store = SessionStore(session_key=session_key)
     for query in queries:
-        parse_cart_attributes(session_store, attributes, query=query)
+        parse_cart_attributes(
+            session_store, attributes, query=decrease_start_date(query))
 
 
 # FIXME(nanvel): now cache stored in folders

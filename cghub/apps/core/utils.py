@@ -134,3 +134,39 @@ def is_celery_alive():
         mail_admins(subject, message, fail_silently=True)
         return False
 
+
+def decrease_start_date(query):
+    """
+    Decrease start date by 1 day.
+    [NOW-1YEAR TO NOW] -> [NOW-367DAY TO NOW]
+    [NOW-2MONTH TO NOW-1MONTH] -> [NOW-63DAY TO NOW-1MONTH]
+    [NOW-10DAY TO NOW-3DAY] -> [NOW-11DAY TO NOW-3DAY]
+    Works for upload_date, last_modified.
+    """
+    targets = ('upload_date', 'last_modified',)
+    new_query = []
+    filters = query.split('&')
+    try:
+        for f in filters:
+            attribute, value = f.split('=')
+            if attribute not in targets:
+                new_query.append(f)
+                continue
+            value = urllib.unquote(value)
+            first, second = value.split('TO')
+            period = first[5:-1]
+            days = None
+            if 'DAY' in period:
+                days = int(period.split('DAY')[0])
+            elif 'MONTH' in period:
+                days = int(period.split('MONTH')[0]) * 31
+            elif 'YEAR' in period:
+                days = int(period.split('YEAR')[0]) * 366
+            if not days:
+                return query
+            days += 1
+            new_query.append('%s=' % attribute + urllib.quote('[NOW-%dDAY TO%s' % (days, second)))
+        return '&'.join(new_query)
+    except:
+        pass
+    return query
