@@ -79,12 +79,12 @@ def cart_add_all_files(request, celery_alive):
             else:
                 query = filter_str[1:]  # remove front ampersand
                 queries = [query]
+            # add ids to cart
+            for query in queries:
+                ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
+                cart_utils.add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:
-                # add ids to cart
-                for query in queries:
-                    ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
-                    cart_utils.add_ids_to_cart(request, ids)
                 # check task is already exists
                 kwargs = {
                             'data': form.cleaned_data,
