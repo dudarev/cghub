@@ -31,8 +31,11 @@ def _dummy_save_to_cache(**kwargs):
 def get_cache_file_name(query, get_attributes, full, settings):
     # Prevent getting different file names because of 
     # percent escaping
-    query = urllib2.unquote(query.encode("utf8"))
-    query = urllib2.quote(query)
+    query = urllib2.unquote(query.encode("utf8")).replace('+', ' ')
+    if '&' in query:
+        query = query.split('&')
+        query.sort()
+        query = '&'.join(query)
     md5 = hashlib.md5(query)
     if get_attributes:
         if full:

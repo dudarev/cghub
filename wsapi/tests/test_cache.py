@@ -16,11 +16,11 @@ class CacheTest(unittest.TestCase):
     """Test functions that do sorting."""
 
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
+        '10f911319953a88d95231b4d63e29434.xml',
     ]
 
     bad_cache_file = [
-        'ff6acb9fa21f1284d9655a29b0063ba4.xml', # query='xml_text=6d7*'
+        '9a47690bef15473baaab6613ccb0edaf.xml', # query='xml_text=6d7*'
     ]
 
     def setUp(self):
