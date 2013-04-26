@@ -271,14 +271,14 @@ class CartCacheTestCase(WithCacheTestCase):
     8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-03-04T00:22:02Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2012-10-29T21:56:12Z'
+    last_modified = '2013-04-26T14:46:09Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-03-04T00:22:02Z'
 
     wsapi_cache_files = [
-            '1222c973df912b058f0f6c0c52e18184.xml',
-            '4d3fee9f8557fc0de585af248b598c44.xml',
-            'e7ccfb9ea17db39b27ae2b1d03e015e8.xml',
+            '604f183c90858a9d1f1959fe0370c45d.xml',
+            '833d652164e4317c6a01d17baca9297c.xml',
+            '04431431d567221ad5cec406209e9d27.xml',
     ]
     cart_cache_files = [analysis_id, analysis_id2]
 
@@ -329,8 +329,8 @@ class CartCacheTestCase(WithCacheTestCase):
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
             self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
-                'which was last modified 2012-10-29T21:56:12Z not exists, '
-                'may be it was updated')
+            'which was last modified 2013-04-26T14:46:09Z not exists, '
+            'may be it was updated')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
         if os.path.isdir(path):
@@ -404,7 +404,7 @@ class CartCacheTestCase(WithCacheTestCase):
             last_modified=self.last_modified)
         self.assertNotIn('Result', xml)
         self.assertIn('analysis_id', xml)
-        self.assertEqual(size, 168328325)
+        self.assertEqual(size, 172861573)
 
     def test_analysis_xml_iterator(self):
         data = {
