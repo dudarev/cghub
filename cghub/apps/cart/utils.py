@@ -75,6 +75,24 @@ def add_ids_to_cart(request, ids):
     request.session.modified = True
 
 
+def add_files_to_cart(request, results):
+    """
+    Fill cart by data contains in results.
+
+    :param request: Request objects
+    :param results: wsapi.api.Results object 
+    """
+    if not hasattr(results, 'Result'):
+        return
+    cart = get_or_create_cart(request)
+    for result in results.Result:
+        current_dict = {}
+        for attribute in ATTRIBUTES:
+            current_dict[attribute] = result[attribute]
+        cart[current_dict['analysis_id']] = current_dict
+    request.session.modified = True
+
+
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()

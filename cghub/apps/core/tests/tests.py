@@ -23,7 +23,7 @@ from cghub.wsapi.utils import makedirs_group_write
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query, only_date)
+                    period_from_query, only_date, get_sample_type_by_code)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, generate_tmp_file_name,
@@ -108,22 +108,6 @@ class CoreTestCase(WithCacheTestCase):
     def test_existent_search(self):
         response = self.client.get('/search/?q=%s' % self.query)
         self.assertEqual(response.status_code, 200)
-
-    def test_double_digit_for_sample_type(self):
-        from lxml.html import fromstring
-        response = self.client.get('/search/?q=%s' % self.query)
-        c = fromstring(response.content)
-        sample_type_index = 0
-        for th in c.cssselect('th'):
-            if th.cssselect('a'):
-                if 'Sample Type' in th.cssselect('a')[0].text:
-                    break
-            sample_type_index += 1
-        for tr in c.cssselect('tr'):
-            sample_type = tr[sample_type_index].text
-            if sample_type:
-                self.assertTrue(len(sample_type) == 2)
-        self.assertTrue('Found' in response.content)
 
     def test_item_details_view(self):
         analysis_id = '12345678-1234-1234-1234-123456789abc'
@@ -495,6 +479,14 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(only_date('2013-02-22T12:00:21Z'), '2013-02-22')
         self.assertEqual(only_date('2013-02-22'), '2013-02-22')
         self.assertEqual(only_date(''), '')
+
+    def test_double_digit_for_sample_type(self):
+        """
+        Sample type:
+        "07", "Additional Metastatic", "TAM"
+        """
+        self.assertEqual(get_sample_type_by_code('07', 'shortcut'), 'TAM')
+        self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
 
 
 class SearchViewPaginationTestCase(WithCacheTestCase):

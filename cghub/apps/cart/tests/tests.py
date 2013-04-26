@@ -22,9 +22,9 @@ from django.conf import settings
 from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (manifest, metadata,
-                            summary, add_ids_to_cart, check_missing_files,
-                            cache_file, analysis_xml_iterator,
-                            summary_tsv_iterator,
+                            summary, add_ids_to_cart, add_files_to_cart,
+                            check_missing_files, cache_file,
+                            analysis_xml_iterator, summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
@@ -33,8 +33,10 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
 from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
 
-from cghub.apps.core.tests import WithCacheTestCase
+from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR
 from cghub.apps.core.utils import generate_task_id
+
+from cghub.wsapi.api import request as api_request
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -202,8 +204,6 @@ class CartAddItemsTestCase(TestCase):
                 session_key=store.session_key)
         s.save()
         data = {
-            'attributes': json.dumps(['study', 'center_name', 'analyte_code',
-                                                        'last_modified']),
             'filters': json.dumps({
                         'state': '(live)',
                         'q': '(00b27c0f-acf5-434c-8efa-25b1f3c4f506)'
@@ -213,8 +213,21 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
-        self.assertTrue(data['task_id'])
+        self.assertNotIn('task_id', data)
         self.assertTrue(self.client.session.session_key)
+        # check adding files by query without 'q'
+        data = {
+            'filters': json.dumps({
+                        'state': '(live)',
+                        'upload_date': '[NOW-1DAY TO NOW]',
+                        'study': '(*Other_Sequencing_Multiisolate)'
+                    })}
+        url = reverse('cart_add_remove_files', args=('add',))
+        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['action'], 'redirect')
+        self.assertTrue(data['task_id'])
 
 
 class CartCacheTestCase(WithCacheTestCase):
@@ -631,3 +644,15 @@ class CartUtilsTestCase(TestCase):
         self.assertNotIn(
                 '226e11c8-b873-4c37-88cd-18dcd7f28733',
                 request.session._session['cart'])
+
+    def test_add_files_to_cart(self):
+        request = self.get_request()
+        filename = os.path.join(TEST_DATA_DIR ,'d35ccea87328742e26a8702dee596ee9.xml')
+        results = api_request(file_name=filename)
+        results.add_custom_fields()
+        add_files_to_cart(request, results)
+        cart = request.session._session['cart']
+        self.assertEqual(len(cart), 2)
+        self.assertEqual(
+                cart['80e7daa9-6a53-4e78-a0ad-7f46667438c5']['upload_date'],
+                '2012-09-21T20:40:06Z')
