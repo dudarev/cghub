@@ -150,8 +150,8 @@ def get_all_ids(query, settings, ignore_cache=False):
                 if os.path.exists(filename):
                     break
                 filename = get_cache_file_name(
-                        '%s&sort_by=-%s' % (
-                                query, parse_sort_by('-' + attr)), settings)
+                        '%s&sort_by=%s' % (
+                                query, parse_sort_by('-%s' % attr)), settings)
                 if os.path.exists(filename):
                     break
             if not os.path.exists(filename):

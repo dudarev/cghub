@@ -22,12 +22,14 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, clear_cart,
                             check_missing_files, cache_file,
-                            cart_remove_files_without_attributes)
+                            cart_remove_files_without_attributes,
+                            add_ids_to_cart, add_files_to_cart)
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
 import cghub.apps.cart.utils as cart_utils
 
 from cghub.wsapi.api_light import get_all_ids
+from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi import browser_text_search
 
 
@@ -65,6 +67,7 @@ def cart_add_all_files(request, celery_alive):
             filter_str = get_filters_string(filters)
             q = filters.get('q')
             # FIXME: the API should hide all URL quoting and parameters [markd]
+            queries = []
             if q:
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
@@ -76,13 +79,19 @@ def cart_add_all_files(request, celery_alive):
                     query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
                     query += filter_str
                     queries = [query, u"analysis_id={0}".format(urlquote(q))]
-            else:
-                query = filter_str[1:]  # remove front ampersand
-                queries = [query]
+            if len(queries) > 1:
+                # add files to cart
+                # should be already cached, add immediately
+                results = api_multiple_request(queries_list=queries, settings=WSAPI_SETTINGS)
+                results.add_custom_fields()
+                add_files_to_cart(request, results)
+                return {'action': 'redirect', 'redirect': reverse('cart_page')}
+            if not queries:
+                # remove front ampersand
+                queries = [filter_str[1:]]
             # add ids to cart
-            for query in queries:
-                ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
-                cart_utils.add_ids_to_cart(request, ids)
+            ids = get_all_ids(query=queries[0], settings=WSAPI_SETTINGS)
+            add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:
                 # check task is already exists
