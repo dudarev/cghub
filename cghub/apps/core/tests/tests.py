@@ -84,9 +84,9 @@ class CoreTestCase(WithCacheTestCase):
     wsapi_cache_files = [
         '24f05bdcef000bb97ce1faac7ed040ee.xml',
         '4cc5fcb1fd66e39cddf4c90b78e97667.xml',
-        '6cc087ba392e318a84f3d1d261863728.ids',
-        '80854b20d08c55ed41234dc62fff82c8.ids',
         '7cd2c2b431595c744b22c0c21daa8763.ids',
+        '80854b20d08c55ed41234dc62fff82c8.ids',
+        '6cc087ba392e318a84f3d1d261863728.ids',
     ]
     query = "6d54"
 
@@ -564,7 +564,7 @@ class MetadataViewTestCase(WithCacheTestCase):
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2012-10-29T21:56:12Z'
+    last_modified = '2013-04-26T14:46:09Z'
 
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
