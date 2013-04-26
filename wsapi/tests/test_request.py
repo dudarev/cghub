@@ -87,10 +87,10 @@ class RequestTest(unittest.TestCase):
 
 class MultipleRequestTestCase(unittest.TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
-        '9f3c2c0b252739d9bc689d8a26f961d6.xml'
+        '10f911319953a88d95231b4d63e29434.xml',
+        '1e3c75234e181adbce636f665f5dfe16.xml'
     ]
-    extra_cache_file = '5db34dad5dd47469af56179a7d83ebfc.xml'
+    extra_cache_file = 'b8bd18152ae336e8b13f9674ee4da179.xml'
 
     def setUp(self):
         """

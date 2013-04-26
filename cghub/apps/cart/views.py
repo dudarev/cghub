@@ -67,6 +67,7 @@ def cart_add_all_files(request, celery_alive):
             filter_str = get_filters_string(filters)
             q = filters.get('q')
             # FIXME: the API should hide all URL quoting and parameters [markd]
+            queries = []
             if q:
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
@@ -78,16 +79,18 @@ def cart_add_all_files(request, celery_alive):
                     query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
                     query += filter_str
                     queries = [query, u"analysis_id={0}".format(urlquote(q))]
-                # add ids to cart
+            if len(queries) > 1:
+                # add files to cart
                 # should be already cached, add immediately
                 results = api_multiple_request(queries_list=queries, settings=WSAPI_SETTINGS)
                 results.add_custom_fields()
                 add_files_to_cart(request, results)
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
-            query = filter_str[1:]  # remove front ampersand
-            queries = [query]
+            if not queries:
+                # remove front ampersand
+                queries = [filter_str[1:]]
             # add ids to cart
-            ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
+            ids = get_all_ids(query=queries[0], settings=WSAPI_SETTINGS)
             add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:

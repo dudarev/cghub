@@ -8,7 +8,7 @@ from wsapi.utils import get_setting,  makedirs_group_write
 
 class PaginationTestCase(unittest.TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        '10f911319953a88d95231b4d63e29434.xml'
     ]
 
     def setUp(self):
@@ -19,7 +19,7 @@ class PaginationTestCase(unittest.TestCase):
         # cache filenames are generated as following:
         # >>> from wsapi.cache import get_cache_file_name
         # >>> get_cache_file_name('xml_text=6d5%2A', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
+        # u'/tmp/wsapi/10f911319953a88d95231b4d63e29434.xml'
 
         TEST_DATA_DIR = 'tests/test_data/'
         cache_dir = get_setting('CACHE_DIR')

@@ -37,6 +37,7 @@ from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR
 from cghub.apps.core.utils import generate_task_id
 
 from cghub.wsapi.api import request as api_request
+from cghub.wsapi import browser_text_search
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -190,7 +191,7 @@ class CartClearTestCase(TestCase):
 
 class CartAddItemsTestCase(TestCase):
 
-    def test_cart_add_files(self):
+    def create_session(self):
         # initialize session
         settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
         engine = import_module(settings.SESSION_ENGINE)
@@ -203,6 +204,9 @@ class CartAddItemsTestCase(TestCase):
                 expire_date=timezone.now() + datetime.timedelta(days=7),
                 session_key=store.session_key)
         s.save()
+
+    def test_cart_add_files_with_q(self):
+        self.create_session()
         data = {
             'filters': json.dumps({
                         'state': '(live)',
@@ -213,9 +217,38 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
-        self.assertNotIn('task_id', data)
+        if browser_text_search.useAllMetadataIndex:
+            self.assertTrue(data['task_id'])
+        else:
+            self.assertNotIn('task_id', data)
         self.assertTrue(self.client.session.session_key)
-        # check adding files by query without 'q'
+
+    def test_cart_add_files_with_q_without_metadata_index(self):
+        """
+        with  cghub.wsapi.browser_text_search.useAllMetadataIndex = False
+        """
+        oldUseAllMetadataIndex = browser_text_search.useAllMetadataIndex
+        browser_text_search.useAllMetadataIndex = False
+        self.create_session()
+        data = {
+            'filters': json.dumps({
+                    'state': '(live)',
+                    'q': '(00b27c0f-acf5-434c-8efa-25b1f3c4f506)'
+                })}
+        url = reverse('cart_add_remove_files', args=('add',))
+        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['action'], 'redirect')
+        if browser_text_search.useAllMetadataIndex:
+            self.assertTrue(data['task_id'])
+        else:
+            self.assertNotIn('task_id', data)
+        self.assertTrue(self.client.session.session_key)
+        browser_text_search.useAllMetadataIndex = oldUseAllMetadataIndex
+
+    def test_add_files_without_q(self):
+        self.create_session()
         data = {
             'filters': json.dumps({
                         'state': '(live)',
