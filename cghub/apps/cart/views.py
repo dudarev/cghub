@@ -132,6 +132,8 @@ def cart_add_all_files(request, celery_alive):
                         'task_id': task_id}
             else:
                 # files will be added immediately
+                request.session.save()
+                request.session.modified = False
                 add_files_to_cart_by_query_task(
                         queries=queries,
                         attributes=ATTRIBUTES,
