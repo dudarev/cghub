@@ -100,8 +100,6 @@ def cart_add_all_files(request, celery_alive):
                             'session_key': request.session.session_key}
                 task_id = generate_task_id(**kwargs)
                 request.session['task_id'] = task_id
-                request.session.save()
-                request.session.modified = False
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
@@ -132,8 +130,6 @@ def cart_add_all_files(request, celery_alive):
                         'task_id': task_id}
             else:
                 # files will be added immediately
-                request.session.save()
-                request.session.modified = False
                 add_files_to_cart_by_query_task(
                         queries=queries,
                         attributes=ATTRIBUTES,
