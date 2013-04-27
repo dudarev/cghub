@@ -16,6 +16,8 @@ from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
+from django.utils.importlib import import_module
+from django.contrib.sessions.models import Session
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.utils import makedirs_group_write
@@ -32,6 +34,29 @@ from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
+
+
+def get_request():
+    """
+    Returns request object with session
+    """
+    # initialize session
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    engine = import_module(settings.SESSION_ENGINE)
+    store = engine.SessionStore()
+    store.save()
+    # create request
+    factory = RequestFactory()
+    request = factory.get(reverse('home_page'))
+    request.session = store
+    request.cookies = {}
+    request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+    # create session
+    s = Session(
+            expire_date=timezone.now() + datetime.timedelta(days=7),
+            session_key=store.session_key)
+    s.save()
+    return request
 
 
 class WithCacheTestCase(TestCase):

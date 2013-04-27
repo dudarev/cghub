@@ -10,7 +10,7 @@ from djcelery.models import TaskState
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
-from django.test.client import Client, RequestFactory
+from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 from django.utils import timezone
@@ -33,7 +33,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
 from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
 
-from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR
+from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
 from cghub.apps.core.utils import generate_task_id
 
 from cghub.wsapi.api import request as api_request
@@ -60,6 +60,21 @@ class CartTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.cart_page_url = reverse('cart_page')
+
+    def create_session(self):
+        # FIXME: make this helper common common
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
 
     def test_cart_add_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
@@ -170,6 +185,18 @@ class CartTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    def test_cart_view_not_modified_session(self):
+        """
+        This cause problems when view makes more recent changes in session
+        than task that adds files to cart.
+        """
+        self.create_session()
+        self.assertNotIn('cart', self.client.session)
+        url = reverse('cart_page')
+        r = self.client.get(url)
+        # check that session was not modified (cart not created)
+        self.assertNotIn('cart', self.client.session)
+
 
 class CartClearTestCase(TestCase):
     IDS_IN_CART = ('4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6',
@@ -267,13 +294,13 @@ class CartCacheTestCase(WithCacheTestCase):
 
     """
     Cached files will be used
-    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
-    8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-03-04T00:22:02Z
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-04-26T14:46:09Z
+    8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-04-27T01:47:09Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
     last_modified = '2013-04-26T14:46:09Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
-    last_modified2 = '2013-03-04T00:22:02Z'
+    last_modified2 = '2013-04-27T01:47:09Z'
 
     wsapi_cache_files = [
             '604f183c90858a9d1f1959fe0370c45d.xml',
@@ -611,27 +638,8 @@ class CartFormsTestCase(TestCase):
 
 class CartUtilsTestCase(TestCase):
 
-    def get_request(self):
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        # create request
-        factory = RequestFactory()
-        request = factory.get(reverse('home_page'))
-        request.session = store
-        request.cookies = {}
-        request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-        return request
-
     def test_add_ids_to_cart(self):
-        request = self.get_request()
+        request = get_request()
         # try to add ids
         ids = (
             '7850f073-642a-40a8-b49d-e328f27cfd66',
@@ -654,7 +662,7 @@ class CartUtilsTestCase(TestCase):
         self.assertEqual(files[1]['disease_abbr'], 'COAD')
 
     def test_cart_remove_files_without_attributes(self):
-        request = self.get_request()
+        request = get_request()
         request.session['cart'] = {
             '7850f073-642a-40a8-b49d-e328f27cfd66': {
                 'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
@@ -679,7 +687,7 @@ class CartUtilsTestCase(TestCase):
                 request.session._session['cart'])
 
     def test_add_files_to_cart(self):
-        request = self.get_request()
+        request = get_request()
         filename = os.path.join(TEST_DATA_DIR ,'d35ccea87328742e26a8702dee596ee9.xml')
         results = api_request(file_name=filename)
         results.add_custom_fields()
