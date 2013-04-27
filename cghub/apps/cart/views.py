@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 from operator import itemgetter
 
 from celery import states
@@ -11,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils import timezone
-from django.utils.http import urlquote
+from django.utils.http import urlquote, cookie_date
 from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
@@ -101,6 +102,8 @@ def cart_add_all_files(request, celery_alive):
                             'session_key': request.session.session_key}
                 task_id = generate_task_id(**kwargs)
                 request.session['task_id'] = task_id
+                request.session.save()
+                request.session.modified = False
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
@@ -131,6 +134,8 @@ def cart_add_all_files(request, celery_alive):
                         'task_id': task_id}
             else:
                 # files will be added immediately
+                request.session.save()
+                request.session.modified = False
                 add_files_to_cart_by_query_task(
                         queries=queries,
                         attributes=ATTRIBUTES,
@@ -147,7 +152,8 @@ def cart_add_files(request):
         raise Http404
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
-    if request.session.session_key == None:
+    session_created = request.session.session_key == None
+    if session_created:
         request.session.save()
     # check that we still working on adding files to cart
     if celery_alive and request.session.get('task_id'):
@@ -160,7 +166,23 @@ def cart_add_files(request):
     else:
         result = cart_add_selected_files(request, celery_alive)
     result = result or {'action': 'error'}
-    return HttpResponse(json.dumps(result), mimetype="application/json")
+    response = HttpResponse(json.dumps(result), mimetype="application/json")
+    # set session cookie if session was created
+    if session_created:
+        if request.session.get_expire_at_browser_close():
+            max_age = None
+            expires = None
+        else:
+            max_age = request.session.get_expiry_age()
+            expires_time = time.time() + max_age
+            expires = cookie_date(expires_time)
+        response.set_cookie(settings.SESSION_COOKIE_NAME,
+                        request.session.session_key, max_age=max_age,
+                        expires=expires, domain=settings.SESSION_COOKIE_DOMAIN,
+                        path=settings.SESSION_COOKIE_PATH,
+                        secure=settings.SESSION_COOKIE_SECURE or None,
+                        httponly=settings.SESSION_COOKIE_HTTPONLY or None)
+    return response
 
 
 class CartView(TemplateView):
