@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils import timezone
 from django.utils.http import urlquote
+from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_id, get_wsapi_settings,
@@ -177,8 +178,12 @@ class CartView(TemplateView):
             # remove task_id from session and remove files with
             # not completely loaded attributes
             # and show error message in case if ones exists
-            missed_files = cart_remove_files_without_attributes(
-                                                        self.request)
+            
+            # reload session
+            engine = import_module(settings.SESSION_ENGINE)
+            self.request.session = engine.SessionStore(
+                                session_key=self.request.session.session_key)
+            missed_files = cart_remove_files_without_attributes(self.request)
             del self.request.session['task_id']
             self.request.session.save()
         cart = get_or_create_cart(self.request).values()
