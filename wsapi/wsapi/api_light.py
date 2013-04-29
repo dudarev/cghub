@@ -40,11 +40,11 @@ class IDsParser(handler.ContentHandler):
     """
 
     def __init__(self, filename):
-        self.filename = open(filename, 'w')
-        self.tmp_filename = generate_tmp_file_name()
-        self.f = open(os.path.join(
+        self.filename = filename
+        self.tmp_filename = os.path.join(
                         os.path.dirname(self.filename),
-                        self.tmp_filename), 'w')
+                        generate_tmp_file_name())
+        self.f = open(self.tmp_filename, 'w')
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
