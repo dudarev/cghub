@@ -11,10 +11,12 @@ jQuery(function ($) {
         usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
         usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
         reservedChars: '*?',
+        tabPressed: 0,
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
             cghub.base.mockIePlaceholder();
+            cghub.base.activateSkipNavigation();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
@@ -43,6 +45,42 @@ jQuery(function ($) {
             } else {
                 pageLink.closest('li').addClass('active');
             }
+        },
+        activateSkipNavigation:function () {
+            $(window).on('keydown', function(e) {
+                var TABKEY = 9;
+                if(e.keyCode == TABKEY) {
+                    if(cghub.base.tabPressed > 2) return;
+                    cghub.base.tabPressed += 1;
+                    if(cghub.base.tabPressed == 1) {
+                        $('#main-content').hide();
+                        $('#main-nav').hide();
+                        $('#accessibility-links').show();
+                        $('.js-skip-to-content').focus();
+                    }
+                    if(cghub.base.tabPressed == 2) {
+                        $('.js-skip-to-nav').focus();
+                    }
+                    if(cghub.base.tabPressed == 3) {
+                        $('#accessibility-links').hide();
+                        $('#main-content').show();
+                        $('#main-nav').show();
+                    }
+                    if(e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    return false;
+                }
+            });
+            $('.js-skip-to-content, .js-skip-to-nav').on('click', function(e) {
+                var target = $($(e.target).attr('href'));
+                $(window).scrollTop(target.offset().top);
+                target.find('a').eq(0).focus();
+                $('#accessibility-links').hide();
+                $('#main-content').show();
+                $('#main-nav').show();
+                return false;
+            });
         },
         activateTaskStatusChecking:function () {
             setTimeout(cghub.base.activateTaskStatusChecking, 30000);

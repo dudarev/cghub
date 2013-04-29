@@ -36,7 +36,22 @@
     {% block extra_header_js %} {% endblock %}
 </head>
 <body>
-<div class="navbar navbar-fixed-top">
+<div style="width: 981px;" id="accessibility-links"><!-- Accessibility links. Hidden until they receive :focus -->
+    <ul style="height: 12px;" title="Accessibility links" id="access-links">
+        <li>
+            <a href="#main-content" class="js-skip-to-content">
+                Skip to main content
+            </a>
+        </li>
+        <li>
+            <a href="#main-nav" class="js-skip-to-nav">
+                Skip to primary navigation
+            </a>
+        </li>
+    </ul>
+    <!-- End of Accessibility links. Hidden until they receive :focus -->
+</div>
+<div class="navbar navbar-fixed-top" id="main-nav">
     <div class="navbar-inner">
         <div class="container-fluid">
             <a class="brand" href="https://cghub.ucsc.edu/"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
@@ -57,7 +72,7 @@
         </div>
     </div>
 </div>
-<div class="base-container row">
+<div class="base-container row" id="main-content">
         {% block main_content %}
             <div class="span3 base-sidebar">
                 {% block extra_sidebar %} {% endblock %}
