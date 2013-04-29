@@ -20,7 +20,8 @@ from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
 
-from utils import get_setting, urlopen, makedirs_group_write
+from utils import (get_setting, urlopen, makedirs_group_write,
+                                                generate_tmp_file_name)
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
@@ -39,7 +40,11 @@ class IDsParser(handler.ContentHandler):
     """
 
     def __init__(self, filename):
-        self.f = open(filename, 'w')
+        self.filename = open(filename, 'w')
+        self.tmp_filename = generate_tmp_file_name()
+        self.f = open(os.path.join(
+                        os.path.dirname(self.filename),
+                        self.tmp_filename), 'w')
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
@@ -54,6 +59,7 @@ class IDsParser(handler.ContentHandler):
 
     def endDocument(self):
         self.f.close()
+        os.rename(self.tmp_filename, self.filename)
 
 
 def parse_sort_by(value):
@@ -122,6 +128,9 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
         line = linecache.getline(filename, i).split('\n')[0]
         if line:
             items.append(line)
+        else:
+            wsapi_request_logger.error(
+                    'Wrong number of results in ids file %s' % filename)
     linecache.clearcache()
     return items_count, items
 
