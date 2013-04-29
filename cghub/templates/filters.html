@@ -1,6 +1,6 @@
 {% spaceless %}
 {% for section, filters in all_filters.items %}
-  <label for="id-{{section|slugify}}"><b>{{ filters.title }}:</b></label>
+  <label for="id-{{section|slugify}}" class="filter-label">{{ filters.title }}:</label>
   {% if section == 'last_modified' or section == 'upload_date' %}
     <select class="filter-select date-filters" data-section="{{ section }}">
       {% for filter_value, filter_name_and_id in filters.filters.items %}

@@ -31,9 +31,10 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .ui-dropdownchecklist-dropcontainer-wrapper{margin-top:-5px;}
 .ui-state-hover,.ui-state-active{background-color:white;cursor:pointer;}
 .ui-dropdownchecklist-close{text-align:center !important;}
-.column-select-label{float:left;height:25px;padding-top:3px;}
-.column-select-label>span{margin-right:5px;}
 .column-select{display:none;}
+.column-select-label{float:left;height:25px;padding-top:3px;}
+.column-select-label>label{margin-right:5px;}
+.sidebar .filter-label{font-weight:bold;margin-bottom:0;font-size:12px;}
 .items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
 div.cart-btn-group{padding:15px 0;}
 .cart-content{padding-left:50px;}.cart-content .alert a{color:inherit;text-decoration:underline;}

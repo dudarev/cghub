@@ -17,9 +17,9 @@
                     {% for r in results %}
                         <tr data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-analysis_id="{{ r.analysis_id }}" data-context-menu="#table-context-menu">
                             <td>
-                                <label for="{{ r.analysis_id }}" style="display:none">{{ r.analysis_id }}</label>
+                                <label for="cb-{{ r.analysis_id }}" style="display:none">{{ r.analysis_id }}</label>
                                 <input class="data-table-checkbox" type="checkbox" name="selected_files"
-                                                                        id="{{ r.analysis_id }}"
+                                                                        id="cb-{{ r.analysis_id }}"
                                                                         value="{{ r.analysis_id }}"
                                                                         data-legacy_sample_id="{{ r.legacy_sample_id }}"
                                                                         data-study="{{ r.study }}"

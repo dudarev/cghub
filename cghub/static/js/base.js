@@ -20,7 +20,6 @@ jQuery(function ($) {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
             cghub.base.$navbarListItem = $('div.navbar ul li');
             cghub.base.$messageModal = $('#messageModal');
-            cghub.base.taskStatusURL = $('body').data('task-status-url');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$searchForm = $('form.navbar-search');
         },
@@ -51,7 +50,7 @@ jQuery(function ($) {
             if(tasks) {
                 var task_id = tasks.split(',')[0];
                 $.ajax({
-                    url: cghub.base.taskStatusURL,
+                    url: cghub.vars.taskStatusUrl,
                     dataType: "json",
                     data: {'task_id': task_id},
                     type: 'GET',
