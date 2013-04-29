@@ -7,9 +7,9 @@ from django.conf import settings
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
-from cghub.wsapi.utils import makedirs_group_write
+from cghub.wsapi.utils import makedirs_group_write, generate_tmp_file_name
 
-from cghub.apps.core.utils import get_wsapi_settings, generate_tmp_file_name
+from cghub.apps.core.utils import get_wsapi_settings
 
 
 WSAPI_SETTINGS = get_wsapi_settings()

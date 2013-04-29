@@ -28,8 +28,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     period_from_query, only_date, get_sample_type_by_code)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_id, generate_tmp_file_name,
-                    is_task_done, decrease_start_date)
+                    generate_task_id, is_task_done,
+                    decrease_start_date)
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -237,13 +237,6 @@ class UtilsTestCase(TestCase):
             self.assertEqual(
                 get_default_query(),
                 '')
-
-    def test_generate_tmp_file_name(self):
-        """
-        smoke test for generate_tmp_file_name function
-        """
-        name = generate_tmp_file_name()
-        self.assertIn('.tmp', name)
 
     def test_is_task_done(self):
         task_id = 'some-id-0000'
