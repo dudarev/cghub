@@ -64,9 +64,9 @@ class ApiLightTest(unittest.TestCase):
         self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids)
         os.remove(os.path.join(cache_dir, f))
         # test sorting doesn't matter
-        # 3c021199146d698d0a72ddbbfb927c41.ids - 'xml_text=6d51*' sorted by study
-        # 47fc9c0916a570ed7970e98508a07a60.ids - 'xml_text=6d51*' unsorted
-        # only 47fc9c0916a570ed7970e98508a07a60.ids contains
+        # 1e0d4e80b3c68459fa38ac23185faae7.ids - 'xml_text=6d51*' sorted by study:asc
+        # ec0d99a4758829215ef1d7730bb19eb4.ids - 'xml_text=6d51*' unsorted
+        # only ec0d99a4758829215ef1d7730bb19eb4.ids contains
         # '9b62b3c9-e33a-4736-8e65-777777777777'
         f = '1e0d4e80b3c68459fa38ac23185faae7.ids'
         shutil.copy(
@@ -75,6 +75,20 @@ class ApiLightTest(unittest.TestCase):
         ids = get_all_ids('xml_text=6d51*', settings={})
         self.assertEqual(len(ids), 10)
         self.assertTrue('9b62b3c9-e33a-4736-8e65-777777777777' in ids)
+        os.remove(os.path.join(cache_dir, f))
+        # test :desc sorting doesn't matter
+        # 7e154190657ebbb5ff774b1f0f90f1e0.ids - 'xml_text=6d51*' sorted by upload_date:desc
+        # ec0d99a4758829215ef1d7730bb19eb4.ids - 'xml_text=6d51*' unsorted
+        # only 7e154190657ebbb5ff774b1f0f90f1e0.ids contains
+        # '9b62b3c9-e33a-4736-8e65-888888888888'
+        # try to get unsorted
+        f = '7e154190657ebbb5ff774b1f0f90f1e0.ids'
+        shutil.copy(
+                os.path.join(TEST_DATA_DIR, f),
+                os.path.join(cache_dir, f))
+        ids = get_all_ids('xml_text=6d51*', settings={})
+        self.assertEqual(len(ids), 10)
+        self.assertTrue('9b62b3c9-e33a-4736-8e65-888888888888' in ids)
         os.remove(os.path.join(cache_dir, f))
 
 

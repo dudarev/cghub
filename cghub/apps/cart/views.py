@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 from operator import itemgetter
 
 from celery import states
@@ -11,7 +12,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils import timezone
-from django.utils.http import urlquote
+from django.utils.http import urlquote, cookie_date
+from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_id, get_wsapi_settings,
@@ -22,12 +24,14 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, clear_cart,
                             check_missing_files, cache_file,
-                            cart_remove_files_without_attributes)
+                            cart_remove_files_without_attributes,
+                            add_ids_to_cart, add_files_to_cart)
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
 import cghub.apps.cart.utils as cart_utils
 
 from cghub.wsapi.api_light import get_all_ids
+from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi import browser_text_search
 
 
@@ -65,6 +69,7 @@ def cart_add_all_files(request, celery_alive):
             filter_str = get_filters_string(filters)
             q = filters.get('q')
             # FIXME: the API should hide all URL quoting and parameters [markd]
+            queries = []
             if q:
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
@@ -76,21 +81,29 @@ def cart_add_all_files(request, celery_alive):
                     query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
                     query += filter_str
                     queries = [query, u"analysis_id={0}".format(urlquote(q))]
-            else:
-                query = filter_str[1:]  # remove front ampersand
-                queries = [query]
+            if len(queries) > 1:
+                # add files to cart
+                # should be already cached, add immediately
+                results = api_multiple_request(queries_list=queries, settings=WSAPI_SETTINGS)
+                results.add_custom_fields()
+                add_files_to_cart(request, results)
+                return {'action': 'redirect', 'redirect': reverse('cart_page')}
+            if not queries:
+                # remove front ampersand
+                queries = [filter_str[1:]]
+            # add ids to cart
+            ids = get_all_ids(query=queries[0], settings=WSAPI_SETTINGS)
+            add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:
-                # add ids to cart
-                for query in queries:
-                    ids = get_all_ids(query=query, settings=WSAPI_SETTINGS)
-                    cart_utils.add_ids_to_cart(request, ids)
                 # check task is already exists
                 kwargs = {
                             'data': form.cleaned_data,
                             'session_key': request.session.session_key}
                 task_id = generate_task_id(**kwargs)
                 request.session['task_id'] = task_id
+                request.session.save()
+                request.session.modified = False
                 try:
                     task = TaskState.objects.get(task_id=task_id)
                     # task already done, reexecute task
@@ -121,6 +134,8 @@ def cart_add_all_files(request, celery_alive):
                         'task_id': task_id}
             else:
                 # files will be added immediately
+                request.session.save()
+                request.session.modified = False
                 add_files_to_cart_by_query_task(
                         queries=queries,
                         attributes=ATTRIBUTES,
@@ -137,7 +152,8 @@ def cart_add_files(request):
         raise Http404
     filters = request.POST.get('filters')
     celery_alive = is_celery_alive()
-    if request.session.session_key == None:
+    session_created = request.session.session_key == None
+    if session_created:
         request.session.save()
     # check that we still working on adding files to cart
     if celery_alive and request.session.get('task_id'):
@@ -150,7 +166,23 @@ def cart_add_files(request):
     else:
         result = cart_add_selected_files(request, celery_alive)
     result = result or {'action': 'error'}
-    return HttpResponse(json.dumps(result), mimetype="application/json")
+    response = HttpResponse(json.dumps(result), mimetype="application/json")
+    # set session cookie if session was created
+    if session_created:
+        if request.session.get_expire_at_browser_close():
+            max_age = None
+            expires = None
+        else:
+            max_age = request.session.get_expiry_age()
+            expires_time = time.time() + max_age
+            expires = cookie_date(expires_time)
+        response.set_cookie(settings.SESSION_COOKIE_NAME,
+                        request.session.session_key, max_age=max_age,
+                        expires=expires, domain=settings.SESSION_COOKIE_DOMAIN,
+                        path=settings.SESSION_COOKIE_PATH,
+                        secure=settings.SESSION_COOKIE_SECURE or None,
+                        httponly=settings.SESSION_COOKIE_HTTPONLY or None)
+    return response
 
 
 class CartView(TemplateView):
@@ -168,9 +200,14 @@ class CartView(TemplateView):
             # remove task_id from session and remove files with
             # not completely loaded attributes
             # and show error message in case if ones exists
-            missed_files = cart_remove_files_without_attributes(
-                                                        self.request)
+            
+            # reload session
+            engine = import_module(settings.SESSION_ENGINE)
+            self.request.session = engine.SessionStore(
+                                session_key=self.request.session.session_key)
+            missed_files = cart_remove_files_without_attributes(self.request)
             del self.request.session['task_id']
+            self.request.session.save()
         cart = get_or_create_cart(self.request).values()
         if sort_by and not self.request.session.get('task_id'):
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
@@ -184,6 +221,7 @@ class CartView(TemplateView):
         Check for not fully added files
         """
         files = check_missing_files(cart[offset:offset + limit])
+        self.request.session.modified = False
         return {
             'results': files,
             'stats': stats,
