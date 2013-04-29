@@ -6,14 +6,20 @@
                 <table class="table table-striped table-condensed data-table">
                     <thead>
                         <tr>
-                            <th class="data-table-checkbox-header" data-width='15'><input class="js-select-all" type="checkbox"></th>
+                            <th class="data-table-checkbox-header" data-width='15'>
+                                <label for="id-check-all-checkbox" style="display:none">Check all</label>
+                                <input id="id-check-all-checkbox" class="js-select-all" type="checkbox">
+                            </th>
                             {% table_header request %}
                         </tr>
                     </thead>
                     <tbody>
                     {% for r in results %}
                         <tr data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-analysis_id="{{ r.analysis_id }}" data-context-menu="#table-context-menu">
-                            <td><input class="data-table-checkbox" type="checkbox" name="selected_files"
+                            <td>
+                                <label for="cb-{{ r.analysis_id }}" style="display:none">Select {{ r.analysis_id }}</label>
+                                <input class="data-table-checkbox" type="checkbox" name="selected_files"
+                                                                        id="cb-{{ r.analysis_id }}"
                                                                         value="{{ r.analysis_id }}"
                                                                         data-legacy_sample_id="{{ r.legacy_sample_id }}"
                                                                         data-study="{{ r.study }}"
@@ -29,7 +35,8 @@
                                                                         data-center_name="{{ r.center_name }}"
                                                                         data-state="{{ r.state }}"
                                                                         data-refassem_short_name="{{ r.refassem_short_name }}"
-                                                                        data-platform="{{ r.platform }}"></td>
+                                                                        data-platform="{{ r.platform }}">
+                            </td>
                             {% table_row r %}
                         </tr>
                     {% endfor %}

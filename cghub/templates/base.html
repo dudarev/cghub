@@ -35,7 +35,7 @@
     {% endif %}
     {% block extra_header_js %} {% endblock %}
 </head>
-<body data-help-hint-url="{% url help_hint %}" data-help-text-url="{% url help_text %}" data-task-status-url="{% url celery_task_status %}">
+<body>
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
@@ -51,7 +51,8 @@
                 </li>
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
-                <input type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q">
+                <label for="id-search-field" style="display:none">Search</label>
+                <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q">
             </form>
         </div>
     </div>
@@ -101,6 +102,21 @@
 <script type="text/javascript" src="{% static 'js/libs/ui.dropdownchecklist-1.4-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/libs/jquery.placeholder.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/libs/jquery.tinyscrollbar.min.js' %}"></script>
+<script>
+    jQuery(function ($) {
+        var cghub = {};
+        if (this.cghub !== undefined) {
+            cghub = this.cghub;
+        } else {
+            this.cghub = cghub;
+        }
+        cghub.vars = {
+            helpHintUrl: "{% url help_hint %}",
+            helpTextUrl: "{% url help_text %}",
+            taskStatusUrl: "{% url celery_task_status %}",
+        }
+    });
+</script>
 {% if debug %}
     <script type="text/javascript" src="{% static 'js/libs/flexigrid.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libs/bootstrap-contextmenu.js' %}"></script>

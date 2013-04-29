@@ -40,8 +40,12 @@
                 <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
             </div>
             {% items_per_page request 10 25 50 %}
-            <div class="column-select-label js-common-tooltip" data-key="columns-menu">Columns:</div>
-            <select class="column-select" multiple>
+            <div class="column-select-label">
+                <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
+                    Columns:
+                </label>
+            </div>
+            <select id="id-columns-selector" class="column-select" multiple>
                 <option value="(all)">(all)</option>
             </select>
             {% include 'data_table.html' %}
