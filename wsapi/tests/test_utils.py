@@ -10,6 +10,17 @@ import unittest
 from lxml import objectify, etree
 
 from wsapi.api import request, merge_results
+from wsapi.utils import generate_tmp_file_name
+
+
+class UtilsTestCase(unittest.TestCase):
+
+    def test_generate_tmp_file_name(self):
+        """
+        smoke test for generate_tmp_file_name function
+        """
+        name = generate_tmp_file_name()
+        self.assertIn('.tmp', name)
 
 
 class SortingTest(unittest.TestCase):

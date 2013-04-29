@@ -7,9 +7,11 @@ Utility functions.
 
 """
 import os
+import threading
 import datetime
 import urllib2
 import time
+import socket
 
 from settings import SETTINGS_DEFAULT
 
@@ -61,3 +63,13 @@ def makedirs_group_write(path):
         os.makedirs(path)
     finally:
         os.umask(old_mask)
+
+
+def generate_tmp_file_name():
+    """
+    Returns filename in next format:
+    pid-threadId-host.tmp
+    """
+    return '{pid}-{thread}-{host}.tmp'.format(
+                    pid=os.getpid(), thread=threading.current_thread().name,
+                    host=socket.gethostname())
