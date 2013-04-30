@@ -36,21 +36,18 @@
     {% block extra_header_js %} {% endblock %}
 </head>
 <body>
-<div style="width: 981px;" id="accessibility-links"><!-- Accessibility links. Hidden until they receive :focus -->
-    <ul style="height: 12px;" title="Accessibility links" id="access-links">
-        <li>
-            <a href="#main-content" class="js-skip-to-content">
-                Skip to main content
-            </a>
-        </li>
-        <li>
-            <a href="#main-nav" class="js-skip-to-nav">
-                Skip to primary navigation
-            </a>
-        </li>
-    </ul>
-    <!-- End of Accessibility links. Hidden until they receive :focus -->
-</div>
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#main-content">
+            Skip to main content
+        </a>
+    </li>
+    <li>
+        <a href="#main-nav">
+            Skip to primary navigation
+        </a>
+    </li>
+</ul>
 <div class="navbar navbar-fixed-top" id="main-nav">
     <div class="navbar-inner">
         <div class="container-fluid">
@@ -72,7 +69,7 @@
         </div>
     </div>
 </div>
-<div class="base-container row" id="main-content">
+<div class="base-container row">
         {% block main_content %}
             <div class="span3 base-sidebar">
                 {% block extra_sidebar %} {% endblock %}

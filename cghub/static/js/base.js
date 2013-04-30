@@ -24,6 +24,7 @@ jQuery(function ($) {
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$searchForm = $('form.navbar-search');
+            cghub.base.$accessibilityLinks = $('#accessibility-links');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
@@ -47,39 +48,16 @@ jQuery(function ($) {
             }
         },
         activateSkipNavigation:function () {
-            $(window).on('keydown', function(e) {
-                var TABKEY = 9;
-                if(e.keyCode == TABKEY) {
-                    if(cghub.base.tabPressed > 2) return;
-                    cghub.base.tabPressed += 1;
-                    if(cghub.base.tabPressed == 1) {
-                        $('#main-content').hide();
-                        $('#main-nav').hide();
-                        $('#accessibility-links').show();
-                        $('.js-skip-to-content').focus();
-                    }
-                    if(cghub.base.tabPressed == 2) {
-                        $('.js-skip-to-nav').focus();
-                    }
-                    if(cghub.base.tabPressed == 3) {
-                        $('#accessibility-links').hide();
-                        $('#main-content').show();
-                        $('#main-nav').show();
-                    }
-                    if(e.preventDefault) {
-                        e.preventDefault();
-                    }
-                    return false;
-                }
-            });
-            $('.js-skip-to-content, .js-skip-to-nav').on('click', function(e) {
-                var target = $($(e.target).attr('href'));
-                $(window).scrollTop(target.offset().top);
-                target.find('a').eq(0).focus();
-                $('#accessibility-links').hide();
-                $('#main-content').show();
-                $('#main-nav').show();
-                return false;
+            /* default main content - base container */
+            if(!$('#main-content').length) {
+                $('.base-container').attr('id', 'main-content');
+            }
+            cghub.base.$accessibilityLinks.on('focusin', function(){
+                $(this).css({
+                    height: 'auto'});
+            }).on('focusout', function() {
+                $(this).css({
+                    height: 0});
             });
         },
         activateTaskStatusChecking:function () {
