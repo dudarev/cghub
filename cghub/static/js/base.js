@@ -67,20 +67,22 @@ jQuery(function ($) {
                 cghub.base.$accessibilityLinks.find('a').on('click', function() {
                     var anchor = $($(this).attr('href'));
                     if(anchor.length) {
-                        setTimeout(function() {
-                            anchor.attr('tabindex', 0);
-                            $(window).scrollTop(anchor.offset().top);
-                            anchor.focus(); 
-                        }, 0)
+                        anchor.attr('tabindex', 0);
+                        $(window).scrollTop(anchor.offset().top);
+                        anchor.focus();
                     }
                 });
             }
             cghub.base.$accessibilityLinks.on('focusin', function(){
-                $(this).css({
-                    height: 'auto'});
-            }).on('focusout', function() {
-                $(this).css({
-                    height: 0});
+                if(cghub.base.hideSkipLinksTimeout) {
+                    clearTimeout(cghub.base.hideSkipLinksTimeout);
+                }
+                $(this).css({height: 'auto'});
+            }).on('focusout', function(e) {
+                var $this = $(this);
+                cghub.base.hideSkipLinksTimeout = setTimeout(function() {
+                    $this.css({height: 0});
+                }, 100);
             });
         },
         activateTaskStatusChecking:function () {
