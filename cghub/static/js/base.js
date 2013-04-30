@@ -52,6 +52,29 @@ jQuery(function ($) {
             if(!$('#main-content').length) {
                 $('.base-container').attr('id', 'main-content');
             }
+            /* fix webkit bug 17450 */
+            if($.browser.webkit) {
+                if(window.location.hash) {
+                    var anchor = $(window.location.hash);
+                    if(anchor.length) {
+                        setTimeout(function() {
+                            anchor.attr('tabindex', 0);
+                            $(window).scrollTop(anchor.offset().top);
+                            anchor.focus(); 
+                        }, 0)
+                    }
+                }
+                cghub.base.$accessibilityLinks.find('a').on('click', function() {
+                    var anchor = $($(this).attr('href'));
+                    if(anchor.length) {
+                        setTimeout(function() {
+                            anchor.attr('tabindex', 0);
+                            $(window).scrollTop(anchor.offset().top);
+                            anchor.focus(); 
+                        }, 0)
+                    }
+                });
+            }
             cghub.base.$accessibilityLinks.on('focusin', function(){
                 $(this).css({
                     height: 'auto'});
