@@ -169,7 +169,7 @@ Adding all files to cart
 Here are next sequence of actions:
     - when user click 'Add all to cart', transmitted only current query
     - if amount of files to add to cart will be more then ``settings.MANY_FILES``, will be shown confirmation popup for confirming the number
-    - all ids for specified query will be added to cart immediately (used wsapi cache)
+    - all ids for specified query will be added to cart immediately (uses the same wsapi cache as used for displaying results on search page - same query and sort_by. If cache file was not found, will search other files with same query(but with different sort_by) in cache, if file still be not found, it will be downloaded)
     - then will be created task to obtain all attributes for specified query and fill cart
     - will be checked that every file exists in cache, if not - will be created task to cache it
     - task id transmitted back to user and saves into cookies
@@ -186,8 +186,6 @@ Downloading metadata
 ====================
 
 File with metadata collected from xml files stored in cart cache with analysis ids which stored in cart.
-
-.. autofunction:: cghub.apps.cart.utils.join_analysises
 
 Pieces of data
 ==============

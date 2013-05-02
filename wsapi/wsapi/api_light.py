@@ -143,6 +143,7 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
 
     :param query: a string with query to send to the server
     :param ignore_cache: set to True, to restrict using cached ids
+    :param sort_by: search file with attributes sorted by sort_by first
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
     if ignore_cache:
