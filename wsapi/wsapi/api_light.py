@@ -134,7 +134,7 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
     linecache.clearcache()
     return items_count, items
 
-def get_all_ids(query, settings, ignore_cache=False):
+def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     """
     Return all ids for specified query.
     Loads them from cghub server or gets from cache if exists
@@ -143,13 +143,21 @@ def get_all_ids(query, settings, ignore_cache=False):
 
     :param query: a string with query to send to the server
     :param ignore_cache: set to True, to restrict using cached ids
+    :param sort_by: search file with attributes sorted by sort_by first
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
-    filename = get_cache_file_name(query, settings)
-    # reload cache if ignore_cache
     if ignore_cache:
+        # reload cache if ignore_cache
         load_ids(query, settings=settings)
+        filename = get_cache_file_name(query, settings)
     else:
+        if sort_by:
+            filename = get_cache_file_name('%s&sort_by=%s' % (
+                                        query,
+                                        parse_sort_by(sort_by)), settings)
+        else:
+            filename = get_cache_file_name(query, settings)
+        # if file with specified sort_by was not found in cache, try other sort_by
         if not os.path.exists(filename):
             # search for file with sorted ids with same query
             for attr in ALLOWED_SORT_BY:

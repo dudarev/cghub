@@ -84,7 +84,8 @@ def cart_add_all_files(request, celery_alive):
             if len(queries) > 1:
                 # add files to cart
                 # should be already cached, add immediately
-                results = api_multiple_request(queries_list=queries, settings=WSAPI_SETTINGS)
+                results = api_multiple_request(
+                            queries_list=queries, settings=WSAPI_SETTINGS)
                 results.add_custom_fields()
                 add_files_to_cart(request, results)
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
@@ -92,7 +93,9 @@ def cart_add_all_files(request, celery_alive):
                 # remove front ampersand
                 queries = [filter_str[1:]]
             # add ids to cart
-            ids = get_all_ids(query=queries[0], settings=WSAPI_SETTINGS)
+            ids = get_all_ids(
+                            query=queries[0], settings=WSAPI_SETTINGS,
+                            sort_by=filters.get('sort_by'))
             add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:
