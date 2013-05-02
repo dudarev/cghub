@@ -56,6 +56,7 @@
                 <li><a href="{% url home_page %}"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
                 <li><a href="{% url cart_page %}"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
                 <li><a href="{% url help_page %}?from={{ request.path }}"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
+                <li><a href="{% url accessibility_page %}"><span class="js-common-tooltip" data-key="accessibility-link">Accessibility</span></a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
