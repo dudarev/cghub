@@ -63,18 +63,18 @@ class ApiLightTest(unittest.TestCase):
         self.assertEqual(len(ids), 10)
         self.assertTrue('2a9d16a9-711b-4198-b808-528611aa3b7c' in ids)
         os.remove(os.path.join(cache_dir, f))
-        # test sorting doesn't matter
+        # test sorting doesn't matter is sort_by not specified
         # 1e0d4e80b3c68459fa38ac23185faae7.ids - 'xml_text=6d51*' sorted by study:asc
         # ec0d99a4758829215ef1d7730bb19eb4.ids - 'xml_text=6d51*' unsorted
-        # only ec0d99a4758829215ef1d7730bb19eb4.ids contains
-        # '9b62b3c9-e33a-4736-8e65-777777777777'
+        # only 1e0d4e80b3c68459fa38ac23185faae7.ids contains
+        # '9b62b3c9-e33a-4736-8e65-111111111111'
         f = '1e0d4e80b3c68459fa38ac23185faae7.ids'
         shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
                 os.path.join(cache_dir, f))
         ids = get_all_ids('xml_text=6d51*', settings={})
         self.assertEqual(len(ids), 10)
-        self.assertTrue('9b62b3c9-e33a-4736-8e65-777777777777' in ids)
+        self.assertTrue('9b62b3c9-e33a-4736-8e65-111111111111' in ids)
         os.remove(os.path.join(cache_dir, f))
         # test :desc sorting doesn't matter
         # 7e154190657ebbb5ff774b1f0f90f1e0.ids - 'xml_text=6d51*' sorted by upload_date:desc
@@ -90,7 +90,30 @@ class ApiLightTest(unittest.TestCase):
         self.assertEqual(len(ids), 10)
         self.assertTrue('9b62b3c9-e33a-4736-8e65-888888888888' in ids)
         os.remove(os.path.join(cache_dir, f))
-
+        # test that selected cache file with specified sort_by
+        # 1e0d4e80b3c68459fa38ac23185faae7.ids - 'xml_text=6d51*' sorted by study:asc
+        # ec0d99a4758829215ef1d7730bb19eb4.ids - 'xml_text=6d51*' unsorted
+        # only ec0d99a4758829215ef1d7730bb19eb4.ids contains
+        # '9b62b3c9-e33a-4736-8e65-777777777777'
+        # and only 1e0d4e80b3c68459fa38ac23185faae7.ids contains
+        # '9b62b3c9-e33a-4736-8e65-111111111111'
+        f1 = '1e0d4e80b3c68459fa38ac23185faae7.ids'
+        f2 = 'ec0d99a4758829215ef1d7730bb19eb4.ids'
+        shutil.copy(
+                os.path.join(TEST_DATA_DIR, f1),
+                os.path.join(cache_dir, f1))
+        shutil.copy(
+                os.path.join(TEST_DATA_DIR, f2),
+                os.path.join(cache_dir, f2))
+        ids = get_all_ids('xml_text=6d51*', settings={})
+        self.assertEqual(len(ids), 10)
+        self.assertFalse('9b62b3c9-e33a-4736-8e65-111111111111' in ids)
+        ids = get_all_ids('xml_text=6d51*', sort_by='study', settings={})
+        self.assertEqual(len(ids), 10)
+        # check that selected cache file with sorted attributes rather than unsorted
+        self.assertTrue('9b62b3c9-e33a-4736-8e65-111111111111' in ids)
+        os.remove(os.path.join(cache_dir, f1))
+        os.remove(os.path.join(cache_dir, f2))
 
     def test_request_light_no_results(self):
         """
