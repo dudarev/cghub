@@ -24,4 +24,10 @@ urlpatterns = patterns(
     url(r'^task/status/$', CeleryTaskStatusView.as_view(), name='celery_task_status'),
 )
 
+urlpatterns += patterns('django.views.generic.simple',
+    url(
+        r'^accessibility/$', 'direct_to_template',
+        {'template': 'help/accessibility.html'}, name='accessibility_page'),
+)
+
 urlpatterns += staticfiles_urlpatterns()

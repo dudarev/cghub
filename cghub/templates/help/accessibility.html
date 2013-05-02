@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="span6 help-content">
+        <h2>Accessibility</h2>
+        <p>
+        CGHub is committed to making the data available from CGHub accessible to all users. If you are using special tools to access the internet, and encounter problems with CGHub websites, or tools, please email CGHub Support <<a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a> or 831-459-5243>, and an alternative method will be provided to query the CGHub database. Please note that in addition to the web based data browser tool, CGHub offers a command line tool called cgquery bundled with the GeneTorrent program (located here: <a href="https://cghub.ucsc.edu/software/downloads.html" target="_blank">https://cghub.ucsc.edu/software/downloads.html</a>). In addition, a TSV (tab-separated value) file called "Data Manifest File in TSV format" is available for download from: <a href="https://cghub.ucsc.edu/summary_stats.html" target="_blank">https://cghub.ucsc.edu/summary_stats.html</a>
+        </p>
+        <p>
+        This "Data Manifest File in TSV format" file (updated every 24 hours) can be used to identify important information related to files users may wish to download. Please contact CGHub Support <<a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a> or 831-459-5243> if you would like file sent to you which contains all of the metadata associated with any analysis_id's (UUIDs) in question.
+        </p>
+    </div>
+{% endblock %}
+
