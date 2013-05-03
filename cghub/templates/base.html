@@ -36,14 +36,27 @@
     {% block extra_header_js %} {% endblock %}
 </head>
 <body>
-<div class="navbar navbar-fixed-top">
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#main-content" tabindex="1">
+            Skip to main content
+        </a>
+    </li>
+    <li>
+        <a href="#main-nav" tabindex="2">
+            Skip to primary navigation
+        </a>
+    </li>
+</ul>
+<div class="navbar navbar-fixed-top" id="main-nav">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="https://cghub.ucsc.edu/"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
+            <a class="brand" href="https://cghub.ucsc.edu/" tabindex="10"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
             <ul class="nav">
-                <li><a href="{% url home_page %}"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
-                <li><a href="{% url cart_page %}"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
-                <li><a href="{% url help_page %}?from={{ request.path }}"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
+                <li><a href="{% url home_page %}" tabindex="11"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
+                <li><a href="{% url cart_page %}" tabindex="12"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
+                <li><a href="{% url help_page %}?from={{ request.path }}" tabindex="13"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
+                <li><a href="{% url accessibility_page %}" tabindex="14"><span class="js-common-tooltip" data-key="accessibility-link">Accessibility</span></a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
@@ -52,7 +65,7 @@
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
                 <label for="id-search-field" style="display:none">Search</label>
-                <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q">
+                <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q" tabindex="19">
             </form>
         </div>
     </div>
