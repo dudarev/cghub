@@ -58,7 +58,7 @@ jQuery(function ($) {
                         filters_code = '' + filters_code;
                     }
                 }
-                filters[$(this).data('name')] =filters_code.split('&');
+                filters[$(this).data('name')] = filters_code.split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
@@ -139,6 +139,13 @@ jQuery(function ($) {
                 $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
+            /* init keyboard shortcuts */
+            $(document).on('keyup', '.sidebar .ui-dropdownchecklist-selector', function(e) {
+                if(e.which == 13) {
+                    $(e.target).trigger('click');
+                    return false;
+                }
+            });
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
