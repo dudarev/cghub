@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Overview - Help - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
@@ -8,7 +9,7 @@
 {% endblock %}
 {% block main_content %}
     <div class="span12 help-content">
-        <h2> <a href="{% url help_page %}">Help</a>: Overview </h2>
+        <h1> <a href="{% url help_page %}">Help</a>: Overview </h1>
         <p>
           The CGHub Data Browser enables users to explore the cancer genomics
           data at CGHub.  The application use a familiar <em>shopping
@@ -35,7 +36,7 @@
           and abbreviations, also have tooltips to describe their meaning.
         </p>
 
-        <h3> <span id="filters">Filters</span> </h3>
+        <h2> <span id="filters">Filters</span> </h2>
         <p>The primary method of searching for subsets of data is by
           specifying filters in the left panel.  Both the meaning of the
           filters and their values are documented by tooltips displayed when
@@ -43,7 +44,7 @@
           intersection of the filters and a text search, as described below.
         </p>
 
-        <h3> <span id="text-search">Text Search</span> </h3>
+        <h2> <span id="text-search">Text Search</span> </h2>
         <p>A full-text search of the metadata is also supported by entering
         text in the Search box that appears on the right side of the menu bar.
         For example, a bar code ID can be entered in this box to search for
