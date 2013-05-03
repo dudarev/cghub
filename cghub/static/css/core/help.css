@@ -21,5 +21,7 @@
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 h1,h2{padding-bottom:0.5em;}
+h1{font-size:24px;}
+h2{font-size:18px;}
 ul.help-sections{margin-top:1em;}
 .help-content{padding-left:50px;padding-top:25px;}
