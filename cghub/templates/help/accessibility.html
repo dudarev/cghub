@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Accessibility - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
@@ -8,7 +9,7 @@
 {% endblock %}
 {% block main_content %}
     <div class="span6 help-content">
-        <h2>Accessibility</h2>
+        <h1>Accessibility</h1>
         <p>
         CGHub is committed to making the data available from CGHub accessible to all users. If you are using special tools to access the internet, and encounter problems with CGHub websites, or tools, please email CGHub Support <<a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a> or 831-459-5243>, and an alternative method will be provided to query the CGHub database. Please note that in addition to the web based data browser tool, CGHub offers a command line tool called cgquery bundled with the GeneTorrent program (located here: <a href="https://cghub.ucsc.edu/software/downloads.html" target="_blank">https://cghub.ucsc.edu/software/downloads.html</a>). In addition, a TSV (tab-separated value) file called "Data Manifest File in TSV format" is available for download from: <a href="https://cghub.ucsc.edu/summary_stats.html" target="_blank">https://cghub.ucsc.edu/summary_stats.html</a>
         </p>
