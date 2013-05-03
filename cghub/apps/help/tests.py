@@ -16,6 +16,9 @@ class HelpViewsTestCase(TestCase):
                     pattern.name.endswith('page')):
                 response = self.client.get(reverse(pattern.name))
                 self.assertEqual(response.status_code, 200)
+        # test accessibility info page
+        response = self.client.get(reverse('accessibility_page'))
+        self.assertEqual(response.status_code, 200)
 
     def test_help_hint_text(self):
         """
