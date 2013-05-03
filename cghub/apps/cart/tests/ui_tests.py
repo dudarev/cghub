@@ -36,7 +36,7 @@ class NavigationLinksTestCase(LiveServerTestCase):
         3. Check url
         4. Click on 'Help' link
         5. Check url
-        6. Clcik on 'Search' link
+        6. Click on 'Search' link
         7. Check url
         """
         driver = self.selenium
@@ -92,6 +92,16 @@ class AddToCartTestCase(LiveServerTestCase):
             driver.find_element_by_class_name('add-all-to-cart-btn').click()
             time.sleep(1)
             assert driver.find_element_by_id('manyItemsModal').is_displayed()
+
+    def test_add_nothing_to_cart(self):
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            # check no files and click "Add to cart"
+            driver.find_element_by_class_name('add-to-cart-btn').click()
+            time.sleep(1)
+            assert driver.find_element_by_id('messageModal').is_displayed()
+            assert (driver.find_element_by_css_selector('#messageModal > modal-body').text() == "Please check some values before adding to cart")
 
 
 class CartUITestCase(LiveServerTestCase):
