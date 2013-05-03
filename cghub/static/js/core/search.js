@@ -355,7 +355,6 @@ jQuery(function ($) {
                     onChangeMonthYear:function(year, month, inst){
                         // calculate days in selected month
                         var daysInMonth = new Date(year, month, 0).getDate();
-                        
                         var currentDate = $d.datepicker("getDate");
                         if (currentDate.getDate() > daysInMonth) {
                             currentDate.setMonth(month-1, daysInMonth);
