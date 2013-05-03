@@ -18,6 +18,7 @@ jQuery(function ($) {
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateDetailsHeaderTooltipHelp();
+            cghub.help.activateColumnsDropdownTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
             cghub.help.activateDetailsValueTooltipHelp();
             cghub.help.activateFilterHeaderTooltipHelp();
@@ -137,6 +138,13 @@ jQuery(function ($) {
                 return $target.text();
             });
         },
+        // for items in Columns dropdown
+        activateColumnsDropdownTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('.base-content .ui-dropdownchecklist-item label', function($target) {
+                return $target.text();
+            });
+        },
+
         // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
