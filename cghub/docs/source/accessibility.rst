@@ -20,3 +20,13 @@ But we can specify other point where main content starts by
     <div id="main-nav"></div>
 
 Primary navigation link points to div.navbar.
+
+Tab indexes
+-----------
+
+Values spaces:
+
+    - skip to main content link: 1
+    - primary menu: 10-20
+    - filters bar: 30-50
+    - main content > 50 
