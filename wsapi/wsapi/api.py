@@ -15,7 +15,7 @@ from datetime import datetime
 
 from exceptions import QueryRequired
 from cache import get_from_cache, save_to_cache
-from utils import get_setting, urlopen
+from utils import get_setting, urlopen, quote_query
 
 from api_light import request_light
 
@@ -248,6 +248,8 @@ def request(
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     :param full: if True, will be used ANALYSIS_FULL uri instead of ANALYSIS_DETAIL uri
     """
+
+    query = quote_query(query)
 
     if use_api_light:
         hits, results = request_light(

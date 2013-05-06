@@ -6,7 +6,6 @@ from lxml import etree
 
 from django.conf import settings
 from django.http import QueryDict, HttpResponseRedirect, HttpResponse, Http404
-from django.utils.http import urlquote
 from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
@@ -87,20 +86,18 @@ class SearchView(TemplateView):
         if sort_by:
             sort_by = urllib.quote(sort_by)
         filter_str = get_filters_string(self.request.GET)
-
-        # FIXME: the API should hide all URL quoting and parameters [markd]
         if q:
             # FIXME: temporary hack to work around GNOS not quoting Solr query
             if browser_text_search.useAllMetadataIndex:
-                query = u"all_metadata={0}".format(urlquote(browser_text_search.ws_query(q))) + filter_str
+                query = u"all_metadata={0}".format(browser_text_search.ws_query(q)) + filter_str
             else:
-                query = u"xml_text={0}".format(urlquote(u"("+q+u")")) + filter_str
+                query = u"xml_text={0}".format(u"("+q+u")") + filter_str
         else:
             query = filter_str[1:]  # remove front ampersand
 
         if 'xml_text' in query:
             # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
-            queries_list = [query, u"analysis_id={0}".format(urlquote(q))]
+            queries_list = [query, u"analysis_id={0}".format(q)]
             results = api_multiple_request(
                 queries_list=queries_list, sort_by=sort_by,
                 offset=offset, limit=limit, settings=WSAPI_SETTINGS)

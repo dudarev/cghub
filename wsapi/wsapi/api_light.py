@@ -21,7 +21,7 @@ from xml.sax import handler, parse, saxutils
 from exceptions import QueryRequired
 
 from utils import (get_setting, urlopen, makedirs_group_write,
-                                                generate_tmp_file_name)
+                                    generate_tmp_file_name, quote_query)
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
@@ -146,6 +146,9 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     :param sort_by: search file with attributes sorted by sort_by first
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
+
+    query = quote_query(query)
+
     if ignore_cache:
         # reload cache if ignore_cache
         load_ids(query, settings=settings)
