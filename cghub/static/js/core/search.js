@@ -139,13 +139,15 @@ jQuery(function ($) {
                 $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
-            /* init keyboard shortcuts */
-            $(document).on('keyup', '.sidebar .ui-dropdownchecklist-selector', function(e) {
-                if(e.which == 13) {
-                    $(e.target).trigger('click');
-                    return false;
-                }
-            });
+            /* fix for IE, saves focus on current element */
+            if($.browser.msie) {
+                console.log('init msie');
+                $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
+                    if(e.which == 13) {
+                        return false;
+                    }
+                });
+            }
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
