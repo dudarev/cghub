@@ -139,7 +139,6 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     Return all ids for specified query.
     Loads them from cghub server or gets from cache if exists
     and ignore_cache == False.
-    Sorting is not supported.
 
     :param query: a string with query to send to the server
     :param ignore_cache: set to True, to restrict using cached ids
@@ -152,31 +151,15 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     if ignore_cache:
         # reload cache if ignore_cache
         load_ids(query, settings=settings)
-        filename = get_cache_file_name(query, settings)
+        filename = get_cache_file_name(query, settings=settings)
     else:
         if sort_by:
-            filename = get_cache_file_name('%s&sort_by=%s' % (
-                                        query,
-                                        parse_sort_by(sort_by)), settings)
-        else:
-            filename = get_cache_file_name(query, settings)
-        # if file with specified sort_by was not found in cache, try other sort_by
+            query = '%s&sort_by=%s' % (query, parse_sort_by(sort_by))
+        filename = get_cache_file_name(query, settings)
+        # if file was not found in cache - upload it
         if not os.path.exists(filename):
-            # search for file with sorted ids with same query
-            for attr in ALLOWED_SORT_BY:
-                filename = get_cache_file_name(
-                        '%s&sort_by=%s' % (
-                                query, parse_sort_by(attr)), settings)
-                if os.path.exists(filename):
-                    break
-                filename = get_cache_file_name(
-                        '%s&sort_by=%s' % (
-                                query, parse_sort_by('-%s' % attr)), settings)
-                if os.path.exists(filename):
-                    break
-            if not os.path.exists(filename):
-                filename = get_cache_file_name(query, settings)
-                load_ids(query, settings=settings)
+            filename = get_cache_file_name(query, settings=settings)
+            load_ids(query, settings=settings)
     f = open(filename)
     try:
         items = f.read().split('\n')[1:-1]
@@ -187,7 +170,6 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
 def load_attributes(ids, settings):
     """
     Load attributes for specified set of ids.
-    Sorting not implemented for ANALYSIS_DETAIL uri.
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
     url = u'{0}{1}?{2}'.format(
