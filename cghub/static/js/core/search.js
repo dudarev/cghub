@@ -351,7 +351,19 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
-                    dateFormat: 'yy/mm/dd'
+                    dateFormat: 'yy/mm/dd',
+                    onChangeMonthYear:function(year, month, inst){
+                        // calculate days in selected month
+                        var daysInMonth = new Date(year, month, 0).getDate();
+                        var currentDate = $d.datepicker("getDate");
+                        if (currentDate.getDate() > daysInMonth) {
+                            currentDate.setMonth(month-1, daysInMonth);
+                        } else {
+                            currentDate.setMonth(month-1);
+                        }
+                        currentDate.setYear(year);
+                        $d.datepicker("setDate", currentDate);
+                    }
                 });
             });
             return $dp_container;
