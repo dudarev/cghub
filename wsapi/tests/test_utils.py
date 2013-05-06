@@ -10,7 +10,7 @@ import unittest
 from lxml import objectify, etree
 
 from wsapi.api import request, merge_results
-from wsapi.utils import generate_tmp_file_name
+from wsapi.utils import generate_tmp_file_name, quote_query
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -21,6 +21,17 @@ class UtilsTestCase(unittest.TestCase):
         """
         name = generate_tmp_file_name()
         self.assertIn('.tmp', name)
+
+    def test_quote_query(self):
+        """
+        upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]
+        ->
+        upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&last_modified=%5BNOW-1DAY%20TO%20NOW%5D
+        """
+        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]'
+        self.assertEqual(quote_query(query),
+                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&'
+                'last_modified=%5BNOW-1DAY%20TO%20NOW%5D')
 
 
 class SortingTest(unittest.TestCase):
