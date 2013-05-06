@@ -250,6 +250,8 @@ def request(
     """
 
     query = quote_query(query)
+    if sort_by:
+        urllib2.quote(sort_by)
 
     if use_api_light:
         hits, results = request_light(

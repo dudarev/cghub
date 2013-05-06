@@ -147,6 +147,8 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     """
 
     query = quote_query(query)
+    if sort_by:
+        sort_by = urllib2.quote(sort_by)
 
     if ignore_cache:
         # reload cache if ignore_cache

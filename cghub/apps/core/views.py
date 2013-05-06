@@ -1,5 +1,3 @@
-import urllib
-
 from djcelery.models import TaskState
 from celery import states
 from lxml import etree
@@ -83,8 +81,6 @@ class SearchView(TemplateView):
         offset = offset and offset.isdigit() and int(offset) or 0
         limit = self.request.GET.get('limit')
         limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
-        if sort_by:
-            sort_by = urllib.quote(sort_by)
         filter_str = get_filters_string(self.request.GET)
         if q:
             # FIXME: temporary hack to work around GNOS not quoting Solr query
