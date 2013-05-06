@@ -35,7 +35,7 @@ def get_filters_string(attributes):
         if attributes.get(attr):
                 filter_str += '&%s=%s' % (
                     attr,
-                    urllib.quote(attributes.get(attr))
+                    attributes.get(attr)
                 )
     return filter_str
 

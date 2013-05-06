@@ -5,7 +5,7 @@ from xml.sax import handler, parse
 
 from django.conf import settings
 
-from cghub.wsapi.utils import urlopen
+from cghub.wsapi.utils import urlopen, quote_query
 
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.core.utils import is_celery_alive
@@ -91,6 +91,7 @@ def parse_cart_attributes(session_store, attributes, query=None,
     if not query and not file_path:
         return
     if query:
+        query = quote_query(query) 
         url = u'{0}{1}?{2}'.format(
                             settings.WSAPI_CGHUB_SERVER,
                             settings.WSAPI_CGHUB_ANALYSIS_DETAIL_URI,

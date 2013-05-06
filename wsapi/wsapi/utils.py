@@ -73,3 +73,20 @@ def generate_tmp_file_name():
     return '{pid}-{thread}-{host}.tmp'.format(
                     pid=os.getpid(), thread=threading.current_thread().name,
                     host=socket.gethostname())
+
+
+def quote_query(query):
+    """
+    quote all values in query
+    """
+    if query is None:
+        return query
+    query = urllib2.unquote(query)
+    parts = []
+    for part in query.split('&'):
+        try:
+            attr, val = part.split('=')
+            parts.append('='.join([attr, urllib2.quote(val)]))
+        except ValueError:
+            parts.append(part)
+    return '&'.join(parts)
