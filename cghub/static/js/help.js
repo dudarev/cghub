@@ -13,8 +13,6 @@ jQuery(function ($) {
         keysIgnore: ['analysis id', 'uploaded', 'modified', 'barcode', 'files size',
                 'aliquot id', 'tss id', 'participant id', 'sample id'],
         init:function () {
-            cghub.help.hintUrl = $('body').data('help-hint-url');
-            cghub.help.textUrl = $('body').data('help-text-url');
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateDetailsHeaderTooltipHelp();
@@ -40,7 +38,7 @@ jQuery(function ($) {
         showToolTip:function($target, key) {
             if(!key.length) return;
             $.ajax({
-                url: cghub.help.hintUrl,
+                url: cghub.vars.helpHintUrl,
                 dataType: "json",
                 data: {'key': key},
                 type: 'GET',
@@ -78,7 +76,7 @@ jQuery(function ($) {
                 if(!modal.length) return;
                 var slug = $(this).data('slug');
                 $.ajax({
-                    url: cghub.help.textUrl,
+                    url: cghub.vars.helpTextUrl,
                     dataType: "json",
                     data: {'slug': slug},
                     type: 'GET',
@@ -171,13 +169,13 @@ jQuery(function ($) {
         },
         // for filter headers
         activateFilterHeaderTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar .filter-label', function($target) {
                 return 'filter:' + $target.text().replace(':', '').replace('By ', '');
             });
         },
         // for items in dropdown list when selecting checkboxes with filters
         activateFilterSelectorItemTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text', function($target) {
                 var filterName = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
                 filterName = filterName.replace(':', '').replace('By ', '');
                 if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';

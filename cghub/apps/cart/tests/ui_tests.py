@@ -12,54 +12,6 @@ from cghub.apps.core.tests.ui_tests import (
 from cghub.apps.core.attributes import COLUMN_NAMES
 
 
-class NavigationLinksTestCase(LiveServerTestCase):
-
-    @classmethod
-    def setUpClass(self):
-        self.selenium = webdriver.Firefox()
-        self.selenium.implicitly_wait(5)
-        super(NavigationLinksTestCase, self).setUpClass()
-
-    @classmethod
-    def tearDownClass(self):
-        time.sleep(1)
-        self.selenium.quit()
-        super(NavigationLinksTestCase, self).tearDownClass()
-
-    def tearDown(self):
-        self.selenium.delete_all_cookies()
-
-    def test_links(self):
-        """
-        1. Go to search page (default query)
-        2. Click on 'Cart' link
-        3. Check url
-        4. Click on 'Help' link
-        5. Check url
-        6. Clcik on 'Search' link
-        7. Check url
-        """
-        driver = self.selenium
-        with self.settings(**TEST_SETTINGS):
-            # search page
-            driver.get(self.live_server_url)
-            assert '/cart/' not in driver.current_url
-            assert '/help/' not in driver.current_url
-            # go to cart page
-            driver.find_element_by_partial_link_text("Cart").click()
-            time.sleep(3)
-            assert '/cart/' in driver.current_url
-            # go to help page
-            driver.find_element_by_partial_link_text("Help").click()
-            time.sleep(3)
-            assert '/help/' in driver.current_url
-            # got back to search page
-            driver.find_element_by_partial_link_text("Browser").click()
-            time.sleep(3)
-            assert '/cart/' not in driver.current_url
-            assert '/help/' not in driver.current_url
-
-
 class AddToCartTestCase(LiveServerTestCase):
 
     query = "6d50"

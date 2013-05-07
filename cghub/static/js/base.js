@@ -11,18 +11,20 @@ jQuery(function ($) {
         usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
         usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
         reservedChars: '*?',
+        tabPressed: 0,
         init:function () {
             cghub.base.cacheElements();
             cghub.base.bindEvents();
             cghub.base.mockIePlaceholder();
+            cghub.base.activateSkipNavigation();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
             cghub.base.$navbarListItem = $('div.navbar ul li');
             cghub.base.$messageModal = $('#messageModal');
-            cghub.base.taskStatusURL = $('body').data('task-status-url');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$searchForm = $('form.navbar-search');
+            cghub.base.$accessibilityLinks = $('#accessibility-links');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
@@ -45,13 +47,51 @@ jQuery(function ($) {
                 pageLink.closest('li').addClass('active');
             }
         },
+        activateSkipNavigation:function () {
+            /* default main content - base container */
+            if(!$('#main-content').length) {
+                $('.base-container').attr('id', 'main-content');
+            }
+            /* fix webkit bug 17450 */
+            if($.browser.webkit) {
+                if(window.location.hash) {
+                    var anchor = $(window.location.hash);
+                    if(anchor.length) {
+                        setTimeout(function() {
+                            anchor.attr('tabindex', 0);
+                            $(window).scrollTop(anchor.offset().top);
+                            anchor.focus(); 
+                        }, 0)
+                    }
+                }
+                cghub.base.$accessibilityLinks.find('a').on('click', function() {
+                    var anchor = $($(this).attr('href'));
+                    if(anchor.length) {
+                        anchor.attr('tabindex', 0);
+                        $(window).scrollTop(anchor.offset().top);
+                        anchor.focus();
+                    }
+                });
+            }
+            cghub.base.$accessibilityLinks.on('focusin', function(){
+                if(cghub.base.hideSkipLinksTimeout) {
+                    clearTimeout(cghub.base.hideSkipLinksTimeout);
+                }
+                $(this).css({height: 'auto'});
+            }).on('focusout', function(e) {
+                var $this = $(this);
+                cghub.base.hideSkipLinksTimeout = setTimeout(function() {
+                    $this.css({height: 0});
+                }, 100);
+            });
+        },
         activateTaskStatusChecking:function () {
             setTimeout(cghub.base.activateTaskStatusChecking, 30000);
             var tasks = $.cookie('active_tasks');
             if(tasks) {
                 var task_id = tasks.split(',')[0];
                 $.ajax({
-                    url: cghub.base.taskStatusURL,
+                    url: cghub.vars.taskStatusUrl,
                     dataType: "json",
                     data: {'task_id': task_id},
                     type: 'GET',

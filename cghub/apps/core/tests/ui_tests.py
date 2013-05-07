@@ -225,6 +225,60 @@ class CoreUITestCase(LiveServerTestCase):
                 check_good_query()
 
 
+class NavigationLinksTestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = webdriver.Firefox()
+        self.selenium.implicitly_wait(5)
+        super(NavigationLinksTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(NavigationLinksTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
+    def test_links(self):
+        """
+        1. Go to search page (default query)
+        2. Click on 'Cart' link
+        3. Check url
+        4. Click on 'Help' link
+        5. Check url
+        6. Click on 'Accessibility' link
+        7. Check url
+        6. Clcik on 'Search' link
+        7. Check url
+        """
+        driver = self.selenium
+        with self.settings(**TEST_SETTINGS):
+            # search page
+            driver.get(self.live_server_url)
+            assert '/cart/' not in driver.current_url
+            assert '/help/' not in driver.current_url
+            # go to cart page
+            driver.find_element_by_partial_link_text("Cart").click()
+            time.sleep(3)
+            assert '/cart/' in driver.current_url
+            # go to help page
+            driver.find_element_by_partial_link_text("Help").click()
+            time.sleep(3)
+            assert '/help/' in driver.current_url
+            # got to accessibility page
+            driver.find_element_by_partial_link_text("Accessibility").click()
+            time.sleep(3)
+            assert '/accessibility/' in driver.current_url
+            # got back to search page
+            driver.find_element_by_partial_link_text("Browser").click()
+            time.sleep(3)
+            assert '/cart/' not in driver.current_url
+            assert '/help/' not in driver.current_url
+
+
 class SidebarTestCase(LiveServerTestCase):
 
     @classmethod
@@ -974,12 +1028,12 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         /span[@class='ui-dropdownchecklist-text']")
         elif location == 'cart':
             select = driver.find_element_by_css_selector(
-                        "#ddcl-1 > span:first-child > span")
+                        "#ddcl-id-columns-selector > span:first-child > span")
         select.click()
         # uncheck one by one
         r = range(column_count)
         for i in r:
-            driver.find_element_by_xpath("//label[@for='ddcl-1-i%d']" % (i + 1)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i%d']" % (i + 1)).click()
             # check that all previous columns are hidden
             for j in r[:(i + 1)]:
                 driver.execute_script("$('.viewport')"
@@ -1003,7 +1057,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         all_columns_width += col.size.get('width', 0)
                 self.assertTrue(full_width - all_columns_width < 3)
         # select (all) option
-        driver.find_element_by_xpath("//label[@for='ddcl-1-i0']").click()
+        driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
         r2 = range(column_count)
         for x in r2:
             driver.execute_script("$('.viewport')"
@@ -1235,7 +1289,7 @@ class HelpHintsTestCase(LiveServerTestCase):
 
             # filter header
             study_filter_header = driver.find_elements_by_css_selector(
-                            ".sidebar h5")[0]
+                            ".sidebar .filter-label")[0]
             self.check_tooltip(study_filter_header)
             # seleted filters
             study_selected_option = driver.find_elements_by_css_selector(
@@ -1246,7 +1300,7 @@ class HelpHintsTestCase(LiveServerTestCase):
             self.selenium.find_element_by_id("ddcl-{0}".format(study_id)).click()
             # filter options
             study_filter_option = driver.find_elements_by_css_selector(
-                            ".sidebar .ui-dropdownchecklist-item label")[1]
+                            ".sidebar .ui-dropdownchecklist-item")[1]
             self.check_tooltip(study_filter_option)
 
     def test_help_hints_common(self):

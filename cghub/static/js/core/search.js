@@ -58,7 +58,7 @@ jQuery(function ($) {
                         filters_code = '' + filters_code;
                     }
                 }
-                filters[$(this).data('name')] =filters_code.split('&');
+                filters[$(this).data('name')] = filters_code.split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
@@ -135,8 +135,19 @@ jQuery(function ($) {
                     $(select).next().next().width(width + 10);
                     cghub.search.ddclOnComplete(select);
                 }
+                // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
+                $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
+            /* fix for IE, saves focus on current element */
+            if($.browser.msie) {
+                console.log('init msie');
+                $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
+                    if(e.which == 13) {
+                        return false;
+                    }
+                });
+            }
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
