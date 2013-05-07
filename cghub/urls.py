@@ -31,3 +31,5 @@ urlpatterns += patterns('django.views.generic.simple',
 )
 
 urlpatterns += staticfiles_urlpatterns()
+
+handler500 = 'cghub.apps.core.views.error_500'
