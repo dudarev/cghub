@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load search_tags %}
 {% load pagination_tags %}
+{% block title %}Cart - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
@@ -16,6 +17,7 @@
                 In your cart
             </h1>
         </div>
+        <div id="main-content"></div>
         <div>
             {% if loading %}
             <div class="alert">
@@ -49,8 +51,12 @@
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
-                <div class="column-select-label"><span>Columns:</span></div>
-                <select class="column-select" multiple>
+                <div class="column-select-label">
+                    <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
+                        Columns:
+                    </label>
+                </div>
+                <select id="id-columns-selector" class="column-select" multiple>
                     <option value="(all)">(all)</option>
                 </select>
                 {% include 'data_table.html' %}

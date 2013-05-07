@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load search_tags %}
 {% load pagination_tags %}
+{% block title %}Browser - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/search.less" media="all">
@@ -25,6 +26,7 @@
             </h1>
         {% endif %}
     </div>
+    <div id="main-content"></div>
     {% if num_results %}
         <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
         <div class="applied-filters">{% applied_filters request %}</div>
@@ -40,8 +42,12 @@
                 <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
             </div>
             {% items_per_page request 10 25 50 %}
-            <div class="column-select-label js-common-tooltip" data-key="columns-menu">Columns:</div>
-            <select class="column-select" multiple>
+            <div class="column-select-label">
+                <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
+                    Columns:
+                </label>
+            </div>
+            <select id="id-columns-selector" class="column-select" multiple>
                 <option value="(all)">(all)</option>
             </select>
             {% include 'data_table.html' %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Help - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/help.less" media="all">
@@ -8,7 +9,7 @@
 {% endblock %}
 {% block main_content %}
     <div class="span6 help-content">
-        <h2>Help</h2>
+        <h1>Help</h1>
         <p>
           The CGHub Data Browser enables users to explore the cancer genomics
           data at CGHub. The following pages provide an introduction and guidance on using the
@@ -17,7 +18,7 @@
           at <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>.
         </p>
         <ul class="help-sections">
-	  <li><a href="{% url help_overview_page %}">Overview</a></li>
+	      <li><a href="{% url help_overview_page %}">Overview</a></li>
           <li><a href="{% url help_flow_page %}">Application flow</a></li>
           <li><a href="{% url help_assemblies_page %}">Reference assemblies</a></li>
         </ul>
