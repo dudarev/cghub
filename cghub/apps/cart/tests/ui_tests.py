@@ -43,7 +43,23 @@ class AddToCartTestCase(LiveServerTestCase):
             driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
             driver.find_element_by_class_name('add-all-to-cart-btn').click()
             time.sleep(1)
-            assert driver.find_element_by_id('manyItemsModal').is_displayed()
+            self.assertTrue(driver.find_element_by_id('manyItemsModal').is_displayed())
+
+    def test_add_nothing_to_cart(self):
+        """
+        1. Go to search page
+        2. Click on 'Add to cart' button
+        3. Check that popup with right message is visible
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            driver.find_element_by_class_name('add-to-cart-btn').click()
+            time.sleep(1)
+            self.assertTrue(driver.find_element_by_id('messageModal').is_displayed())
+            self.assertEqual(
+                    driver.find_element_by_css_selector('#messageModal .modal-body').text,
+                    u'Please select some files to add them to cart')
 
 
 class CartUITestCase(LiveServerTestCase):
