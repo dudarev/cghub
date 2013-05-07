@@ -16,15 +16,47 @@ from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
 from django.http import HttpRequest, QueryDict
+from django.utils.importlib import import_module
+from django.contrib.sessions.models import Session
+
+from cghub.wsapi.api import Results
+from cghub.wsapi.utils import makedirs_group_write
 
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
-                    period_from_query, only_date)
+                    period_from_query, only_date, get_sample_type_by_code)
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
-                    generate_task_id, generate_tmp_file_name)
+                    generate_task_id, is_task_done,
+                    decrease_start_date)
 from cghub.apps.core.filters_storage import ALL_FILTERS
+
+
+TEST_DATA_DIR = 'cghub/test_data/'
+
+
+def get_request():
+    """
+    Returns request object with session
+    """
+    # initialize session
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    engine = import_module(settings.SESSION_ENGINE)
+    store = engine.SessionStore()
+    store.save()
+    # create request
+    factory = RequestFactory()
+    request = factory.get(reverse('home_page'))
+    request.session = store
+    request.cookies = {}
+    request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+    # create session
+    s = Session(
+            expire_date=timezone.now() + datetime.timedelta(days=7),
+            session_key=store.session_key)
+    s.save()
+    return request
 
 
 class WithCacheTestCase(TestCase):
@@ -40,9 +72,8 @@ class WithCacheTestCase(TestCase):
         # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
 
         # wsapi cache
-        TEST_DATA_DIR = 'cghub/test_data/'
         if not os.path.exists(settings.WSAPI_CACHE_DIR):
-            os.makedirs(settings.WSAPI_CACHE_DIR)
+            makedirs_group_write(settings.WSAPI_CACHE_DIR)
         for f in self.wsapi_cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),
@@ -76,13 +107,11 @@ class CoreTestCase(WithCacheTestCase):
 
     cart_cache_files = []
     wsapi_cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml',
-        'aad96e9a8702634a40528d6280187da7.xml',
-        '871693661c3a3ed7898913da0de0c952.xml',
-        '71411da734e90beda34360fa47d88b99.ids',
-        '6c07a89c26455632b391a1e3ee4452d9.ids',
-        'ab238f588a22c521293788e91bf828a0.ids',
-        'b7eb2401915f718c2ee6e4797e472426.ids',
+        '24f05bdcef000bb97ce1faac7ed040ee.xml',
+        '4cc5fcb1fd66e39cddf4c90b78e97667.xml',
+        '7cd2c2b431595c744b22c0c21daa8763.ids',
+        '80854b20d08c55ed41234dc62fff82c8.ids',
+        '6cc087ba392e318a84f3d1d261863728.ids',
     ]
     query = "6d54"
 
@@ -102,22 +131,6 @@ class CoreTestCase(WithCacheTestCase):
     def test_existent_search(self):
         response = self.client.get('/search/?q=%s' % self.query)
         self.assertEqual(response.status_code, 200)
-
-    def test_double_digit_for_sample_type(self):
-        from lxml.html import fromstring
-        response = self.client.get('/search/?q=%s' % self.query)
-        c = fromstring(response.content)
-        sample_type_index = 0
-        for th in c.cssselect('th'):
-            if th.cssselect('a'):
-                if 'Sample Type' in th.cssselect('a')[0].text:
-                    break
-            sample_type_index += 1
-        for tr in c.cssselect('tr'):
-            sample_type = tr[sample_type_index].text
-            if sample_type:
-                self.assertTrue(len(sample_type) == 2)
-        self.assertTrue('Found' in response.content)
 
     def test_item_details_view(self):
         analysis_id = '12345678-1234-1234-1234-123456789abc'
@@ -150,7 +163,7 @@ class CoreTestCase(WithCacheTestCase):
         self.assertNotContains(response, 'Expand all')
         self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
-        self.assertContains(response, 'Last modified')
+        self.assertContains(response, 'Modified')
         self.assertContains(response, 'Disease')
         self.assertContains(response, 'Disease Name')
         self.assertContains(response, 'Sample Accession')
@@ -225,10 +238,37 @@ class UtilsTestCase(TestCase):
                 get_default_query(),
                 '')
 
-    def test_generate_tmp_file_name(self):
-        """ smoke test for generate_tmp_file_nam function """
-        name = generate_tmp_file_name()
-        self.assertIn('.tmp', name)
+    def test_is_task_done(self):
+        task_id = 'some-id-0000'
+        # not existed task
+        self.assertTrue(is_task_done(task_id))
+        task_state = TaskState.objects.create(
+                                        state=states.STARTED,
+                                        task_id=task_id,
+                                        tstamp=timezone.now())
+        # waiting
+        self.assertFalse(is_task_done(task_id))
+        task_state.state = states.FAILURE
+        task_state.save()
+        # task is done
+        self.assertTrue(is_task_done(task_id))
+
+    def test_decrease_start_date(self):
+        TEST_DATA = {
+            'last_modified=[NOW-60DAY TO NOW-56DAY]&state=(live)':
+                    'last_modified=%5BNOW-61DAY%20TO%20NOW-56DAY%5D&state=(live)',
+            'upload_date=[NOW-2MONTH TO NOW-1MONTH]&state=(live)':
+                    'upload_date=%5BNOW-63DAY%20TO%20NOW-1MONTH%5D&state=(live)',
+            'upload_date=[NOW-10DAY TO NOW-3DAY]&last_modified=[NOW-1YEAR TO NOW-3DAY]':
+                    'upload_date=%5BNOW-11DAY%20TO%20NOW-3DAY%5D&last_modified=%5BNOW-367DAY%20TO%20NOW-3DAY%5D',
+            'state=(live)': 'state=(live)',
+            'last_modified=[]': 'last_modified=[]',
+            'upload_date=%5BNOW-16DAY%20TO%20NOW-15DAY%5D&state=%28live%29':
+                    'upload_date=%5BNOW-17DAY%20TO%20NOW-15DAY%5D&state=%28live%29'
+        }
+
+        for i in TEST_DATA:
+            self.assertEqual(decrease_start_date(i), TEST_DATA[i])
 
 
 class ContextProcessorsTestCase(TestCase):
@@ -306,6 +346,7 @@ class TemplateTagsTestCase(TestCase):
             'library_strategy': '(WGS OR WXS)',
             'last_modified': '[NOW-7DAY TO NOW]',
             'disease_abbr': '(CNTL OR COAD)',
+            'refassem_short_name': '(HG18)',
             'q': 'Some text'})
         template = Template("{% load search_tags %}{% applied_filters request %}")
         result = template.render(RequestContext(request, {}))
@@ -313,7 +354,8 @@ class TemplateTagsTestCase(TestCase):
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
             '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: HMS-RK</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Center</b>: HMS-RK</li><li data-name="refassem_short_name" data-filters="HG18">'
+            '<b>Assembly</b>: HG18</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
             '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
             '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
@@ -367,9 +409,9 @@ class TemplateTagsTestCase(TestCase):
 
     def test_file_size_filter(self):
         self.assertEqual(file_size('123'), '123 Bytes')
-        self.assertEqual(file_size(123456), '120,56 KB')
-        self.assertEqual(file_size(1234567), '1,18 MB')
-        self.assertEqual(file_size(1234567890), '1,15 GB')
+        self.assertEqual(file_size(123456).replace('.', ','), '120,56 KB')
+        self.assertEqual(file_size(1234567).replace('.', ','), '1,18 MB')
+        self.assertEqual(file_size(1234567890).replace('.', ','), '1,15 GB')
 
     def test_table_header_tag(self):
         COLUMNS = ('Disease', 'Analysis Id', 'Study')
@@ -454,13 +496,21 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(only_date('2013-02-22'), '2013-02-22')
         self.assertEqual(only_date(''), '')
 
+    def test_double_digit_for_sample_type(self):
+        """
+        Sample type:
+        "07", "Additional Metastatic", "TAM"
+        """
+        self.assertEqual(get_sample_type_by_code('07', 'shortcut'), 'TAM')
+        self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
+
 
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cart_cache_files = []
     wsapi_cache_files = [
         'd35ccea87328742e26a8702dee596ee9.xml',
-        '6c07a89c26455632b391a1e3ee4452d9.ids'
+        '6cc087ba392e318a84f3d1d261863728.ids',
     ]
     query = "6d54"
 
@@ -525,14 +575,14 @@ class PaginatorUnitTestCase(TestCase):
 class MetadataViewTestCase(WithCacheTestCase):
 
     cart_cache_files = ['7b9cd36a-8cbb-4e25-9c08-d62099c15ba1']
-    wsapi_cache_files = ['4d3fee9f8557fc0de585af248b598c44.xml']
+    wsapi_cache_files = ['604f183c90858a9d1f1959fe0370c45d.xml']
 
     """
     Cached files will be used
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2012-10-29T21:56:12Z'
+    last_modified = '2013-04-26T14:46:09Z'
 
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
@@ -545,12 +595,12 @@ class MetadataViewTestCase(WithCacheTestCase):
         content = response.content
         self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename=metadata.xml')
+        self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
 
 
-class TaskViewsTestCase():
+class TaskViewsTestCase(TestCase):
 
     def test_celery_task_status(self):
         task_id = 'someid'
@@ -577,3 +627,30 @@ class TaskViewsTestCase():
         task_state.save()
         data = get_response()
         self.assertEqual(data['status'], 'failure')
+
+
+class SettingsTestCase(TestCase):
+
+    def test_table_columns_and_details_fields(self):
+        """
+        Check that all names from
+        settings.TABLE_COLUMNS and
+        settings.DETAILS_FILEDS exists
+        """
+        FILE_NAME = '871693661c3a3ed7898913da0de0c952.xml'
+
+        from cghub.apps.core.attributes import COLUMN_NAMES
+        from cghub.apps.core.templatetags.search_tags import field_values
+        names = list(settings.TABLE_COLUMNS)
+        for name in names:
+            self.assertIn(name, COLUMN_NAMES)
+        for name in settings.DETAILS_FIELDS:
+            if name not in names:
+                names.append(name)
+        result = Results.from_file(
+                        os.path.join(TEST_DATA_DIR, FILE_NAME),
+                        get_wsapi_settings())
+        result.add_custom_fields()
+        field_values_dict = field_values(result.Result)
+        for name in names:
+            self.assertIn(name, field_values_dict)

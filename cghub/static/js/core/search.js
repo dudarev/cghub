@@ -8,10 +8,7 @@ jQuery(function ($) {
     }
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
-        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin.',
-        usedReservedCharsTitle: 'Using "*" or "?" in search query are disallowed',
-        usedReservedCharsContent: '"*" and "?" chars reserved for future extensions',
-        reservedChars: '*?',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -49,11 +46,6 @@ jQuery(function ($) {
             cghub.search.applyFilters();
             return false;
         },
-        showMessage: function (title, content) {
-            cghub.search.$messageModal.find('.modal-label').text(title);
-            cghub.search.$messageModal.find('.modal-body').html(content);
-            cghub.search.$messageModal.modal();
-        },
         parseAppliedFilters: function () {
             var filters = {};
             $('.applied-filters ul li').each(function() {
@@ -66,16 +58,26 @@ jQuery(function ($) {
                         filters_code = '' + filters_code;
                     }
                 }
-                filters[$(this).data('name')] =filters_code.split('&');
+                filters[$(this).data('name')] = filters_code.split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
                 var section = $select.attr('data-section');
                 if(section in filters) {
                     if(section == 'refassem_short_name') {
-                        for(var i=0; i<filters[section].length; i++) {
-                            $select.find('option[value*="' + filters[section][i] + '"]').attr('selected', 'selected');
-                        }
+                        $select.find('option').each(function(j, opt) {
+                            var values = $(opt).val().split(' OR ');
+                            var enable_option = true;
+                            for(var i=0; i<values.length; i++) {
+                                if($.inArray(values[i], filters[section]) == -1) {
+                                    enable_option = false;
+                                    break;
+                                }
+                            }
+                            if(enable_option) {
+                                $(opt).attr('selected', 'selected');
+                            }
+                        });
                     } else if (section == 'last_modified' || section == 'upload_date') {
                         var value = filters[section][0];
                         var time_filter = $select.find('option[value = "' + value + '"]');
@@ -133,6 +135,18 @@ jQuery(function ($) {
                     $(select).next().next().width(width + 10);
                     cghub.search.ddclOnComplete(select);
                 }
+                // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
+                $(select).attr("id", $(select).prev().attr('for'));
+            }
+            $('.sidebar').css('visibility', 'visible');
+            /* fix for IE, saves focus on current element */
+            if($.browser.msie) {
+                console.log('init msie');
+                $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
+                    if(e.which == 13) {
+                        return false;
+                    }
+                });
             }
         },
         ddclTextFormatFunction: function(options) {
@@ -181,11 +195,13 @@ jQuery(function ($) {
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     } else {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.search.$addFilesButton.removeClass('disabled');
+                        cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     cghub.search.$addFilesButton.removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -238,18 +254,18 @@ jQuery(function ($) {
                         window.location.href = data['redirect'];
                     }
                     if (data['action']=='message') {
-                        cghub.search.showMessage(data['title'], data['content']);
+                        cghub.base.showMessage(data['title'], data['content']);
                         $($button).removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                     if (data['action']=='error') {
-                        cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         $($button).removeClass('disabled');
                         cghub.search.$spinner.hide();
                     }
                 },
                 error:function (){
-                    cghub.search.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
                     cghub.search.$spinner.hide();
                 }
@@ -346,7 +362,19 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
-                    dateFormat: 'yy/mm/dd'
+                    dateFormat: 'yy/mm/dd',
+                    onChangeMonthYear:function(year, month, inst){
+                        // calculate days in selected month
+                        var daysInMonth = new Date(year, month, 0).getDate();
+                        var currentDate = $d.datepicker("getDate");
+                        if (currentDate.getDate() > daysInMonth) {
+                            currentDate.setMonth(month-1, daysInMonth);
+                        } else {
+                            currentDate.setMonth(month-1);
+                        }
+                        currentDate.setYear(year);
+                        $d.datepicker("setDate", currentDate);
+                    }
                 });
             });
             return $dp_container;
@@ -375,6 +403,10 @@ jQuery(function ($) {
                         var $block = $(obj).parents('.ui-dropdownchecklist-dropcontainer-wrapper');
                         var $select = $block.prev().prev();
                         $block.find('input').prop('checked', false).change(function() {
+                            // select clicked option
+                            $select.find('option').attr('selected', false);
+                            $select.find('option[value = "' + $(this).val() + '"]').attr('selected', 'selected');
+                            // delete custom period option
                             $select.find('.js-custom-option').remove();
                             $select.dropdownchecklist("refresh");
                         });
@@ -436,9 +468,9 @@ jQuery(function ($) {
         },
         checkSearchField:function(){
             var searchValue = cghub.search.$searchField.val();
-            for (var i = 0; i < cghub.search.reservedChars.length; i++){
-                if (searchValue.indexOf(cghub.search.reservedChars[i]) != -1){
-                    cghub.search.showMessage(cghub.search.usedReservedCharsTitle, cghub.search.usedReservedCharsContent);
+            for (var i = 0; i < cghub.base.reservedChars.length; i++){
+                if (searchValue.indexOf(cghub.base.reservedChars[i]) != -1){
+                    cghub.base.showMessage(cghub.base.usedReservedCharsTitle, cghub.base.usedReservedCharsContent);
                     return false;
                 }
             }

@@ -5,7 +5,7 @@
         {% comment %} This will be shown in popup {% endcomment %}
         <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% endif %}
-    <table class="table table-bordered">
+    <table class="table table-bordered js-details-table">
         {% details_table res %}
     </table>
     {% if request.is_ajax %}

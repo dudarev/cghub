@@ -12,7 +12,7 @@ List of columns to display:
 
 Available column_names: 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
-'Last modified', 'Library Type', 'Platform', 'Platform Name', 'Sample Accession',
+'Library Type', 'Modified', 'Platform', 'Platform Name', 'Sample Accession',
 'Sample Type', 'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
 
 Styles of the columns:
@@ -94,7 +94,7 @@ COLUMN_STYLES = {
     'Library Type': {
         'width': 100, 'align': 'left', 'default_state': 'visible',
         },
-    'Last modified': {
+    'Modified': {
         'width': 80, 'align': 'left', 'default_state': 'visible',
         },
     'Platform': {
@@ -164,7 +164,7 @@ DETAILS_FIELDS = (
     'Analysis Id',
     'Sample Accession',
     'Uploaded',
-    'Last modified',
+    'Modified',
     'State',
     'Aliquot id',
     'TSS id',

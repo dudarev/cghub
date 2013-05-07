@@ -57,11 +57,11 @@ def file_size(value):
     except ValueError:
         return ''
     if bytes >= 1073741824:
-        return ('%.2f GB' % round(bytes / 1073741824., 2)).replace('.', ',')
+        return ('%.2f GB' % round(bytes / 1073741824., 2))
     if bytes >= 1048576:
-        return ('%.2f MB' % round(bytes / 1048576., 2)).replace('.', ',')
+        return ('%.2f MB' % round(bytes / 1048576., 2))
     if bytes >= 1024:
-        return ('%.2f KB' % round(bytes / 1024., 2)).replace('.', ',')
+        return ('%.2f KB' % round(bytes / 1024., 2))
     return '%d Bytes' % bytes
 
 
@@ -197,10 +197,12 @@ def applied_filters(request):
         # Filters by assembly can use complex queries
         if f == 'refassem_short_name':
             for value in ALL_FILTERS[f]['filters']:
-                for i in filters:
-                    if value.find(i) != -1:
-                        filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                options = value.split(' OR ')
+                for option in options:
+                    if option not in filters:
                         break
+                else:
+                    filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -291,7 +293,13 @@ def get_result_attr(result, attr):
     return ''
 
 
-def field_values(result):
+def field_values(result, humanize_files_size=True):
+    files_size = (
+                    get_result_attr(result, 'files_size')
+                    or get_result_attr(result, 'files')
+                    and get_result_attr(result, 'files').file[0].filesize)
+    if humanize_files_size:
+        files_size = file_size(files_size)
     return {
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
@@ -306,10 +314,8 @@ def field_values(result):
         'Experiment Type': get_name_by_code(
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
-        'Files Size': file_size(get_result_attr(result, 'files_size')
-                      or get_result_attr(result, 'files')
-                         and get_result_attr(result, 'files').file[0].filesize),
-        'Last modified': get_result_attr(result, 'last_modified'),
+        'Files Size': files_size,
+        'Modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
         'Platform': get_result_attr(result, 'platform'),
         'Platform Name': get_name_by_code(

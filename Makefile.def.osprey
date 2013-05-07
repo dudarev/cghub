@@ -16,15 +16,18 @@ PYTHON= PYTHONPATH=$(PYTHONPATH) python
 TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
+			core.TaskViewsTestCase core.SettingsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartClearTestCase cart.CartCacheTestCase \
 			cart.CartFormsTestCase cart.CartUtilsTestCase \
+			cart.CartParsersTestCase \
 			help
 
-TEST_UI=core.SidebarTestCase core.SearchTestCase core.ColumnSelectTestCase \
-			core.ColumnsFillTableWidthTestCase core.ResetFiltersButtonTestCase \
-			cart.LinksNavigationsTestCase cart.CartUITestCase \
-			cart.SortWithinCartTestCase cart.AddAllToCartButtonTestCase
+TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
+			core.CustomPeriodTestCase core.DetailsTestCase \
+			core.SearchTestCase core.ColumnSelectTestCase \
+			core.ResetFiltersTestCase core.HelpHintsTestCase \
+			cart.AddToCartTestCase cart.CartUITestCase
 
 MANAGE= $(PYTHON) manage.py
 

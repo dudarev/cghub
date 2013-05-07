@@ -32,7 +32,7 @@ testcoverage:
 	TESTING=1 $(MANAGE) test_coverage $(TEST_OPTIONS) $(TEST_APP)
 
 test:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_APP)
+	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
 	cd wsapi && nosetests -s
 
 test_web:
@@ -42,7 +42,7 @@ test_api:
 	cd wsapi && nosetests -s
 
 test_ui:
-	TESTING=1 $(MANAGE) test $(TEST_OPTIONS) $(TEST_UI)
+	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_UI)
 
 clean:
 	@echo Cleaning up...
@@ -85,14 +85,16 @@ else
 	@echo Done
 endif
 
+#celerydLogOpt = --loglevel=INFO
+celerydLogOpt = --loglevel=DEBUG
 celeryd: celeryd_stop
-	$(MANAGE) celeryd -E -Q celery --pidfile=$(CELERYD_PID)&
-	$(MANAGE) celerybeat --detach --pidfile=$(CELERYBEAT_PID)
-	$(MANAGE) celerycam --detach --pidfile=$(CELERYCAM_PID)
+	$(MANAGE) celeryd_detach -E -Q celery ${celerydLogOpt} --pidfile=$(CELERYD_PID)
+	$(MANAGE) celerybeat --detach ${celerydLogOpt} --pidfile=$(CELERYBEAT_PID)
+	$(MANAGE) celerycam --detach ${celerydLogOpt} --pidfile=$(CELERYCAM_PID)
 
 
 celeryd_stop:
-	ps -ef | awk '/python.* celery/&& !/awk/{system("kill " $$2)}'
+	ps -ax | awk '/python.* celery/&& !/awk/{system("kill " $$1)}'
 
 less:
 	grunt-less --config cghub/grunt.js less

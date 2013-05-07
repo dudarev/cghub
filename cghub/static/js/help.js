@@ -10,13 +10,14 @@ jQuery(function ($) {
     cghub.help = {
         hoverTime: 250, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
-        keysIgnore: ['analysis id', 'uploaded', 'last modified', 'barcode', 'files size'],
+        keysIgnore: ['analysis id', 'uploaded', 'modified', 'barcode', 'files size',
+                'aliquot id', 'tss id', 'participant id', 'sample id'],
         init:function () {
-            cghub.help.hintUrl = $('body').data('help-hint-url');
-            cghub.help.textUrl = $('body').data('help-text-url');
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
+            cghub.help.activateDetailsHeaderTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
+            cghub.help.activateDetailsValueTooltipHelp();
             cghub.help.activateFilterHeaderTooltipHelp();
             cghub.help.activateFilterSelectorItemTooltipHelp();
             cghub.help.activateFilterTextTooltipHelp();
@@ -36,7 +37,7 @@ jQuery(function ($) {
         showToolTip:function($target, key) {
             if(!key.length) return;
             $.ajax({
-                url: cghub.help.hintUrl,
+                url: cghub.vars.helpHintUrl,
                 dataType: "json",
                 data: {'key': key},
                 type: 'GET',
@@ -74,7 +75,7 @@ jQuery(function ($) {
                 if(!modal.length) return;
                 var slug = $(this).data('slug');
                 $.ajax({
-                    url: cghub.help.textUrl,
+                    url: cghub.vars.helpTextUrl,
                     dataType: "json",
                     data: {'slug': slug},
                     type: 'GET',
@@ -123,31 +124,50 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
                 return $target.text()
                         .replace(decodeURI('%C2%A0%E2%86%93'), '')
-                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
+            });
+        },
+        // for headers in details table
+        activateDetailsHeaderTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('table.js-details-table th', function($target) {
+                return $target.text();
             });
         },
         // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
-                if(!$target.text().length) return '';
+                if(!$.trim($target.text()).length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
                 .eq(index).text()
                         .replace(decodeURI('%C2%A0%E2%86%93'), '')
-                        .replace(decodeURI('%C2%A0%E2%86%91'), '');
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
+                if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
+                return columnName + ':' + $target.text();
+            });
+        },
+        // for values in details table
+        activateDetailsValueTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('table.js-details-table td', function($target) {
+                if(!$.trim($target.text()).length) return '';
+                var columnName = $target.parent().find('th').text();
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();
             });
         },
         // for filter headers
         activateFilterHeaderTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar h5', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar .filter-label', function($target) {
                 return 'filter:' + $target.text().replace(':', '').replace('By ', '');
             });
         },
         // for items in dropdown list when selecting checkboxes with filters
         activateFilterSelectorItemTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.sidebar label', function($target) {
+            cghub.help.activateTooltipsForSelector('.sidebar .ui-dropdownchecklist-text', function($target) {
                 var filterName = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
                 filterName = filterName.replace(':', '').replace('By ', '');
                 if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';

@@ -54,15 +54,26 @@ LOGGING = {
         },
         'syslog':{ 
             'address': '/dev/log',
+            'facility': SysLogHandler.LOG_LOCAL2, 
             'level':'INFO', 
             'class': 'logging.handlers.SysLogHandler', 
             'formatter': 'verbose',
         },
     },
     'loggers': {
+        '': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
+        'django': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
         'django.request': {
-            'handlers': ['syslog',],
-            'level': 'INFO',
+            'handlers': ['syslog'],
+            'level': 'WARNING',
             'propagate': True,
             },
         'wsapi.request': {
@@ -71,6 +82,11 @@ LOGGING = {
             'handlers': ['syslog'],
             'level': 'DEBUG',
             'propagate': True,
-        }
-    },
+            },
+        'celery': {
+            'handlers': ['syslog'],
+            'level': 'WARNING',
+            'propagate': True,
+            },
+        },
 }

@@ -2,14 +2,16 @@
 .clearfix:after{clear:both;}
 .hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
 .input-block-level{display:block;width:100%;min-height:28px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
+#accessibility-links{position:fixed;margin:0;top:0;left:0;height:0;overflow:hidden;width:100%;text-align:center;z-index:1410;background-color:#fff;list-style-type:none;}#accessibility-links li{font-size:1.2em;padding-top:5px;margin-bottom:2px;}
+#main-nav{tab-index:-1;}
+#main-content{tab-index:-1;position:relative;top:-50px;}#main-content.base-container{top:0;}
 .navbar .brand{padding-top:10px;padding-bottom:8px;}
 .navbar ul a{font-size:14px;}
 .base-container{padding-top:50px;width:100%;min-width:1280px;}
 .base-sidebar{padding-left:10px;}.base-sidebar .dp-container{z-index:1310;position:absolute;top:0;left:235px;padding:9px 9px 19px 19px;}.base-sidebar .dp-container .dp-date{display:inline-block;margin:10px 10px 10px 0;vertical-align:top;}
 .base-sidebar .dp-container .text-error{color:#ff0000;margin-left:10px;}
 .base-sidebar .dp-container .btn-cancel{margin-left:10px;}
-.base-sidebar .sidebar{padding-left:15px;}
-.base-sidebar #id_reset_filters{margin-left:12px;}
+.base-sidebar .sidebar{padding-left:15px;visibility:hidden;}
 .base-content{width:78%;min-width:980px;}
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
@@ -22,5 +24,7 @@
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 h1,h2{padding-bottom:0.5em;}
+h1{font-size:24px;}
+h2{font-size:18px;}
 ul.help-sections{margin-top:1em;}
 .help-content{padding-left:50px;padding-top:25px;}

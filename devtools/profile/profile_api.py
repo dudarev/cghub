@@ -18,6 +18,7 @@ from profiler import profile
 import time
 from wsapi.api import request as api_request
 from wsapi.settings import SETTINGS_DEFAULT
+from cghub.wsapi.utils import makedirs_group_write
 
 
 CACHE_DIR = SETTINGS_DEFAULT['CACHE_DIR']
@@ -81,7 +82,7 @@ def perform_queries_for(queries, filename):
 
 def perform_profiling(queries_count):
     if not os.path.exists(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
+        makedirs_group_write(CACHE_DIR)
 
     files = glob.glob(os.path.join(CACHE_DIR, '*'))
     for file in files:

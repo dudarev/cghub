@@ -20,8 +20,8 @@ from xml.sax import handler, parse, saxutils
 
 from exceptions import QueryRequired
 
-from utils import get_setting, urlopen
-
+from utils import (get_setting, urlopen, makedirs_group_write,
+                                    generate_tmp_file_name, quote_query)
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
@@ -40,7 +40,11 @@ class IDsParser(handler.ContentHandler):
     """
 
     def __init__(self, filename):
-        self.f = open(filename, 'w')
+        self.filename = filename
+        self.tmp_filename = os.path.join(
+                        os.path.dirname(self.filename),
+                        generate_tmp_file_name())
+        self.f = open(self.tmp_filename, 'w')
         handler.ContentHandler.__init__(self)
 
     def startElement(self, name, attrs):
@@ -55,6 +59,7 @@ class IDsParser(handler.ContentHandler):
 
     def endDocument(self):
         self.f.close()
+        os.rename(self.tmp_filename, self.filename)
 
 
 def parse_sort_by(value):
@@ -73,7 +78,7 @@ def get_cache_file_name(query, settings):
     """
     # Prevent getting different file names because of 
     # percent escaping
-    query = urllib2.unquote(query.encode("utf8"))
+    query = urllib2.unquote(query.encode("utf8")).replace('+', ' ')
     if '&' in query:
         query = query.split('&')
         query.sort()
@@ -98,7 +103,7 @@ def load_ids(query, settings):
     filename = get_cache_file_name(query, settings)
     cache_dir = get_setting('CACHE_DIR', settings)
     if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
+        makedirs_group_write(cache_dir)
     parse(response, IDsParser(filename))
 
 def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
@@ -123,41 +128,40 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
         line = linecache.getline(filename, i).split('\n')[0]
         if line:
             items.append(line)
+        else:
+            wsapi_request_logger.error(
+                    'Wrong number of results in ids file %s' % filename)
     linecache.clearcache()
     return items_count, items
 
-def get_all_ids(query, settings, ignore_cache=False):
+def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     """
     Return all ids for specified query.
     Loads them from cghub server or gets from cache if exists
     and ignore_cache == False.
-    Sorting is not supported.
 
     :param query: a string with query to send to the server
     :param ignore_cache: set to True, to restrict using cached ids
+    :param sort_by: search file with attributes sorted by sort_by first
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
-    filename = get_cache_file_name(query, settings)
-    # reload cache if ignore_cache
+
+    query = quote_query(query)
+    if sort_by:
+        sort_by = urllib2.quote(sort_by)
+
     if ignore_cache:
+        # reload cache if ignore_cache
         load_ids(query, settings=settings)
+        filename = get_cache_file_name(query, settings=settings)
     else:
+        if sort_by:
+            query = '%s&sort_by=%s' % (query, parse_sort_by(sort_by))
+        filename = get_cache_file_name(query, settings)
+        # if file was not found in cache - upload it
         if not os.path.exists(filename):
-            # search for file with sorted ids with same query
-            for attr in ALLOWED_SORT_BY:
-                filename = get_cache_file_name(
-                        '%s&sort_by=%s' % (
-                                query, parse_sort_by(attr)), settings)
-                if os.path.exists(filename):
-                    break
-                filename = get_cache_file_name(
-                        '%s&sort_by=-%s' % (
-                                query, parse_sort_by('-' + attr)), settings)
-                if os.path.exists(filename):
-                    break
-            if not os.path.exists(filename):
-                filename = get_cache_file_name(query, settings)
-                load_ids(query, settings=settings)
+            filename = get_cache_file_name(query, settings=settings)
+            load_ids(query, settings=settings)
     f = open(filename)
     try:
         items = f.read().split('\n')[1:-1]
@@ -168,7 +172,6 @@ def get_all_ids(query, settings, ignore_cache=False):
 def load_attributes(ids, settings):
     """
     Load attributes for specified set of ids.
-    Sorting not implemented for ANALYSIS_DETAIL uri.
     """
     query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(ids))
     url = u'{0}{1}?{2}'.format(

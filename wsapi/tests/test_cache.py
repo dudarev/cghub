@@ -6,7 +6,7 @@ import unittest
 import datetime, time
 
 from wsapi.api import request, Results
-from wsapi.utils import clear_cache, get_setting
+from wsapi.utils import clear_cache, get_setting, makedirs_group_write
 
 
 TEST_DATA_DIR = 'tests/test_data/'
@@ -16,11 +16,11 @@ class CacheTest(unittest.TestCase):
     """Test functions that do sorting."""
 
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
+        '10f911319953a88d95231b4d63e29434.xml',
     ]
 
     bad_cache_file = [
-        'ff6acb9fa21f1284d9655a29b0063ba4.xml', # query='xml_text=6d7*'
+        '9a47690bef15473baaab6613ccb0edaf.xml', # query='xml_text=6d7*'
     ]
 
     def setUp(self):
@@ -30,7 +30,7 @@ class CacheTest(unittest.TestCase):
 
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         for f in self.cache_files + self.bad_cache_file:
             shutil.copy(
                     os.path.join(TEST_DATA_DIR, f),

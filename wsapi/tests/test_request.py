@@ -9,7 +9,7 @@ from lxml import objectify
 from wsapi.exceptions import QueryRequired
 from wsapi.api import request, multiple_request
 from wsapi.cache import get_cache_file_name
-from wsapi.utils import get_setting
+from wsapi.utils import get_setting, makedirs_group_write
 
 
 class RequestTest(unittest.TestCase):
@@ -87,10 +87,10 @@ class RequestTest(unittest.TestCase):
 
 class MultipleRequestTestCase(unittest.TestCase):
     cache_files = [
-        '427dcd2c78d4be27efe3d0cde008b1f9.xml',
-        '9f3c2c0b252739d9bc689d8a26f961d6.xml'
+        '10f911319953a88d95231b4d63e29434.xml',
+        '1e3c75234e181adbce636f665f5dfe16.xml'
     ]
-    extra_cache_file = '5db34dad5dd47469af56179a7d83ebfc.xml'
+    extra_cache_file = 'b8bd18152ae336e8b13f9674ee4da179.xml'
 
     def setUp(self):
         """
@@ -100,7 +100,7 @@ class MultipleRequestTestCase(unittest.TestCase):
         TEST_DATA_DIR = 'tests/test_data/'
         cache_dir = get_setting('CACHE_DIR')
         if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+            makedirs_group_write(cache_dir)
         for f in self.cache_files:
             shutil.copy(
                 os.path.join(TEST_DATA_DIR, f),

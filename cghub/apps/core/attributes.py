@@ -8,7 +8,6 @@ DATE_ATTRIBUTES = (
     'published_date'
 )
 
-# COLUMN_ATTRIBUTES = {
 COLUMN_NAMES = {
     'Analysis Id': 'analysis_id',
     'Assembly':  'refassem_short_name',
@@ -20,7 +19,7 @@ COLUMN_NAMES = {
     'Experiment Type': 'analyte_code',
     'Files Size': 'files_size',
     'Library Type': 'library_strategy',
-    'Last modified': 'last_modified',
+    'Modified': 'last_modified',
     'Platform': 'platform',
     'Platform Name': 'platform',
     'Sample Accession': 'sample_accession',

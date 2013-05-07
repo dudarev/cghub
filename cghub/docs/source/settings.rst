@@ -284,6 +284,11 @@ Logging
                 'handlers': ['syslog'],
                 'level': 'DEBUG',
                 'propagate': True,
+            },
+            'cart': {
+                'handlers': ['syslog'],
+                'level': 'ERROR',
+                'propagate': True,
             }
         },
     }

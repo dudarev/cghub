@@ -57,8 +57,12 @@ def get_cart_stats(request):
     cart = get_or_create_cart(request)
     stats = {'count': len(cart), 'size': 0}
     for analysis_id, f in cart.iteritems():
-        if 'files_size' in f and isinstance(f['files_size'], (int, long)):
-            stats['size'] += f['files_size']
+        if 'files_size' in f:
+            try:
+                size = int(f['files_size'])
+            except TypeError, ValueError:
+                size = 0
+            stats['size'] += size
     return stats
 
 
@@ -71,11 +75,45 @@ def add_ids_to_cart(request, ids):
     request.session.modified = True
 
 
+def add_files_to_cart(request, results):
+    """
+    Fill cart by data contains in results.
+
+    :param request: Request objects
+    :param results: wsapi.api.Results object 
+    """
+    if not hasattr(results, 'Result'):
+        return
+    cart = get_or_create_cart(request)
+    for result in results.Result:
+        current_dict = {}
+        for attribute in ATTRIBUTES:
+            current_dict[attribute] = result[attribute]
+        cart[current_dict['analysis_id']] = current_dict
+    request.session.modified = True
+
+
 def clear_cart(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
-    request.session['cart_loading'] = False
     request.session.modified = True
+
+
+def cart_remove_files_without_attributes(request):
+    """
+    Remove files from cart where last_modified not specified.
+    Return number of removed files.
+    """
+    cart = get_or_create_cart(request)
+    to_remove = []
+    for analysis_id, f in cart.iteritems():
+        if 'last_modified' not in f:
+            to_remove.append(analysis_id)
+    for analysis_id in to_remove:
+        del cart[analysis_id]
+    if to_remove:
+        request.session.modified = True
+    return len(to_remove)
 
 
 def check_missing_files(files):
@@ -120,7 +158,7 @@ def cache_file(analysis_id, last_modified, asinc=False):
         task = TaskState.objects.get(task_id=task_id)
         # task failed, reexecute task
         if (task.state == states.FAILURE or
-            task.tstamp < timezone.now() - datetime.timedelta(days=5)):
+            task.tstamp < timezone.now() - datetime.timedelta(days=2)):
             # restart
             task.tstamp = timezone.now()
             task.save()
@@ -138,39 +176,6 @@ def cache_file(analysis_id, last_modified, asinc=False):
                     task_id=task_id)
 
 
-def join_analysises(data, short=False, live_only=False):
-    """
-    Join xml files with specified ids.
-    If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
-
-    :param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
-    :param short: if True - file will be contains only most necessary attributes
-    :param live_only: if True - files with state attribute != 'live' will be not included to results
-    """
-    results = None
-    results_counter = 1
-    for analysis_id in data:
-        if live_only and data[analysis_id].get('state') != 'live':
-            continue
-        last_modified = data[analysis_id].get('last_modified')
-        try:
-            result = get_analysis(analysis_id, last_modified, short=short)
-        except AnalysisFileException:
-            continue
-        if results is None:
-            results = result
-            results.Query.clear()
-            results.Hits.clear()
-        else:
-            result.Result.set('id', u'{0}'.format(results_counter))
-            # '+ 1' because the first two elements (0th and 1st) are Query and Hits
-            results.insert(results_counter + 1, result.Result)
-        results_counter += 1
-    if results:
-        return results
-    return _empty_results()
-
-
 def analysis_xml_iterator(data, short=False, live_only=False):
     """
     Return xml for files with specified ids.
@@ -186,14 +191,18 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     counter = 0
     downloadable_size = 0
     for f in data:
-        if live_only and data[analysis_id].get('state') != 'live':
+        if live_only and data[f].get('state') != 'live':
+            continue
+        last_modified = data[f].get('last_modified')
+        try:
+            xml, files_size = get_analysis_xml(
+                            analysis_id=f,
+                            last_modified=last_modified,
+                            short=short)
+        except AnalysisFileException:
             continue
         counter += 1
         yield '<Result id="%d">' % counter
-        xml, files_size = get_analysis_xml(
-                            analysis_id=f,
-                            last_modified=data[f].get('last_modified'),
-                            short=short)
         downloadable_size += files_size
         yield xml
         yield '</Result>'
@@ -205,10 +214,44 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                         size=str(round(downloadable_size/1073741824.*100)/100))
 
 
+def summary_tsv_iterator(data):
+    """
+    Returns Summary tsv file content.
+    Data to generate file takes from cart cache. If data not exists in cache,
+    it will be downloaded.
+
+    param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
+    """
+    COLUMNS = settings.TABLE_COLUMNS
+    stringio = StringIO()
+    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
+    csvwriter.writerow([field.lower().replace(' ', '_') for field in COLUMNS])
+    for f in data:
+        last_modified = data[f].get('last_modified')
+        try:
+            result = get_analysis(
+                            analysis_id=f,
+                            last_modified=last_modified)
+        except AnalysisFileException:
+            continue
+        result.add_custom_fields()
+        fields = field_values(result.Result, humanize_files_size=False)
+        row = []
+        for field_name in COLUMNS:
+            value = fields.get(field_name, None)
+            row.append(value or '')
+        csvwriter.writerow(row)
+        stringio.seek(0)
+        line = stringio.read()
+        stringio.seek(0)
+        stringio.truncate()
+        yield line
+
+
 def manifest(data):
-    results = join_analysises(data, live_only=True, short=True)
-    mfio = _stream_with_xml(results)
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/xml')
+    response = HttpResponse(
+            analysis_xml_iterator(data, short=True, live_only=True),
+            content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
@@ -220,57 +263,6 @@ def metadata(data):
 
 
 def summary(data):
-    results = join_analysises(data)
-    results.add_custom_fields()
-    mfio = _write_summary_tsv(results)
-    response = HttpResponse(basehttp.FileWrapper(mfio), content_type='text/tsv')
+    response = HttpResponse(summary_tsv_iterator(data), content_type='text/tsv')
     response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
-
-
-def _empty_results():
-    results = Results(
-        objectify.fromstring('<ResultSet></ResultSet>'),
-        settings=get_wsapi_settings())
-    results.set('date', timezone.now().strftime("%Y-%m-%d %H:%M:%S"))
-    results.insert(0, objectify.fromstring('<Query></Query>'))
-    results.insert(1, objectify.fromstring('<Hits></Hits>'))
-    results.insert(2, objectify.fromstring(
-        '<ResultSummary>'
-        '<downloadable_file_count>0</downloadable_file_count>'
-        '<downloadable_file_size units="GB">0</downloadable_file_size>'
-        '<state_count>'
-        '<live>0</live>'
-        '</state_count>'
-        '</ResultSummary>'))
-    return results
-
-
-def _stream_with_xml(results):
-    stringio = StringIO()
-    parser = etree.XMLParser()
-    tree = etree.XML(results.tostring(), parser)
-    stringio.write(etree.tostring(tree, pretty_print=True))
-    stringio.seek(0)
-    return stringio
-
-
-def _write_summary_tsv(results):
-    stringio = StringIO()
-    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
-
-    csvwriter.writerow([field.lower().replace(' ', '_')
-                        for field in settings.TABLE_COLUMNS])
-    for result in results.Result:
-        fields = field_values(result)
-
-        row = []
-        for field_name in settings.TABLE_COLUMNS:
-            value = fields.get(field_name, None)
-            if value is None:
-                continue
-            row.append(value)
-        csvwriter.writerow(row)
-
-    stringio.seek(0)
-    return stringio

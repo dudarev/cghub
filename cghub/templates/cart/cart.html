@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load search_tags %}
 {% load pagination_tags %}
+{% block title %}Cart - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
@@ -9,19 +10,25 @@
     {% endif %}
 {% endblock %}
 {% block main_content %}
-    {% with request.session.cart_loading as loading %}
+    {% with request.session.task_id as loading %}
     <div class="cart-content">
         <div class="page-header">
             <h1>
                 In your cart
             </h1>
         </div>
+        <div id="main-content"></div>
         <div>
             {% if loading %}
             <div class="alert">
-                <strong>Warning!</strong> Still obtaining files ... Some functionality are unavailable. <a href=".">Reload</a>
+                <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href=".">Reload to check for completion.</a>
             </div>
             {% else %}
+            {% if missed_files %}
+                <div class="alert alert-error">
+                    <strong>Notice:</strong> Few files was not added to your cart ({{ missed_files }}).
+                </div>
+            {% endif %}
             <span>
                 Files in your cart: {{ stats.count }} ({{ stats.size|file_size }})
             </span>
@@ -44,8 +51,12 @@
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
-                <div class="column-select-label"><span>Columns:</span></div>
-                <select class="column-select" multiple>
+                <div class="column-select-label">
+                    <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
+                        Columns:
+                    </label>
+                </div>
+                <select id="id-columns-selector" class="column-select" multiple>
                     <option value="(all)">(all)</option>
                 </select>
                 {% include 'data_table.html' %}

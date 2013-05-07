@@ -1,78 +1,54 @@
-import time, os
-
-from wsapi.api import request as api_request
+import time
+import os
 
 from django.test import LiveServerTestCase
 from django.conf import settings
 
-from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import (
-                            wsapi_cache_copy,
-                            wsapi_cache_remove,
-                            cart_cache_remove)
-from cghub.apps.core.templatetags.search_tags import (
-                            get_name_by_code,
-                            get_sample_type_by_code,
-                            file_size)
+                        TEST_SETTINGS, TEST_CACHE_DIR, back_to_bytes)
+from cghub.apps.core.attributes import COLUMN_NAMES
 
 
-class LinksNavigationsTestCase(LiveServerTestCase):
-    wsapi_cache_files = (
-                '71411da734e90beda34360fa47d88b99.ids',)
+class AddToCartTestCase(LiveServerTestCase):
+
+    query = "6d50"
 
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(LinksNavigationsTestCase, self).setUpClass()
-        wsapi_cache_copy(self.wsapi_cache_files)
+        super(AddToCartTestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
-        time.sleep(1)
         self.selenium.quit()
-        super(LinksNavigationsTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.wsapi_cache_files)
+        super(AddToCartTestCase, self).tearDownClass()
 
-    def test_cart_link(self):
-        self.selenium.get(self.live_server_url)
-        self.selenium.find_element_by_partial_link_text("Cart").click()
-        time.sleep(2)
-
-    def test_home_link(self):
-        self.selenium.get("{url}/{path}".format(url=self.live_server_url,
-                                        path="help"))
-        self.selenium.find_element_by_partial_link_text("Search").click()
-        time.sleep(2)
-
-    def test_help_link(self):
-        self.selenium.get(self.live_server_url)
-        self.selenium.find_element_by_partial_link_text("Help").click()
-        time.sleep(2)
+    def test_add_all_to_cart(self):
+        """
+        Check that confirmation popup appears when trying to add
+        more than settings.MANY_FILES files count.
+        1. Go to search page (with q=query - 7 results)
+        2. Set settings.MANY_FILES == 1
+        3. Try to add all items to cart
+        4. Check that confirmation popup is visible
+        """
+        custom_settings = dict(TEST_SETTINGS)
+        custom_settings['MANY_FILES'] = 1
+        with self.settings(**custom_settings):
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+            driver.find_element_by_class_name('add-all-to-cart-btn').click()
+            time.sleep(1)
+            assert driver.find_element_by_id('manyItemsModal').is_displayed()
 
 
 class CartUITestCase(LiveServerTestCase):
-    wsapi_cache_files = (
-                    '9e46b6f29ecc2c5282143a1fdf24f76b.xml',
-                    '128a4ee167e9c3eacf2e5943b93b6b53.xml',
-                    '4d3fee9f8557fc0de585af248b598c44.xml',
-                    )
-    cart_cache_files = (
-                    '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58',
-                    '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-                    )
 
-    selected = [
-        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-        '30dcdc5a-172f-4fa2-b9d2-6d50ee8f3a58'
-    ]
-    unselected = [
-        'beddd009-4efb-471f-bc4e-d872b50daa0f',
-    ]
-    query = "6d50*"
+    query = "6d50"
 
     @classmethod
     def setUpClass(self):
@@ -80,255 +56,243 @@ class CartUITestCase(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", settings.WSAPI_CACHE_DIR)
+        fp.set_preference("browser.download.dir", TEST_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
-        wsapi_cache_copy(self.wsapi_cache_files)
-        # calculate uuid for items on the first page
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[0])._lxml_results
-        analysis_id = lxml.xpath('/ResultSet/Result/analysis_id')
-        self.page_analysis_ids = analysis_id[:settings.DEFAULT_PAGINATOR_LIMIT - 1]
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
         super(CartUITestCase, self).tearDownClass()
-        wsapi_cache_remove(self.wsapi_cache_files)
-        cart_cache_remove(self.cart_cache_files)
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def test_cart(self):
-        # test adding item to cart
-        driver = self.selenium
-        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+        """
+        1. Go to search page (with q = self.query)
+        2. Click on 'Select all' checkbox
+        3. Check that all checkboxes in table checked
+        4. Click on 'Select all' checkbox once more (uncheck all checkboxes)
+        5. Select ferst two items
+        6. Click on 'Add to cart' button
+        7. Check that files were really added to cart
+        8. Check that no other files were added to cart
+        9. Check that dosplayed right files count
+        10. Remove downloaded manifest, metadata and summary downloaded before if exists
+        11. Try to download manifest.xml
+        12. Try to download metadata.xml
+        13. Try to download summary.tsv
+        14. Get cart stats
+        15. Click 'Remove files from cart'
+        16. Get cart stats, check that files count was decremented by 1
+        17. Click on 'Clear cart'
+        18. Check that cart is empty
+        """
+        with self.settings(**TEST_SETTINGS):
+            # test adding items to cart
+            driver = self.selenium
+            driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
 
-        # Test Select all link in search results
-        for analysis_id in self.page_analysis_ids:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert not checkbox.is_selected()
+            # get all analysis_ids on the page
+            page_analysis_ids = []
+            for i in driver.find_elements_by_css_selector('.data-table-checkbox'):
+                page_analysis_ids.append(i.get_attribute('value'))
+            assert len(page_analysis_ids) > 4
 
-        btn = driver.find_element_by_css_selector('input.js-select-all')
-        btn.click()
-
-        for analysis_id in self.page_analysis_ids:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert checkbox.is_selected()
-
-        btn = driver.find_element_by_css_selector('input.js-select-all')
-        btn.click()
-
-        # Select two items for adding to cart
-        for analysis_id in self.selected:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            checkbox.click()
-
-        btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
-        btn.click()
-        time.sleep(3)
-        assert driver.current_url == '%s/cart/' % self.live_server_url
-
-        for analysis_id in self.selected:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-        for analysis_id in self.unselected:
-            try:
+            # check that no selected items
+            for analysis_id in page_analysis_ids:
                 checkbox = driver.find_element_by_css_selector(
-                    'input[value="%s"]' % analysis_id)
-                assert False, "Element mustn't be found on the page"
-            except NoSuchElementException:
+                        'input[value="%s"]' % analysis_id)
+                assert not checkbox.is_selected()
+
+            # toggle 'Select all' checkbox
+            btn = driver.find_element_by_css_selector('input.js-select-all')
+            btn.click()
+
+            # check that all checkboxes in table checked
+            for analysis_id in page_analysis_ids:
+                checkbox = driver.find_element_by_css_selector(
+                        'input[value="%s"]' % analysis_id)
+                assert checkbox.is_selected()
+
+            # toggle 'Select all' checkbox (uncheck)
+            btn = driver.find_element_by_css_selector('input.js-select-all')
+            btn.click()
+
+            # Select two items for adding to cart
+            selected = page_analysis_ids[:2]
+            unselected = page_analysis_ids[-2:]
+            for analysis_id in selected:
+                checkbox = driver.find_element_by_css_selector(
+                        'input[value="%s"]' % analysis_id)
+                checkbox.click()
+
+            # click on 'Add to cart'
+            btn = driver.find_element_by_css_selector('button.add-to-cart-btn')
+            btn.click()
+            time.sleep(3)
+            assert driver.current_url == '%s/cart/' % self.live_server_url
+
+            # check that files were added to cart and analysis_ids of them exists in table
+            for analysis_id in selected:
+                checkbox = driver.find_element_by_css_selector(
+                        'input[value="%s"]' % analysis_id)
+            # check that other files were not added to the cart
+            for analysis_id in unselected:
+                assert not driver.find_elements_by_css_selector(
+                            'input[value="%s"]' % analysis_id)
+
+            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            assert 'Files in your cart: 2' in stat.text
+            cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+            assert cart_link.text == 'Cart (2)'
+
+            # 'Select all' feature tested on search page, and it uses the same js
+
+            # check files downloading
+            try:
+                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
+            except OSError:
                 pass
 
-        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: 2 (9,68 GB)'
+            # download Manifest XML
+            btn = driver.find_element_by_class_name('cart-download-manifest')
+            btn.click()
+            driver.implicitly_wait(5)
+            try:
+                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
+            except OSError:
+                assert False, "File manifest.xml wasn't downloaded"
 
-        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart (2)'
+            # download Metadata XML
+            btn = driver.find_element_by_class_name('cart-download-metadata')
+            btn.click()
+            driver.implicitly_wait(5)
+            try:
+                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+            except OSError:
+                assert False, "File metadata.xml wasn't downloaded"
 
+            # download Summary TSV
+            btn = driver.find_element_by_class_name('cart-download-summary')
+            btn.click()
+            driver.implicitly_wait(5)
+            try:
+                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
+            except OSError:
+                assert False, "File summary.tsv wasn't downloaded"
 
-        # Testing 'Select all' button in the cart
-        for analysis_id in self.selected:
+            # select first file in table
             checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert not checkbox.is_selected()
+                    'input[value="%s"]' % selected[0])
+            checkbox.click()
 
-        btn = driver.find_element_by_css_selector('input.js-select-all')
-        btn.click()
-        driver.implicitly_wait(1)
+            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            assert 'Files in your cart: {0}'.format(len(selected)) in stat.text
 
-        for analysis_id in self.selected:
-            checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % analysis_id)
-            assert checkbox.is_selected()
+            cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+            assert cart_link.text == 'Cart ({0})'.format(len(selected))
 
-        # check file downloading
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-            os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
-        except OSError:
-            pass
+            # remove seleted files
+            btn = driver.find_element_by_class_name('cart-remove')
+            btn.click()
 
-        checkbox = driver.find_element_by_css_selector(
-                'input[value="%s"]' % self.selected[0])
-        checkbox.click()
+            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            assert 'Files in your cart: {0}'.format(len(selected) - 1) in stat.text
 
-        # download Manifest XML
-        btn = driver.find_element_by_class_name('cart-download-manifest')
-        btn.click()
-        driver.implicitly_wait(5)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'manifest.xml')
-        except OSError:
-            assert False, "File manifest.xml wasn't downloaded"
+            cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+            assert cart_link.text == 'Cart ({0})'.format(len(selected) - 1)
 
-        # download Metadata XML
-        btn = driver.find_element_by_class_name('cart-download-metadata')
-        btn.click()
-        driver.implicitly_wait(5)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'metadata.xml')
-        except OSError:
-            assert False, "File metadata.xml wasn't downloaded"
+            # test 'clear cart' button
+            btn = driver.find_element_by_class_name('cart-clear')
+            btn.click()
+            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            assert stat.text == 'Files in your cart: 0 (0 Bytes)'
 
-        # download Summary TSV
-        btn = driver.find_element_by_class_name('cart-download-summary')
-        btn.click()
-        driver.implicitly_wait(5)
-        try:
-            os.remove(settings.WSAPI_CACHE_DIR + 'summary.tsv')
-        except OSError:
-            assert False, "File summary.tsv wasn't downloaded"
+            cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
+            assert cart_link.text == 'Cart (0)'
 
-        # remove items from cart
-        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert 'Files in your cart: {0}'.format(len(self.selected)) in stat.text
-
-        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart ({0})'.format(len(self.selected))
-
-        btn = driver.find_element_by_class_name('cart-remove')
-        btn.click()
-
-        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert 'Files in your cart: {0}'.format(len(self.selected) - 1) in stat.text
-
-        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 1)
-
-        # test 'clear cart' button
-        btn = driver.find_element_by_class_name('cart-clear')
-        btn.click()
-        stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
-        assert stat.text == 'Files in your cart: {0} (0 Bytes)'.format(len(self.selected) - 2)
-
-        cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
-        assert cart_link.text == 'Cart ({0})'.format(len(self.selected) - 2)
-
-        message = driver.find_element_by_xpath('//form[@action="/cart/action/"]//p')
-        assert message.text == 'Your cart is empty!'
+            message = driver.find_element_by_xpath('//form[@action="/cart/action/"]//p')
+            assert message.text == 'Your cart is empty!'
 
 
 class SortWithinCartTestCase(LiveServerTestCase):
-    wsapi_cache_files = (
-                    '7e82235686903c015624e4b0db45f0b6.xml',
-                    '862628620de0b3600cbaa8c11d92a4a2.xml',
-                    'c819df02cad704f9d074e73d322cb319.xml',
-                    '862e15fcf25b3882bb5c58e3a96026da.xml',
-                    'cb712a7b93a6411001cbc34cfb883594.xml',
-                    'ecbf7eaaf5b476df08b2997afd675701.xml',
-                    '376f9b98cb2e63cb7dddfbbd5647bcf7.xml')
-    cart_cache_files = (
-                    'c7e49b79-2f7d-1584-e040-ad451e410b1c')
-
-    query = "6d711*"
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
         super(SortWithinCartTestCase, self).setUpClass()
-        wsapi_cache_copy(self.wsapi_cache_files)
-        lxml = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[4])._lxml_results
-        self.items_count = lxml.Hits
 
     @classmethod
     def tearDownClass(self):
+        time.sleep(1)
         self.selenium.quit()
         super(SortWithinCartTestCase, self).tearDownClass()
-        wsapi_cache_remove(self.wsapi_cache_files)
-        cart_cache_remove(self.cart_cache_files)
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
 
     def test_sort_within_cart(self):
-        # add first 10 items to cart for sorting
-        driver = self.selenium
-        driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
+        """
+        1. Go to search page (default query)
+        2. Select all files in table
+        3. Click 'Add files to cart' (user will be redirected to cart page)
+        4. Walk throw table columns
+        5. Click on column header to select descending ordering
+        6. Get top value in clumn
+        7. Click on column header once more to select ascending ordering
+        8. Get top value in column and compare it with previous
+        9. Repeat 5..8 for every column
+        """
+        with self.settings(**TEST_SETTINGS):
+            # go to search page
+            driver = self.selenium
+            driver.get(self.live_server_url)
 
-        driver.find_element_by_css_selector('input.js-select-all').click()
-        driver.find_element_by_css_selector('button.add-to-cart-btn').click()
-
-        attrs = [
-            'analysis_id', 'study', 'disease_abbr', 'disease_abbr',
-            'library_strategy', 'platform', 'refassem_short_name', 'center_name',
-            'center_name', 'analyte_code', 'upload_date', 'last_modified',
-            'sample_type', 'sample_type', 'state', 'legacy_sample_id',
-            'sample_accession', 'files_size']
-
-        for i, attr in enumerate(attrs):
-            if i in (3, 8, 12):
-                continue
-
-            # scroll table
-            if i > 5:
-                time.sleep(1)
-                driver.execute_script("$('.viewport')"
-                        ".scrollLeft($('.sort-link[href*=%s]')"
-                        ".parents('th').position().left);" % attr)
+            # add first 10 items to cart for sorting
+            driver.find_element_by_css_selector('input.js-select-all').click()
+            driver.find_element_by_css_selector('button.add-to-cart-btn').click()
             time.sleep(3)
-            sort_link = driver.find_element_by_xpath(
-                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=%s"]' % attr)
-            sort_link.click()
-            # get list with sorted attributes
-            results = api_request(file_name=settings.WSAPI_CACHE_DIR + self.wsapi_cache_files[1], sort_by=attr).Result
-            sorted_attr = [getattr(r, attr) for r in results]
 
-            for j in range(self.items_count):
-                text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]/div' % (j + 1, i + 2)).text
-                if attr == 'sample_type':
-                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
-                elif attr in ('analyte_code', 'study', 'state'):
-                    self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
-                elif attr == 'files_size':
-                    self.assertEqual(text.strip(), file_size(sorted_attr[j]))
-                elif attr in ('upload_date', 'last_modified'):
-                    self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
-                else:
-                    self.assertEqual(text.strip(), str(sorted_attr[j]))
-            # reverse sorting
-            time.sleep(1)
-            driver.execute_script("$('.viewport')"
-                        ".scrollLeft($('.sort-link[href*=%s]')"
-                        ".parents('th').position().left);" % attr);
-            sort_link = driver.find_element_by_xpath(
-                '//div[@class="hDivBox"]//table//thead//tr//th//div//a[@href="/cart/?sort_by=-%s"]' % attr)
-            sort_link.click()
+            for i, column in enumerate(TEST_SETTINGS['TABLE_COLUMNS']):
+                # walk over all visible table columns
+                if TEST_SETTINGS['COLUMN_STYLES'][column]['default_state'] == 'hidden':
+                    continue
+                if column == 'Sample Type':
+                    continue
+                attr = COLUMN_NAMES[column]
+                # scroll table
+                self.selenium.execute_script("$('.viewport')"
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1))
+                # after first click element element is asc sorted
+                self.selenium.find_element_by_partial_link_text(column).click()
 
-            sorted_attr.reverse()
-            for j in range(self.items_count):
-                text = driver.find_element_by_xpath(
-                    '//div[@class="bDiv"]//table//tbody//tr[%d]//td[%d]//div' % (j + 1, i + 2)).text
-                if attr == 'sample_type':
-                    self.assertEqual(text, get_sample_type_by_code(sorted_attr[j], 'full'))
-                elif attr in ('analyte_code', 'study', 'state'):
-                    self.assertEqual(text, get_name_by_code(attr, sorted_attr[j]))
-                elif attr == 'files_size':
-                    self.assertEqual(text.strip(), file_size(sorted_attr[j]))
-                elif attr in ('upload_date', 'last_modified'):
-                    self.assertEqual(text.strip(), str(sorted_attr[j]).split('T')[0])
-                else:
-                    self.assertEqual(text.strip(), str(sorted_attr[j]))
+                # getting top element in the column
+                selector = ".bDiv > table td:nth-child({})".format(i + 2)
+                first = self.selenium.find_element_by_css_selector(selector).text
+
+                # scroll table
+                self.selenium.execute_script("$('.viewport')"
+                        ".scrollLeft($('th[axis=col{0}]')"
+                        ".position().left);".format(i + 1))
+                # resort
+                self.selenium.find_element_by_partial_link_text(column).click()
+                second = self.selenium.find_element_by_css_selector(selector).text
+
+                if not (first == 'None' or second == 'None' or
+                        first == ' ' or second == ' '):
+                    if column == 'Files Size':
+                        # GB == GB, MB == MB, etc.
+                        first = back_to_bytes(first)
+                        second = back_to_bytes(second)
+                        self.assertLessEqual(first, second)
+                    else:
+                        self.assertLessEqual(first, second)

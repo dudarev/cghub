@@ -15,7 +15,7 @@ from lxml import objectify, etree
 
 from exceptions import QueryRequired
 
-from utils import get_setting
+from utils import get_setting, makedirs_group_write
 
 
 _backends = ('simple', )
@@ -31,8 +31,11 @@ def _dummy_save_to_cache(**kwargs):
 def get_cache_file_name(query, get_attributes, full, settings):
     # Prevent getting different file names because of 
     # percent escaping
-    query = urllib2.unquote(query.encode("utf8"))
-    query = urllib2.quote(query)
+    query = urllib2.unquote(query.encode("utf8")).replace('+', ' ')
+    if '&' in query:
+        query = query.split('&')
+        query.sort()
+        query = '&'.join(query)
     md5 = hashlib.md5(query)
     if get_attributes:
         if full:
@@ -85,7 +88,7 @@ def _save_to_simple_cache(settings, query=None, get_attributes=True,
     cache_dir = get_setting('CACHE_DIR', settings)
 
     if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
+        makedirs_group_write(cache_dir)
 
     with open(cache_file_name, 'w') as f:
         f.write(data.tostring())
