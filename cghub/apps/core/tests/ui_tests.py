@@ -1363,3 +1363,42 @@ class HelpHintsTestCase(LiveServerTestCase):
             details_value = driver.find_elements_by_css_selector(
                                             ".js-details-table td")[0]
             self.check_tooltip(details_value)
+
+    def test_help_hints_in_columns_ddcl_on_search_page(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Open columns list DDCL
+        3. Check tooltip columns headers in DDCL
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            driver.find_element_by_id("ddcl-id-columns-selector").click()
+            study_column_option = driver.find_element_by_xpath(
+                    "//input[@id='ddcl-id-columns-selector-i2']/../label")
+            self.check_tooltip(study_column_option)
+
+    def test_help_hints_in_columns_ddcl_on_cart_page(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Add first item to cart
+        3. Go to cart page
+        4. Open columns list DDCL
+        5. Check tooltip columns headers in DDCL
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/table/tbody/tr[1]/td[1]/div/input"
+                    ).click()
+            driver.find_element_by_css_selector('.add-to-cart-btn').click()
+            time.sleep(3)
+            driver.find_element_by_id("ddcl-id-columns-selector").click()
+            study_column_option = driver.find_element_by_xpath(
+                    "//input[@id='ddcl-id-columns-selector-i2']/../label")
+            self.check_tooltip(study_column_option)

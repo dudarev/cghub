@@ -138,7 +138,7 @@ jQuery(function ($) {
         },
         // for items in Columns dropdown
         activateColumnsDropdownTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.base-content .ui-dropdownchecklist-item label', function($target) {
+            cghub.help.activateTooltipsForSelector('#ddcl-id-columns-selector-ddw .ui-dropdownchecklist-item label', function($target) {
                 return $target.text();
             });
         },
