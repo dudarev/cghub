@@ -59,7 +59,7 @@ jQuery(function ($) {
                         filters_code = '' + filters_code;
                     }
                 }
-                filters[$(this).data('name')] =filters_code.split('&');
+                filters[$(this).data('name')] = filters_code.split('&');
             });
             cghub.search.$filterSelects.each(function (i, el) {
                 var $select = $(el);
@@ -136,8 +136,19 @@ jQuery(function ($) {
                     $(select).next().next().width(width + 10);
                     cghub.search.ddclOnComplete(select);
                 }
+                // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
+                $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
+            /* fix for IE, saves focus on current element */
+            if($.browser.msie) {
+                console.log('init msie');
+                $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
+                    if(e.which == 13) {
+                        return false;
+                    }
+                });
+            }
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
@@ -361,7 +372,19 @@ jQuery(function ($) {
                     changeYear: true,
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
-                    dateFormat: 'yy/mm/dd'
+                    dateFormat: 'yy/mm/dd',
+                    onChangeMonthYear:function(year, month, inst){
+                        // calculate days in selected month
+                        var daysInMonth = new Date(year, month, 0).getDate();
+                        var currentDate = $d.datepicker("getDate");
+                        if (currentDate.getDate() > daysInMonth) {
+                            currentDate.setMonth(month-1, daysInMonth);
+                        } else {
+                            currentDate.setMonth(month-1);
+                        }
+                        currentDate.setYear(year);
+                        $d.datepicker("setDate", currentDate);
+                    }
                 });
             });
             return $dp_container;

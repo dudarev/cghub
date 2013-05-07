@@ -5,6 +5,40 @@
 @zi_ddcl: 1010; // specified in flexigrid.js and core/search.js
 @zi_tooltip: @zi_ddcl + 100;
 @zi_dp_container: @zi_tooltip + 200;
+@zi_accessibility: @zi_dp_container + 100;
+
+
+#accessibility-links {
+    position: fixed;
+    margin: 0;
+    top: 0;
+    left: 0;
+    height: 0;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+    z-index: @zi_accessibility;
+    background-color: #fff;
+    list-style-type: none;
+    li {
+        font-size: 1.2em;
+        padding-top: 5px;
+        margin-bottom: 2px;
+    }
+}
+
+#main-nav {
+    tab-index: -1;
+}
+
+#main-content {
+    tab-index: -1;
+    position: relative;
+    top: -50px;
+    &.base-container {
+        top: 0;
+    }
+}
 
 .navbar {
     .brand {

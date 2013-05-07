@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 from django.utils import timezone
-from django.utils.http import urlquote, cookie_date
+from django.utils.http import cookie_date
 from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
@@ -68,19 +68,18 @@ def cart_add_all_files(request, celery_alive):
             filters = form.cleaned_data['filters']
             filter_str = get_filters_string(filters)
             q = filters.get('q')
-            # FIXME: the API should hide all URL quoting and parameters [markd]
             queries = []
             if q:
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
                 if browser_text_search.useAllMetadataIndex:
                     query = u"all_metadata={0}".format(
-                                urlquote(browser_text_search.ws_query(q))) + filter_str
+                            browser_text_search.ws_query(q)) + filter_str
                     queries = [query]
                 else:
-                    query = u"xml_text={0}".format(urlquote(u"("+q+u")"))
+                    query = u"xml_text={0}".format(u"("+q+u")")
                     query += filter_str
-                    queries = [query, u"analysis_id={0}".format(urlquote(q))]
+                    queries = [query, u"analysis_id={0}".format(q)]
             if len(queries) > 1:
                 # add files to cart
                 # should be already cached, add immediately

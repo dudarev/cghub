@@ -17,5 +17,6 @@ Contents:
     settings.rst
     howitworks.rst
     static.rst
+    accessibility.rst
     docs.rst
     future.rst
