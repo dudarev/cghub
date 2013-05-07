@@ -1,12 +1,17 @@
+import sys
+
 from djcelery.models import TaskState
 from celery import states
 from lxml import etree
+from urllib2 import URLError
 
 from django.conf import settings
-from django.http import QueryDict, HttpResponseRedirect, HttpResponse, Http404
+from django.http import (QueryDict, HttpResponseRedirect, HttpResponse,
+                                        Http404, HttpResponseServerError)
 from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
+from django.template import loader, Context
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
@@ -203,3 +208,14 @@ class CeleryTaskStatusView(AjaxView):
         key = request.GET.get('task_id')
         context = self.get_context_data(key)
         return self.render_to_response(context)
+
+
+def error_500(request):
+    """
+    Custom error 500 handler.
+    Connected in cghub.urls.
+    """
+    t = loader.get_template('500.html')
+    exc_type, value, tb = sys.exc_info()
+    return HttpResponseServerError(
+                t.render(Context({'wsapi_connection_error': exc_type == URLError})))

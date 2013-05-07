@@ -1,8 +1,10 @@
 import os
+import sys
 import shutil
 import contextlib
 import datetime
 
+from urllib2 import URLError
 from lxml import objectify
 from mock import patch
 from djcelery.models import TaskState
@@ -30,6 +32,7 @@ from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date)
+from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
 
@@ -654,3 +657,17 @@ class SettingsTestCase(TestCase):
         field_values_dict = field_values(result.Result)
         for name in names:
             self.assertIn(name, field_values_dict)
+
+
+class ErrorViewsTestCase(TestCase):
+
+    def test_error_500(self):
+        factory = RequestFactory()
+        request = factory.get('/')
+        r = error_500(request)
+        self.assertEqual(r.status_code, 500)
+        self.assertTrue(str(r).find('Server error.') != -1)
+        with patch.object(sys, 'exc_info', return_value=(URLError, 'some val', 'some_tb')) as mock_exc_info:
+            r = error_500(request)
+            self.assertEqual(r.status_code, 500)
+            self.assertTrue(str(r).find('Connection to WS-API server failed') != -1)
