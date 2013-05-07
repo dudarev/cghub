@@ -139,7 +139,11 @@ jQuery(function ($) {
         // for items in Columns dropdown
         activateColumnsDropdownTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('#ddcl-id-columns-selector-ddw .ui-dropdownchecklist-item label', function($target) {
-                return $target.text();
+                return $target.text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
             });
         },
 
