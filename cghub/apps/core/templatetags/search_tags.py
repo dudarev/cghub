@@ -28,6 +28,7 @@ def period_from_query(query):
     '[NOW-2DAY TO NOW]' -> '2013/02/25 - 2013/02/27'
     '[NOW-5DAY TO NOW-2]' -> '2013/02/22 - 2013/02/25'
     """
+    query = urllib.unquote(query)
     try:
         start, stop = query[1:-1].split(' TO ')
         for c in ('NOW', 'DAY', '-',):

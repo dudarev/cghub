@@ -475,6 +475,9 @@ class TemplateTagsTestCase(TestCase):
             {
                 'query': '[NOW-2DAY TO NOW]',
                 'result': '2013/02/25 - 2013/02/27'},
+            { # test with quoted
+                'query': '[NOW-2DAY%20TO%20NOW]',
+                'result': '2013/02/25 - 2013/02/27'},
             {
                 'query': '[NOW-20DAY TO NOW]',
                 'result': '2013/02/07 - 2013/02/27'},
