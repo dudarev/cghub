@@ -109,7 +109,6 @@ TEST_SETTINGS = dict(
     CART_CACHE_DIR=TEST_CACHE_DIR
 )
 
-
 def back_to_bytes(size_str):
     """
     Converts File Size back to bytes for comparing purposes.

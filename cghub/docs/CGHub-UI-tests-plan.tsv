@@ -1,17 +1,20 @@
 Test case ID	Description	Expected outcome 
-	Browser	Note version	Firefox	Chrome	IE-10	IE-9	IE-8
 	Tester	
+	Date
+	Browser	Note version	Firefox	Chrome	IE-10	IE-9	IE-8
 Links navigations		
 LINKS-1	Links (Home, Cart, Help) lead to correct pages.	Expected pages are open when links are clicked. 
 LINKS-2	Access application without trailing slash in URL. I.E. "https://stage-browser.cghub.ucsc.edu"	Application behaves as expected for all links. 
 Sidebar navigation		
 SIDEBAR-1	Clicking (all) checkbox selects or deselects all in that category.	
 SIDEBAR-2	Data filters should only allow either one first age range or the age range from the calander to be selected.	Age values are exclusive and setting an age value clears the explict period select.  Selecting a period from the calendar clears the age value. 
-SIDEBAR-3	Correct link is created when only some values are selected	When a user clicks correct page is displayed. Try applying selections in several categories. 
+SIDEBAR-3	Correct URL is created when only some values are selected	When a user clicks correct page is displayed. Try applying selections in several categories. 
 SIDEBAR-4	Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button, applied filters are reset. 
 SIDEBAR-5	Time filters have 'Pick period' option.	When chosing 'Pick period' option in time filters, form with two datepickers are shown. 
+SIDEBAR-6	check states	augmenting_data bad_data live redacted submitted suppressed uploading validating_data validating_sample
+SIDEBAR-7	check center list 	BCCAGSC WUGSC BI HMS-RK UNC-LCCC BCM UCSC CGHUB USC-JHU
 Search		
-SEARCH-1	Entering a search term and hitting enter leads to correct page	(6d1* is no longer supported, should result in a diaglog saying so) try a2
+SEARCH-1	Entering a search term `a2' and hitting enter leads to correct page	
 SEARCH-2	No search results when nothing is found	A message is displayed when no results are found:  (try aaa)
 SEARCH-3	Results are paginated if more than 10	If more than 10 results are returned, they are grouped in groups of 10. 
 SEARCH-4	Total number of results is shown	A page with results has a message 
@@ -21,15 +24,19 @@ SEARCH-7	Sorting is done by clicking table headlines	When a user clicks table he
 SEARCH-8	Select Items per page of 25, then 50	More items are displays 
 SEARCH-9	Fewer columns fill all space of the table.	When selected fewer columns, they fill all free space in the table. No blank space should be on the right side. 
 SEARCH-10	When focusing table cell or column with tooltips for more than 1/2 second help hint appears.  Tooltips should be on all headers and on abbreviation column values.  They will not appear on name or identifier columns.	Correct tooltip appears 
-SEARCH-11	When table row is clicked, popup with details is shown.	When user clicks on a table row, popup with details appears. Details also include link to details page with raw XML displayed.
-SEARCH-12	Raw XML on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' or 'Expand all' button XML data is collapsed and expanded respectively. 
+SEARCH-11	When table row is clicked, popup with details is shown.	When user clicks on a table row, popup with details appears. Details also include link to details page with metadata XML displayed.
+SEARCH-12	Metadata XML on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' or 'Expand all' button XML data is collapsed and expanded respectively. 
 SEARCH-13	Type search of aa* (no quotes)	get error that search is not supported.
-SEARCH-14	3-users search at a time simultaneous search - with different library strategies  [WGS, WXS, and RNA-Seq	Resulting load on system is handled "gracefully"  - no system error messages, crashes, etc
-SEARCH-15	3-way simultaneous "Add all to Cart"  (with items from 3-way simultaneous search task above)	All return results in a reasonable time period and can be added to the cart.
-SEARCH-16	2-way simultaneous test.  Person A and B using IE10.  Person A selects centers BCM thru HMS-RK. Person B flltering on the rest starting at UNC-LCCC.  Both filter at once, create cart when results appear, and then each downloading manifest and then metadata.	Both sessions handled without interrupt or system hang.  long delay for person A likely but expecting positive add to cart (and message provided was appropriate) and successful manifest downloads.
+SEARCH-14	3-users search at a time simultaneous search - with different library strategies  [WGS, WXS, and RNA-Seq	Completes successfuly and counts consistent
+SEARCH-15	3-way simultaneous "Add all to Cart"  (with items from 3-way simultaneous search task above)	Completes successfuly and counts consistent
+SEARCH-16	2-way simultaneous test. A selects centers BCM thru HMS-RK. B flltering on the rest starting at UNC-LCCC.  Both filter at once, create cart when results appear, and then each downloading manifest and then metadata.	Both sessions complete, counts consistent
 SEARCH-17	Check use of unsupported metaseach characters in text box.   Enter aaa* in the search box and hit enter  (from RM 1915)	Page saying that one shouldn't be using * or ? in searches.
-SEARCH-18	Check search box done not  persistence when browser window is closed and revisited.  	Search box should be empty. [WILL FAIL, FEATURE NOT IMPLEMENTED]
-Cart		
+SEARCH-18	Check search box done not persistence when browser window is closed and revisited.  	Search box should be empty. [WILL FAIL, FEATURE NOT IMPLEMENTED]
+SEARCH-19	search for analysis id: ee4756b2-8596-44e9-8477-854932a44e71	1 result
+SEARCH-20	search for barcode: TCGA-A1-A0SM-10A-02W-A097-09	1 result
+SEARCH-21	search for aliquot id 99ac224e-ad08-4ba8-a486-7668f4142f87	1 result
+SEARCH-22	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live, 11 total
+SEARCH-23	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results		
 CART-1	Items from search results may be added to cart by selecting checkboxes	When button is clicked, selected items will be added to cart. User will be redirected to the cart page. 
 CART-2	Select all' checkbox selects all items	Checkbox in header of the table can check or uncheck all other checkboxes in the table.
 CART-3	Cart statistics on cart page	There is information on cart page: number of files in cart and total size of them. 
@@ -43,8 +50,6 @@ CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button
 CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart should be downloaded in TSV format. 
 CART-12	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
 CART-13	Add all to cart' button adds all files to cart.	Add all to cart' button when clicked adds all files from search results to the cart. 
-		
-SIDEBAR-6	check states	augmenting_data bad_data live redacted submitted suppressed uploading validating_data validating_sample
-SIDEBAR-7	check center list 	BCCAGSC WUGSC BI HMS-RK UNC-LCCC BCM UCSC CGHUB USC-JHU
-GENERAL-1	Check for FOUC.   Start web browser or refresh the current page if you're already on a search result page of the browser.	The page should load with the correct table layout and dimension right from the beginning.  No "Flash Of Unstyled Content".
+CART-14	Repetitive Search/Add to cart cycles.   1. Clear filters,  2. Set date uploaded to a period ending before the current date. 3. Set disease filter to "all" iniitally 4. Do the following, removing one Disease entry each iteration     a) Set Filter - capture count   (note time taken)     b) Hit "add all to cart" (note time taken)     c) Note time and count in cart if got message  "Confirmation of adding files to cart Y/N" after hitting "Y" if prompted)     d) Note if "Notice: Still obtaining data.. Reload to check for completion" mesage appears, checking time and count.  Hit reload every minute or so checking count again.     e) Record end time and end result count, check final count in cart compared to filtering results	
+DISPLAY-1	Check for FOUC.   Start web browser or refresh the current page if you're already on a search result page of the browser.	The page should load with the correct table layout and dimension right from the beginning.  No "Flash Of Unstyled Content".
 UNITTEST-1	Run unit test (make test)	Long running, no errors expect

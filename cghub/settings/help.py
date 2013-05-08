@@ -29,6 +29,32 @@ HELP_HINTS = {
     'common:filters-apply-button': 'Run a search with the specified filters',
 
     ##
+    # Column descriptions
+    ##
+    'Study': 'Research study that generated the data set',
+    'Disease': 'Disease abbreviation',
+    'Disease Name': 'Disease name',
+    'Library Type': 'Library protocol',
+    'Assembly': 'Reference genome assembly',
+    'Center': 'Submitting center abbreviation',
+    'Center Name': 'Submitting center name',
+    'Experiment Type': 'Molecular analyte that was sequenced',
+    'Uploaded': 'Date the data set was uploaded',
+    'Modified': 'Date the metadata was last modified',
+    'Sample Type': 'Type of the biological sample that was sequenced',
+    'Sample Type Name': 'Description of the biological sample that was sequenced',
+    'State': 'Current state of the data at CGHub',
+    'Barcode': 'Aliquot barcode. <a href="https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data">Click here for a detailed description of TCGA barcode</a>.',
+    'Sample Accession': 'NCBI sample accession when available',
+    'Files Size': 'Size of the data set (GB for gigabytes, MB for megabytes)',
+    'Platform': 'Sequencing platform abbreviation',
+    'Platform Name': 'Sequencing platform',
+    'Analysis id': 'CGHub identifier of the data set',
+    'TSS id': 'Tissue source site and study with identifier code',
+    'Participant id': 'Participant identifier',
+    'Sample id': 'Sample identifier',
+
+    ##
     # Studies
     ##
     'Study:TCGA': 'The Cancer Genome Atlas',
@@ -76,28 +102,6 @@ HELP_HINTS = {
     'Disease:STAD': 'Stomach adenocarcinoma',
     'Disease:THCA': 'Thyroid carcinoma',
     'Disease:UCEC': 'Uterine Corpus Endometrioid Carcinoma',
-
-    ##
-    # Column descriptions
-    ##
-    'Study': 'Research study that generated the data set',
-    'Disease': 'Disease abbreviation',
-    'Disease Name': 'Disease name',
-    'Library Type': 'Library protocol',
-    'Assembly': 'Reference genome assembly',
-    'Center': 'Submitting center abbreviation',
-    'Center Name': 'Submitting center name',
-    'Experiment Type': 'Molecular analyte that was sequenced',
-    'Uploaded': 'Date the data set was uploaded',
-    'Modified': 'Date the metadata was last modified',
-    'Sample Type': 'Type of the biological sample that was sequenced',
-    'Sample Type Name': 'Description of the biological sample that was sequenced',
-    'State': 'Current state of the data at CGHub',
-    'Barcode': 'Aliquot barcode. <a href="https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data">Click here for a detailed description of TCGA barcode</a>.',
-    'Sample Accession': 'NCBI sample accession when available',
-    'Files Size': 'Size of the data set (GB for gigabytes, MB for megabytes)',
-    'Platform': 'Sequencing platform abbreviation',
-    'Platform Name': 'Sequencing platform',
 
     ##
     # Library Type
