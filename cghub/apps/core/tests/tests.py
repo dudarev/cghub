@@ -221,10 +221,10 @@ class UtilsTestCase(TestCase):
             DEFAULT_FILTERS = {
                 'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
                 'state': ('live',),
-                'upload_date': '[NOW-7DAY TO NOW]'}):
+                'upload_date': '[NOW-7DAY+TO NOW]'}):
             self.assertEqual(
                 get_default_query(),
-                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)')
+                'upload_date=[NOW-7DAY TO NOW]&study=(phs000178 OR *Other_Sequencing_Multiisolate)&state=(live)')
         # if not existing filter keys
         with self.settings(
             DEFAULT_FILTERS = {
@@ -233,7 +233,7 @@ class UtilsTestCase(TestCase):
                 'upload_date': '[NOW-7DAY TO NOW]'}):
             self.assertEqual(
                 get_default_query(),
-                'upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178)&state=(live)')
+                'upload_date=[NOW-7DAY TO NOW]&study=(phs000178)&state=(live)')
         # empty filters
         with self.settings(
             DEFAULT_FILTERS = {}):

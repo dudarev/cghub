@@ -64,7 +64,7 @@ def get_default_query():
                         f,
                         ' OR '.join([v for v in DEFAULT_FILTERS[f] if v in allowed_keys])
                 ))
-    return '&'.join(filters_list).replace(' ', '+')
+    return '&'.join(filters_list).replace('+', ' ')
 
 
 def get_wsapi_settings():
