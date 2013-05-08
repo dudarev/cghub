@@ -108,7 +108,8 @@
     div.bDiv {
         overflow-x: hidden !important;    // don't show scrolls in flexigrid
         overflow-y: hidden !important;
-        border: none !important;
+        border-left: none !important;
+        border-right: none !important;
         tr.trSelected td {
             background-color: #d5effc;
         }
@@ -121,10 +122,14 @@
         }
     }
     div.hDiv {
-        border: none !important;
+        border-left: none !important;
+        border-right: none !important;
     }
 }
-
+.viewport {
+    border-left: 1px solid #CCCCCC;
+    border-right: 1px solid #CCCCCC;
+}
 .tooltip {
     position: fixed;
     display: none;
