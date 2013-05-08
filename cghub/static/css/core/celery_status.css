@@ -16,9 +16,10 @@
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
 .search-query{color:#333 !important;}
-.flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:hidden !important;overflow-y:hidden !important;border:none !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
+.flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:hidden !important;overflow-y:hidden !important;border-left:none !important;border-right:none !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
 .flexigrid div.bDiv tr{cursor:pointer;}.flexigrid div.bDiv tr td:first-child{cursor:default;}
-.flexigrid div.hDiv{border:none !important;}
+.flexigrid div.hDiv{border-left:none !important;border-right:none !important;}
+.viewport{border-left:1px solid #CCCCCC;border-right:1px solid #CCCCCC;}
 .tooltip{position:fixed;display:none;max-width:250px;background:#F8F8C1;visibility:visible;padding:5px;font-size:12px;opacity:1;color:#000;padding:5px 6px 4px 10px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;border:1px solid #996;z-index:1110;}
 .dropdown-menu li>a:hover{color:#222;background-color:#eee;}
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
@@ -42,9 +43,10 @@
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
 .search-query{color:#333 !important;}
-.flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:hidden !important;overflow-y:hidden !important;border:none !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
+.flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:hidden !important;overflow-y:hidden !important;border-left:none !important;border-right:none !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
 .flexigrid div.bDiv tr{cursor:pointer;}.flexigrid div.bDiv tr td:first-child{cursor:default;}
-.flexigrid div.hDiv{border:none !important;}
+.flexigrid div.hDiv{border-left:none !important;border-right:none !important;}
+.viewport{border-left:1px solid #CCCCCC;border-right:1px solid #CCCCCC;}
 .tooltip{position:fixed;display:none;max-width:250px;background:#F8F8C1;visibility:visible;padding:5px;font-size:12px;opacity:1;color:#000;padding:5px 6px 4px 10px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;border:1px solid #996;z-index:1110;}
 .dropdown-menu li>a:hover{color:#222;background-color:#eee;}
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
