@@ -14,6 +14,7 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.SearchViewPaginationTestCase core.PaginatorUnitTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			core.TaskViewsTestCase core.SettingsTestCase \
+			core.ErrorViewsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartClearTestCase cart.CartCacheTestCase \
 			cart.CartFormsTestCase cart.CartUtilsTestCase \

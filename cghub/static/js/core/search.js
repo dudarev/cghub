@@ -9,6 +9,8 @@ jQuery(function ($) {
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
         addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
+        nothingSelectedTitle: 'No selected files',
+        nothingSelectedContent: 'Please select some files to add them to cart',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -182,6 +184,15 @@ jQuery(function ($) {
             // collect all data attributes
             var data = {};
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
+
+            // show message if nothing selected
+            if (selected_files.length == 0) {
+                cghub.base.showMessage(cghub.search.nothingSelectedTitle, cghub.search.nothingSelectedContent);
+                cghub.search.$addFilesButton.removeClass('disabled');
+                cghub.search.$spinner.hide();
+                return false;
+            }
+
             selected_files.each(function (i, f) {
                 var file_data = $(f).data();
                 data[file_data.analysis_id] = file_data;

@@ -16,6 +16,7 @@ jQuery(function ($) {
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
             cghub.help.activateDetailsHeaderTooltipHelp();
+            cghub.help.activateColumnsDropdownTooltipHelp();
             cghub.help.activateTableCellTooltipHelp();
             cghub.help.activateDetailsValueTooltipHelp();
             cghub.help.activateFilterHeaderTooltipHelp();
@@ -135,6 +136,17 @@ jQuery(function ($) {
                 return $target.text();
             });
         },
+        // for items in Columns dropdown
+        activateColumnsDropdownTooltipHelp:function () {
+            cghub.help.activateTooltipsForSelector('#ddcl-id-columns-selector-ddw .ui-dropdownchecklist-item label', function($target) {
+                return $target.text()
+                        .replace(decodeURI('%C2%A0%E2%86%93'), '')
+                        .replace(decodeURI('%C2%A0%E2%86%91'), '')
+                        .replace(decodeURI('%20%E2%86%93'), '')
+                        .replace(decodeURI('%20%E2%86%91'), '');
+            });
+        },
+
         // for cells in result table
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
