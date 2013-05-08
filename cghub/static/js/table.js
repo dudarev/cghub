@@ -133,6 +133,10 @@ jQuery(function ($) {
                 cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
                 cghub.table.placeFlexigridScrollbar();
                 cghub.table.$scrollbar.css('visibility', 'visible');
+                cghub.table.$scrollbar.find('.viewport').css({
+                    'border': '1px solid #CCCCCC',
+                    'bottom': '2px'
+                });
             }
         }
     }
