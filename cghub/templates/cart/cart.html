@@ -9,6 +9,25 @@
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cart/cart.css" media="all">
     {% endif %}
 {% endblock %}
+{% block accessibility_links %}
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#nav-bar" tabindex="1">
+            Skip to Navigation Bar
+        </a>
+    </li>
+    <li>
+        <a href="#results-summary" tabindex="2">
+            Skip to Summary of results
+        </a>
+    </li>
+    <li>
+        <a href="#scrollbar1" tabindex="3">
+            Skip to Main results
+        </a>
+    </li>
+</ul>
+{% endblock %}
 {% block main_content %}
     {% with request.session.task_id as loading %}
     <div class="cart-content">
@@ -17,7 +36,6 @@
                 In your cart
             </h1>
         </div>
-        <div id="main-content"></div>
         <div>
             {% if loading %}
             <div class="alert">
@@ -29,7 +47,7 @@
                     <strong>Warning:</strong> Fewer files were added to your cart than requested, missing {{ missed_files }}. Please go to the Browser page and add again.  This is a known issue that we are working to resolve.
                 </div>
             {% endif %}
-            <span>
+            <span id="results-summary">
                 Files in your cart: {{ stats.count }} ({{ stats.size|file_size }})
             </span>
             {% endif %}
