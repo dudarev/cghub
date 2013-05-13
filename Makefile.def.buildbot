@@ -18,6 +18,7 @@ TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
 			core.CustomPeriodTestCase core.DetailsTestCase \
 			core.SearchTestCase core.ColumnSelectTestCase \
 			core.ResetFiltersTestCase core.HelpHintsTestCase \
+			core.SkipNavTestCase \
 			cart.AddToCartTestCase cart.CartUITestCase
 
 MANAGE= PYTHONPATH=$(PYTHONPATH) python manage.py
