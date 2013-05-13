@@ -847,7 +847,7 @@ class SearchTestCase(LiveServerTestCase):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
             assert "Found" in self.selenium.find_element_by_xpath(
-                    "/html/body/div[2]/div[2]/div[2]").text
+                    "/html/body/div[2]/div[2]/div[3]").text
             # check that table displayed
             assert self.selenium.find_element_by_id('id_add_files_form')
 
@@ -921,7 +921,7 @@ class SearchTestCase(LiveServerTestCase):
             assert 'offset=10&limit=10' in self.selenium.current_url
 
             found = self.selenium.find_element_by_xpath(
-                                    "/html/body/div[2]/div[2]/div[2]")
+                                    "/html/body/div[2]/div[2]/div[3]")
             pages_count = (int(found.text.split()[1]) / 10) + 1
 
             # check other pages
