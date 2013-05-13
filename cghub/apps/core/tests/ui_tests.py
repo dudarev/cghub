@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 from django.test import LiveServerTestCase
 from django.conf import settings
@@ -1202,6 +1203,48 @@ class ResetFiltersTestCase(LiveServerTestCase):
             # try to reset filters
             driver.find_element_by_id("id_reset_filters").click()
             self.assertEqual(default_filters, self.get_selected_filters())
+
+
+class SkipNavTestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(SkipNavTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(SkipNavTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
+    def test_skip_nav(self):
+        """
+        1. Go to search page (default query)
+        2. Check that skip-nav exists and has height == 0
+        3. Press tab, check that skip nav height more than 0
+        4. Click on first link, check that height == 0 (skip to nav invisible)
+        """
+        with self.settings(**TEST_SETTINGS):
+            driver = self.selenium
+            ac = ActionChains(driver)
+            driver.get(self.live_server_url)
+            links = driver.find_element_by_id('accessibility-links')
+            self.assertEqual(links.size['height'], 0)
+            # press tab (selenium.webdriver.common.keys.TAB)
+            for i in range(3):
+                ac.key_down(Keys.TAB)
+            ac.perform()
+            self.assertNotEqual(links.size['height'], 0)
+            time.sleep(1)
+            driver.find_element_by_xpath(
+                "//ul[@id='accessibility-links']/li[1]/a").click()
+            time.sleep(1)
+            self.assertEqual(links.size['height'], 0)
 
 
 # tests for help app
