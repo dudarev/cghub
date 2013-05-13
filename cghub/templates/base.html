@@ -37,6 +37,18 @@
 </head>
 <body>
 {% block accessibility_links %}
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#nav-bar" tabindex="1">
+            Skip to Navigation Bar
+        </a>
+    </li>
+    <li>
+        <a href="#main-content" tabindex="2">
+            Skip to Main content
+        </a>
+    </li>
+</ul>
 {% endblock %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
