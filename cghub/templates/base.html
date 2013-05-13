@@ -36,21 +36,11 @@
     {% block extra_header_js %} {% endblock %}
 </head>
 <body>
-<ul title="Accessibility links" id="accessibility-links">
-    <li>
-        <a href="#main-content" tabindex="1">
-            Skip to main content
-        </a>
-    </li>
-    <li>
-        <a href="#main-nav" tabindex="2">
-            Skip to primary navigation
-        </a>
-    </li>
-</ul>
-<div class="navbar navbar-fixed-top" id="main-nav">
+{% block accessibility_links %}
+{% endblock %}
+<div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
+        <div class="container-fluid" id="nav-bar">
             <a class="brand" href="https://cghub.ucsc.edu/" tabindex="10"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
             <ul class="nav">
                 <li><a href="{% url home_page %}" tabindex="11"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>

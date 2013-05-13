@@ -9,6 +9,30 @@
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/search.css" media="all">
     {% endif %}
 {% endblock %}
+{% block accessibility_links %}
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#nav-bar" tabindex="1">
+            Skip to Navigation Bar
+        </a>
+    </li>
+    <li>
+        <a href="#filters-bar" tabindex="2">
+            Skip to Filters
+        </a>
+    </li>
+    <li>
+        <a href="#results-summary" tabindex="3">
+            Skip to Summary of results
+        </a>
+    </li>
+    <li>
+        <a href="#scrollbar1" tabindex="4">
+            Skip to Main results
+        </a>
+    </li>
+</ul>
+{% endblock %}
 {% block extra_sidebar %}
     {% include 'bam_filter_sidebar.html' %}
 {% endblock %}
@@ -26,7 +50,7 @@
             </h1>
         {% endif %}
     </div>
-    <div id="main-content"></div>
+    <div id="results-summary"></div>
     {% if num_results %}
         <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
         <div class="applied-filters">{% applied_filters request %}</div>

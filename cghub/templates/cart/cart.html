@@ -9,6 +9,9 @@
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cart/cart.css" media="all">
     {% endif %}
 {% endblock %}
+
+{% block accessibility_links %}{% endblock %}
+
 {% block main_content %}
     {% with request.session.task_id as loading %}
     <div class="cart-content">
@@ -17,7 +20,6 @@
                 In your cart
             </h1>
         </div>
-        <div id="main-content"></div>
         <div>
             {% if loading %}
             <div class="alert">
