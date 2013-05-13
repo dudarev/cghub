@@ -128,9 +128,6 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
         line = linecache.getline(filename, i).split('\n')[0]
         if line:
             items.append(line)
-        else:
-            wsapi_request_logger.error(
-                    'Wrong number of results in ids file %s' % filename)
     linecache.clearcache()
     return items_count, items
 
