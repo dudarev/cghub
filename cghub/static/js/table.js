@@ -115,20 +115,38 @@ jQuery(function ($) {
             var charCode = (event.which) ? event.which : event.keyCode;
             if(event.altKey){
                 event.preventDefault();
-                var currentSelectedCell = $('td.tdSelected');
-                var nextStep = currentSelectedCell;
-                if (charCode == 37){//left
+                var currentCell = $('td.tdSelected');
+                var nextStep = currentCell;
+                var currentRow = $(currentCell).parents('tr');
+                var currentIndex = $(currentRow).children().index(currentCell);
+                var nextRow = currentRow;
+                //left
+                if (charCode == 37){
                     do
                         nextStep = $(nextStep).prev();
                     while (nextStep.is('td') && !$(nextStep).is(":visible"));
                 }
-                if (charCode == 39){//right
+                //right
+                if (charCode == 39){
                     do
                         nextStep = $(nextStep).next();
                     while (nextStep.is('td') && !$(nextStep).is(":visible"));
                 }
+                //up
+                if (charCode == 38){
+                    nextRow = $(nextRow).prev();
+                    if (!nextRow.is('tr')) return;
+                    nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+                }
+                //down
+                if (charCode == 40){
+                    nextRow = $(nextRow).next();
+                    if (!nextRow.is('tr')) return;
+                    nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+                }
+
                 if(!nextStep.is('td')) return;
-                currentSelectedCell.removeClass('tdSelected');
+                currentCell.removeClass('tdSelected');
                 nextStep.addClass('tdSelected');
             }
         }
