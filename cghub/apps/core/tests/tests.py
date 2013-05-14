@@ -379,7 +379,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertTrue('<a href="?limit=100" '
                     'title="View 100 items per page">100</a>' in result)
         self.assertTrue(not default_limit_link in result)
-        
+
         request.GET = QueryDict('limit=100', mutable=False)
         result = template.render(RequestContext(request, {}))
         self.assertTrue(not '<a href="?limit=100" '

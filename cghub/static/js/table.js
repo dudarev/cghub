@@ -15,7 +15,6 @@ jQuery(function ($) {
             cghub.table.$selectAllCheckbox.removeAttr('disabled');
         },
         cacheElements:function () {
-            cghub.table.$flexigridTable = $('.flexigrid');
             cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
