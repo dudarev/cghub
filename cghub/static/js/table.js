@@ -12,12 +12,10 @@ jQuery(function ($) {
             cghub.table.cacheElements();
             cghub.table.bindEvents();
             cghub.table.selectFiles();
-//            cghub.table.initCustomScrollbar();
             cghub.table.$selectAllCheckbox.removeAttr('disabled');
         },
         cacheElements:function () {
             cghub.table.$flexigridTable = $('.flexigrid');
-            cghub.table.$scrollbar = $('#scrollbar1');
             cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
@@ -27,8 +25,6 @@ jQuery(function ($) {
             cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedFiles);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
-            $(window).on('scroll', cghub.table.placeFlexigridScrollbar);
-            $(window).on('resize', cghub.table.placeFlexigridScrollbar);
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
@@ -98,42 +94,6 @@ jQuery(function ($) {
                 }
             )
             $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
-        },
-        placeFlexigridScrollbar: function(){
-            if(!cghub.table.$scrollbar.length) return;
-            var $viewport = cghub.table.$scrollbar.find('.viewport'); //container with flexigrid
-            var $scrollbar = cghub.table.$scrollbar.find('.scrollbar');
-            var viewportBottom = $viewport.offset().top + $viewport.height() - $(window).scrollTop();
-            var viewportTop = $viewport.offset().top - $(window).scrollTop();
-            var visibleScreenHeight = $(window).height();
-
-            if (viewportBottom > visibleScreenHeight - 20 && viewportTop < visibleScreenHeight - 100){
-                //if the end of table is outside visible part of screen, place scrollbar in screen bottom
-                $scrollbar.css({
-                    position: 'fixed',
-                    top: visibleScreenHeight - 20 + 'px',
-                    left: $viewport.offset().left + 'px'});
-                /* add border at the top of scrollbar */
-                $scrollbar.addClass('bordered');
-            } else {
-                //if the end of table is in visible part, place scrollbar just under the table
-                $scrollbar.css({
-                    position: 'absolute',
-                    top: $viewport.offset().top + $viewport.height() + 'px',
-                    left: $viewport.offset().left + 'px'});
-                $scrollbar.removeClass('bordered');
-            }
-            //adjust width of scrollbar if window was resized
-            $scrollbar.width($viewport.width());
-        },
-        initCustomScrollbar: function() {
-            //only if there is a flexigrid on page
-            if (cghub.table.$flexigridTable.length != 0){
-                cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
-                cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
-                cghub.table.placeFlexigridScrollbar();
-                cghub.table.$scrollbar.css('visibility', 'visible');
-            }
         }
     }
     cghub.table.init();

@@ -1,7 +1,6 @@
 @import "libs/bootstrap/less/mixins.less";
 
 /* z indexes */
-@zi_scrollbar: 1000; // specified in tinyscrollbar.css
 @zi_ddcl: 1010; // specified in flexigrid.js and core/search.js
 @zi_tooltip: @zi_ddcl + 100;
 @zi_dp_container: @zi_tooltip + 200;
@@ -99,8 +98,6 @@
     div.bDiv {
         overflow-x: scroll !important;    // don't show scrolls in flexigrid
         overflow-y: hidden !important;
-        border-left: none !important;
-        border-right: none !important;
         tr.trSelected td {
             background-color: #d5effc;
         }
@@ -112,15 +109,8 @@
             }
         }
     }
-    div.hDiv {
-        border-left: none !important;
-        border-right: none !important;
-    }
 }
-.viewport {
-    border-left: 1px solid #CCCCCC;
-    border-right: 1px solid #CCCCCC;
-}
+
 .tooltip {
     position: fixed;
     display: none;
