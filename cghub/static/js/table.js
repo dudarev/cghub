@@ -12,7 +12,7 @@ jQuery(function ($) {
             cghub.table.cacheElements();
             cghub.table.bindEvents();
             cghub.table.selectFiles();
-            cghub.table.initCustomScrollbar();
+//            cghub.table.initCustomScrollbar();
             cghub.table.$selectAllCheckbox.removeAttr('disabled');
         },
         cacheElements:function () {
