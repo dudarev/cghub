@@ -25,6 +25,9 @@ jQuery(function ($) {
             cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedFiles);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
+            cghub.table.$checkboxes.on('focusin', cghub.table.focusInOutCheckbox);
+            cghub.table.$checkboxes.on('focusout', cghub.table.focusInOutCheckbox);
+            $(document).on('keydown', cghub.table.arrowShiftPress);
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
@@ -94,6 +97,35 @@ jQuery(function ($) {
                 }
             )
             $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
+        },
+        focusInOutCheckbox:function(event){
+            if (event.type == "focusin"){
+                $(this).parents('td').addClass("tdSelected");
+            }
+            else if (event.type == "focusout"){
+                $(this).parents('td').removeClass("tdSelected");
+                $('td.tdSelected').removeClass("tdSelected");
+            }
+        },
+        arrowShiftPress:function(event){
+            //arrowLeft: 37
+            //arrowUp: 38
+            //arrowRight: 39
+            //arrowDown: 40
+            var charCode = (event.which) ? event.which : event.keyCode;
+            if(event.shiftKey){
+                var currentSelectedCell = $('td.tdSelected');
+                var nextStep;
+                if (charCode == 37){//left
+                    nextStep = $(currentSelectedCell).prev();
+                }
+                if (charCode == 39){//right
+                    nextStep = $(currentSelectedCell).next();
+                }
+                if(nextStep == null || nextStep.length != 1) return;
+                currentSelectedCell.removeClass('tdSelected');
+                nextStep.addClass('tdSelected');
+            }
         }
     }
     cghub.table.init();
