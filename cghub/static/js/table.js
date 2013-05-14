@@ -113,16 +113,21 @@ jQuery(function ($) {
             //arrowRight: 39
             //arrowDown: 40
             var charCode = (event.which) ? event.which : event.keyCode;
-            if(event.shiftKey){
+            if(event.altKey){
+                event.preventDefault();
                 var currentSelectedCell = $('td.tdSelected');
-                var nextStep;
+                var nextStep = currentSelectedCell;
                 if (charCode == 37){//left
-                    nextStep = $(currentSelectedCell).prev();
+                    do
+                        nextStep = $(nextStep).prev();
+                    while (nextStep.is('td') && !$(nextStep).is(":visible"));
                 }
                 if (charCode == 39){//right
-                    nextStep = $(currentSelectedCell).next();
+                    do
+                        nextStep = $(nextStep).next();
+                    while (nextStep.is('td') && !$(nextStep).is(":visible"));
                 }
-                if(nextStep == null || nextStep.length != 1) return;
+                if(!nextStep.is('td')) return;
                 currentSelectedCell.removeClass('tdSelected');
                 nextStep.addClass('tdSelected');
             }
