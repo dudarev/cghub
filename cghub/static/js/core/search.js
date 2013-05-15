@@ -108,6 +108,7 @@ jQuery(function ($) {
         },
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
             $('.data-table').css('visibility', 'visible');
         },
@@ -151,6 +152,7 @@ jQuery(function ($) {
                     }
                 });
             }
+            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});

@@ -71,9 +71,7 @@ jQuery(function ($) {
             });
         },
         activateHelpLinks:function () {
-            $(document).on('click', '.js-help-link', function(){
-                var modal = $('#helpTextModal');
-                if(!modal.length) return;
+            $(document).on('click', '.js-help-link', function() {
                 var slug = $(this).data('slug');
                 $.ajax({
                     url: cghub.vars.helpTextUrl,
@@ -83,9 +81,7 @@ jQuery(function ($) {
                     success: function (data) {
                         if(data['success']) {
                             cghub.help.removeTooltips();
-                            modal.find('.modal-label').text(data['title']);
-                            modal.find('.modal-body').html(data['content']);
-                            modal.modal();
+                            cghub.base.showMessage(data['title'], data['content']);
                         }
                     }
                 });

@@ -300,7 +300,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/any_path/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/any_path/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         test_request.path = ''
         out = Template(
@@ -312,7 +313,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
@@ -325,7 +327,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
@@ -339,7 +342,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded&nbsp;&darr;</a>')
+            '<a class="sort-link" href="/search/?sort_by=-last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded&nbsp;&darr;</a>')
 
     def test_applied_filters_tag(self):
         request = HttpRequest()

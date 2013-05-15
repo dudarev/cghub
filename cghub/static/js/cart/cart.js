@@ -24,8 +24,10 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
             $('.data-table').css('visibility', 'visible');
+            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
             cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
             cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
             cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);

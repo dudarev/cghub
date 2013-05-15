@@ -13,7 +13,7 @@
 <ul title="Accessibility links" id="accessibility-links">
     <li>
         <a href="#nav-bar" tabindex="1">
-            Skip to Navigation Bar
+            Skip to Navigation bar
         </a>
     </li>
     <li>
@@ -36,7 +36,7 @@
                 In your cart
             </h1>
         </div>
-        <div>
+        <section>
             {% if loading %}
             <div class="alert">
                 <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href=".">Reload to check for completion.</a>
@@ -51,7 +51,7 @@
                 Files in your cart: {{ stats.count }} ({{ stats.size|file_size }})
             </span>
             {% endif %}
-        </div>
+        </section>
 
         <form action="{% url cart_page %}action/" method="POST">
             {% csrf_token %}
