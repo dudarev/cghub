@@ -260,10 +260,11 @@ def sort_link(request, attribute, link_anchor):
 
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
-    return '<a class="sort-link" href="%(href)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
+    return ('<a class="sort-link" href="%(href)s" '
+        'title="click to sort by %(link_anchor)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
         'link_anchor': link_anchor,
         'sorting_arrow': sorting_arrow,
-        'href': href}
+        'href': href})
 
 
 @register.simple_tag
