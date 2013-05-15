@@ -13,7 +13,7 @@
 <ul title="Accessibility links" id="accessibility-links">
     <li>
         <a href="#nav-bar" tabindex="1">
-            Skip to Navigation Bar
+            Skip to Navigation bar
         </a>
     </li>
     <li>
@@ -50,11 +50,12 @@
             </h1>
         {% endif %}
     </div>
-    <div id="results-summary"></div>
+    <div id="results-summary" tabindex="52">
     {% if num_results %}
         <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
         <div class="applied-filters">{% applied_filters request %}</div>
     {% endif %}
+    </div>
     {% if num_results > 0 %}
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
             {% csrf_token %}
