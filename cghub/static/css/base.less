@@ -19,11 +19,20 @@
     z-index: @zi_accessibility;
     background-color: #fff;
     list-style-type: none;
+    .box-shadow(0 8px 6px -6px #888);
     li {
         font-size: 1.2em;
         padding-top: 5px;
         margin-bottom: 2px;
     }
+}
+.hidden {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
 }
 
 #main-nav {
@@ -92,6 +101,15 @@
 	color: #333 !important;
 }
 
+.table caption {
+    height: 0;
+    overflow: hidden;
+    position: absolute;
+    left: -10000px;
+}
+.data-table {
+    visibility: hidden;
+}
 .flexigrid {
     width: 100%;
     // fix selected row highlighting
