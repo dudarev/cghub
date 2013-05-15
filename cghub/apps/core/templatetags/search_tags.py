@@ -277,9 +277,10 @@ def table_header(request):
         if col_name is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
-        html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
+        html += '<th data-width="{width}" data-ds="{defaultstate}" id="id-col-{col_name}">{link}</th>'.format(
                     width=col_style['width'],
                     defaultstate=col_style['default_state'],
+                    col_name=col_name,
                     link=sort_link(request, col_name, field_name))
     return html
 
@@ -355,12 +356,14 @@ def table_row(result):
     html = ''
     for field_name in settings.TABLE_COLUMNS:
         value = fields.get(field_name, None)
+        col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
-        html += '<td style="text-align: %s">%s</td>' % (col_style['align'], value)
+        html += '<td style="text-align: {align}" headers="id-col-{col_name}">{value}</td>'.format(
+                    align=col_style['align'], col_name=col_name, value=value)
     return html
 
 
@@ -373,9 +376,12 @@ def details_table(result):
     html = ''
     for field_name in settings.DETAILS_FIELDS:
         value = fields.get(field_name, None)
+        col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
             continue
-        html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
+        html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
+                '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
+                    col_name=col_name, field_name=field_name, value=value))
     return html
