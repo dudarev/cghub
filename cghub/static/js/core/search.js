@@ -151,6 +151,7 @@ jQuery(function ($) {
                     }
                 });
             }
+            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
