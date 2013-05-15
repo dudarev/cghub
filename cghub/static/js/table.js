@@ -27,7 +27,7 @@ jQuery(function ($) {
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
             cghub.table.$checkboxes.on('focusin', cghub.table.focusInOutCheckbox);
             cghub.table.$checkboxes.on('focusout', cghub.table.focusInOutCheckbox);
-            $(document).on('keydown', cghub.table.arrowShiftPress);
+            $('.flexigrid').on('keydown', cghub.table.arrowAltPress);
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
@@ -107,7 +107,7 @@ jQuery(function ($) {
                 $('td.tdSelected').removeClass("tdSelected");
             }
         },
-        arrowShiftPress:function(event){
+        arrowAltPress:function(event){
             //arrowLeft: 37
             //arrowUp: 38
             //arrowRight: 39
@@ -135,17 +135,17 @@ jQuery(function ($) {
                 //up
                 if (charCode == 38){
                     nextRow = $(nextRow).prev();
-                    if (!nextRow.is('tr')) return;
+                    if (!nextRow.is('tr')) return false;
                     nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
                 }
                 //down
                 if (charCode == 40){
                     nextRow = $(nextRow).next();
-                    if (!nextRow.is('tr')) return;
+                    if (!nextRow.is('tr')) return false;
                     nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
                 }
 
-                if(!nextStep.is('td')) return;
+                if(!nextStep.is('td')) return false;
                 currentCell.removeClass('tdSelected');
                 nextStep.addClass('tdSelected');
             }
