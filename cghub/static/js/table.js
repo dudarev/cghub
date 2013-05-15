@@ -18,6 +18,8 @@ jQuery(function ($) {
             cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
+            cghub.table.$flexigrid = $('.flexigrid');
+            cghub.table.$tableContainer = $('.bDiv');
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
@@ -26,7 +28,7 @@ jQuery(function ($) {
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
             cghub.table.$checkboxes.on('focusin', cghub.table.focusInOutCheckbox);
             cghub.table.$checkboxes.on('focusout', cghub.table.focusInOutCheckbox);
-            $('.flexigrid').on('keydown', cghub.table.arrowAltPress);
+            cghub.table.$flexigrid.on('keydown', cghub.table.arrowAltPress);
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
@@ -147,6 +149,29 @@ jQuery(function ($) {
                 if(!nextStep.is('td')) return false;
                 currentCell.removeClass('tdSelected');
                 nextStep.addClass('tdSelected');
+
+                cghub.table.makeVisibleOnScreen(nextStep);
+            }
+        },
+
+        makeVisibleOnScreen: function(target){
+            // check if an element is visible on screen, if not - adjust the scrollbars
+            // scroll to right
+            while ($(target).offset().left + $(target).width() >
+                   cghub.table.$flexigrid.offset().left + cghub.table.$flexigrid.width()){
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableContainer.scrollLeft()+100);
+            }
+            // scroll to left
+            while ($(target).offset().left < cghub.table.$flexigrid.offset().left) {
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableContainer.scrollLeft()-100);
+            }
+            // scroll down
+            while ($(target).offset().top + $(target).height() - $(window).scrollTop() > $(window).height()){
+                $(window).scrollTop($(window).scrollTop() + 200);
+            }
+            // scroll up
+            while ($(target).offset().top - $(window).scrollTop() < $('.navbar').height()){
+                $(window).scrollTop($(window).scrollTop() - 200);
             }
         }
     }
