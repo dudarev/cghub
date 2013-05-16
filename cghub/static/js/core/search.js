@@ -108,7 +108,9 @@ jQuery(function ($) {
         },
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
+            $('.data-table').css('visibility', 'visible');
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
@@ -150,6 +152,15 @@ jQuery(function ($) {
                     }
                 });
             }
+            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
+            /* add text for screen readers for ddcl-id-columns-selector */
+            $('#ddcl-id-columns-selector .ui-dropdownchecklist-selector')
+                .prepend('<div class="hidden">' + $('#id-columns-selector').attr('title') + ', selected:</div>');
+            /* add text for screenreaders for filters */
+            $('.sidebar .ui-dropdownchecklist-selector').each(function() {
+                var filter_name = $(this).parent().prev().prev().text().toLowerCase().slice(0,-1);
+                $(this).prepend('<div class="hidden">Filter ' + filter_name + ', selected:</div>');
+            });
         },
         ddclTextFormatFunction: function(options) {
             $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});

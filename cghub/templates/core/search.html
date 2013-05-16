@@ -13,7 +13,7 @@
 <ul title="Accessibility links" id="accessibility-links">
     <li>
         <a href="#nav-bar" tabindex="1">
-            Skip to Navigation Bar
+            Skip to Navigation bar
         </a>
     </li>
     <li>
@@ -27,7 +27,7 @@
         </a>
     </li>
     <li>
-        <a href="#scrollbar1" tabindex="4">
+        <a href="#data-table" tabindex="4">
             Skip to Main results
         </a>
     </li>
@@ -37,7 +37,7 @@
     {% include 'bam_filter_sidebar.html' %}
 {% endblock %}
 {% block extra_content %}
-    <div class="page-header">
+    <section class="page-header">
         {% if num_results == None %}
             <h1>
                 Search BAM Files
@@ -49,19 +49,20 @@
                 <small>Select and add to cart to download data or metadata</small>
             </h1>
         {% endif %}
-    </div>
-    <div id="results-summary"></div>
+    </section>
+    <section id="results-summary" tabindex="52">
     {% if num_results %}
         <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
         <div class="applied-filters">{% applied_filters request %}</div>
     {% endif %}
+    </section>
     {% if num_results > 0 %}
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
             {% csrf_token %}
             <div class="btn-toolbar">
                 <div class="btn-group search-btn-group">
                     <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
-                    <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button">Add all to cart</button>
+                    <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button" >Add all to cart</button>
                 </div>
                 <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
             </div>
@@ -71,7 +72,7 @@
                     Columns:
                 </label>
             </div>
-            <select id="id-columns-selector" class="column-select" multiple>
+            <select id="id-columns-selector" class="column-select" title="Select columns to display in results area" multiple>
                 <option value="(all)">(all)</option>
             </select>
             {% include 'data_table.html' %}
@@ -89,7 +90,7 @@
             <input class="search-query" type="text" name="q">
         </form>
     {% else %}
-        <div class="applied-filters">{% applied_filters request %}</div>
+        <section class="applied-filters">{% applied_filters request %}</section>
         {% if message %}
             <h4>{{ message }}</h4>
         {% endif %}

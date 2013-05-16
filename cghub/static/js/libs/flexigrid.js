@@ -1567,8 +1567,6 @@
                             grid.toggleCol($(el).val(), is_checked)
                         })
                     }
-                    /* update tinyscrollbar */
-                    $('#scrollbar1').tinyscrollbar_update();
                 },
                 explicitClose: 'close'
             });
@@ -1584,7 +1582,6 @@
             $('.js-default-columns').on('click', function() {
                 checkOnlyDefaultColumns();
                 onComplete(columnSelectMenu);
-                $('#scrollbar1').tinyscrollbar_update();
                 return false;
             });
             onComplete(columnSelectMenu);

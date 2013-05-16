@@ -7,10 +7,10 @@ Skip navigation links
 ---------------------
 
 When user come to page and press tab-button, skip navigation links will be shown at the top of page.
-There are two skip navigation links:
+There are few skip navigation links by default:
 
-    - Skip to main content
-    - Skip to primary navigation
+    - Skip to Navigation bar
+    - Skip to Main content
 
 By default, main content consist in div.base-container.
 But we can specify other point where main content starts by
@@ -19,7 +19,34 @@ But we can specify other point where main content starts by
 
     <div id="main-nav"></div>
 
-Primary navigation link points to div.navbar.
+Search page has next skip nav links:
+
+    - Skip to Navigation bar
+    - Skip to Filters
+    - Skip to Summary of results
+    - Skip to Main results
+
+And for cart page skip nav links are next:
+
+    - Skip to Navigation bar
+    - Skip to Summary of results
+    - Skip to Main results
+
+Testing with screen readers
+---------------------------
+
+`Using NVDA to Evaluate Web Accessibility <http://webaim.org/articles/nvda/>`__
+
+Keys used to navigate through content
+-------------------------------------
+
+    - tab - jump from link to link
+    - shift + tab - back to previous element
+    - ctrl + home - go to top of the page
+    - alt + arrow down - open filter options list
+    - use spacebar to select/deselect checkboxes
+    - `NVDA shortcuts <http://webaim.org/resources/shortcuts/nvda>`__
+    - `JAWS shortcuts <http://webaim.org/resources/shortcuts/jaws>`__
 
 Tab indexes
 -----------
@@ -30,3 +57,9 @@ Values spaces:
     - primary menu: 10-20
     - filters bar: 30-50
     - main content > 50 
+
+Tricks
+------
+
+NVDA does not read links titles in IE.
+This is only `one decision <http://blog.silktide.com/2013/01/i-thought-title-text-improved-accessibility-i-was-wrong/>`__ I found to fix this.

@@ -69,9 +69,6 @@ jQuery(function ($) {
                 if(anchor.length) {
                     $(window).scrollTop(anchor.offset().top - 50);
                     var $controls = anchor.find('a, input:visible, button, .ui-dropdownchecklist-selector').filter(':visible');
-                    if(!$controls.length) {
-                        $controls = anchor.nextAll('form').find('a, input, button, .ui-dropdownchecklist-selector').filter(':visible');
-                    }
                     if($controls.length) {
                         $controls.eq(0).focus();
                     } else {

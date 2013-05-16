@@ -300,7 +300,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/any_path/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/any_path/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         test_request.path = ''
         out = Template(
@@ -312,7 +313,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
@@ -325,7 +327,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
@@ -339,7 +342,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded&nbsp;&darr;</a>')
+            '<a class="sort-link" href="/search/?sort_by=-last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded&nbsp;&darr;</a>')
 
     def test_applied_filters_tag(self):
         request = HttpRequest()
@@ -368,19 +372,21 @@ class TemplateTagsTestCase(TestCase):
     def test_items_per_page_tag(self):
         request = HttpRequest()
         default_limit = settings.DEFAULT_PAGINATOR_LIMIT
-        default_limit_link = '<a href="?limit=%d">%d</a>' % (default_limit, default_limit)
+        default_limit_link = ('<a href="?limit={limit}"><span class="hidden">'
+                'view </span>{limit}'.format(limit=default_limit))
 
         request.GET = QueryDict('', mutable=False)
         template = Template(
-            "{% load pagination_tags %}{% items_per_page request " +
-            str(default_limit) + " 100 %}")
+                "{% load pagination_tags %}{% items_per_page request " +
+                str(default_limit) + " 100 %}")
         result = template.render(RequestContext(request, {}))
-        self.assertTrue('<a href="?limit=100">100</a>' in result)
+        self.assertIn('<a href="?limit=100"><span class="hidden">view </span>100', result)
         self.assertTrue(not default_limit_link in result)
-        
+
         request.GET = QueryDict('limit=100', mutable=False)
         result = template.render(RequestContext(request, {}))
-        self.assertTrue(not '<a href="?limit=100">100</a>' in result)
+        self.assertTrue(not '<a href="?limit=100" '
+                    'title="View 100 items per page">100</a>' in result)
         self.assertTrue(default_limit_link in result)
 
         template = Template(
