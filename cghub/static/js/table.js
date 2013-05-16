@@ -118,8 +118,8 @@ jQuery(function ($) {
             if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
             var currentCell = $('td.tdSelected');
             var nextStep = currentCell;
-            var currentRow = $(currentCell).parents('tr');
-            var currentIndex = $(currentRow).children().index(currentCell);
+            var currentRow = currentCell.parents('tr');
+            var currentIndex = currentRow.children().index(currentCell);
             var nextRow = currentRow;
             //left
             if (charCode == 37){
@@ -149,6 +149,8 @@ jQuery(function ($) {
             if(!nextStep.is('td')) return false;
             $('.tdSelected').removeClass("tdSelected");
             nextStep.addClass('tdSelected');
+            /* set focus to row checkbox */ 
+            nextStep.parents('tr').find('input').focus();
 
             cghub.table.scrollTableToCell(nextStep);
             
