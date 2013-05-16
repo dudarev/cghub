@@ -16,7 +16,6 @@
 .pagination-results{margin-top:12px;}
 .sort-link{display:block;}
 .search-query{color:#333 !important;}
-.table caption{height:0;overflow:hidden;position:absolute;left:-10000px;}
 .data-table{visibility:hidden;}
 .flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:scroll !important;overflow-y:hidden !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
 .flexigrid div.bDiv tr{cursor:pointer;}.flexigrid div.bDiv tr td:first-child{cursor:default;}
