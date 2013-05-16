@@ -113,45 +113,46 @@ jQuery(function ($) {
             //arrowUp: 38
             //arrowRight: 39
             //arrowDown: 40
+            if(!event.altKey) return;
             var charCode = (event.which) ? event.which : event.keyCode;
-            if(event.altKey){
-                event.preventDefault();
-                var currentCell = $('td.tdSelected');
-                var nextStep = currentCell;
-                var currentRow = $(currentCell).parents('tr');
-                var currentIndex = $(currentRow).children().index(currentCell);
-                var nextRow = currentRow;
-                //left
-                if (charCode == 37){
-                    do
-                        nextStep = $(nextStep).prev();
-                    while (nextStep.is('td') && !$(nextStep).is(":visible"));
-                }
-                //right
-                if (charCode == 39){
-                    do
-                        nextStep = $(nextStep).next();
-                    while (nextStep.is('td') && !$(nextStep).is(":visible"));
-                }
-                //up
-                if (charCode == 38){
-                    nextRow = $(nextRow).prev();
-                    if (!nextRow.is('tr')) return false;
-                    nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
-                }
-                //down
-                if (charCode == 40){
-                    nextRow = $(nextRow).next();
-                    if (!nextRow.is('tr')) return false;
-                    nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
-                }
-
-                if(!nextStep.is('td')) return false;
-                currentCell.removeClass('tdSelected');
-                nextStep.addClass('tdSelected');
-
-                cghub.table.makeVisibleOnScreen(nextStep);
+            if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
+            var currentCell = $('td.tdSelected');
+            var nextStep = currentCell;
+            var currentRow = $(currentCell).parents('tr');
+            var currentIndex = $(currentRow).children().index(currentCell);
+            var nextRow = currentRow;
+            //left
+            if (charCode == 37){
+                do
+                    nextStep = $(nextStep).prev();
+                while (nextStep.is('td') && !$(nextStep).is(":visible"));
             }
+            //right
+            if (charCode == 39){
+                do
+                    nextStep = $(nextStep).next();
+                while (nextStep.is('td') && !$(nextStep).is(":visible"));
+            }
+            //up
+            if (charCode == 38){
+                nextRow = $(nextRow).prev();
+                if (!nextRow.is('tr')) return false;
+                nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+            }
+            //down
+            if (charCode == 40){
+                nextRow = $(nextRow).next();
+                if (!nextRow.is('tr')) return false;
+                nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+            }
+
+            if(!nextStep.is('td')) return false;
+            currentCell.removeClass('tdSelected');
+            nextStep.addClass('tdSelected');
+
+            return false;
+
+            cghub.table.makeVisibleOnScreen(nextStep);
         },
 
         makeVisibleOnScreen: function(target){
