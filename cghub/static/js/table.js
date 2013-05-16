@@ -113,8 +113,22 @@ jQuery(function ($) {
             arrowUp: 38
             arrowRight: 39
             arrowDown: 40 */
-            if(!event.altKey) return;
             var charCode = (event.which) ? event.which : event.keyCode;
+            if(event.ctrlKey && charCode == 13) {
+                /* show details in new tab */
+                var target = $('td.tdSelected');
+                if(target.length) {
+                    window.open(target.parents('tr').attr('data-details-url'), '_blank');
+                    window.focus();
+                }
+                return false;
+            }
+            if(!event.altKey) return;
+            if(charCode == 13) {
+                /* show details popup on alt + enter click */
+                $('td.tdSelected').click();
+                return false;
+            }
             if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
             var currentCell = $('td.tdSelected');
             var nextStep = currentCell;
