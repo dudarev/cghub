@@ -38,7 +38,7 @@
 <ul title="Accessibility links" id="accessibility-links">
     <li>
         <a href="#nav-bar" tabindex="1">
-            Skip to Navigation Bar
+            Skip to Navigation bar
         </a>
     </li>
     <li>
@@ -64,7 +64,7 @@
                 </li>
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
-                <label for="id-search-field" style="display:none">Search</label>
+                <label for="id-search-field" class="hidden">Search</label>
                 <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q" tabindex="19">
             </form>
         </div>
@@ -83,23 +83,10 @@
 {% comment %}
     Common message popup template
 {% endcomment %}
-<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="common-message-label" aria-hidden="true">
+<div class="modal hide fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="common-message-label" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 class="modal-label" id="common-message-label"></h3>
-    </div>
-    <div class="modal-body"></div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    </div>
-</div>
-{% comment %}
-    Help text modal
-{% endcomment %}
-<div class="modal fade" id="helpTextModal" tabindex="-1" role="dialog" aria-labelledby="help-text-label" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 class="modal-label" id="help-text-label"></h3>
     </div>
     <div class="modal-body"></div>
     <div class="modal-footer">
