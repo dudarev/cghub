@@ -9,6 +9,7 @@ jQuery(function ($) {
     cghub.cart = {
         init:function () {
             cghub.cart.cacheElements();
+            cghub.cart.initFlexigrid();
             cghub.cart.bindEvents();
         },
         cacheElements:function () {
@@ -23,16 +24,21 @@ jQuery(function ($) {
             cghub.cart.$clearBtn = $('.cart-clear');
         },
         bindEvents:function () {
-            cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
-            $('.flexigrid').attr('id', 'data-table');
-            $('.flexigrid .bDiv tr').contextmenu();
-            $('.data-table').css('visibility', 'visible');
-            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
             cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
             cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
             cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
             cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
+        },
+        initFlexigrid:function () {
+            cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid').attr('id', 'data-table');
+            $('.flexigrid .bDiv tr').contextmenu();
+            $('.data-table').css('visibility', 'visible');
+            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
+            /* add text for screen readers for ddcl-id-columns-selector */
+            $('#ddcl-id-columns-selector .ui-dropdownchecklist-selector')
+                .prepend('<div class="hidden">' + $('#id-columns-selector').attr('title') + ', selected:</div>');
         },
         // replace current action with needed, /\/[a-z_]+\/$/ = "/some_action/",
         // slashes in '/.../' are needed!

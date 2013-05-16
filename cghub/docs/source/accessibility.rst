@@ -57,3 +57,9 @@ Values spaces:
     - primary menu: 10-20
     - filters bar: 30-50
     - main content > 50 
+
+Tricks
+------
+
+NVDA does not read links titles in IE.
+This is only `one decision <http://blog.silktide.com/2013/01/i-thought-title-text-improved-accessibility-i-was-wrong/>`__ I found to fix this.
