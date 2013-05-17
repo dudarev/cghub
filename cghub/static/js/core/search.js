@@ -111,6 +111,10 @@ jQuery(function ($) {
             $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
             $('.data-table').css('visibility', 'visible');
+            /* add fieldset element */
+            var $data_table = $('.bDiv table');
+            $data_table.wrap($('<fieldset/>'));
+            $data_table.parent().prepend($('<legend class="hidden">Select files to add to cart:</legend>'));
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
