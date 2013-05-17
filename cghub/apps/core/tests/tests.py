@@ -594,7 +594,7 @@ class MetadataViewTestCase(WithCacheTestCase):
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2013-04-26T14:46:09Z'
+    last_modified = '2013-05-16T20:50:58Z'
 
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
