@@ -238,7 +238,12 @@
 
 .flexigrid div.hDiv table {
 	border-right: 1px solid #fff;
-    margin-left: -1px;
+}
+/* fix for firefox */
+@-moz-document url-prefix() {
+    .flexigrid div.hDiv table {
+        margin-left: -1px;
+    }
 }
 
 .flexigrid div.cDrag {
