@@ -62,6 +62,7 @@ Keys used to navigate through content
     - ctrl + home - go to top of the page
     - alt + arrow down - open filter options list
     - use spacebar to select/deselect checkboxes
+    - '+' - read text block
     - `NVDA shortcuts <http://webaim.org/resources/shortcuts/nvda>`__
     - `JAWS shortcuts <http://webaim.org/resources/shortcuts/jaws>`__
 
