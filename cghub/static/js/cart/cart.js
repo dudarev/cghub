@@ -39,6 +39,10 @@ jQuery(function ($) {
             /* add text for screen readers for ddcl-id-columns-selector */
             $('#ddcl-id-columns-selector .ui-dropdownchecklist-selector')
                 .prepend('<div class="hidden">' + $('#id-columns-selector').attr('title') + ', selected:</div>');
+            /* add fieldset element */
+            var $data_table = $('.bDiv table');
+            $data_table.wrap($('<fieldset/>'));
+            $data_table.parent().prepend($('<legend class="hidden">Select files to remove from cart:</legend>'));
         },
         // replace current action with needed, /\/[a-z_]+\/$/ = "/some_action/",
         // slashes in '/.../' are needed!
