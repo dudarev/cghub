@@ -294,13 +294,13 @@ class CartCacheTestCase(WithCacheTestCase):
 
     """
     Cached files will be used
-    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-04-26T14:46:09Z
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-05-16T20:50:58Z
     8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-04-27T01:47:09Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2013-04-26T14:46:09Z'
+    last_modified = '2013-05-16T20:50:58Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
-    last_modified2 = '2013-04-27T01:47:09Z'
+    last_modified2 = '2013-05-16T20:51:58Z'
 
     wsapi_cache_files = [
             '604f183c90858a9d1f1959fe0370c45d.xml',
@@ -356,7 +356,7 @@ class CartCacheTestCase(WithCacheTestCase):
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
             self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
-            'which was last modified 2013-04-26T14:46:09Z not exists, '
+            'which was last modified 2013-05-16T20:50:58Z not exists, '
             'may be it was updated')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'

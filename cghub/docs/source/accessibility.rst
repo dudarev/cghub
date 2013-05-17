@@ -32,6 +32,18 @@ And for cart page skip nav links are next:
     - Skip to Summary of results
     - Skip to Main results
 
+Data table navigation via keyboard
+----------------------------------
+
+    - alt + arrow - move to next cell
+    - arrows - move screen
+    - space bar - check/uncheck checkbox
+    - enter - submit form (add selected files to cart)
+    - alt + enter - show details popup
+    - ctrl + enter - go to file details page
+
+Screen readers uses their own keyboard shortcuts to navigate in table. For example, arrow keys used to switch between cells.
+
 Testing with screen readers
 ---------------------------
 
@@ -53,7 +65,7 @@ Tab indexes
 
 Values spaces:
 
-    - skip to main content link: 1
+    - skip to main content links: 1-9
     - primary menu: 10-20
     - filters bar: 30-50
     - main content > 50 
