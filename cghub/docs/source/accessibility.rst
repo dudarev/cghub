@@ -17,7 +17,7 @@ But we can specify other point where main content starts by
 
 .. code-block:: html
 
-    <div id="main-nav"></div>
+    <div id="main-content"></div>
 
 Search page has next skip nav links:
 
@@ -44,6 +44,11 @@ Data table navigation via keyboard
 
 Screen readers uses their own keyboard shortcuts to navigate in table. For example, arrow keys used to switch between cells.
 
+Raw xml naviagtion via keyboard
+-------------------------------
+
+User can navigate thru raw xml on details page using arrows keys. And space bar can be used to open/close nodes.
+
 Testing with screen readers
 ---------------------------
 
@@ -68,7 +73,8 @@ Values spaces:
     - skip to main content links: 1-9
     - primary menu: 10-20
     - filters bar: 30-50
-    - main content > 50 
+    - main content > 50
+    - popups > 100
 
 Tricks
 ------
