@@ -8,6 +8,7 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.table = {
+        clearSelectionTimeout: undefined,
         init:function () {
             cghub.table.cacheElements();
             cghub.table.bindEvents();
@@ -100,11 +101,20 @@ jQuery(function ($) {
             $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
         },
         tableCheckboxFocus:function(event){
-            if (event.type == "focusin" && !$('.tdSelected').length){
-                $(this).parents('td').addClass("tdSelected");
+            if (event.type == 'focusin'){
+                $(this).parents('td').addClass('tdSelected');
             }
-            else if (event.type == "focusout" && $(this).parents('td').hasClass("tdSelected")) {
-                $('.tdSelected').removeClass("tdSelected");
+            else if (event.type == 'focusout') {
+                $(this).parents('td').removeClass('tdSelected');
+                if(cghub.table.clearSelectionTimeout) {
+                    clearTimeout(cghub.table.clearSelectionTimeout);
+                }
+                cghub.table.clearSelectionTimeout = setTimeout(function(){
+                    var selected = $('.tdSelected');
+                    if(selected.length == 1 && !selected.find('input').length) {
+                        selected.removeClass('tdSelected');
+                    }
+                }, 500);
             }
         },
         arrowPress:function(event){
@@ -124,6 +134,7 @@ jQuery(function ($) {
                 return false;
             }
             if(!event.altKey) return;
+            if(charCode == 18) return false;
             if(charCode == 13) {
                 /* show details popup on alt + enter click */
                 $('td.tdSelected').click();
@@ -131,6 +142,9 @@ jQuery(function ($) {
             }
             if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
             var currentCell = $('td.tdSelected');
+            if(currentCell.length > 1){
+                currentCell = currentCell.eq(1);
+            }
             var nextStep = currentCell;
             var currentRow = currentCell.parents('tr');
             var currentIndex = currentRow.children().index(currentCell);
@@ -167,7 +181,7 @@ jQuery(function ($) {
             nextStep.parents('tr').find('input').focus();
 
             cghub.table.scrollTableToCell(nextStep);
-            
+
             return false;
         },
         scrollTableToCell:function(target){
