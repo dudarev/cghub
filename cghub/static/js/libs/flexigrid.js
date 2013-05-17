@@ -275,7 +275,7 @@
             },
             adjustTableWidth: function () {
                 var $hDivBox = $('.hDivBox');
-                var widthDiff = $hDivBox.parent().width() - $hDivBox.width();
+                var widthDiff = $hDivBox.parent().width() -2 - $hDivBox.width();
                 var $oldLast = $('th div.flLastCol', this.hDiv);
                 var $newLast = $('th:visible:last div', this.hDiv);
                 if($oldLast && $newLast) {
@@ -294,7 +294,7 @@
                         this.rePosDrag();
                         this.fixHeight();
                         $oldLast.removeClass('flLastCol');
-                        widthDiff = $hDivBox.parent().width() - $hDivBox.width();
+                        widthDiff = $hDivBox.parent().width() - 2 - $hDivBox.width();
                     }
                 }
                 var addWidth = 0;
@@ -320,8 +320,8 @@
                 this.hDiv.scrollLeft = this.bDiv.scrollLeft;
                 this.rePosDrag();
                 this.fixHeight();
-                widthDiff = $hDivBox.parent().width() - $hDivBox.width();
-                $('.bDiv').children().width($hDivBox.width() - 1);
+                widthDiff = $hDivBox.parent().width() - 2 - $hDivBox.width();
+                $('.bDiv').children().width($hDivBox.width());
             },
             toggleCol: function (cid, visible) {
                 var ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];

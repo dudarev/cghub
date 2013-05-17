@@ -149,7 +149,6 @@ jQuery(function ($) {
             $('.sidebar').css('visibility', 'visible');
             /* fix for IE, saves focus on current element */
             if($.browser.msie) {
-                console.log('init msie');
                 $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
                     if(e.which == 13) {
                         return false;

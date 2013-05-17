@@ -45,7 +45,7 @@
     {% endcomment %}
     <div class="modal hide fade" id="itemDetailsModal" tabindex="-1" role="dialog" aria-labelledby="details-label" aria-hidden="true">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="hidden">close popup</span>×</button>
             <h3 class="modal-label" id="details-label">Loading ...</h3>
         </div>
         <div class="modal-body">Loading ...</div>
@@ -60,12 +60,12 @@
     {% comment %}
         Show this modal before adding great amount of files to cart
     {% endcomment %}
-    <div class="modal hide fade" id="manyItemsModal">
+    <div class="modal hide fade" id="manyItemsModal" tabindex="-1" role="dialog" aria-labelledby="many-items-label" aria-hidden="true">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>Confirmation of adding files to cart</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="hidden">close popup</span>×</button>
+            <h3 id="many-items-label">Confirmation of adding files to cart</h3>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" tabindex="0">
             <p>You have requested adding <b></b> data sets to your cart, this will take a few minutes to process. Continue?</p>
         </div>
         <div class="modal-footer">

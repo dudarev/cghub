@@ -85,10 +85,10 @@
 {% endcomment %}
 <div class="modal hide fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="common-message-label" aria-hidden="true">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="hidden">close popup</span>×</button>
         <h3 class="modal-label" id="common-message-label">Message</h3>
     </div>
-    <div class="modal-body"></div>
+    <div class="modal-body" tabindex="0"></div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     </div>
