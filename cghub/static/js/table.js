@@ -20,7 +20,8 @@ jQuery(function ($) {
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
             cghub.table.$flexigrid = $('.flexigrid');
-            cghub.table.$tableContainer = $('.bDiv');
+            cghub.table.$tableContainer = cghub.table.$flexigrid.find('.bDiv');
+            cghub.table.$tableHeaderContainer = cghub.table.$flexigrid.find('.hDiv');
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
@@ -30,6 +31,10 @@ jQuery(function ($) {
             cghub.table.$checkboxes.on('focusin', cghub.table.tableCheckboxFocus);
             cghub.table.$checkboxes.on('focusout', cghub.table.tableCheckboxFocus);
             cghub.table.$flexigrid.on('keydown', cghub.table.arrowPress);
+            /* scroll table on header scroll */
+            cghub.table.$tableHeaderContainer.on('scroll', function() {
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableHeaderContainer.scrollLeft());
+            });
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){

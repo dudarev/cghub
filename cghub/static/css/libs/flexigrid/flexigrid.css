@@ -238,6 +238,7 @@
 
 .flexigrid div.hDiv table {
 	border-right: 1px solid #fff;
+    margin-left: -1px;
 }
 
 .flexigrid div.cDrag {
