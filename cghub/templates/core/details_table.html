@@ -6,7 +6,7 @@
         <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% endif %}
     <table class="table table-bordered js-details-table" summary="details for file with analysis id = {{ analysis_id }}">
-        <caption>returned file details</caption>
+        <caption class="hidden">returned file details</caption>
         {% details_table res %}
     </table>
     {% if request.is_ajax %}
