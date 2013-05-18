@@ -66,6 +66,10 @@ Keys used to navigate through content
     - `NVDA shortcuts <http://webaim.org/resources/shortcuts/nvda>`__
     - `JAWS shortcuts <http://webaim.org/resources/shortcuts/jaws>`__
 
+JAWS virtual PC cursor should be off - press insert + Z to deactivate it.
+'Magic key' in JAWS `can be CAPS LOCK on laptops or INSERT on desktops <http://www.freedomscientific.com/Training/Surfs-up/_Surfs_Up_Start_Here.htm>`__.
+To read region contents when using JAWS can be used MAGIC KEY + arrows or MAGIC KEY + ALT + arrows.
+
 Tab indexes
 -----------
 
@@ -82,3 +86,5 @@ Tricks
 
 NVDA does not read links titles in IE.
 This is only `one decision <http://blog.silktide.com/2013/01/i-thought-title-text-improved-accessibility-i-was-wrong/>`__ I found to fix this.
+
+JAWS not reads containers content when focus moves to container. To implement this behavior should be used `aria-labelledby <https://developer.mozilla.org/en-US/docs/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-labelledby_attribute>`__.

@@ -50,7 +50,7 @@
             </h1>
         {% endif %}
     </section>
-    <section id="results-summary" tabindex="52">
+    <section id="results-summary" aria-labelledby="results-summary" tabindex="52">
     {% if num_results %}
         <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
         <div class="applied-filters">{% applied_filters request %}</div>
