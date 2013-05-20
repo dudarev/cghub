@@ -25,7 +25,8 @@ TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
 			core.CustomPeriodTestCase core.DetailsTestCase \
 			core.SearchTestCase core.ColumnSelectTestCase \
 			core.ResetFiltersTestCase core.HelpHintsTestCase \
-			core.SkipNavTestCase \
+			core.SkipNavTestCase core.TabbingTestCase \
+			core.TableNavigationTestCase \
 			cart.AddToCartTestCase cart.CartUITestCase
 
 MANAGE= $(PYTHON) manage.py
