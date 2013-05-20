@@ -65,61 +65,61 @@ function obtains value and should return new value, for example:
 
 COLUMN_STYLES = {
     'Analysis Id': {
-        'width': 220, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 220, 'align': 'left', 'default_state': 'visible',
         },
     'Assembly': {
-        'width': 120, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 120, 'align': 'left', 'default_state': 'visible',
         },
     'Barcode': {
-        'width': 235, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 235, 'align': 'left', 'default_state': 'visible',
         },
     'Center': {
-        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Center Name': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
+        'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
     'Disease': {
-        'width': 65, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 65, 'align': 'left', 'default_state': 'visible',
         },
     'Disease Name': {
-        'width': 200, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
+        'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Experiment Type': {
-        'width': 95, 'align': 'left', 'default_state': 'hidden', 'abbr': True,
+        'width': 95, 'align': 'left', 'default_state': 'hidden',
         },
     'Files Size': {
-        'width': 75, 'align': 'right', 'default_state': 'visible', 'abbr': False,
+        'width': 75, 'align': 'right', 'default_state': 'visible',
         },
     'Library Type': {
-        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Modified': {
-        'width': 80, 'align': 'left', 'default_state': 'visible', 'abbr': False,
+        'width': 80, 'align': 'left', 'default_state': 'visible',
         },
     'Platform': {
-        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': False,
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Platform Name': {
-        'width': 200, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
+        'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Accession': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden', 'abbr': True,
+        'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Type': {
-        'width': 75, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 75, 'align': 'left', 'default_state': 'visible',
         },
     'Sample Type Name': {
-        'width': 150, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
+        'width': 150, 'align': 'left', 'default_state': 'hidden',
         },
     'State': {
-        'width': 70, 'align': 'left', 'default_state': 'visible', 'abbr': False,
+        'width': 70, 'align': 'left', 'default_state': 'visible',
         },
     'Study': {
-        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Uploaded': {
-        'width': 80, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
+        'width': 80, 'align': 'left', 'default_state': 'hidden',
         },
 }
 
@@ -889,6 +889,3 @@ DEFAULT_FILTERS = {
     'study': ('phs000178','*Other_Sequencing_Multiisolate'),
     'state': ('live',),
 }
-
-# values of these filters should be wrapped by <abbr>, for proper work of screen readers
-ABBR_FILTERS = ["study", "analyte_code", "library_strategy", "center_name", "refassem_short_name"]
