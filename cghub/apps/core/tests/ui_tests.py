@@ -683,11 +683,11 @@ class DetailsTestCase(LiveServerTestCase):
         assert not popup.is_displayed()
         # click on table cell
         td = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
         td.click()
         # analysis_id consist in first column
         uuid = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]").get_attribute('data-analysis_id')
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]").get_attribute('data-analysis_id')
         time.sleep(3)
         # check that popup displayed
         assert popup.is_displayed()
@@ -721,7 +721,7 @@ class DetailsTestCase(LiveServerTestCase):
             self.check_popup_shows()
             # add one file to cart (then user will be redirected to cart page)
             driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]/td[1]/div/input"
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[1]/div/input"
                     ).click()
             driver.find_element_by_css_selector('.add-to-cart-btn').click()
             time.sleep(5)
@@ -740,7 +740,7 @@ class DetailsTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             # Click on 'Metadata XML' in details popup
-            td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+            td = driver.find_element_by_xpath("//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             td.click()
             time.sleep(3)
             driver.find_element_by_css_selector('.raw-xml-link').click()
@@ -775,9 +775,9 @@ class DetailsTestCase(LiveServerTestCase):
                 os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 pass
-            td = driver.find_element_by_xpath("//div[@class='bDiv']/table/tbody/tr[1]/td[2]")
+            td = driver.find_element_by_xpath("//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             analysis_id = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]").get_attribute('data-analysis_id')
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]").get_attribute('data-analysis_id')
             # open row context menu and click 'Show details in new window'
             ac = ActionChains(driver)
             ac.context_click(td)
@@ -848,7 +848,7 @@ class SearchTestCase(LiveServerTestCase):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
             assert "Found" in self.selenium.find_element_by_xpath(
-                    "/html/body/div[2]/div[2]/div[3]").text
+                        "//section[@id='results-summary']/div[1]").text
             # check that table displayed
             assert self.selenium.find_element_by_id('id_add_files_form')
 
@@ -866,13 +866,17 @@ class SearchTestCase(LiveServerTestCase):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
             assert 10 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
-            self.selenium.find_element_by_link_text("25").click()
+                        "//div[@class='bDiv']/fieldset/table/tbody/tr"))
+            self.selenium.find_element_by_xpath(
+                        "//div[@class='items-per-page-label']"
+                        "//a[contains(text(), '25')]").click()
             assert 25 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
-            self.selenium.find_element_by_link_text("50").click()
+                        "//div[@class='bDiv']/fieldset/table/tbody/tr"))
+            self.selenium.find_element_by_xpath(
+                        "//div[@class='items-per-page-label']"
+                        "//a[contains(text(), '50')]").click()
             assert 50 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                        "//div[@class='bDiv']/fieldset/table/tbody/tr"))
 
     def test_pagination(self):
         """
@@ -905,35 +909,38 @@ class SearchTestCase(LiveServerTestCase):
 
             # check that results exists
             assert 10 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr"))
             assert 'offset' not in self.selenium.current_url
 
             # initially 'Prev' and '1' links should be disabled
-            prev = self.selenium.find_element_by_link_text('Prev')
+            prev = self.selenium.find_element_by_partial_link_text('Prev')
             assert not link_state(prev)
-            first = self.selenium.find_element_by_link_text('1')
+            first = self.selenium.find_element_by_xpath(
+                    '//div[@class="pagination-centered"]/ul/li[2]/a')
             assert not link_state(first)
 
             # got to second page
-            self.selenium.find_element_by_link_text("2").click()
+            self.selenium.find_element_by_xpath(
+                    '//div[@class="pagination-centered"]/ul/li[3]/a').click()
             assert 10 == len(self.selenium.find_elements_by_xpath(
-                    "//*[@id='id_add_files_form']/div[5]/div[1]/div[1]/div[1]/div[4]/table/tbody/tr"))
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr"))
             # check that url contains offset and limit
             assert 'offset=10&limit=10' in self.selenium.current_url
 
             found = self.selenium.find_element_by_xpath(
-                                    "/html/body/div[2]/div[2]/div[3]")
+                                    "//section[@id='results-summary']/div[1]")
             pages_count = (int(found.text.split()[1]) / 10) + 1
 
-            # check other pages
-            for page in (2, pages_count,):
-                self.selenium.find_element_by_link_text(str(page)).click()
-                a = self.selenium.find_element_by_link_text(str(page))
-                assert not link_state(a)
-
             # check 'Prev'
-            self.selenium.find_element_by_link_text('Prev').click()
-            current = self.selenium.find_element_by_link_text(str(pages_count - 1))
+            self.selenium.find_element_by_xpath(
+                        "//div[@class='pagination-centered']"
+                        "//a[contains(text(), %s)]" % str(pages_count)).click()
+            self.selenium.find_element_by_xpath(
+                        "//div[@class='pagination-centered']"
+                        "//a[contains(text(), 'Prev')]").click()
+            current = self.selenium.find_element_by_xpath(
+                        "//div[@class='pagination-centered']"
+                        "//a[contains(text(), %s)]" % str(pages_count - 1))
             assert not link_state(current)
 
     def test_sorting_order(self):
@@ -962,23 +969,23 @@ class SearchTestCase(LiveServerTestCase):
                 attr = COLUMN_NAMES[column]
                 # scroll table
                 self.selenium.execute_script(
-                        "$('.viewport')"
+                        "$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
                 # getting top element in the column
-                selector = ".bDiv > table td:nth-child({})".format(i + 2)
-                first = self.selenium.find_element_by_css_selector(selector).text
+                selector = "//div[@class='bDiv']//table/tbody/tr[1]/td[{}]".format(i + 2)
+                first = self.selenium.find_element_by_xpath(selector).text
 
                 # scroll table
-                self.selenium.execute_script("$('.viewport')"
+                self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
-                second = self.selenium.find_element_by_css_selector(selector).text
+                second = self.selenium.find_element_by_xpath(selector).text
                 if not (first == 'None' or second == 'None' or
                         first == ' ' or second == ' '):
                     if column == 'Files Size':
@@ -1036,13 +1043,13 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i%d']" % (i + 1)).click()
             # check that all previous columns are hidden
             for j in r[:(i + 1)]:
-                driver.execute_script("$('.viewport')"
+                driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
             # check that all next columns are visible
             for j in r[(i + 1):]:
-                driver.execute_script("$('.viewport')"
+                driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
@@ -1060,7 +1067,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
         r2 = range(column_count)
         for x in r2:
-            driver.execute_script("$('.viewport')"
+            driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
@@ -1108,7 +1115,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         "//div[@class='hDivBox']/table/thead/tr/th")) - 1
             visible = 0
             for i in range(columns_count):
-                driver.execute_script("$('.viewport')"
+                driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % i)
                 if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
@@ -1120,7 +1127,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             # recount columns
             visible = 0
             for i in range(columns_count):
-                driver.execute_script("$('.viewport')"
+                driver.execute_script("$('.flexigrid')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % i)
                 if driver.find_element_by_xpath("//th[@axis='col%d']" % (i + 1)).is_displayed():
@@ -1313,7 +1320,7 @@ class HelpHintsTestCase(LiveServerTestCase):
             self.check_tooltip(study_header)
             # table cell
             study_cell = driver.find_element_by_xpath(
-                "//div[@class='bDiv']/table/tbody/tr/td[{0}]/div".format(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr/td[{0}]/div".format(
                                 self.get_column_number_by_name('Study')))
             self.check_tooltip(study_cell)
 
@@ -1375,7 +1382,7 @@ class HelpHintsTestCase(LiveServerTestCase):
 
             # open details popup
             driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]/td[2]").click()
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]").click()
             time.sleep(3)
             # details table titles
             details_title = driver.find_elements_by_css_selector(
@@ -1436,7 +1443,7 @@ class HelpHintsTestCase(LiveServerTestCase):
             driver.get(self.live_server_url)
 
             driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/table/tbody/tr[1]/td[1]/div/input"
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[1]/div/input"
                     ).click()
             driver.find_element_by_css_selector('.add-to-cart-btn').click()
             time.sleep(3)
