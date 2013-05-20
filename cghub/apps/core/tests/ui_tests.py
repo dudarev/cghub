@@ -1069,7 +1069,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         r2 = range(column_count)
         for x in r2:
             driver.execute_script("$('.bDiv')"
-                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
+                        ".scrollLeft($('.bDiv table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
         # close DDCL
@@ -1278,7 +1278,7 @@ class TabbingTestCase(LiveServerTestCase):
         :elements: xpaths to elements sorted in order they should tabbed
         """
         driver = self.selenium
-        self.ac.key_down(Keys.TAB)
+        self.ac.key_up(Keys.TAB)
         self.ac.perform()
         self.ac.perform()
         start_element = driver.switch_to_active_element()
@@ -1366,6 +1366,102 @@ class TabbingTestCase(LiveServerTestCase):
                 '//div[@id="XMLHolder"]', # raw xml view
             )
             self.check_tabbing(elements)
+
+
+class TableNavigationTestCase(LiveServerTestCase):
+
+    def setUp(self):
+        self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
+        self.selenium.implicitly_wait(5)
+
+    def tearDown(self):
+        time.sleep(1)
+        self.selenium.quit()
+
+    def test_data_table(self):
+        """
+        1. Go to search page (default query)
+        2. Set socus to table first checkbox
+        3. Try to use arrows to navigate in table
+        4. Press alt + enter, check that popup appears
+        5. Press ctrl + enter, check that additional window opened
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            time.sleep(3)
+            selectors = driver.find_elements_by_xpath('//td[@class="tdSelected"]')
+            self.assertEqual(len(selectors), 0)
+            checkbox = driver.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[2]/td[1]/div/input')
+            checkbox.click()
+            # using arrows
+            time.sleep(1)
+            selectors = driver.find_elements_by_xpath('//td[@class="tdSelected"]')
+            self.assertEqual(len(selectors), 1)
+            self.ac.key_down(Keys.ALT)
+            self.ac.key_up(Keys.ARROW_RIGHT)
+            self.ac.perform()
+            time.sleep(1)
+            selectors = driver.find_elements_by_xpath('//td[@class="tdSelected"]')
+            self.assertEqual(len(selectors), 2)
+            # press alt + down and check that focus changed
+            self.ac.key_down(Keys.ALT)
+            self.ac.key_up(Keys.ARROW_DOWN)
+            self.ac.perform()
+            time.sleep(1)
+            current_element = driver.switch_to_active_element()
+            checkbox = driver.find_element_by_xpath(
+                    '//div[@class="bDiv"]/fieldset/table/tbody/tr[3]/td[1]/div/input')
+            self.assertEqual(current_element, checkbox)
+            # try to press alt + enter
+            self.ac = ActionChains(driver)
+            cell = driver.find_element_by_xpath(
+                    '//div[@class="bDiv"]/fieldset/table/tbody/tr[3]/td[2]/div')
+            self.ac.key_down(Keys.ALT, cell)
+            self.ac.key_up(Keys.ENTER, cell)
+            self.ac.perform()
+            time.sleep(3)
+            # check details popup visible
+            popup = driver.find_element_by_css_selector('#itemDetailsModal')
+            assert popup.is_displayed()
+            # close popup
+            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+            time.sleep(1)
+            # try to open details page using ctrl + enter
+            # CONTROL + ENTER doesn't work in selenium, no idea why
+
+    def test_current_cell_always_visible(self):
+        """
+        1. Go to search page (default query)
+        2. Set socus to table first checkbox
+        3. Check that last column not visible
+        4. Pres ALT + ARROW_RIGTH buttons few times
+        5. Check that last column visible
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            time.sleep(3)
+            checkbox = driver.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[2]/td[1]/div/input')
+            cell = driver.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[2]/td[2]/div')
+            checkbox.click()
+            time.sleep(1)
+            last_column = TEST_SETTINGS['TABLE_COLUMNS'][-1]
+            column_attr = COLUMN_NAMES[last_column]
+            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            self.assertFalse(th.is_displayed())
+            for i in TEST_SETTINGS['TABLE_COLUMNS']:
+                self.ac.key_down(Keys.ALT)
+                self.ac.key_down(Keys.ARROW_RIGHT)
+                self.ac.key_up(Keys.ARROW_RIGHT)
+            self.ac.perform()
+            time.sleep(5)
+            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            self.assertTrue(th.is_displayed())
 
 
 # tests for help app
