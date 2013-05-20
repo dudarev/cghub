@@ -110,7 +110,8 @@ def render_filters():
     t = select_template(['filters.html', ])
     content = t.render(Context({
         'all_filters': ALL_FILTERS,
-        'date_ids': DATE_FILTERS_HTML_IDS
+        'date_ids': DATE_FILTERS_HTML_IDS,
+        'abbr_filters': settings.ABBR_FILTERS
     }))
     return content
 

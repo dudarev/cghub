@@ -889,3 +889,6 @@ DEFAULT_FILTERS = {
     'study': ('phs000178','*Other_Sequencing_Multiisolate'),
     'state': ('live',),
 }
+
+# values of these filters should be wrapped by <abbr>, for proper work of screen readers
+ABBR_FILTERS = ["study", "analyte_code", "library_strategy", "center_name", "refassem_short_name"]

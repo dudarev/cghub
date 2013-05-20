@@ -11,7 +11,11 @@
     <select class="filter-select" data-section="{{ section }}" multiple tabindex="{{ forloop.counter|add:30 }}">
       <option value="(all)">(all)</option>
       {% for filter_value, filter_name in filters.filters.items %}
-      <option value="{{ filter_value }}">{{ filter_name }}</option>
+      <option value="{{ filter_value }}">
+          {% if section in abbr_filters.items %}<abbr>{% endif %}
+            {{ filter_name }}
+          {% if section in abbr_filters.items %}</abbr>{% endif %}
+      </option>
       {% endfor %}
     </select>
   {% endif %}
