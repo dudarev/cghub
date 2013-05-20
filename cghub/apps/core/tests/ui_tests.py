@@ -1255,6 +1255,119 @@ class SkipNavTestCase(LiveServerTestCase):
             self.assertEqual(links.size['height'], 0)
 
 
+class TabbingTestCase(LiveServerTestCase):
+
+    def setUp(self):
+        self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
+        self.selenium.implicitly_wait(5)
+
+    def tearDown(self):
+        time.sleep(1)
+        self.selenium.quit()
+
+    def check_tabbing(self, elements):
+        """
+        1. Rememeber first element under focus
+        2. Press 'Tab'
+        3. Get current element and check that it is the same as current elements item
+        4. If has - increase counter
+        5. If this is first remembered element - stop, elese go to 2
+        6. Check that all elements were tabbed
+
+        :elements: xpaths to elements sorted in order they should tabbed
+        """
+        driver = self.selenium
+        self.ac.key_down(Keys.TAB)
+        self.ac.perform()
+        self.ac.perform()
+        start_element = driver.switch_to_active_element()
+        current_element = None
+        pos = 0
+        while not current_element or current_element.id != start_element.id:
+            next_element = driver.find_element_by_xpath(elements[pos])
+            self.ac.perform()
+            current_element = driver.switch_to_active_element()
+            if current_element.id == next_element.id:
+                pos += 1
+                if pos == len(elements):
+                    break
+        self.assertEqual(pos, len(elements))
+
+    def test_tabbing_on_search_page(self):
+        """
+        1. Go to search page (default query)
+        2. Check tabbing
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            time.sleep(3)
+            elements = (
+                '//ul[@id="accessibility-links"]/li[3]/a', # skip to summary link
+                '//ul[@class="nav"]/li[4]/a', # Accessibility page link
+                '//div[@id="filters-bar"]/span[1]/span[1]', # filter by study
+                '//button[@id="id_apply_filters"]', # applye filters button
+                '//section[@id="results-summary"]', # results summary
+                '//form[@id="id_add_files_form"]/div[1]/div[1]/button[1]', # add to cart button
+                '//div[@class="items-per-page-label"]/a[1]', # items per page link
+                '//div[@class="pagination-centered"]/ul/li[1]/a', #pagination
+            )
+            self.check_tabbing(elements)
+
+    def test_tabbing_on_cart_page(self):
+        """
+        1. Go to search page (default query)
+        2. Add ferst file to cart
+        3. Check tabbing on cart page
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            time.sleep(3)
+            # add files to cart and go to cart page
+            driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[1]/div/input"
+                    ).click()
+            driver.find_element_by_css_selector('.add-to-cart-btn').click()
+            time.sleep(3)
+            elements = (
+                '//ul[@id="accessibility-links"]/li[3]/a', # skip to main results
+                '//ul[@class="nav"]/li[3]/a', # Help page link
+                '//div[@class="btn-toolbar"]/div[1]/button[1]', # remove from cart button
+                '//span[@id="ddcl-id-columns-selector"]/span[1]', # columns ddcl
+                '//input[@id="id-check-all-checkbox"]', # select all checkbox
+                '//th[@id="id-col-study"]/div/a', # study link
+            )
+            self.check_tabbing(elements)
+
+    def test_tabbing_on_details_page(self):
+        """
+        1. Go to search page (default query)
+        2. Get some analysis id from table
+        3. Go to details page
+        3. Check tabbing on details page
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+            time.sleep(3)
+            # go to file details page
+            details_url = driver.find_element_by_xpath(
+                            '//div[@class="bDiv"]//tbody/tr[1]'
+                            ).get_attribute('data-details-url')
+            driver.get('%s%s' % (self.live_server_url, details_url))
+            time.sleep(3)
+            elements = (
+                '//ul[@id="accessibility-links"]/li[2]/a', # skip to main content link
+                '//ul[@class="nav"]/li[2]/a', # Cart page link
+                '//a[@id="id-collapse-all-button"]', # collapse all button
+                '//button[@id="id-download-metadata"]', # download xml button
+                '//div[@id="XMLHolder"]', # raw xml view
+            )
+            self.check_tabbing(elements)
+
+
 # tests for help app
 
 HELP_TEST_SETTINGS = dict(TEST_SETTINGS)
