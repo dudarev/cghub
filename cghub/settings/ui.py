@@ -65,61 +65,61 @@ function obtains value and should return new value, for example:
 
 COLUMN_STYLES = {
     'Analysis Id': {
-        'width': 220, 'align': 'left', 'default_state': 'visible',
+        'width': 220, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Assembly': {
-        'width': 120, 'align': 'left', 'default_state': 'visible',
+        'width': 120, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Barcode': {
-        'width': 235, 'align': 'left', 'default_state': 'visible',
+        'width': 235, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Center': {
-        'width': 100, 'align': 'left', 'default_state': 'visible',
+        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Center Name': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden',
+        'width': 100, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
         },
     'Disease': {
-        'width': 65, 'align': 'left', 'default_state': 'visible',
+        'width': 65, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Disease Name': {
-        'width': 200, 'align': 'left', 'default_state': 'hidden',
+        'width': 200, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
         },
     'Experiment Type': {
-        'width': 95, 'align': 'left', 'default_state': 'hidden',
+        'width': 95, 'align': 'left', 'default_state': 'hidden', 'abbr': True,
         },
     'Files Size': {
-        'width': 75, 'align': 'right', 'default_state': 'visible',
+        'width': 75, 'align': 'right', 'default_state': 'visible', 'abbr': False,
         },
     'Library Type': {
-        'width': 100, 'align': 'left', 'default_state': 'visible',
+        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Modified': {
-        'width': 80, 'align': 'left', 'default_state': 'visible',
+        'width': 80, 'align': 'left', 'default_state': 'visible', 'abbr': False,
         },
     'Platform': {
-        'width': 100, 'align': 'left', 'default_state': 'visible',
+        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': False,
         },
     'Platform Name': {
-        'width': 200, 'align': 'left', 'default_state': 'hidden',
+        'width': 200, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
         },
     'Sample Accession': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden',
+        'width': 100, 'align': 'left', 'default_state': 'hidden', 'abbr': True,
         },
     'Sample Type': {
-        'width': 75, 'align': 'left', 'default_state': 'visible',
+        'width': 75, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Sample Type Name': {
-        'width': 150, 'align': 'left', 'default_state': 'hidden',
+        'width': 150, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
         },
     'State': {
-        'width': 70, 'align': 'left', 'default_state': 'visible',
+        'width': 70, 'align': 'left', 'default_state': 'visible', 'abbr': False,
         },
     'Study': {
-        'width': 100, 'align': 'left', 'default_state': 'visible',
+        'width': 100, 'align': 'left', 'default_state': 'visible', 'abbr': True,
         },
     'Uploaded': {
-        'width': 80, 'align': 'left', 'default_state': 'hidden',
+        'width': 80, 'align': 'left', 'default_state': 'hidden', 'abbr': False,
         },
 }
 

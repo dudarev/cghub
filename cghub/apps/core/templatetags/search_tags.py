@@ -363,8 +363,12 @@ def table_row(result):
         if value is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
-        html += '<td style="text-align: {align}" headers="id-col-{col_name}">{value}</td>'.format(
-                    align=col_style['align'], col_name=col_name, value=value)
+        html += '<td style="text-align: {align}" headers="id-col-{col_name}">{abbr_begin}{value}{abbr_end}</td>'.format(
+                    align=col_style['align'],
+                    col_name=col_name,
+                    value=value,
+                    abbr_begin='<abbr>' if col_style['abbr'] else '',
+                    abbr_end='</abbr>' if col_style['abbr'] else '')
     return html
 
 
@@ -383,6 +387,6 @@ def details_table(result):
         if value is None:
             continue
         html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
-                '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
-                    col_name=col_name, field_name=field_name, value=value))
+                 '<td headers="id-row-{col_name}">{value}</td></tr>'.
+                 format(col_name=col_name, field_name=field_name, value=value))
     return html
