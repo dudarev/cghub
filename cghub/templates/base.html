@@ -128,5 +128,10 @@
     <script type="text/javascript" src="{% static 'js/base.min.js' %}"></script>
 {% endif %}
 {% block extra_body_js %} {% endblock %}
+{% if debug %}
+    <script type="text/javascript" src="{% static 'js/accessibility.js' %}"></script>
+{% else %}
+    <script type="text/javascript" src="{% static 'js/accessibility.min.js' %}"></script>
+{% endif %}
 </body>
 </html>

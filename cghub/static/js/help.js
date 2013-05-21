@@ -89,9 +89,13 @@ jQuery(function ($) {
             });
         },
         activateTooltipsForSelector:function (selector, find_key) {
+            selector = selector + ', ' + selector + ' > abbr';
             $(document).on('mouseenter', selector, function(e){
                 cghub.help.tooltipShowTimeout = setTimeout(function() {
                     var $target = $(e.target);
+                    if($target.is('abbr')) {
+                        $target = $target.parent();
+                    }
                     cghub.help.hintShow = true;
                     cghub.help.showToolTip($target, find_key($target));
                 }, cghub.help.hoverTime);

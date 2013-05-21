@@ -110,7 +110,7 @@ def render_filters():
     t = select_template(['filters.html', ])
     content = t.render(Context({
         'all_filters': ALL_FILTERS,
-        'date_ids': DATE_FILTERS_HTML_IDS
+        'date_ids': DATE_FILTERS_HTML_IDS,
     }))
     return content
 
@@ -364,7 +364,9 @@ def table_row(result):
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
         html += '<td style="text-align: {align}" headers="id-col-{col_name}">{value}</td>'.format(
-                    align=col_style['align'], col_name=col_name, value=value)
+                    align=col_style['align'],
+                    col_name=col_name,
+                    value=value)
     return html
 
 
@@ -383,6 +385,6 @@ def details_table(result):
         if value is None:
             continue
         html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
-                '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
+                 '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
                     col_name=col_name, field_name=field_name, value=value))
     return html
