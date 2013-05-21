@@ -11,7 +11,6 @@ jQuery(function ($) {
             cghub.cart.cacheElements();
             cghub.cart.initFlexigrid();
             cghub.cart.bindEvents();
-            cghub.cart.attachAbbrsToTable();
         },
         cacheElements:function () {
             cghub.cart.$columnNumber = 0;
@@ -78,22 +77,6 @@ jQuery(function ($) {
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
         },
-        attachAbbrsToTable:function(){
-            var table_cells = $('.flexigrid tr td[headers] div');
-            table_cells.each(function (i, cell) {
-               cghub.cart.insertAbbrsInText(cell)
-            });
-        },
-        insertAbbrsInText: function(text_container){
-            var text = $(text_container).text().trim();
-            var parts = text.split(/([\-\_\/\s])/); // split by '-', '_', '/', ' ' to get array of pure strings and separators
-            for (var j in parts) {
-                if (parts[j].match(/[A-Z]{2,}/g)){
-                    parts[j] = '<abbr>' + parts[j] + '</abbr>';
-                }
-            }
-            $(text_container).html(parts.join(''));
-        }
     };
     cghub.cart.init();
 });

@@ -385,6 +385,6 @@ def details_table(result):
         if value is None:
             continue
         html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
-                 '<td headers="id-row-{col_name}">{value}</td></tr>'.
-                 format(col_name=col_name, field_name=field_name, value=value))
+                 '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
+                    col_name=col_name, field_name=field_name, value=value))
     return html

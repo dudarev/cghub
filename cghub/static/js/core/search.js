@@ -18,7 +18,6 @@ jQuery(function ($) {
             cghub.search.parseAppliedFilters();
             cghub.search.initDdcl();
             cghub.search.initCustomPeriodButtons();
-            cghub.search.attachAbbrs();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -505,47 +504,6 @@ jQuery(function ($) {
             }
             return true;
         },
-        attachAbbrs:function(){
-            cghub.search.attachAbbrsToFilters();
-            cghub.search.attachAbbrsToSummary();
-            cghub.search.attachAbbrsToTable();
-        },
-        attachAbbrsToFilters:function(){
-            // attach <abbr> to filters dropdowns
-            var labels = $('.sidebar > div .ui-dropdownchecklist-item > label');
-            labels.each(function (i, label) {
-                cghub.search.insertAbbrsInText(label)
-            });
-            // refresh filter text
-            for (var i=0; i<cghub.search.$filterSelects.length; i++) {
-                var select = cghub.search.$filterSelects[i];
-                if (!$(select).hasClass('date-filters')) {
-                    cghub.search.ddclOnComplete(select);
-                }
-            }
-        },
-        attachAbbrsToSummary:function(){
-            var applied_filters = $('.applied-filters > ul > li');
-            applied_filters.each(function (i, filter_text) {
-               cghub.search.insertAbbrsInText(filter_text)
-            });
-        },
-        attachAbbrsToTable:function(){
-            var table_cells = $('.flexigrid tr td[headers] div');
-            table_cells.each(function (i, cell) {
-               cghub.search.insertAbbrsInText(cell)
-            });
-        },
-        insertAbbrsInText: function(text_container){
-            var text = $(text_container).text().trim();
-            var parts = text.split(/([\-\_\/\s])/); // split by '-', '_', '/', ' ' to get array of pure strings and separators
-            for (var j in parts) {
-                if (parts[j].match(/[A-Z]{2,}/g)){
-                    parts[j] = '<abbr>' + parts[j] + '</abbr>';
-                }
-            }
-            $(text_container).html(parts.join(''));
-        }
     };
     cghub.search.init();
 });
