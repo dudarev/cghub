@@ -35,11 +35,6 @@ jQuery(function ($) {
             $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
             $('.data-table').css('visibility', 'visible');
-            $('.ui-dropdownchecklist-dropcontainer').attr('tabindex', -1);
-            /* add text for screen readers for ddcl-id-columns-selector */
-            $('#ddcl-id-columns-selector .ui-dropdownchecklist-selector')
-                .prepend('<div class="hidden">' + $('#id-columns-selector').attr('title') + ', selected:</div>')
-                .attr('id', 'id-columns-ui-selector').attr('aria-labelledby', 'id-columns-ui-selector');
             /* add fieldset element */
             var $data_table = $('.bDiv table');
             $data_table.wrap($('<fieldset/>'));
