@@ -16,6 +16,7 @@ jQuery(function ($) {
             cghub.accessibility.insertAbbrs('.sidebar > div .ui-dropdownchecklist-item > label');
             cghub.accessibility.insertAbbrs('.applied-filters > ul > li');
             cghub.accessibility.insertAbbrs('.flexigrid td[headers] > div');
+            cghub.accessibility.insertAbbrs('.details-content table td');
         },
         insertAbbrs: function(selector){
             var $elements = $(selector);
@@ -24,7 +25,8 @@ jQuery(function ($) {
                 var text = $(this).text().trim();
                 var parts = text.split(/([\-\_\/\s])/); // split by '-', '_', '/', ' ' to get array of pure strings and separators
                 for (var i in parts) {
-                    if (parts[i].match(/[A-Z]{2,}/g)){
+                    var found = parts[i].match(/[A-Z]{2,5}/g);
+                    if (found && found.length == 1){
                         parts[i] = '<abbr>' + parts[i] + '</abbr>';
                     }
                 }
