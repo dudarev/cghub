@@ -127,24 +127,12 @@ def back_to_bytes(size_str):
     return 0
 
 
-def get_filter_id(driver, filter_name):
-    """
-    Helper function for getting sidebar filter id.
-    Makes filter tests easier to maintain.
-    """
-    el = driver.find_element_by_css_selector(
-                "select[data-section='{0}'] + span".format(filter_name))
-    el_id = el.get_attribute('id').split('-')[-1]
-    return el_id
-
-
-def scroll_page_to_filter(driver, filter_id):
+def scroll_page_to_filter(driver, f):
     """
     Scroll page to element (makes it visible fo user).
     """
     driver.execute_script(
-        "$(window).scrollTop($('#ddcl-{0}').offset().top - 100);".format(
-                                                            filter_id))
+        "$(window).scrollTop($('#ddcl-id-{0}').offset().top - 100);".format(f))
 
 
 class CoreUITestCase(LiveServerTestCase):
@@ -309,23 +297,22 @@ class SidebarTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
 
-            center_id = get_filter_id(driver, 'center_name')
-            self.selenium.find_element_by_id("ddcl-{0}".format(center_id)).click()
+            self.selenium.find_element_by_id("ddcl-id-center_name").click()
 
             # get centers count
             centers_count = len(ALL_FILTERS['center_name']['filters'])
             # by center has <centers_count> centers, i0 - deselect all, i1-i<centers_count> - selections
             # click on 'All' to deselect all and check that no one selected
-            driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
+            driver.find_element_by_id("ddcl-id-center_name-i0").click()
             for i in range(1, centers_count + 1):
-                cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
+                cb = driver.find_element_by_id("ddcl-id-center_name-i{0}".format(i))
                 self.assertFalse(cb.is_selected())
 
             # click again - select all
             # check that all centers selected
-            driver.find_element_by_id("ddcl-{0}-i0".format(center_id)).click()
+            driver.find_element_by_id("ddcl-id-center_name-i0").click()
             for i in range(1, centers_count + 1):
-                cb = driver.find_element_by_id("ddcl-{0}-i{1}".format(center_id, i))
+                cb = driver.find_element_by_id("ddcl-id-center_name-i{0}".format(i))
                 self.assertTrue(cb.is_selected())
 
     def test_select_date(self):
@@ -344,49 +331,47 @@ class SidebarTestCase(LiveServerTestCase):
             driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
 
             # Open 'By Time Modified' filter
-            last_modified_id = get_filter_id(driver, 'last_modified')
             driver.find_element_by_xpath(
-                "//span[@id='ddcl-{0}']/span/span".format(last_modified_id)).click()
+                "//span[@id='ddcl-id-last_modified']/span/span").click()
 
             # click the first selection
             i_click = 0
-            driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
+            driver.find_element_by_id("ddcl-id-last_modified-i{0}".format(i_click)).click()
             # check that other options are unselected
             for i in range(0, 5):
                 if not i == i_click:
-                    rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
+                    rb = driver.find_element_by_id("ddcl-id-last_modified-i{0}".format(i))
                     self.assertFalse(rb.is_selected())
 
             # click on first option
             i_click = 1
-            driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i_click)).click()
+            driver.find_element_by_id("ddcl-id-last_modified-i{0}".format(i_click)).click()
             # check that other options unselected
             for i in range(0, 5):
                 if not i == i_click:
-                    rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(last_modified_id, i))
+                    rb = driver.find_element_by_id("ddcl-id-last_modified-i{0}".format(i))
                     self.assertFalse(rb.is_selected())
 
             # open 'By Upload Time' filter
-            upload_date_id = get_filter_id(driver, 'upload_date')
             driver.find_element_by_xpath(
-                "//span[@id='ddcl-{0}']/span/span".format(upload_date_id)).click()
+                "//span[@id='ddcl-id-upload_date']/span/span").click()
 
             # select first option
             z_click = 0
-            driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
+            driver.find_element_by_id("ddcl-id-upload_date-i{0}".format(z_click)).click()
             # check that other options are unselected
             for i in range(0, 5):
                 if not i == z_click:
-                    rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
+                    rb = driver.find_element_by_id("ddcl-id-upload_date-i{0}".format(i))
                     self.assertFalse(rb.is_selected())
 
             # select second option
             z_click = 1
-            driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, z_click)).click()
+            driver.find_element_by_id("ddcl-id-upload_date-i{0}".format(z_click)).click()
             # check that other options are unselected
             for i in range(0, 5):
                 if not i == z_click:
-                    rb = driver.find_element_by_id("ddcl-{0}-i{1}".format(upload_date_id, i))
+                    rb = driver.find_element_by_id("ddcl-id-upload_date-i{0}".format(i))
                     self.assertFalse(rb.is_selected())
 
     def test_selection(self):
@@ -434,21 +419,20 @@ class SidebarTestCase(LiveServerTestCase):
             # select filters options
             for f in selected_options_values:
                 # open filter DDCL
-                filter_id = get_filter_id(driver, f)
-                scroll_page_to_filter(driver, filter_id)
+                scroll_page_to_filter(driver, f)
                 self.selenium.find_element_by_css_selector(
-                        "#ddcl-{0} > span:first-child > span".format(filter_id)).click()
+                        "#ddcl-id-{0} > span:first-child > span".format(f)).click()
                 # if some items selected by default, select all
                 if f in TEST_SETTINGS['DEFAULT_FILTERS']:
-                    driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
+                    driver.find_element_by_id("ddcl-id-{0}-i0".format(f)).click()
                 # unselect all
-                driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
+                driver.find_element_by_id("ddcl-id-{0}-i0".format(f)).click()
                 # select necessary options
                 for i in selected_options_ids[f]:
-                    driver.find_element_by_id("ddcl-{0}-i{1}".format(filter_id, i)).click()
+                    driver.find_element_by_id("ddcl-id-{0}-i{1}".format(f, i)).click()
                 # and close filter DDCL
                 self.selenium.find_element_by_css_selector(
-                        "#ddcl-{0} > span:last-child > span".format(filter_id)).click()
+                        "#ddcl-id-{0} > span:last-child > span".format(f)).click()
 
             # submit form
             driver.find_element_by_id("id_apply_filters").click()
@@ -563,10 +547,9 @@ class CustomPeriodTestCase(LiveServerTestCase):
         :param end: end date (datetime.date object)
         """
         driver = self.selenium
-        filter_id = get_filter_id(driver, filter_name)
 
         # Check custom date is displayed in filter input
-        filter_input = driver.find_element_by_id("ddcl-{0}".format(filter_id))
+        filter_input = driver.find_element_by_id("ddcl-id-{0}".format(filter_name))
         filter_text = filter_input.find_element_by_css_selector(
                                     '.ui-dropdownchecklist-text').text
         text = "{0} - {1}".format(
@@ -590,14 +573,13 @@ class CustomPeriodTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             # scroll to 'By Upload Time' filter
-            filter_id = get_filter_id(driver, 'upload_date')
-            scroll_page_to_filter(driver, filter_id)
+            scroll_page_to_filter(driver, 'upload_date')
 
             # check popup displayed and cancel button works
             self.assertFalse(driver.find_elements_by_css_selector('.dp-container'))
-            driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
+            driver.find_element_by_id("ddcl-id-upload_date").click()
             driver.find_element_by_css_selector(
-                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+                        '#ddcl-id-upload_date-ddw .js-pick-period').click()
             # check that popup is visible
             self.assertTrue(driver.find_element_by_css_selector('.dp-container').is_displayed())
             # click 'Cancel'
@@ -607,9 +589,9 @@ class CustomPeriodTestCase(LiveServerTestCase):
             # check different periods submit
             for dates in self.TEST_DATES:
                 # select period
-                driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
+                driver.find_element_by_id("ddcl-id-upload_date").click()
                 driver.find_element_by_css_selector(
-                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+                        '#ddcl-id-upload_date-ddw .js-pick-period').click()
                 self.set_datepicker_date(dates['start'], dates['end'])
                 # click 'Submin' in custom period popup
                 driver.find_element_by_css_selector("button.btn-submit.btn").click()
@@ -628,14 +610,13 @@ class CustomPeriodTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             # scroll to 'By Time Modified' filter
-            filter_id = get_filter_id(driver, 'last_modified')
-            scroll_page_to_filter(driver, filter_id)
+            scroll_page_to_filter(driver, 'last_modified')
 
             dates = self.TEST_DATES[0]
             # select period
-            driver.find_element_by_id("ddcl-{0}".format(filter_id)).click()
+            driver.find_element_by_id("ddcl-id-last_modified").click()
             driver.find_element_by_css_selector(
-                        '#ddcl-{0}-ddw .js-pick-period'.format(filter_id)).click()
+                        '#ddcl-id-last_modified-ddw .js-pick-period').click()
             self.set_datepicker_date(dates['start'], dates['end'])
             # click 'Submin' in custom period popup
             driver.find_element_by_css_selector("button.btn-submit.btn").click()
@@ -1069,7 +1050,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         r2 = range(column_count)
         for x in r2:
             driver.execute_script("$('.bDiv')"
-                        ".scrollLeft($('.bDiv table thead tr th[axis=col%d]')"
+                        ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
             assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
         # close DDCL
@@ -1197,12 +1178,11 @@ class ResetFiltersTestCase(LiveServerTestCase):
                     break
 
             # select first 2 options in filter
-            filter_id = get_filter_id(driver, filter_name)
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(filter_id)).click()
-            driver.find_element_by_id("ddcl-{0}-i0".format(filter_id)).click()
-            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i1']".format(filter_id)).click()
-            driver.find_element_by_xpath("//label[@for='ddcl-{0}-i2']".format(filter_id)).click()
-            driver.find_element_by_xpath("//span[@id='ddcl-{0}']/span/span".format(filter_id)).click()
+            driver.find_element_by_xpath("//span[@id='ddcl-id-{0}']/span/span".format(filter_name)).click()
+            driver.find_element_by_id("ddcl-id-{0}-i0".format(filter_name)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-id-{0}-i1']".format(filter_name)).click()
+            driver.find_element_by_xpath("//label[@for='ddcl-id-{0}-i2']".format(filter_name)).click()
+            driver.find_element_by_xpath("//span[@id='ddcl-id-{0}']/span/span".format(filter_name)).click()
 
             # apply filters
             driver.find_element_by_id("id_apply_filters").click()
@@ -1555,8 +1535,7 @@ class HelpHintsTestCase(LiveServerTestCase):
                             ".sidebar .ui-dropdownchecklist-text-item")[0]
             self.check_tooltip(study_selected_option)
             # open Study DDCL
-            study_id = get_filter_id(driver, 'study')
-            self.selenium.find_element_by_id("ddcl-{0}".format(study_id)).click()
+            self.selenium.find_element_by_id("ddcl-id-study").click()
             # filter options
             study_filter_option = driver.find_elements_by_css_selector(
                             ".sidebar .ui-dropdownchecklist-item")[1]
