@@ -3,6 +3,7 @@ import sys
 import shutil
 import contextlib
 import datetime
+import urllib2
 
 from urllib2 import URLError
 from lxml import objectify
@@ -35,11 +36,13 @@ from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
+from cghub.apps.cart.views import cart_add_files
+
 
 TEST_DATA_DIR = 'cghub/test_data/'
 
 
-def get_request():
+def get_request(url=reverse('home_page')):
     """
     Returns request object with session
     """
@@ -50,7 +53,7 @@ def get_request():
     store.save()
     # create request
     factory = RequestFactory()
-    request = factory.get(reverse('home_page'))
+    request = factory.get(url)
     request.session = store
     request.cookies = {}
     request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
@@ -680,3 +683,42 @@ class ErrorViewsTestCase(TestCase):
             r = error_500(request)
             self.assertEqual(r.status_code, 500)
             self.assertTrue(str(r).find('Connection to WS-API server failed') != -1)
+
+    def urlopen_mock(url):
+            raise urllib2.URLError('Connection error')
+
+    @patch('urllib2.urlopen', urlopen_mock)
+    def test_status_500_if_urlopen_exception(self):
+        """
+        User should be notified in case of error occured in cghub.wsapi.utils.urlopen 
+        """
+        was_exception = False
+        try:
+            r = self.client.get(reverse('home_page'))
+        except urllib2.URLError as e:
+            was_exception = True
+            self.assertIn('No response after', str(e))
+        except:
+            assert False, 'Enother exception than URLError raised'
+        self.assertTrue(was_exception)
+
+    @patch('urllib2.urlopen', urlopen_mock)
+    def test_cart_add_files_return_error_if_urlopen_exception(self):
+        # remove existing cache
+        # filters = '{"analyte_code":"(D)"}'
+        # cache file name = 2faab3400e367605bcf65cd3df490466.ids
+        path = os.path.join(
+                    settings.WSAPI_CACHE_DIR,
+                    '2faab3400e367605bcf65cd3df490466.ids')
+        if os.path.exists(path):
+            os.remove(path)
+        # create right request
+        request = get_request(url=reverse(
+                    'cart_add_remove_files', kwargs={'action': 'add'}))
+        request.POST = {}
+        request.POST['filters'] = '{"analyte_code":"(D)"}'
+        request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        response = cart_add_files(request)
+        self.assertEqual(response.status_code, 200)
+        result = json.loads(response.content)
+        self.assertEqual(result['action'], 'error')

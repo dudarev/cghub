@@ -50,13 +50,11 @@
             </h1>
         {% endif %}
     </section>
-    <section id="results-summary" aria-labelledby="results-summary" tabindex="52">
     {% if num_results %}
-        <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
-        <div class="applied-filters">{% applied_filters request %}</div>
-    {% endif %}
-    </section>
-    {% if num_results > 0 %}
+        <section id="results-summary" aria-labelledby="results-summary" tabindex="52">
+            <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
+            <div class="applied-filters">{% applied_filters request %}</div>
+        </section>
         <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
             {% csrf_token %}
             <div class="btn-toolbar">
@@ -85,12 +83,10 @@
                 </div>
             </div>
         </form>
-    {% elif num_results == None %}
-        <form class="search-form form-search" action="{% url search_page %}">
-            <input class="search-query" type="text" name="q">
-        </form>
     {% else %}
-        <section class="applied-filters">{% applied_filters request %}</section>
+        <section id="results-summary" aria-labelledby="results-summary" tabindex="52">
+            <div class="applied-filters">{% applied_filters request %}</div>
+        </section>
         {% if message %}
             <h4>{{ message }}</h4>
         {% endif %}
