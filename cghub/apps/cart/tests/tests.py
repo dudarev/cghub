@@ -356,8 +356,8 @@ class CartCacheTestCase(WithCacheTestCase):
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
             self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
-            'which was last modified 2013-05-16T20:50:58Z not exists, '
-            'may be it was updated')
+            'which was last modified 2013-05-16T20:50:58Z. '
+            'File with specified analysis_id not found')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
         if os.path.isdir(path):
@@ -371,16 +371,18 @@ class CartCacheTestCase(WithCacheTestCase):
         try:
             save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
         except AnalysisFileException:
-            pass
-        else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            assert False, 'Most recent file was not downloaded'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check access denied to files outside cache dir
         try:
             save_to_cart_cache(self.analysis_id, '../../same_outside_dir')
         except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
+            self.assertEqual(
+                unicode(e),
+                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1, '
+                'which was last modified ../../same_outside_dir. '
+                'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
 
