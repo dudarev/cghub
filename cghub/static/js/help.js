@@ -149,7 +149,7 @@ jQuery(function ($) {
 
         // for cells in result table
         activateTableCellTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
+            cghub.help.activateTooltipsForSelector('.bDiv td[headers] div', function($target) {
                 if(!$.trim($target.text()).length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')

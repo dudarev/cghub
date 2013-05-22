@@ -34,10 +34,10 @@ class AnalysisFileException(Exception):
         self.message = message
 
     def __str__(self):
-        return self.message or ('File for analysis_id={0}, which was last modified {1} '
-            'not exists, may be it was updated'.format(
+        return 'File for analysis_id={0}, which was last modified {1}. {2}'.format(
                                 self.analysis_id,
-                                self.last_modified)) 
+                                self.last_modified,
+                                self.message) 
 
 
 def get_cart_cache_file_path(analysis_id, last_modified, short=False):
@@ -71,7 +71,8 @@ def save_to_cart_cache(analysis_id, last_modified):
     Save file to {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisFull.xml
     and cutted version saves to
     {CACHE_ROOT}/{analysis_id}/{modification_time}/analysisShort.xml
-    Raise AnalysisFileException if file does not exist or was updated
+    Raise AnalysisFileException if file with specified analysis_id does not exist.
+    If file was updated - use most recent version.
 
     c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
     would become:
@@ -83,8 +84,9 @@ def save_to_cart_cache(analysis_id, last_modified):
         not last_modified or
         analysis_id.find('..') != -1 or
         last_modified.find('..') != -1):
-        raise AnalysisFileException(analysis_id, last_modified,
-                                message='Bad analysis_id or last_modified')
+        raise AnalysisFileException(
+                analysis_id, last_modified,
+                message='Bad analysis_id or last_modified')
     if is_cart_cache_exists(analysis_id, last_modified):
         return
     path = settings.CART_CACHE_DIR
@@ -109,9 +111,11 @@ def save_to_cart_cache(analysis_id, last_modified):
                 use_api_light=False,
                 settings=WSAPI_SETTINGS)
         if not hasattr(result, 'Result') or int(result.Hits.text) != 1:
-            raise AnalysisFileException(analysis_id, last_modified)
-        if result.Result.last_modified != last_modified:
-            raise AnalysisFileException(analysis_id, last_modified)
+            raise AnalysisFileException(
+                    analysis_id, last_modified,
+                    message='File with specified analysis_id not found')
+        # if result.Result.last_modified != last_modified:
+        # load most recent version
         # example tmp file name: 14985-MainThread-my-pc.tmp
         path_tmp = os.path.join(path, generate_tmp_file_name())
         with open(path_tmp, 'w') as f:
@@ -137,7 +141,6 @@ def get_analysis_path(analysis_id, last_modified, short=False):
     path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
     if os.path.exists(path):
         return path
-    # if file not exists or was updated - AnalysisFileException exception will be raised
     save_to_cart_cache(analysis_id, last_modified)
     return path
 
@@ -152,7 +155,6 @@ def get_analysis(analysis_id, last_modified, short=False):
     """
     path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
     if not os.path.exists(path):
-        # if file not exists or was updated - AnalysisFileException exception will be raised
         save_to_cart_cache(analysis_id, last_modified)
     result = Results.from_file(path, settings=WSAPI_SETTINGS)
     return result
@@ -171,7 +173,7 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
     """
     path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
     if not os.path.exists(path):
-        # if file not exists or was updated - AnalysisFileException exception will be raised
+        # if file not exists - most recent file will be downloaded
         save_to_cart_cache(analysis_id, last_modified)
     with open(path, 'r') as f:
         result = f.read()

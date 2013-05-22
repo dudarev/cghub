@@ -2,6 +2,7 @@ import sys
 import csv
 import urllib2
 import datetime
+import logging
 
 from StringIO import StringIO
 from lxml import etree, objectify
@@ -28,6 +29,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
+cart_logger = logging.getLogger('cart')
 
 
 def get_or_create_cart(request):
@@ -199,7 +201,8 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                             analysis_id=f,
                             last_modified=last_modified,
                             short=short)
-        except AnalysisFileException:
+        except AnalysisFileException as e:
+            cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
         yield '<Result id="%d">' % counter
@@ -232,7 +235,8 @@ def summary_tsv_iterator(data):
             result = get_analysis(
                             analysis_id=f,
                             last_modified=last_modified)
-        except AnalysisFileException:
+        except AnalysisFileException as e:
+            cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
         result.add_custom_fields()
         fields = field_values(result.Result, humanize_files_size=False)

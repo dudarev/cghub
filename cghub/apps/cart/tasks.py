@@ -1,6 +1,7 @@
 import glob
 import datetime
 import os
+import logging
 
 from celery.task import task
 
@@ -12,6 +13,9 @@ from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
 from cghub.apps.cart.parsers import parse_cart_attributes
 
 from cghub.apps.core.utils import decrease_start_date
+
+
+cart_logger = logging.getLogger('cart')
 
 
 @task(ignore_result=True)
@@ -27,8 +31,8 @@ def cache_results_task(analysis_id, last_modified):
     """
     try:
         save_to_cart_cache(analysis_id, last_modified)
-    except AnalysisFileException:
-        pass
+    except AnalysisFileException as e:
+        cart_logger.error(str(e))
 
 
 @task(ignore_result=True)
