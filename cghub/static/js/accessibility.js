@@ -12,6 +12,7 @@ jQuery(function ($) {
             cghub.accessibility.fixDDCLs();
             cghub.accessibility.attachAbbrs();
             cghub.accessibility.refreshFiltersDDCL();
+            cghub.accessibility.fixFlaxigrid();
         },
         attachAbbrs:function(){
             cghub.accessibility.insertAbbrs('.sidebar > div .ui-dropdownchecklist-item > label');
@@ -56,6 +57,11 @@ jQuery(function ($) {
                 $(this).prepend('<div class="hidden">Filter ' + filter_name + ', selected:</div>');
                 $(this).attr('id', 'id-' + filter_slug + '-ui-selector').attr('aria-labelledby', 'id-' + filter_slug + '-ui-selector');
             });
+        },
+        fixFlaxigrid:function() {
+            /* add target for skip nav links */
+            $('#data-table').removeAttr('id');
+            $('.flexigrid').attr('id', 'data-table');
         },
     };
     cghub.accessibility.init();

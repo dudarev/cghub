@@ -32,7 +32,6 @@ jQuery(function ($) {
         },
         initFlexigrid:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
-            $('.flexigrid').attr('id', 'data-table');
             $('.flexigrid .bDiv tr').contextmenu();
             $('.data-table').css('visibility', 'visible');
             /* add fieldset element */
