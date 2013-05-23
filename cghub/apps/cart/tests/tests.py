@@ -23,7 +23,7 @@ from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (manifest, metadata,
                             summary, add_ids_to_cart, add_files_to_cart,
-                            check_missing_files, cache_file,
+                            load_missing_attributes, cache_file,
                             analysis_xml_iterator, summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
@@ -653,11 +653,11 @@ class CartUtilsTestCase(TestCase):
                     '7850f073-642a-40a8-b49d-e328f27cfd66']['analysis_id'],
                 '7850f073-642a-40a8-b49d-e328f27cfd66')
 
-    def test_check_missing_files(self):
+    def test_load_missing_attributes(self):
         files = [
             {'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66', 'study': 'live'},
             {'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec'}]
-        files = check_missing_files(files)
+        files = load_missing_attributes(files)
         # first is unchanged
         self.assertEqual(len(files[0]), 2)
         # attributes was loaded for second item

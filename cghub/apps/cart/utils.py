@@ -118,10 +118,12 @@ def cart_remove_files_without_attributes(request):
     return len(to_remove)
 
 
-def check_missing_files(files):
+def load_missing_attributes(files):
     """
     Check that not only analysis_id attribute filled.
-    If only analysis_id exists, upload missing attributes and modify data
+    If only analysis_id exists, upload missing attributes and modify data.
+
+    Runs only if task to fill attributes in progress.
 
     :param files: list of files attributes
     """
