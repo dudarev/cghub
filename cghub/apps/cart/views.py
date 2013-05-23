@@ -23,7 +23,7 @@ from cghub.apps.core.attributes import ATTRIBUTES
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, clear_cart,
-                            check_missing_files, cache_file,
+                            load_missing_attributes, cache_file,
                             cart_remove_files_without_attributes,
                             add_ids_to_cart, add_files_to_cart)
 from cghub.apps.cart.cache import is_cart_cache_exists
@@ -208,6 +208,11 @@ class CartView(TemplateView):
             self.request.session = engine.SessionStore(
                                 session_key=self.request.session.session_key)
             missed_files = cart_remove_files_without_attributes(self.request)
+            # log error if missed files
+            if missed_files:
+                cart_logger.error(
+                        'Attributes for %d files were not added to cart, '
+                        'these files were removed from cart.' % missed_files)
             del self.request.session['task_id']
             self.request.session.save()
         cart = get_or_create_cart(self.request).values()
@@ -222,7 +227,7 @@ class CartView(TemplateView):
         """
         Check for not fully added files
         """
-        files = check_missing_files(cart[offset:offset + limit])
+        files = load_missing_attributes(cart[offset:offset + limit])
         self.request.session.modified = False
         return {
             'results': files,
