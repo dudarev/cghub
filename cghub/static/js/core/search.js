@@ -114,6 +114,9 @@ jQuery(function ($) {
             var $data_table = $('.bDiv table');
             $data_table.wrap($('<fieldset/>'));
             $data_table.parent().prepend($('<legend class="hidden">Select files to add to cart:</legend>'));
+            /* disable sort link by files size, ticket #298 RM2220
+            TODO: fix this in future */
+            $('#id-col-files_size .sort-link').on('click', function() {return false;});
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
