@@ -229,7 +229,7 @@ def summary_tsv_iterator(data):
     """
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
-    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
+    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab', lineterminator='\n')
     csvwriter.writerow([field.lower().replace(' ', '_') for field in COLUMNS])
     for f in data:
         last_modified = data[f].get('last_modified')
