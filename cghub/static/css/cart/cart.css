@@ -25,6 +25,7 @@
 .modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
+div.btn-toolbar .btn{margin:0 6px 0 0;}
 input#bam-filter-sidebar-search-field{width:181px;max-width:92%;border:1px solid #888;}
 input#bam-filter-sidebar-search-field:focus{border:1px solid #ccc;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
@@ -41,5 +42,5 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .column-select-label>label{margin-right:5px;}
 .sidebar .filter-label{font-weight:bold;margin-bottom:0;font-size:12px;}
 .items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
-div.cart-btn-group{padding:15px 0;}
+div.cart-btn-group{padding:15px 20px 15px 0;display:inline-block;}
 .cart-content{padding-left:50px;}.cart-content .alert a{color:inherit;text-decoration:underline;}
