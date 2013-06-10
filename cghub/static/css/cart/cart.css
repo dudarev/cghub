@@ -42,5 +42,5 @@ span.ui-dropdownchecklist-text{padding-top:1px;}
 .column-select-label>label{margin-right:5px;}
 .sidebar .filter-label{font-weight:bold;margin-bottom:0;font-size:12px;}
 .items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
-div.cart-btn-group{padding:15px 0;}
+div.cart-btn-group{padding:15px 20px 15px 0;display:inline-block;}
 .cart-content{padding-left:50px;}.cart-content .alert a{color:inherit;text-decoration:underline;}
