@@ -21,7 +21,7 @@ from cghub.wsapi.api import request as api_request
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
-                                            generate_task_id)
+                                        generate_task_id, xml_add_spaces)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.tasks import cache_results_task
@@ -210,9 +210,12 @@ def analysis_xml_iterator(data, short=False, live_only=False):
             continue
         counter += 1
         downloadable_size += files_size
+        formatted_xml = ''
+        for s in xml_add_spaces(xml, space=4, tab=2):
+            formatted_xml += s
         yield render_to_string('xml/analysis_xml_result.xml', {
                     'counter': counter,
-                    'xml': xml})
+                    'xml': formatted_xml.strip()})
     yield render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': counter,
                     'size': str(round(downloadable_size/1073741824.*100)/100)})
