@@ -32,7 +32,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
-                    decrease_start_date)
+                    decrease_start_date, xml_add_spaces)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -275,6 +275,13 @@ class UtilsTestCase(TestCase):
 
         for i in TEST_DATA:
             self.assertEqual(decrease_start_date(i), TEST_DATA[i])
+
+    def test_xml_add_spaces(self):
+        xml = """<ResultSet date="2013-11-06 09:24:56"><Hits>10</Hits><Result id="1"><analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id><state>live</state><reason/><last_modified>2013-06-09T07:27:48Z</last_modified><upload_date>2013-06-09T06:51:41Z</upload_date></Result></ResultSet>"""
+        result = ''
+        for i in xml_add_spaces(xml, space=1, tab=2):
+            result += i
+        self.assertEqual(result, """\n <ResultSet date="2013-11-06 09:24:56">\n   <Hits>10</Hits>\n   <Result id="1">\n     <analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id>\n     <state>live</state>\n     <reason/>\n     <last_modified>2013-06-09T07:27:48Z</last_modified>\n     <upload_date>2013-06-09T06:51:41Z</upload_date>\n   </Result>\n </ResultSet>\n """)
 
 
 class ContextProcessorsTestCase(TestCase):
