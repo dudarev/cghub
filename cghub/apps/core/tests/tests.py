@@ -370,14 +370,13 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
-            '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: HMS-RK</li><li data-name="refassem_short_name" data-filters="HG18">'
-            '<b>Assembly</b>: HG18</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
-            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
-            '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
-            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
-            '<b>Library Type</b>: WGS, WXS</li></ul>')
+            '<b>Text query</b>: "Some text"</li>'
+            '<li data-name="center_name" data-filters="HMS-RK"><b>Center</b>: <span>HMS-RK </span></li>'
+            '<li data-name="refassem_short_name" data-filters="HG18"><b>Assembly</b>: <span>HG18 </span></li>'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
+            '<li data-name="disease_abbr" data-filters="CNTL&amp;COAD"><b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
+            '<li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span></li>'
+            '<li data-name="library_strategy" data-filters="WGS&amp;WXS"><b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()

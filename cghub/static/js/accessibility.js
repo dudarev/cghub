@@ -25,14 +25,17 @@ jQuery(function ($) {
             if(!$elements.length) return;
             $elements.each(function(){
                 var text = $(this).text().trim();
+                var html = $(this).html().trim();
+
                 var parts = text.split(/([\-\_\/\s])/); // split by '-', '_', '/', ' ' to get array of pure strings and separators
+
                 for (var i in parts) {
                     var found = parts[i].match(/[A-Z]{2,5}/g);
                     if (found && found.length == 1){
-                        parts[i] = '<abbr>' + parts[i] + '</abbr>';
+                        html = html.replace(parts[i], ('<abbr>' + parts[i] + '</abbr>'));
                     }
                 }
-                $(this).html(parts.join(''));
+                $(this).html(html);
             });
         },
         refreshFiltersDDCL:function() {
