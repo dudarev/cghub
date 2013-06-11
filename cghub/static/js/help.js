@@ -23,6 +23,7 @@ jQuery(function ($) {
             cghub.help.activateFilterSelectorItemTooltipHelp();
             cghub.help.activateFilterTextTooltipHelp();
             cghub.help.activateCommonTooltipHelp();
+            cghub.help.activateAppliedFiltersSectionTooltipHelp();
             cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
@@ -200,6 +201,18 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.js-common-tooltip', function($target) {
                 return 'common:' + $target.data('key');
             });
+        },
+        // for 'Applied filter(s)' section
+        activateAppliedFiltersSectionTooltipHelp:function() {
+            cghub.help.activateTooltipsForSelector('.base-content div.applied-filters li span', function($target) {
+                var text = $($target).parents('li').text();
+                var filterName = text.substring(0, text.indexOf(':'));
+                var filterValue = $target.text().trim()
+                if (filterValue.indexOf('(') != -1) {
+                    filterValue = filterValue.substring(0, filterValue.indexOf(' ('));
+                }
+                return filterName + ':' + filterValue;
+            })
         }
     };
     cghub.help.init();
