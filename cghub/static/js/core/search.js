@@ -136,13 +136,9 @@ jQuery(function ($) {
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
                     });
-                    $(select).next().find('.ui-dropdownchecklist-selector').click(function() {
-                        $(this).css('height', '18px');
-                        $(this).find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-                    });
                     // Fixing width bug
                     var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 10);
+                    $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
                 // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
@@ -159,8 +155,7 @@ jQuery(function ($) {
             }
         },
         ddclTextFormatFunction: function(options) {
-            $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-            return 'selecting...';
+            return;
         },
         ddclOnComplete: function(selector) {
             var preview = '',
@@ -180,8 +175,6 @@ jQuery(function ($) {
             }
             $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
-            //Bug #1787 delete standard tooltip with text "selecting..."
-            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         addFilesFormSubmit:function () {
             // disable button
