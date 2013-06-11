@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
 from django.utils import timezone
+from django.template.loader import render_to_string
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
@@ -189,9 +190,10 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     :param short: if True - file will be contains only most necessary attributes
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
-    yield '<ResultSet date="%s">' % datetime.datetime.strftime(
-                                    timezone.now(), '%Y-%d-%m %H:%M:%S')
-    yield '<Hits>%d</Hits>' % len(data)
+    yield render_to_string('xml/analysis_xml_header.xml', {
+                        'date': datetime.datetime.strftime(
+                                    timezone.now(), '%Y-%d-%m %H:%M:%S'),
+                        'len': len(data)})
     counter = 0
     downloadable_size = 0
     for f in data:
@@ -207,16 +209,13 @@ def analysis_xml_iterator(data, short=False, live_only=False):
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
-        yield '<Result id="%d">' % counter
         downloadable_size += files_size
-        yield xml
-        yield '</Result>'
-    yield ('<ResultSummary><downloadable_file_count>{count}</downloadable_file_count>' +
-            '<downloadable_file_size units="GB">{size}</downloadable_file_size>' +
-            '<state_count><live>{count}</live></state_count>' +
-            '</ResultSummary></ResultSet>').format(
-                        count=counter,
-                        size=str(round(downloadable_size/1073741824.*100)/100))
+        yield render_to_string('xml/analysis_xml_result.xml', {
+                    'counter': counter,
+                    'xml': xml})
+    yield render_to_string('xml/analysis_xml_summary.xml', {
+                    'counter': counter,
+                    'size': str(round(downloadable_size/1073741824.*100)/100)})
 
 
 def summary_tsv_iterator(data):

@@ -1,0 +1,8 @@
+  <ResultSummary>
+    <downloadable_file_count>{{ counter }}</downloadable_file_count>
+    <downloadable_file_size units="GB">{{ size }}</downloadable_file_size>
+    <state_count>
+      <live>{{ counter }}</live>
+    </state_count>
+  </ResultSummary>
+</ResultSet>

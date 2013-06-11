@@ -1,0 +1,3 @@
+  <Result id="{{ counter }}">
+    {{ xml }}
+  </Result>
