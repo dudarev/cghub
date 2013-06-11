@@ -138,7 +138,7 @@ jQuery(function ($) {
                     });
                     // Fixing width bug
                     var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 10);
+                    $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
                 // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
