@@ -366,7 +366,7 @@ class TemplateTagsTestCase(TestCase):
             '<b>Text query</b>: "Some text"</li>'
             '<li data-name="center_name" data-filters="HMS-RK"><b>Center</b>: <span>HMS-RK </span></li>'
             '<li data-name="refassem_short_name" data-filters="HG18"><b>Assembly</b>: <span>HG18 </span></li>'
-            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]"><b>Modified</b>: <span>last week </span></li>'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
             '<li data-name="disease_abbr" data-filters="CNTL&amp;COAD"><b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span></li>'
             '<li data-name="library_strategy" data-filters="WGS&amp;WXS"><b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
