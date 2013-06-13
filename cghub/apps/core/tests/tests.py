@@ -573,6 +573,15 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
             follow=True)
         self.assertTrue('search' in response.redirect_chain[0][0])
 
+    def test_redirect_from_home_page_saves_results_per_page(self):
+        """
+        Test redirect from home page saves results per page choice.
+        """
+        response = self.client.get(
+            reverse('home_page') + '?limit=50',
+            follow=True)
+        self.assertIn('limit=50', response.redirect_chain[-1][0])
+
 
 class PaginatorUnitTestCase(TestCase):
 
