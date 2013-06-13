@@ -110,7 +110,7 @@ def render_filters():
     t = select_template(['filters.html', ])
     content = t.render(Context({
         'all_filters': ALL_FILTERS,
-        'date_ids': DATE_FILTERS_HTML_IDS
+        'date_ids': DATE_FILTERS_HTML_IDS,
     }))
     return content
 
@@ -203,7 +203,7 @@ def applied_filters(request):
                     if option not in filters:
                         break
                 else:
-                    filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                    filters_str += ', <span>%s </span>' % (ALL_FILTERS[f]['filters'][value])
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -213,10 +213,9 @@ def applied_filters(request):
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
             if ALL_FILTERS[f]['filters'][value] == value or f == 'state':
-                filters_str += ', %s' % (ALL_FILTERS[f]['filters'][value])
+                filters_str += ', <span>%s </span>' % (ALL_FILTERS[f]['filters'][value])
             else:
-                filters_str += ', %s (%s)' % (ALL_FILTERS[f]['filters'][value], value)
-
+                filters_str += ', <span>%s (%s)</span>' % (ALL_FILTERS[f]['filters'][value], value)
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -260,10 +259,11 @@ def sort_link(request, attribute, link_anchor):
 
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
-    return '<a class="sort-link" href="%(href)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
+    return ('<a class="sort-link" href="%(href)s" '
+        'title="click to sort by %(link_anchor)s">%(link_anchor)s%(sorting_arrow)s</a>' % {
         'link_anchor': link_anchor,
         'sorting_arrow': sorting_arrow,
-        'href': href}
+        'href': href})
 
 
 @register.simple_tag
@@ -277,9 +277,10 @@ def table_header(request):
         if col_name is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
-        html += '<th data-width="{width}" data-ds="{defaultstate}">{link}</th>'.format(
+        html += '<th data-width="{width}" data-ds="{defaultstate}" id="id-col-{col_name}">{link}</th>'.format(
                     width=col_style['width'],
                     defaultstate=col_style['default_state'],
+                    col_name=col_name,
                     link=sort_link(request, col_name, field_name))
     return html
 
@@ -355,12 +356,16 @@ def table_row(result):
     html = ''
     for field_name in settings.TABLE_COLUMNS:
         value = fields.get(field_name, None)
+        col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
-        html += '<td style="text-align: %s">%s</td>' % (col_style['align'], value)
+        html += '<td style="text-align: {align}" headers="id-col-{col_name}">{value}</td>'.format(
+                    align=col_style['align'],
+                    col_name=col_name,
+                    value=value)
     return html
 
 
@@ -373,9 +378,12 @@ def details_table(result):
     html = ''
     for field_name in settings.DETAILS_FIELDS:
         value = fields.get(field_name, None)
+        col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
             continue
-        html += '<tr><th>%s</th><td>%s</td></tr>' % (field_name, value)
+        html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
+                 '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
+                    col_name=col_name, field_name=field_name, value=value))
     return html

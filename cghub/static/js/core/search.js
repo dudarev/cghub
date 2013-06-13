@@ -109,6 +109,14 @@ jQuery(function ($) {
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
             $('.flexigrid .bDiv tr').contextmenu();
+            $('.data-table').css('visibility', 'visible');
+            /* add fieldset element */
+            var $data_table = $('.bDiv table');
+            $data_table.wrap($('<fieldset/>'));
+            $data_table.parent().prepend($('<legend class="hidden">Select files to add to cart:</legend>'));
+            /* disable sort link by files size, ticket #298 RM2220
+            TODO: fix this in future */
+            $('#id-col-files_size .sort-link').on('click', function() {return false;});
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
@@ -128,13 +136,9 @@ jQuery(function ($) {
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
                     });
-                    $(select).next().find('.ui-dropdownchecklist-selector').click(function() {
-                        $(this).css('height', '18px');
-                        $(this).find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-                    });
                     // Fixing width bug
                     var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 10);
+                    $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
                 // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
@@ -143,7 +147,6 @@ jQuery(function ($) {
             $('.sidebar').css('visibility', 'visible');
             /* fix for IE, saves focus on current element */
             if($.browser.msie) {
-                console.log('init msie');
                 $(document).on('keydown', '.ui-dropdownchecklist-dropcontainer', function(e) {
                     if(e.which == 13) {
                         return false;
@@ -152,8 +155,7 @@ jQuery(function ($) {
             }
         },
         ddclTextFormatFunction: function(options) {
-            $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-            return 'selecting...';
+            return;
         },
         ddclOnComplete: function(selector) {
             var preview = '',
@@ -173,8 +175,6 @@ jQuery(function ($) {
             }
             $(selector).next().find('.ui-dropdownchecklist-selector').css('height', 'auto');
             $(selector).next().find('.ui-dropdownchecklist-text').html(preview).css({'color': color});
-            //Bug #1787 delete standard tooltip with text "selecting..."
-            $('.ui-dropdownchecklist-text[title="selecting..."]').each(function() {$(this).removeAttr('title')} );
         },
         addFilesFormSubmit:function () {
             // disable button
@@ -486,7 +486,7 @@ jQuery(function ($) {
                 }
             }
             return true;
-        }
+        },
     };
     cghub.search.init();
 });

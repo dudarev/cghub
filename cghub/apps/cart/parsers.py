@@ -12,6 +12,7 @@ from cghub.apps.core.utils import is_celery_alive
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
+cart_logger = logging.getLogger('cart')
 
 
 class CartAttributesParser(handler.ContentHandler):
@@ -102,5 +103,6 @@ def parse_cart_attributes(session_store, attributes, query=None,
         response = open(file_path, 'r')
     try:
         parse(response, CartAttributesParser(session_store, attributes, cache_files))
-    except:
+    except Exception as e:
+        cart_logger.error('Response parsing fails, error: %s' % str(e))
         session_store.save()

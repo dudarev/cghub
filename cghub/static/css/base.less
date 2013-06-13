@@ -1,12 +1,10 @@
 @import "libs/bootstrap/less/mixins.less";
 
 /* z indexes */
-@zi_scrollbar: 1000; // specified in tinyscrollbar.css
 @zi_ddcl: 1010; // specified in flexigrid.js and core/search.js
 @zi_tooltip: @zi_ddcl + 100;
 @zi_dp_container: @zi_tooltip + 200;
 @zi_accessibility: @zi_dp_container + 100;
-
 
 #accessibility-links {
     position: fixed;
@@ -20,24 +18,24 @@
     z-index: @zi_accessibility;
     background-color: #fff;
     list-style-type: none;
+    .box-shadow(0 8px 6px -6px #888);
     li {
         font-size: 1.2em;
         padding-top: 5px;
         margin-bottom: 2px;
     }
 }
+.hidden {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+}
 
 #main-nav {
     tab-index: -1;
-}
-
-#main-content {
-    tab-index: -1;
-    position: relative;
-    top: -50px;
-    &.base-container {
-        top: 0;
-    }
 }
 
 .navbar {
@@ -102,16 +100,20 @@
 	color: #333 !important;
 }
 
+.data-table {
+    visibility: hidden;
+}
 .flexigrid {
     width: 100%;
     // fix selected row highlighting
     div.bDiv {
-        overflow-x: hidden !important;    // don't show scrolls in flexigrid
+        overflow-x: scroll !important;    // don't show scrolls in flexigrid
         overflow-y: hidden !important;
-        border-left: none !important;
-        border-right: none !important;
         tr.trSelected td {
             background-color: #d5effc;
+        }
+        tr td.tdSelected {
+            background-color: #ddddbb;
         }
         // clickable rows
         tr {
@@ -121,15 +123,8 @@
             }
         }
     }
-    div.hDiv {
-        border-left: none !important;
-        border-right: none !important;
-    }
 }
-.viewport {
-    border-left: 1px solid #CCCCCC;
-    border-right: 1px solid #CCCCCC;
-}
+
 .tooltip {
     position: fixed;
     display: none;
@@ -168,4 +163,8 @@
             min-width: 770px;
         }
     }
+}
+
+div.btn-toolbar .btn {
+    margin: 0 6px 0 0;
 }

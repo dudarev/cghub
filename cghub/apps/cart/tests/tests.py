@@ -23,7 +23,7 @@ from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (manifest, metadata,
                             summary, add_ids_to_cart, add_files_to_cart,
-                            check_missing_files, cache_file,
+                            load_missing_attributes, cache_file,
                             analysis_xml_iterator, summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
@@ -294,13 +294,13 @@ class CartCacheTestCase(WithCacheTestCase):
 
     """
     Cached files will be used
-    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-04-26T14:46:09Z
+    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-05-16T20:50:58Z
     8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-04-27T01:47:09Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2013-04-26T14:46:09Z'
+    last_modified = '2013-05-16T20:50:58Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
-    last_modified2 = '2013-04-27T01:47:09Z'
+    last_modified2 = '2013-05-16T20:51:58Z'
 
     wsapi_cache_files = [
             '604f183c90858a9d1f1959fe0370c45d.xml',
@@ -356,8 +356,8 @@ class CartCacheTestCase(WithCacheTestCase):
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
             self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
-            'which was last modified 2013-04-26T14:46:09Z not exists, '
-            'may be it was updated')
+            'which was last modified 2013-05-16T20:50:58Z. '
+            'File with specified analysis_id not found')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
         if os.path.isdir(path):
@@ -371,16 +371,18 @@ class CartCacheTestCase(WithCacheTestCase):
         try:
             save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
         except AnalysisFileException:
-            pass
-        else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            assert False, 'Most recent file was not downloaded'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check access denied to files outside cache dir
         try:
             save_to_cart_cache(self.analysis_id, '../../same_outside_dir')
         except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'Bad analysis_id or last_modified')
+            self.assertEqual(
+                unicode(e),
+                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1, '
+                'which was last modified ../../same_outside_dir. '
+                'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
 
@@ -651,11 +653,11 @@ class CartUtilsTestCase(TestCase):
                     '7850f073-642a-40a8-b49d-e328f27cfd66']['analysis_id'],
                 '7850f073-642a-40a8-b49d-e328f27cfd66')
 
-    def test_check_missing_files(self):
+    def test_load_missing_attributes(self):
         files = [
             {'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66', 'study': 'live'},
             {'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec'}]
-        files = check_missing_files(files)
+        files = load_missing_attributes(files)
         # first is unchanged
         self.assertEqual(len(files[0]), 2)
         # attributes was loaded for second item

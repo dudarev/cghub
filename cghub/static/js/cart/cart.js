@@ -9,6 +9,7 @@ jQuery(function ($) {
     cghub.cart = {
         init:function () {
             cghub.cart.cacheElements();
+            cghub.cart.initFlexigrid();
             cghub.cart.bindEvents();
         },
         cacheElements:function () {
@@ -23,13 +24,20 @@ jQuery(function ($) {
             cghub.cart.$clearBtn = $('.cart-clear');
         },
         bindEvents:function () {
-            cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
-            $('.flexigrid .bDiv tr').contextmenu();
             cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
             cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
             cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
             cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
+        },
+        initFlexigrid:function () {
+            cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
+            $('.flexigrid .bDiv tr').contextmenu();
+            $('.data-table').css('visibility', 'visible');
+            /* add fieldset element */
+            var $data_table = $('.bDiv table');
+            $data_table.wrap($('<fieldset/>'));
+            $data_table.parent().prepend($('<legend class="hidden">Select files to remove from cart:</legend>'));
         },
         // replace current action with needed, /\/[a-z_]+\/$/ = "/some_action/",
         // slashes in '/.../' are needed!
@@ -62,7 +70,7 @@ jQuery(function ($) {
             if(btn.hasClass('disabled')) return false;
             var form = btn.closest('form');
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
-        }
+        },
     };
     cghub.cart.init();
 });

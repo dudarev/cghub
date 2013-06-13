@@ -2,6 +2,7 @@ import sys
 import csv
 import urllib2
 import datetime
+import logging
 
 from StringIO import StringIO
 from lxml import etree, objectify
@@ -13,13 +14,14 @@ from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
 from django.utils import timezone
+from django.template.loader import render_to_string
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
-                                            generate_task_id)
+                                        generate_task_id, xml_add_spaces)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.tasks import cache_results_task
@@ -28,6 +30,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
+cart_logger = logging.getLogger('cart')
 
 
 def get_or_create_cart(request):
@@ -116,10 +119,12 @@ def cart_remove_files_without_attributes(request):
     return len(to_remove)
 
 
-def check_missing_files(files):
+def load_missing_attributes(files):
     """
     Check that not only analysis_id attribute filled.
-    If only analysis_id exists, upload missing attributes and modify data
+    If only analysis_id exists, upload missing attributes and modify data.
+
+    Runs only if task to fill attributes in progress.
 
     :param files: list of files attributes
     """
@@ -185,9 +190,10 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     :param short: if True - file will be contains only most necessary attributes
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
-    yield '<ResultSet date="%s">' % datetime.datetime.strftime(
-                                    timezone.now(), '%Y-%d-%m %H:%M:%S')
-    yield '<Hits>%d</Hits>' % len(data)
+    yield render_to_string('xml/analysis_xml_header.xml', {
+                        'date': datetime.datetime.strftime(
+                                    timezone.now(), '%Y-%d-%m %H:%M:%S'),
+                        'len': len(data)})
     counter = 0
     downloadable_size = 0
     for f in data:
@@ -199,19 +205,20 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                             analysis_id=f,
                             last_modified=last_modified,
                             short=short)
-        except AnalysisFileException:
+        except AnalysisFileException as e:
+            cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
-        yield '<Result id="%d">' % counter
         downloadable_size += files_size
-        yield xml
-        yield '</Result>'
-    yield ('<ResultSummary><downloadable_file_count>{count}</downloadable_file_count>' +
-            '<downloadable_file_size units="GB">{size}</downloadable_file_size>' +
-            '<state_count><live>{count}</live></state_count>' +
-            '</ResultSummary></ResultSet>').format(
-                        count=counter,
-                        size=str(round(downloadable_size/1073741824.*100)/100))
+        formatted_xml = ''
+        for s in xml_add_spaces(xml, space=4, tab=2):
+            formatted_xml += s
+        yield render_to_string('xml/analysis_xml_result.xml', {
+                    'counter': counter,
+                    'xml': formatted_xml.strip()})
+    yield render_to_string('xml/analysis_xml_summary.xml', {
+                    'counter': counter,
+                    'size': str(round(downloadable_size/1073741824.*100)/100)})
 
 
 def summary_tsv_iterator(data):
@@ -224,7 +231,7 @@ def summary_tsv_iterator(data):
     """
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
-    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab')
+    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab', lineterminator='\n')
     csvwriter.writerow([field.lower().replace(' ', '_') for field in COLUMNS])
     for f in data:
         last_modified = data[f].get('last_modified')
@@ -232,7 +239,8 @@ def summary_tsv_iterator(data):
             result = get_analysis(
                             analysis_id=f,
                             last_modified=last_modified)
-        except AnalysisFileException:
+        except AnalysisFileException as e:
+            cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
         result.add_custom_fields()
         fields = field_values(result.Result, humanize_files_size=False)

@@ -162,7 +162,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert not driver.find_elements_by_css_selector(
                             'input[value="%s"]' % analysis_id)
 
-            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert 'Files in your cart: 2' in stat.text
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
             assert cart_link.text == 'Cart (2)'
@@ -209,7 +209,7 @@ class CartUITestCase(LiveServerTestCase):
                     'input[value="%s"]' % selected[0])
             checkbox.click()
 
-            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert 'Files in your cart: {0}'.format(len(selected)) in stat.text
 
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
@@ -219,7 +219,7 @@ class CartUITestCase(LiveServerTestCase):
             btn = driver.find_element_by_class_name('cart-remove')
             btn.click()
 
-            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert 'Files in your cart: {0}'.format(len(selected) - 1) in stat.text
 
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
@@ -228,7 +228,7 @@ class CartUITestCase(LiveServerTestCase):
             # test 'clear cart' button
             btn = driver.find_element_by_class_name('cart-clear')
             btn.click()
-            stat = driver.find_element_by_xpath('//div[@class="cart-content"]//div//span')
+            stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert stat.text == 'Files in your cart: 0 (0 Bytes)'
 
             cart_link = driver.find_element_by_xpath('//a[@href="/cart/"]')
@@ -285,23 +285,23 @@ class SortWithinCartTestCase(LiveServerTestCase):
                     continue
                 attr = COLUMN_NAMES[column]
                 # scroll table
-                self.selenium.execute_script("$('.viewport')"
+                self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
                 # getting top element in the column
-                selector = ".bDiv > table td:nth-child({})".format(i + 2)
-                first = self.selenium.find_element_by_css_selector(selector).text
+                selector = "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[{}]".format(i + 2)
+                first = self.selenium.find_element_by_xpath(selector).text
 
                 # scroll table
-                self.selenium.execute_script("$('.viewport')"
+                self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
-                second = self.selenium.find_element_by_css_selector(selector).text
+                second = self.selenium.find_element_by_xpath(selector).text
 
                 if not (first == 'None' or second == 'None' or
                         first == ' ' or second == ' '):

@@ -3,6 +3,7 @@ import sys
 import shutil
 import contextlib
 import datetime
+import urllib2
 
 from urllib2 import URLError
 from lxml import objectify
@@ -31,15 +32,17 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
-                    decrease_start_date)
+                    decrease_start_date, xml_add_spaces)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
+
+from cghub.apps.cart.views import cart_add_files
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
 
 
-def get_request():
+def get_request(url=reverse('home_page')):
     """
     Returns request object with session
     """
@@ -50,7 +53,7 @@ def get_request():
     store.save()
     # create request
     factory = RequestFactory()
-    request = factory.get(reverse('home_page'))
+    request = factory.get(url)
     request.session = store
     request.cookies = {}
     request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
@@ -273,6 +276,13 @@ class UtilsTestCase(TestCase):
         for i in TEST_DATA:
             self.assertEqual(decrease_start_date(i), TEST_DATA[i])
 
+    def test_xml_add_spaces(self):
+        xml = """<ResultSet date="2013-11-06 09:24:56"><Hits>10</Hits><Result id="1"><analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id><state>live</state><reason/><last_modified>2013-06-09T07:27:48Z</last_modified><upload_date>2013-06-09T06:51:41Z</upload_date></Result></ResultSet>"""
+        result = ''
+        for i in xml_add_spaces(xml, space=1, tab=2):
+            result += i
+        self.assertEqual(result, """\n <ResultSet date="2013-11-06 09:24:56">\n   <Hits>10</Hits>\n   <Result id="1">\n     <analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id>\n     <state>live</state>\n     <reason/>\n     <last_modified>2013-06-09T07:27:48Z</last_modified>\n     <upload_date>2013-06-09T06:51:41Z</upload_date>\n   </Result>\n </ResultSet>\n """)
+
 
 class ContextProcessorsTestCase(TestCase):
 
@@ -300,7 +310,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/any_path/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/any_path/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         test_request.path = ''
         out = Template(
@@ -312,7 +323,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that other request.GET variables are preserved
         test_request.GET.update({'q': 'sample_query'})
@@ -325,7 +337,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified">Date Uploaded</a>')
+            '<a class="sort-link" href="/search/?q=sample_query&amp;sort_by=last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         # make sure that direction label is rendered if it is active sort filter
         del(test_request.GET['q'])
@@ -339,7 +352,8 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/search/?sort_by=-last_modified">Date Uploaded&nbsp;&darr;</a>')
+            '<a class="sort-link" href="/search/?sort_by=-last_modified" '
+            'title="click to sort by Date Uploaded">Date Uploaded&nbsp;&darr;</a>')
 
     def test_applied_filters_tag(self):
         request = HttpRequest()
@@ -356,31 +370,32 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
-            '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: HMS-RK</li><li data-name="refassem_short_name" data-filters="HG18">'
-            '<b>Assembly</b>: HG18</li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
-            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
-            '<b>Disease</b>: Controls (CNTL), Colon adenocarcinoma (COAD)</li>'
-            '<li data-name="study" data-filters="phs000178"><b>Study</b>: TCGA (phs000178)</li>'
-            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
-            '<b>Library Type</b>: WGS, WXS</li></ul>')
+            '<b>Text query</b>: "Some text"</li>'
+            '<li data-name="center_name" data-filters="HMS-RK"><b>Center</b>: <span>HMS-RK </span></li>'
+            '<li data-name="refassem_short_name" data-filters="HG18"><b>Assembly</b>: <span>HG18 </span></li>'
+            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
+            '<li data-name="disease_abbr" data-filters="CNTL&amp;COAD"><b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
+            '<li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span></li>'
+            '<li data-name="library_strategy" data-filters="WGS&amp;WXS"><b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
         default_limit = settings.DEFAULT_PAGINATOR_LIMIT
-        default_limit_link = '<a href="?limit=%d">%d</a>' % (default_limit, default_limit)
+        default_limit_link = ('<a href="?limit={limit}"><span class="hidden">'
+                'view </span>{limit}'.format(limit=default_limit))
 
         request.GET = QueryDict('', mutable=False)
         template = Template(
-            "{% load pagination_tags %}{% items_per_page request " +
-            str(default_limit) + " 100 %}")
+                "{% load pagination_tags %}{% items_per_page request " +
+                str(default_limit) + " 100 %}")
         result = template.render(RequestContext(request, {}))
-        self.assertTrue('<a href="?limit=100">100</a>' in result)
+        self.assertIn('<a href="?limit=100"><span class="hidden">view </span>100', result)
         self.assertTrue(not default_limit_link in result)
-        
+
         request.GET = QueryDict('limit=100', mutable=False)
         result = template.render(RequestContext(request, {}))
-        self.assertTrue(not '<a href="?limit=100">100</a>' in result)
+        self.assertTrue(not '<a href="?limit=100" '
+                    'title="View 100 items per page">100</a>' in result)
         self.assertTrue(default_limit_link in result)
 
         template = Template(
@@ -588,7 +603,7 @@ class MetadataViewTestCase(WithCacheTestCase):
     7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2012-10-29T21:56:12Z
     """
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2013-04-26T14:46:09Z'
+    last_modified = '2013-05-16T20:50:58Z'
 
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
@@ -674,3 +689,42 @@ class ErrorViewsTestCase(TestCase):
             r = error_500(request)
             self.assertEqual(r.status_code, 500)
             self.assertTrue(str(r).find('Connection to WS-API server failed') != -1)
+
+    def urlopen_mock(url):
+            raise urllib2.URLError('Connection error')
+
+    @patch('urllib2.urlopen', urlopen_mock)
+    def test_status_500_if_urlopen_exception(self):
+        """
+        User should be notified in case of error occured in cghub.wsapi.utils.urlopen 
+        """
+        was_exception = False
+        try:
+            r = self.client.get(reverse('home_page'))
+        except urllib2.URLError as e:
+            was_exception = True
+            self.assertIn('No response after', str(e))
+        except:
+            assert False, 'Enother exception than URLError raised'
+        self.assertTrue(was_exception)
+
+    @patch('urllib2.urlopen', urlopen_mock)
+    def test_cart_add_files_return_error_if_urlopen_exception(self):
+        # remove existing cache
+        # filters = '{"analyte_code":"(D)"}'
+        # cache file name = 2faab3400e367605bcf65cd3df490466.ids
+        path = os.path.join(
+                    settings.WSAPI_CACHE_DIR,
+                    '2faab3400e367605bcf65cd3df490466.ids')
+        if os.path.exists(path):
+            os.remove(path)
+        # create right request
+        request = get_request(url=reverse(
+                    'cart_add_remove_files', kwargs={'action': 'add'}))
+        request.POST = {}
+        request.POST['filters'] = '{"analyte_code":"(D)"}'
+        request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        response = cart_add_files(request)
+        self.assertEqual(response.status_code, 200)
+        result = json.loads(response.content)
+        self.assertEqual(result['action'], 'error')

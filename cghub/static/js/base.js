@@ -58,21 +58,26 @@ jQuery(function ($) {
                     var anchor = $(window.location.hash);
                     if(anchor.length) {
                         setTimeout(function() {
-                            anchor.attr('tabindex', 0);
                             $(window).scrollTop(anchor.offset().top);
                             anchor.focus(); 
                         }, 0)
                     }
                 }
-                cghub.base.$accessibilityLinks.find('a').on('click', function() {
-                    var anchor = $($(this).attr('href'));
-                    if(anchor.length) {
-                        anchor.attr('tabindex', 0);
-                        $(window).scrollTop(anchor.offset().top);
-                        anchor.focus();
-                    }
-                });
             }
+            cghub.base.$accessibilityLinks.find('a').on('click', function() {
+                var anchor = $($(this).attr('href'));
+                if(anchor.length) {
+                    $(window).scrollTop(anchor.offset().top - 50);
+                    var $controls = anchor.find('a, input, button, .ui-dropdownchecklist-selector').filter(':visible');
+                    if($controls.length) {
+                        $controls.eq(0).focus();
+                    } else {
+                        anchor.focus();
+                        $(this).parents('ul').css({'height': 0});
+                    }
+                }
+                return false;
+            });
             cghub.base.$accessibilityLinks.on('focusin', function(){
                 if(cghub.base.hideSkipLinksTimeout) {
                     clearTimeout(cghub.base.hideSkipLinksTimeout);

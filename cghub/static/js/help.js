@@ -23,6 +23,7 @@ jQuery(function ($) {
             cghub.help.activateFilterSelectorItemTooltipHelp();
             cghub.help.activateFilterTextTooltipHelp();
             cghub.help.activateCommonTooltipHelp();
+            cghub.help.activateAppliedFiltersSectionTooltipHelp();
             cghub.help.activateHelpLinks();
         },
         removeTooltips:function() {
@@ -71,9 +72,7 @@ jQuery(function ($) {
             });
         },
         activateHelpLinks:function () {
-            $(document).on('click', '.js-help-link', function(){
-                var modal = $('#helpTextModal');
-                if(!modal.length) return;
+            $(document).on('click', '.js-help-link', function() {
                 var slug = $(this).data('slug');
                 $.ajax({
                     url: cghub.vars.helpTextUrl,
@@ -83,9 +82,7 @@ jQuery(function ($) {
                     success: function (data) {
                         if(data['success']) {
                             cghub.help.removeTooltips();
-                            modal.find('.modal-label').text(data['title']);
-                            modal.find('.modal-body').html(data['content']);
-                            modal.modal();
+                            cghub.base.showMessage(data['title'], data['content']);
                         }
                     }
                 });
@@ -93,9 +90,13 @@ jQuery(function ($) {
             });
         },
         activateTooltipsForSelector:function (selector, find_key) {
+            selector = selector + ', ' + selector + ' > abbr';
             $(document).on('mouseenter', selector, function(e){
                 cghub.help.tooltipShowTimeout = setTimeout(function() {
                     var $target = $(e.target);
+                    if($target.is('abbr')) {
+                        $target = $target.parent();
+                    }
                     cghub.help.hintShow = true;
                     cghub.help.showToolTip($target, find_key($target));
                 }, cghub.help.hoverTime);
@@ -149,7 +150,7 @@ jQuery(function ($) {
 
         // for cells in result table
         activateTableCellTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.bDiv td div', function($target) {
+            cghub.help.activateTooltipsForSelector('.bDiv td[headers] div', function($target) {
                 if(!$.trim($target.text()).length) return '';
                 var index = $target.parent().index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th')
@@ -200,6 +201,18 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.js-common-tooltip', function($target) {
                 return 'common:' + $target.data('key');
             });
+        },
+        // for 'Applied filter(s)' section
+        activateAppliedFiltersSectionTooltipHelp:function() {
+            cghub.help.activateTooltipsForSelector('.base-content div.applied-filters li span', function($target) {
+                var text = $($target).parents('li').text();
+                var filterName = text.substring(0, text.indexOf(':'));
+                var filterValue = $target.text().trim()
+                if (filterValue.indexOf('(') != -1) {
+                    filterValue = filterValue.substring(0, filterValue.indexOf(' ('));
+                }
+                return filterName + ':' + filterValue;
+            })
         }
     };
     cghub.help.init();

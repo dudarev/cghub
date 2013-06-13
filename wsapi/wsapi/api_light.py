@@ -128,9 +128,6 @@ def get_ids(query, offset, limit, settings, sort_by=None, ignore_cache=False):
         line = linecache.getline(filename, i).split('\n')[0]
         if line:
             items.append(line)
-        else:
-            wsapi_request_logger.error(
-                    'Wrong number of results in ids file %s' % filename)
     linecache.clearcache()
     return items_count, items
 
@@ -147,15 +144,15 @@ def get_all_ids(query, settings, sort_by=None, ignore_cache=False):
     """
 
     query = quote_query(query)
-    if sort_by:
-        sort_by = urllib2.quote(sort_by)
 
     if ignore_cache:
         # reload cache if ignore_cache
         load_ids(query, settings=settings)
         filename = get_cache_file_name(query, settings=settings)
     else:
-        if sort_by:
+        if(sort_by and (
+        sort_by in ALLOWED_SORT_BY or
+        sort_by[1:] in ALLOWED_SORT_BY)):
             query = '%s&sort_by=%s' % (query, parse_sort_by(sort_by))
         filename = get_cache_file_name(query, settings)
         # if file was not found in cache - upload it

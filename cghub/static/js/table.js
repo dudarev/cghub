@@ -8,27 +8,33 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.table = {
+        clearSelectionTimeout: undefined,
         init:function () {
             cghub.table.cacheElements();
             cghub.table.bindEvents();
             cghub.table.selectFiles();
-            cghub.table.initCustomScrollbar();
             cghub.table.$selectAllCheckbox.removeAttr('disabled');
         },
         cacheElements:function () {
-            cghub.table.$flexigridTable = $('.flexigrid');
-            cghub.table.$scrollbar = $('#scrollbar1');
             cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
+            cghub.table.$flexigrid = $('.flexigrid');
+            cghub.table.$tableContainer = cghub.table.$flexigrid.find('.bDiv');
+            cghub.table.$tableHeaderContainer = cghub.table.$flexigrid.find('.hDiv');
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
             cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedFiles);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
-            $(window).on('scroll', cghub.table.placeFlexigridScrollbar);
-            $(window).on('resize', cghub.table.placeFlexigridScrollbar);
+            cghub.table.$checkboxes.on('focusin', cghub.table.tableCheckboxFocus);
+            cghub.table.$checkboxes.on('focusout', cghub.table.tableCheckboxFocus);
+            cghub.table.$flexigrid.on('keydown', cghub.table.arrowPress);
+            /* scroll table on header scroll */
+            cghub.table.$tableHeaderContainer.on('scroll', function() {
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableHeaderContainer.scrollLeft());
+            });
         },
         activateItemDetailsLinks:function () {
             $(document).on('click', '.bDiv tr', function(obj){
@@ -99,40 +105,101 @@ jQuery(function ($) {
             )
             $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
         },
-        placeFlexigridScrollbar: function(){
-            if(!cghub.table.$scrollbar.length) return;
-            var $viewport = cghub.table.$scrollbar.find('.viewport'); //container with flexigrid
-            var $scrollbar = cghub.table.$scrollbar.find('.scrollbar');
-            var viewportBottom = $viewport.offset().top + $viewport.height() - $(window).scrollTop();
-            var viewportTop = $viewport.offset().top - $(window).scrollTop();
-            var visibleScreenHeight = $(window).height();
-
-            if (viewportBottom > visibleScreenHeight - 20 && viewportTop < visibleScreenHeight - 100){
-                //if the end of table is outside visible part of screen, place scrollbar in screen bottom
-                $scrollbar.css({
-                    position: 'fixed',
-                    top: visibleScreenHeight - 20 + 'px',
-                    left: $viewport.offset().left + 'px'});
-                /* add border at the top of scrollbar */
-                $scrollbar.addClass('bordered');
-            } else {
-                //if the end of table is in visible part, place scrollbar just under the table
-                $scrollbar.css({
-                    position: 'absolute',
-                    top: $viewport.offset().top + $viewport.height() + 'px',
-                    left: $viewport.offset().left + 'px'});
-                $scrollbar.removeClass('bordered');
+        tableCheckboxFocus:function(event){
+            if (event.type == 'focusin'){
+                $(this).parents('td').addClass('tdSelected');
             }
-            //adjust width of scrollbar if window was resized
-            $scrollbar.width($viewport.width());
+            else if (event.type == 'focusout') {
+                $(this).parents('td').removeClass('tdSelected');
+                if(cghub.table.clearSelectionTimeout) {
+                    clearTimeout(cghub.table.clearSelectionTimeout);
+                }
+                cghub.table.clearSelectionTimeout = setTimeout(function(){
+                    var selected = $('.tdSelected');
+                    if(selected.length == 1 && !selected.find('input').length) {
+                        selected.removeClass('tdSelected');
+                    }
+                }, 500);
+            }
         },
-        initCustomScrollbar: function() {
-            //only if there is a flexigrid on page
-            if (cghub.table.$flexigridTable.length != 0){
-                cghub.table.$scrollbar.tinyscrollbar({ axis: 'x', scroll: false});
-                cghub.table.$scrollbar.find('.viewport').height(cghub.table.$flexigridTable.height());
-                cghub.table.placeFlexigridScrollbar();
-                cghub.table.$scrollbar.css('visibility', 'visible');
+        arrowPress:function(event){
+            /* alt + arrow press handler
+            arrowLeft: 37
+            arrowUp: 38
+            arrowRight: 39
+            arrowDown: 40 */
+            var charCode = (event.which) ? event.which : event.keyCode;
+            if(event.ctrlKey && charCode == 13) {
+                /* show details in new tab */
+                var target = $('td.tdSelected');
+                if(target.length) {
+                    window.open(target.parents('tr').attr('data-details-url'), '_blank');
+                    window.focus();
+                }
+                return false;
+            }
+            if(!event.altKey) return;
+            if(charCode == 18) return false;
+            if(charCode == 13) {
+                /* show details popup on alt + enter click */
+                $('td.tdSelected').click();
+                return false;
+            }
+            if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
+            var currentCell = $('td.tdSelected');
+            if(currentCell.length > 1){
+                currentCell = currentCell.eq(1);
+            }
+            var nextStep = currentCell;
+            var currentRow = currentCell.parents('tr');
+            var currentIndex = currentRow.children().index(currentCell);
+            var nextRow = currentRow;
+            //left
+            if (charCode == 37){
+                do
+                    nextStep = $(nextStep).prev();
+                while (nextStep.is('td') && !$(nextStep).is(":visible"));
+            }
+            //right
+            if (charCode == 39){
+                do
+                    nextStep = $(nextStep).next();
+                while (nextStep.is('td') && !$(nextStep).is(":visible"));
+            }
+            //up
+            if (charCode == 38){
+                nextRow = $(nextRow).prev();
+                if (!nextRow.is('tr')) return false;
+                nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+            }
+            //down
+            if (charCode == 40){
+                nextRow = $(nextRow).next();
+                if (!nextRow.is('tr')) return false;
+                nextStep = nextRow.find('td:nth-child('+(currentIndex+1)+')');
+            }
+
+            if(!nextStep.is('td')) return false;
+            $('.tdSelected').removeClass("tdSelected");
+            nextStep.addClass('tdSelected');
+            /* set focus to row checkbox */ 
+            nextStep.parents('tr').find('input').focus();
+
+            cghub.table.scrollTableToCell(nextStep);
+
+            return false;
+        },
+        scrollTableToCell:function(target){
+            /* is cell fully visible ? */
+            var cell_left = $(target).offset().left;
+            var cell_right = cell_left + $(target).width();
+            var table_left = cghub.table.$flexigrid.offset().left;
+            var table_right = table_left + cghub.table.$flexigrid.width();
+            if(cell_right > table_right) {
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableContainer.scrollLeft() + cell_right - table_right + 50);
+            }
+            if(cell_left < table_left) {
+                cghub.table.$tableContainer.scrollLeft(cghub.table.$tableContainer.scrollLeft() - table_left + cell_left - 50);
             }
         }
     }
