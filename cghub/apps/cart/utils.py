@@ -14,7 +14,8 @@ from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
 from django.utils import timezone
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
+from django.template import Context
 
 from cghub.wsapi.api import Results
 from cghub.wsapi.api import request as api_request
@@ -196,6 +197,7 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                         'len': len(data)})
     counter = 0
     downloadable_size = 0
+    result_template = get_template('xml/analysis_xml_result.xml')
     for f in data:
         if live_only and data[f].get('state') != 'live':
             continue
@@ -213,9 +215,9 @@ def analysis_xml_iterator(data, short=False, live_only=False):
         formatted_xml = ''
         for s in xml_add_spaces(xml, space=4, tab=2):
             formatted_xml += s
-        yield render_to_string('xml/analysis_xml_result.xml', {
+        yield result_template.render(Context({
                     'counter': counter,
-                    'xml': formatted_xml.strip()})
+                    'xml': formatted_xml.strip()}))
     yield render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': counter,
                     'size': str(round(downloadable_size/1073741824.*100)/100)})

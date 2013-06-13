@@ -161,9 +161,6 @@ def decrease_start_date(query):
 
 # xml processing
 
-
-ELEMENT_START, ELEMENT_STOP, ELEMENT_SINGLE = range(3)
-
 def xml_add_spaces(xml, space=0, tab=2):
     """
     Iterator, returns xml with spaces.
@@ -172,6 +169,7 @@ def xml_add_spaces(xml, space=0, tab=2):
     :param space: initial space
     :param tab: spaces count for one tab
     """
+    ELEMENT_START, ELEMENT_STOP, ELEMENT_SINGLE = range(3)
     position = 0
     end_position = 0
     last_element_type = ELEMENT_START
