@@ -262,7 +262,7 @@ class CartClearView(View):
     Handels clearing cart
     """
     def post(self, request):
-        clear_clear(request)
+        cart_clear(request)
         url = reverse('cart_page')
         return HttpResponseRedirect(url)
 
@@ -272,6 +272,9 @@ class CartTerminateView(View):
     Revokes task to add files to cart and redirects to cart page
     """
     def get(self, request):
+        task_id = request.session.get('task_id', None)
+        if task_id:
+            del request.session['task_id']
         url = reverse('cart_page')
         return HttpResponseRedirect(url)
 

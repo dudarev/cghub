@@ -220,6 +220,7 @@ class CartClearTestCase(TestCase):
 class CartTerminateTestCase(TestCase):
 
     def test_terminate_view(self):
+        task_id = 'abcd123456789'
         request = get_request()
         request.session['cart'] = {
             '7850f073-642a-40a8-b49d-e328f27cfd66': {
@@ -235,9 +236,9 @@ class CartTerminateTestCase(TestCase):
             '116e11c8-b873-4c37-88cd-18dcd7f28744': {
                 'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
         }
+        request.session['tsak_id'] = task_id
         request.session.save()
         now = timezone.now()
-        task_id = 'abcd123456789'
         ts = TaskState(
                     state=states.SUCCESS, task_id=task_id,
                     tstamp=now)
@@ -245,6 +246,8 @@ class CartTerminateTestCase(TestCase):
         response = CartTerminateView.as_view()(request)
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse('cart_page'), str(response._headers))
+        # check that task_id removed from session
+        session_store = SessionStore(session_key=request.session.session_key)
 
 
 class CartAddItemsTestCase(TestCase):
