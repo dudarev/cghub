@@ -32,6 +32,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
                     get_analysis_xml, is_cart_cache_exists)
 from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
+from cghub.apps.cart.views import CartTerminateView
 
 from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
 from cghub.apps.core.utils import generate_task_id
@@ -208,12 +209,42 @@ class CartClearTestCase(TestCase):
         self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def test_clear_cart(self):
-        url = reverse('clear_cart')
+    def test_cart_clear(self):
+        url = reverse('cart_clear')
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
         self.assertContains(response, "Your cart is empty!")
+
+
+class CartTerminateTestCase(TestCase):
+
+    def test_terminate_view(self):
+        request = get_request()
+        request.session['cart'] = {
+            '7850f073-642a-40a8-b49d-e328f27cfd66': {
+                'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
+                'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '226e11c8-b873-4c37-88cd-18dcd7f28733': {
+                'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},
+            '116e11c8-b873-4c37-88cd-18dcd7f28744': {
+                'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
+        }
+        request.session.save()
+        now = timezone.now()
+        task_id = 'abcd123456789'
+        ts = TaskState(
+                    state=states.SUCCESS, task_id=task_id,
+                    tstamp=now)
+        ts.save()
+        response = CartTerminateView.as_view()(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('cart_page'), str(response._headers))
 
 
 class CartAddItemsTestCase(TestCase):

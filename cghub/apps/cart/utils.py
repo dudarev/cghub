@@ -97,7 +97,7 @@ def add_files_to_cart(request, results):
     request.session.modified = True
 
 
-def clear_cart(request):
+def cart_clear(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
     request.session.modified = True
