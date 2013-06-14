@@ -4,7 +4,6 @@ import time
 from operator import itemgetter
 
 from celery import states
-from celery.task.control import revoke as task_revoke
 from djcelery.models import TaskState
 
 from django.conf import settings
@@ -275,13 +274,16 @@ class CartTerminateView(View):
     def get(self, request):
         task_id = request.session.get('task_id', None)
         if task_id:
-            task_revoke(task_id, terminate=True)
+            # Don't use celery.task.control.revoke here because of
+            # workers will keep this task_id in memory an ensure that it does not run,
+            # so we will not able to restart task until celeryd restart
             try:
                 ts = TaskState.objects.get(task_id=task_id)
                 ts.state = states.REVOKED
                 ts.save()
             except TaskState.DoesNotExist:
                 pass
+            # task_id will be removed in cart view
         url = reverse('cart_page')
         return HttpResponseRedirect(url)
 

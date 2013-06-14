@@ -52,6 +52,21 @@ def add_files_to_cart_dict(ids, selected_files=None):
                 '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z"}}}}'.format(*ids)}
 
 
+def create_session(self):
+    # initialize session
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    engine = import_module(settings.SESSION_ENGINE)
+    store = engine.SessionStore()
+    store.save()
+    self.session = store
+    self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+    # create session
+    s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+    s.save()
+
+
 class CartTestCase(TestCase):
     RANDOM_IDS = ('12345678-1234-1234-1234-123456789abc',
                   '12345678-4321-1234-1234-123456789abc',
@@ -60,21 +75,6 @@ class CartTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.cart_page_url = reverse('cart_page')
-
-    def create_session(self):
-        # FIXME: make this helper common common
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
 
     def test_cart_add_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
@@ -190,7 +190,7 @@ class CartTestCase(TestCase):
         This cause problems when view makes more recent changes in session
         than task that adds files to cart.
         """
-        self.create_session()
+        create_session(self)
         self.assertNotIn('cart', self.client.session)
         url = reverse('cart_page')
         r = self.client.get(url)
@@ -218,22 +218,8 @@ class CartClearTestCase(TestCase):
 
 class CartTerminateTestCase(TestCase):
 
-    def create_session(self):
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-
     def test_terminate_view(self):
-        self.create_session()
+        create_session(self)
         task_id = 'abcd123456789'
         self.session._session['cart'] = {
             '7850f073-642a-40a8-b49d-e328f27cfd66': {
@@ -269,22 +255,8 @@ class CartTerminateTestCase(TestCase):
 
 class CartAddItemsTestCase(TestCase):
 
-    def create_session(self):
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-
     def test_cart_add_files_with_q(self):
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                         'state': '(live)',
@@ -307,7 +279,7 @@ class CartAddItemsTestCase(TestCase):
         """
         oldUseAllMetadataIndex = browser_text_search.useAllMetadataIndex
         browser_text_search.useAllMetadataIndex = False
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                     'state': '(live)',
@@ -326,7 +298,7 @@ class CartAddItemsTestCase(TestCase):
         browser_text_search.useAllMetadataIndex = oldUseAllMetadataIndex
 
     def test_add_files_without_q(self):
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                         'state': '(live)',
