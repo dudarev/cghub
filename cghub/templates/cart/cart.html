@@ -39,12 +39,12 @@
         <section>
             {% if loading %}
             <div class="alert">
-                <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href=".">Reload to check for completion.</a>
+                <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href=".">Reload to check for completion</a>. <a href="{% url cart_terminate %}" class="red">Cancel</a>.
             </div>
             {% else %}
             {% if missed_files %}
                 <div class="alert alert-error">
-                    <strong>Warning:</strong> Fewer files were added to your cart than requested, missing {{ missed_files }}. Please go to the Browser page and add again.  This is a known issue that we are working to resolve.
+                    <strong>Warning:</strong> Fewer files were added to your cart than requested, missing {{ missed_files }}.{# Please go to the Browser page and add again.  This is a known issue that we are working to resolve. #}
                 </div>
             {% endif %}
             <span id="results-summary">

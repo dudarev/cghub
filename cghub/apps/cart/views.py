@@ -22,7 +22,7 @@ from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
-                            get_or_create_cart, get_cart_stats, clear_cart,
+                            get_or_create_cart, get_cart_stats, cart_clear,
                             load_missing_attributes, cache_file,
                             cart_remove_files_without_attributes,
                             add_ids_to_cart, add_files_to_cart)
@@ -262,7 +262,28 @@ class CartClearView(View):
     Handels clearing cart
     """
     def post(self, request):
-        clear_cart(request)
+        cart_clear(request)
+        url = reverse('cart_page')
+        return HttpResponseRedirect(url)
+
+
+class CartTerminateView(View):
+    """
+    Revokes task to add files to cart and redirects to cart page
+    """
+    def get(self, request):
+        task_id = request.session.get('task_id', None)
+        if task_id:
+            # Don't use celery.task.control.revoke here because of
+            # workers will keep this task_id in memory an ensure that it does not run,
+            # so we will not able to restart task until celeryd restart
+            try:
+                ts = TaskState.objects.get(task_id=task_id)
+                ts.state = states.REVOKED
+                ts.save()
+            except TaskState.DoesNotExist:
+                pass
+            # task_id will be removed in cart view
         url = reverse('cart_page')
         return HttpResponseRedirect(url)
 
