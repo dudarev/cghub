@@ -32,7 +32,6 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
                     get_analysis_xml, is_cart_cache_exists)
 from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
-from cghub.apps.cart.views import CartTerminateView
 
 from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
 from cghub.apps.core.utils import generate_task_id
@@ -219,10 +218,24 @@ class CartClearTestCase(TestCase):
 
 class CartTerminateTestCase(TestCase):
 
+    def create_session(self):
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+
     def test_terminate_view(self):
+        self.create_session()
         task_id = 'abcd123456789'
-        request = get_request()
-        request.session['cart'] = {
+        self.session._session['cart'] = {
             '7850f073-642a-40a8-b49d-e328f27cfd66': {
                 'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
                 'study': 'live',
@@ -236,18 +249,22 @@ class CartTerminateTestCase(TestCase):
             '116e11c8-b873-4c37-88cd-18dcd7f28744': {
                 'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
         }
-        request.session['tsak_id'] = task_id
-        request.session.save()
+        self.session._session['task_id'] = task_id
+        self.session.save()
         now = timezone.now()
         ts = TaskState(
-                    state=states.SUCCESS, task_id=task_id,
+                    state=states.PENDING, task_id=task_id,
                     tstamp=now)
         ts.save()
-        response = CartTerminateView.as_view()(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse('cart_page'), str(response._headers))
+        response = self.client.get(reverse('cart_terminate'), follow=True)
+        self.assertRedirects(response, reverse('cart_page'))
         # check that task_id removed from session
-        session_store = SessionStore(session_key=request.session.session_key)
+        self.assertNotIn('task_id', self.client.session._session)
+        # check that task revoked
+        ts = TaskState.objects.get(task_id=task_id)
+        self.assertEqual(ts.state, states.REVOKED)
+        # check that files without attributes was removed
+        self.assertEqual(response.context['missed_files'], 2)
 
 
 class CartAddItemsTestCase(TestCase):
