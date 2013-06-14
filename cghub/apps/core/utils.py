@@ -67,6 +67,21 @@ def get_default_query():
     return '&'.join(filters_list).replace('+', ' ')
 
 
+def paginator_params(request):
+    """
+    Returns offset, limit.
+    :param request: django Request object
+    """
+    offset = request.GET.get('offset')
+    offset = offset and offset.isdigit() and int(offset) or 0
+    limit = request.GET.get('limit')
+    if limit:
+        limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+    elif 'paginator_limit' in request.cookies:
+        limit = request.cookies['paginator_limit']
+        limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+    return offset, limit
+
 def get_wsapi_settings():
     wsapi_settings = {}
     for name in WSAPI_SETTINGS_LIST:
