@@ -21,7 +21,7 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartClearTestCase cart.CartCacheTestCase \
 			cart.CartFormsTestCase cart.CartUtilsTestCase \
-			cart.CartParsersTestCase \
+			cart.CartParsersTestCase cart.CartTerminateTestCase \
 			help
 
 TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \

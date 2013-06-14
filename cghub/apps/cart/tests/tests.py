@@ -52,6 +52,21 @@ def add_files_to_cart_dict(ids, selected_files=None):
                 '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z"}}}}'.format(*ids)}
 
 
+def create_session(self):
+    # initialize session
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    engine = import_module(settings.SESSION_ENGINE)
+    store = engine.SessionStore()
+    store.save()
+    self.session = store
+    self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+    # create session
+    s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+    s.save()
+
+
 class CartTestCase(TestCase):
     RANDOM_IDS = ('12345678-1234-1234-1234-123456789abc',
                   '12345678-4321-1234-1234-123456789abc',
@@ -60,21 +75,6 @@ class CartTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.cart_page_url = reverse('cart_page')
-
-    def create_session(self):
-        # FIXME: make this helper common common
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
 
     def test_cart_add_files(self):
         url = reverse('cart_add_remove_files', args=['add'])
@@ -190,7 +190,7 @@ class CartTestCase(TestCase):
         This cause problems when view makes more recent changes in session
         than task that adds files to cart.
         """
-        self.create_session()
+        create_session(self)
         self.assertNotIn('cart', self.client.session)
         url = reverse('cart_page')
         r = self.client.get(url)
@@ -208,32 +208,55 @@ class CartClearTestCase(TestCase):
         self.client.post(url, add_files_to_cart_dict(ids=self.IDS_IN_CART),
                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def test_clear_cart(self):
-        url = reverse('clear_cart')
+    def test_cart_clear(self):
+        url = reverse('cart_clear')
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
         self.assertContains(response, "Your cart is empty!")
 
 
+class CartTerminateTestCase(TestCase):
+
+    def test_terminate_view(self):
+        create_session(self)
+        task_id = 'abcd123456789'
+        self.session._session['cart'] = {
+            '7850f073-642a-40a8-b49d-e328f27cfd66': {
+                'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
+                'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                'study': 'live',
+                'last_modified': '2012-05-10T06:23:39Z'},
+            '226e11c8-b873-4c37-88cd-18dcd7f28733': {
+                'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},
+            '116e11c8-b873-4c37-88cd-18dcd7f28744': {
+                'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
+        }
+        self.session._session['task_id'] = task_id
+        self.session.save()
+        now = timezone.now()
+        ts = TaskState(
+                    state=states.PENDING, task_id=task_id,
+                    tstamp=now)
+        ts.save()
+        response = self.client.get(reverse('cart_terminate'), follow=True)
+        self.assertRedirects(response, reverse('cart_page'))
+        # check that task_id removed from session
+        self.assertNotIn('task_id', self.client.session._session)
+        # check that task revoked
+        ts = TaskState.objects.get(task_id=task_id)
+        self.assertEqual(ts.state, states.REVOKED)
+        # check that files without attributes was removed
+        self.assertEqual(response.context['missed_files'], 2)
+
+
 class CartAddItemsTestCase(TestCase):
 
-    def create_session(self):
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-
     def test_cart_add_files_with_q(self):
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                         'state': '(live)',
@@ -256,7 +279,7 @@ class CartAddItemsTestCase(TestCase):
         """
         oldUseAllMetadataIndex = browser_text_search.useAllMetadataIndex
         browser_text_search.useAllMetadataIndex = False
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                     'state': '(live)',
@@ -275,7 +298,7 @@ class CartAddItemsTestCase(TestCase):
         browser_text_search.useAllMetadataIndex = oldUseAllMetadataIndex
 
     def test_add_files_without_q(self):
-        self.create_session()
+        create_session(self)
         data = {
             'filters': json.dumps({
                         'state': '(live)',
