@@ -18,7 +18,7 @@ from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.core.utils import (get_filters_string, get_default_query,
-                                                    get_wsapi_settings)
+                                    get_wsapi_settings, paginator_params)
 from cghub.apps.cart.utils import metadata
 
 

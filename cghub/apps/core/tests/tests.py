@@ -184,6 +184,12 @@ class CoreTestCase(WithCacheTestCase):
         response = self.client.get(reverse('home_page'))
         self.assertRedirects(response, '%s?q=%s' % (reverse('search_page'), self.query))
 
+    def test_save_limit_in_cookies(self):
+        response = self.client.get(reverse('home_page'), follow=True)
+        self.assertNotIn(settings.PAGINATOR_LIMIT_COOKIE, response.cookies)
+        response = self.client.get('%s?limit=25' % reverse('home_page'), follow=True)
+        self.assertEqual(response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
+
 
 class UtilsTestCase(TestCase):
     IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
@@ -287,12 +293,11 @@ class UtilsTestCase(TestCase):
         url = reverse('home_page')
         request = get_request(url=url)
         self.assertEqual(paginator_params(request), (0, 10))
+        request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
+        self.assertEqual(paginator_params(request), (0, 25))
         request = get_request(url=url + '?offset=10')
         self.assertEqual(paginator_params(request), (10, 10))
-        request = get_request(url=url + '?limit=25')
-        self.assertEqual(paginator_params(request), (0, 25))
-        requert = get_request(url=url)
-        request.cookies['paginator_limit'] = 50
+        request = get_request(url=url + '?limit=50')
         self.assertEqual(paginator_params(request), (0, 50))
 
 
@@ -584,15 +589,6 @@ class SearchViewPaginationTestCase(WithCacheTestCase):
             reverse('home_page') + '?q={query}'.format(query=self.query),
             follow=True)
         self.assertTrue('search' in response.redirect_chain[0][0])
-
-    def test_redirect_from_home_page_saves_results_per_page(self):
-        """
-        Test redirect from home page saves results per page choice.
-        """
-        response = self.client.get(
-            reverse('home_page') + '?limit=50',
-            follow=True)
-        self.assertIn('limit=50', response.redirect_chain[-1][0])
 
 
 class PaginatorUnitTestCase(TestCase):

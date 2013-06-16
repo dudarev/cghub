@@ -17,7 +17,7 @@ from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_id, get_wsapi_settings,
-                    get_filters_string, is_task_done)
+                    get_filters_string, is_task_done, paginator_params)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm

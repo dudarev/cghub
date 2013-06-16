@@ -349,10 +349,8 @@ jQuery(function ($) {
         },
         resetFilters:function() {
             var url = $(this).data('url');
-            var limit = URI(location.href).search(true)['limit'] || '';
-            if (limit.length) { limit = '?limit=' + limit };
             $.removeCookie('last_query', { path: url });
-            window.location.href = url + limit;
+            window.location.href = url;
             $(this).blur();
         },
         createCustomDatepickers:function() {

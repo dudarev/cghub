@@ -78,7 +78,7 @@ def paginator_params(request):
     if limit and limit.isdigit():
         limit = int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
     elif request.COOKIES.has_key(settings.PAGINATOR_LIMIT_COOKIE):
-        limit = request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE]
+        limit = str(request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE])
         limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
