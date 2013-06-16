@@ -75,12 +75,15 @@ def paginator_params(request):
     offset = request.GET.get('offset')
     offset = offset and offset.isdigit() and int(offset) or 0
     limit = request.GET.get('limit')
-    if limit:
+    if limit and limit.isdigit():
+        limit = int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+    elif request.COOKIES.has_key(settings.PAGINATOR_LIMIT_COOKIE):
+        limit = request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE]
         limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
-    elif 'paginator_limit' in request.cookies:
-        limit = request.cookies['paginator_limit']
-        limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+    else:
+        limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
+
 
 def get_wsapi_settings():
     wsapi_settings = {}

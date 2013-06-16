@@ -1,6 +1,8 @@
 # also specified in search.js
 LAST_QUERY_COOKIE = 'last_query'
 
+PAGINATOR_LIMIT_COOKIE = 'paginator_limit'
+
 # max_age should be a number of seconds, or None (default) if the cookie should last only as long as the client's browser session
 # datetime.timedelta(days=365).total_seconds()
 # 31536000.0

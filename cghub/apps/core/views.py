@@ -81,10 +81,9 @@ class SearchView(TemplateView):
         context = super(SearchView, self).get_context_data(**kwargs)
         q = self.request.GET.get('q')
         sort_by = self.request.GET.get('sort_by', DEFAULT_SORT_BY)
-        offset = self.request.GET.get('offset')
-        offset = offset and offset.isdigit() and int(offset) or 0
-        limit = self.request.GET.get('limit')
-        limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        offset, limit = paginator_params(self.request)
+        # will be saved to cookie in get method
+        self.paginator_limit = limit
         filter_str = get_filters_string(self.request.GET)
         if q:
             # FIXME: temporary hack to work around GNOS not quoting Solr query
@@ -132,9 +131,13 @@ class SearchView(TemplateView):
         context = self.get_context_data(**kwargs)
         response = self.render_to_response(context)
         # save current query to cookie
-        if request.GET and response.status_code==200:
+        if request.GET and response.status_code == 200:
             response.set_cookie(settings.LAST_QUERY_COOKIE,
                     request.GET.urlencode(safe='()[]*'),
+                    max_age=settings.COOKIE_MAX_AGE,
+                    path=reverse('home_page'))
+            response.set_cookie(settings.PAGINATOR_LIMIT_COOKIE,
+                    self.paginator_limit,
                     max_age=settings.COOKIE_MAX_AGE,
                     path=reverse('home_page'))
         return response
