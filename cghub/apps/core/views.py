@@ -55,7 +55,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        limit = settings.DEFAULT_PAGINATOR_LIMIT
+        offset, limit = paginator_params(self.request)
         results = api_request(query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
                                 limit=limit, use_api_light=True,
                                 settings=WSAPI_SETTINGS)
@@ -119,12 +119,8 @@ class SearchView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         # set default query if no query specified
-        limit = request.GET.get('limit', '')
-        if limit:
-            limit = '&limit={}'.format(limit)
         if not get_filters_string(request.GET) and not 'q' in request.GET:
-            return HttpResponseRedirect(
-                reverse('search_page') + '?' + DEFAULT_QUERY + limit)
+            return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
         return super(SearchView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):

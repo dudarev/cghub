@@ -185,10 +185,21 @@ class CoreTestCase(WithCacheTestCase):
         self.assertRedirects(response, '%s?q=%s' % (reverse('search_page'), self.query))
 
     def test_save_limit_in_cookies(self):
-        response = self.client.get(reverse('home_page'), follow=True)
-        self.assertNotIn(settings.PAGINATOR_LIMIT_COOKIE, response.cookies)
-        response = self.client.get('%s?limit=25' % reverse('home_page'), follow=True)
-        self.assertEqual(response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
+        with self.settings(DEFAULT_FILTERS = {
+                'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY+TO+NOW]'}):
+            response = self.client.get(
+                    '%s?%s' % (reverse('search_page'), get_default_query()))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                    response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value,
+                    str(settings.DEFAULT_PAGINATOR_LIMIT))
+            response = self.client.get(
+                    '%s?%s&limit=25' % (reverse('search_page'), get_default_query()))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
 
 
 class UtilsTestCase(TestCase):
