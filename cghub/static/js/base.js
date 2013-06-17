@@ -59,7 +59,7 @@ jQuery(function ($) {
                     if(anchor.length) {
                         setTimeout(function() {
                             $(window).scrollTop(anchor.offset().top);
-                            anchor.focus(); 
+                            anchor.focus();
                         }, 0)
                     }
                 }
@@ -110,7 +110,10 @@ jQuery(function ($) {
                             } else {
                                 $.removeCookie('active_tasks', { path: '/' });
                             }
-                        }
+                        };
+                        if (cghub.cart !== undefined) {
+                            location.reload();
+                        };
                         if(status=='failure') {
                             cghub.base.$messageModal.find('.modal-label').text('Error Adding to Cart');
                             cghub.base.$messageModal.find('.modal-body').html(
