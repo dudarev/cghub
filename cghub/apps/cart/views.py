@@ -17,7 +17,7 @@ from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (is_celery_alive,
                     generate_task_id, get_wsapi_settings,
-                    get_filters_string, is_task_done)
+                    get_filters_string, is_task_done, paginator_params)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
@@ -220,10 +220,9 @@ class CartView(TemplateView):
             item = sort_by[1:] if sort_by[0] == '-' else sort_by
             cart = sorted(cart, key=itemgetter(item), reverse=sort_by[0] == '-')
         stats = get_cart_stats(self.request)
-        offset = self.request.GET.get('offset')
-        offset = offset and offset.isdigit() and int(offset) or 0
-        limit = self.request.GET.get('limit')
-        limit = limit and limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        offset, limit = paginator_params(self.request)
+        # will be saved to cookie in get method
+        self.paginator_limit = limit
         """
         Check for not fully added files
         """
@@ -234,6 +233,16 @@ class CartView(TemplateView):
             'stats': stats,
             'missed_files': missed_files,
             'num_results': stats['count']}
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        response = self.render_to_response(context)
+        if request.GET and response.status_code == 200:
+            response.set_cookie(settings.PAGINATOR_LIMIT_COOKIE,
+                    self.paginator_limit,
+                    max_age=settings.COOKIE_MAX_AGE,
+                    path=reverse('home_page'))
+        return response
 
 
 class CartAddRemoveFilesView(View):

@@ -335,7 +335,6 @@ jQuery(function ($) {
                 delete new_search['q'];
             }
             
-            delete new_search['limit'];
             delete new_search['offset'];
             // redirect to the page with filtered results
             return {'is_error': is_error, 'filters': new_search};

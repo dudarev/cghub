@@ -34,7 +34,7 @@ from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
 
 from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
-from cghub.apps.core.utils import generate_task_id
+from cghub.apps.core.utils import generate_task_id, paginator_params
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi import browser_text_search
@@ -176,6 +176,9 @@ class CartTestCase(TestCase):
                                    '?offset={offset}&limit={limit}'.format(
                                        offset=2, limit=2))
         self.assertEqual(response.status_code, 200)
+        # test limit saved to cookies
+        self.assertEqual(
+            response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '2')
 
     def test_cart_add_raise_http_404_when_get(self):
         """
