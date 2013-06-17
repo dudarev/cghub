@@ -28,7 +28,7 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
-            cghub.base.activateTaskStatusChecking();
+            setTimeout(cghub.base.activateTaskStatusChecking, 5000);
             cghub.base.$searchForm.on('submit', cghub.base.checkSearchField);
         },
         showMessage: function (title, content) {
@@ -59,7 +59,7 @@ jQuery(function ($) {
                     if(anchor.length) {
                         setTimeout(function() {
                             $(window).scrollTop(anchor.offset().top);
-                            anchor.focus(); 
+                            anchor.focus();
                         }, 0)
                     }
                 }
@@ -91,7 +91,11 @@ jQuery(function ($) {
             });
         },
         activateTaskStatusChecking:function () {
-            setTimeout(cghub.base.activateTaskStatusChecking, 30000);
+            if (cghub.cart !== undefined) {
+                setTimeout(cghub.base.activateTaskStatusChecking, 10000);
+            } else {
+                setTimeout(cghub.base.activateTaskStatusChecking, 30000);
+            }
             var tasks = $.cookie('active_tasks');
             if(tasks) {
                 var task_id = tasks.split(',')[0];
@@ -109,13 +113,20 @@ jQuery(function ($) {
                                 $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
                             } else {
                                 $.removeCookie('active_tasks', { path: '/' });
+                                if (cghub.cart !== undefined) {
+                                    location.reload();
+                                };
                             }
-                        }
+                        };
                         if(status=='failure') {
-                            cghub.base.$messageModal.find('.modal-label').text('Error Adding to Cart');
-                            cghub.base.$messageModal.find('.modal-body').html(
-                                'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>');
-                            cghub.base.$messageModal.modal();
+                            if (cghub.cart !== undefined) {
+                                location.reload();
+                            } else {
+                                cghub.base.$messageModal.find('.modal-label').text('Error Adding to Cart');
+                                cghub.base.$messageModal.find('.modal-body').html(
+                                    'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>');
+                                cghub.base.$messageModal.modal();
+                            }
                         }
                     }
                 });
