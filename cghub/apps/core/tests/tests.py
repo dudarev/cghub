@@ -32,7 +32,7 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
-                    decrease_start_date, xml_add_spaces)
+                    decrease_start_date, xml_add_spaces, paginator_params)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -184,6 +184,23 @@ class CoreTestCase(WithCacheTestCase):
         response = self.client.get(reverse('home_page'))
         self.assertRedirects(response, '%s?q=%s' % (reverse('search_page'), self.query))
 
+    def test_save_limit_in_cookies(self):
+        with self.settings(DEFAULT_FILTERS = {
+                'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+                'state': ('live',),
+                'upload_date': '[NOW-7DAY+TO+NOW]'}):
+            response = self.client.get(
+                    '%s?%s' % (reverse('search_page'), get_default_query()))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                    response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value,
+                    str(settings.DEFAULT_PAGINATOR_LIMIT))
+            response = self.client.get(
+                    '%s?%s&limit=25' % (reverse('search_page'), get_default_query()))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
+
 
 class UtilsTestCase(TestCase):
     IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",
@@ -282,6 +299,17 @@ class UtilsTestCase(TestCase):
         for i in xml_add_spaces(xml, space=1, tab=2):
             result += i
         self.assertEqual(result, """\n <ResultSet date="2013-11-06 09:24:56">\n   <Hits>10</Hits>\n   <Result id="1">\n     <analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id>\n     <state>live</state>\n     <reason/>\n     <last_modified>2013-06-09T07:27:48Z</last_modified>\n     <upload_date>2013-06-09T06:51:41Z</upload_date>\n   </Result>\n </ResultSet>\n """)
+
+    def test_paginator_params(self):
+        url = reverse('home_page')
+        request = get_request(url=url)
+        self.assertEqual(paginator_params(request), (0, 10))
+        request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
+        self.assertEqual(paginator_params(request), (0, 25))
+        request = get_request(url=url + '?offset=10')
+        self.assertEqual(paginator_params(request), (10, 10))
+        request = get_request(url=url + '?limit=50')
+        self.assertEqual(paginator_params(request), (0, 50))
 
 
 class ContextProcessorsTestCase(TestCase):

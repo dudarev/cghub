@@ -1,6 +1,8 @@
 from django import template
 from django.conf import settings
 
+from cghub.apps.core.utils import paginator_params
+
 
 register = template.Library()
 
@@ -50,10 +52,7 @@ class Paginator(object):
     def get_vars(self):
         request = self.context['request']
         get_copy = request.GET.copy()
-        if 'limit' in get_copy:
-            del get_copy['limit']
-        if 'offset' in get_copy:
-            del get_copy['offset']
+        offset_limit = paginator_params(request)
 
         if len(get_copy.keys()) > 0:
             getvars = '{0}'.format(get_copy.urlencode())
@@ -144,10 +143,9 @@ def items_per_page(request, *limits):
         if not str(limit).isdigit():
             raise Exception("Limits can be numbers or it's string representation")
         get = request.GET.copy()
-        old_limit = get.get('limit', None)
+        offset, old_limit = paginator_params(request)
 
-        if ((not old_limit and limit == settings.DEFAULT_PAGINATOR_LIMIT) or
-            old_limit == str(limit)):
+        if old_limit == limit:
             link = '%d' % limit
         else:
             get['limit'] = str(limit)
