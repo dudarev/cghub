@@ -21,3 +21,28 @@
     </li>
 </ul>
 {% endblock %}
+
+{% block main_content %}
+<div class='batch-search-content'>
+
+<div class="page-header">
+<h1>Batch search</h1>
+</div>
+
+<form type="post" action="." enctype="multipart/form-data">
+    <div class="batch-text">
+        {{ form.text.errors }}
+        <label for="id_text">Space separated ids:</label>
+        {{ form.text }}
+    </div>
+    <div class="batch-file">
+        {{ form.file.errors }}
+        <label for="id_message">Or select file:</label>
+        {{ form.file }}
+    </div>
+    <div class="batch-submit">
+        <button type="submit" class="btn">Submit</button>
+    </div>
+</form>
+</div>
+{% endblock %}

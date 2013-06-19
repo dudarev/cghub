@@ -17,9 +17,11 @@ from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi import browser_text_search
 
-from cghub.apps.core.utils import (get_filters_string, get_default_query,
-                                    get_wsapi_settings, paginator_params)
 from cghub.apps.cart.utils import metadata
+
+from .utils import (get_filters_string, get_default_query, get_wsapi_settings,
+                                                    paginator_params)
+from .forms import BatchSearchForm
 
 
 DEFAULT_QUERY = get_default_query()
@@ -144,7 +146,8 @@ class BatchSearchView(TemplateView):
     template_name = 'core/batch_search.html'
 
     def get_context_data(self, **kwargs):
-        return {}
+        form = BatchSearchForm(self.request.POST or None, self.request.FILES or None)
+        return {'form': form}
 
 
 class ItemDetailsView(TemplateView):
