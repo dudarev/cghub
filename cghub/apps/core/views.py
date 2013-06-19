@@ -139,6 +139,14 @@ class SearchView(TemplateView):
         return response
 
 
+class BatchSearchView(TemplateView):
+
+    template_name = 'core/batch_search.html'
+
+    def get_context_data(self, **kwargs):
+        return {}
+
+
 class ItemDetailsView(TemplateView):
 
     template_name = 'core/item_details.html'

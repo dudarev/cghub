@@ -554,6 +554,13 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
 
 
+class BatchSearchTestCase(TestCase):
+
+    def test_batch_search_view(self):
+        response = self.client.get(reverse('batch_search_page'))
+        self.assertEqual(response.status_code, 200)
+
+
 class SearchViewPaginationTestCase(WithCacheTestCase):
 
     cart_cache_files = []

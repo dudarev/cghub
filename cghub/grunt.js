@@ -41,6 +41,13 @@ module.exports = function (grunt) {
                     compress:true
                 }
             },
+            core_batch_search:{
+                src:cssStaticFolder + 'core/batch_search.less',
+                dest:cssStaticFolder + 'core/batch_search.css',
+                options:{
+                    compress:true
+                }
+            },
             core_details:{
                 src:cssStaticFolder + 'core/details.less',
                 dest:cssStaticFolder + 'core/details.css',

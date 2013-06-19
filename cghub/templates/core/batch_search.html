@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Batch search - {{ block.super }}{% endblock %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/batch_search.less" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/batch_search.css" media="all">
+    {% endif %}
+{% endblock %}
+{% block accessibility_links %}
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#nav-bar" tabindex="1">
+            Skip to Navigation bar
+        </a>
+    </li>
+    <li>
+        <a href="#batch-form" tabindex="2">
+            Skip to batch form
+        </a>
+    </li>
+</ul>
+{% endblock %}
