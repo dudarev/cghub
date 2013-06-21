@@ -196,8 +196,8 @@ def request_light(query, offset, limit, settings, sort_by=None, ignore_cache=Fal
 
     ids = get_ids(query, offset, limit, sort_by=sort_by,
                             ignore_cache=ignore_cache, settings=settings)
-    if ids[0] == 0:
-        return ids[0], objectify.fromstring(
+    if ids[0] == 0 or len(ids[1]) == 0:
+        return 0, objectify.fromstring(
             "<ResultSet><Query>%s</Query>"
             "<Hits>0</Hits></ResultSet>" % urllib2.quote(query))
     attributes = load_attributes(ids=ids[1], settings=settings)

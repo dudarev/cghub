@@ -226,7 +226,11 @@ class CartView(TemplateView):
         """
         Check for not fully added files
         """
-        files = load_missing_attributes(cart[offset:offset + limit])
+        # set offset to zero if no results returned
+        for offset in (offset, 0):
+            files = load_missing_attributes(cart[offset:offset + limit])
+            if files:
+                break
         self.request.session.modified = False
         return {
             'results': files,
