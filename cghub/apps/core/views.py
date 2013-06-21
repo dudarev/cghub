@@ -94,16 +94,20 @@ class SearchView(TemplateView):
         else:
             query = filter_str[1:]  # remove front ampersand
 
-        if 'xml_text' in query:
-            # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
-            queries_list = [query, u"analysis_id={0}".format(q)]
-            results = api_multiple_request(
-                queries_list=queries_list, sort_by=sort_by,
-                offset=offset, limit=limit, settings=WSAPI_SETTINGS)
-        else:
-            results = api_request(query=query, sort_by=sort_by,
-                        offset=offset, limit=limit, use_api_light=True,
-                        settings=WSAPI_SETTINGS)
+        # set offset to zero if no results returned
+        for offset in (offset, 0):
+            if 'xml_text' in query:
+                # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
+                queries_list = [query, u"analysis_id={0}".format(q)]
+                results = api_multiple_request(
+                    queries_list=queries_list, sort_by=sort_by,
+                    offset=offset, limit=limit, settings=WSAPI_SETTINGS)
+            else:
+                results = api_request(query=query, sort_by=sort_by,
+                            offset=offset, limit=limit, use_api_light=True,
+                            settings=WSAPI_SETTINGS)
+            if hasattr(results, 'Result'):
+                break
 
         # this function calculates files_size attribute
         # and adds refassem_short_name to Results
