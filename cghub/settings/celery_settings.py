@@ -28,3 +28,6 @@ if 'test' in sys.argv:
     BROKER_URL = "django://"
 
 CELERYD_CONCURRENCY = 1
+
+CELERYD_MAX_TASKS_PER_CHILD = 5
+CELERYD_TASK_TIME_LIMIT = 600 # 10 minutes
