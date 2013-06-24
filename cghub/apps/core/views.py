@@ -95,7 +95,6 @@ class SearchView(TemplateView):
                 query = u"xml_text={0}".format(u"("+q+u")") + filter_str
         else:
             query = filter_str[1:]  # remove front ampersand
-
         if 'xml_text' in query:
             # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
             queries_list = [query, u"analysis_id={0}".format(q)]
@@ -147,6 +146,10 @@ class BatchSearchView(TemplateView):
 
     def get_context_data(self, **kwargs):
         form = BatchSearchForm(self.request.POST or None, self.request.FILES or None)
+        text = self.request.GET.get('text')
+        if text:
+            ids = text.split()
+        # TODO wsapi function to search files by a list of ids
         return {'form': form}
 
 
