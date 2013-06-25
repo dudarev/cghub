@@ -138,7 +138,7 @@ def item_details(analysis_id, with_xml=False, settings={}):
             analysis_id)
     wsapi_request_logger.info(urllib2.unquote(url))
     if not with_xml:
-        content = urlopen(url, format='json', settings).read()
+        content = urlopen(url, format='json', settings=settings).read()
         content = json.loads(content)
         results = content['result_set']['results']
         add_custom_fields(results)
@@ -146,7 +146,7 @@ def item_details(analysis_id, with_xml=False, settings={}):
             return results[0]
         return {}
     else:
-        content = urlopen(url, format='xml', settings).read()
+        content = urlopen(url, format='xml', settings=settings).read()
         results = []
 
         def callback(attributes):
@@ -175,7 +175,7 @@ def item_xml(analysis_id, with_short=False, settings={}):
             get_setting('CGHUB_ANALYSIS_FULL_URI', settings),
             analysis_id)
     wsapi_request_logger.info(urllib2.unquote(url))
-    xml = urlopen(url, format='xml', settings).read()
+    xml = urlopen(url, format='xml', settings=settings).read()
     xml = xml.replace('\t', '')
     xml = xml.replace('\n', '')
     if not with_short:

@@ -22,9 +22,6 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi.api import Results
-from cghub.wsapi.utils import makedirs_group_write
-
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
@@ -32,7 +29,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
-                    decrease_start_date, xml_add_spaces, paginator_params)
+                    decrease_start_date, xml_add_spaces, paginator_params,
+                    makedirs_group_write)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -310,6 +308,15 @@ class UtilsTestCase(TestCase):
         self.assertEqual(paginator_params(request), (10, 10))
         request = get_request(url=url + '?limit=50')
         self.assertEqual(paginator_params(request), (0, 50))
+
+    '''
+    def test_generate_tmp_file_name(self):
+        """
+        smoke test for generate_tmp_file_name function
+        """
+        name = generate_tmp_file_name()
+        self.assertIn('.tmp', name)
+    '''
 
 
 class ContextProcessorsTestCase(TestCase):

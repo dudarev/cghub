@@ -12,6 +12,7 @@ class RequestTest(unittest.TestCase):
     Just smoke tests.
     """
 
+    # TODO: mock urlopen
     '''
     def test_request_page(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'

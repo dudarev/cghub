@@ -5,11 +5,8 @@ from lxml import objectify
 
 from django.conf import settings
 
-from cghub.wsapi.api import Results
-from cghub.wsapi.api import request as api_request
-from cghub.wsapi.utils import makedirs_group_write, generate_tmp_file_name
-
-from cghub.apps.core.utils import get_wsapi_settings
+from cghub.apps.core.utils import (get_wsapi_settings, makedirs_group_write,
+                                                generate_tmp_file_name)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()

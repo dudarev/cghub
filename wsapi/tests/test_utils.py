@@ -3,32 +3,27 @@
 
 import unittest
 
-from wsapi.utils import generate_tmp_file_name, quote_query, prepare_query
+from wsapi.utils import prepare_query, get_setting
 
 
 class UtilsTestCase(unittest.TestCase):
 
-    def test_generate_tmp_file_name(self):
-        """
-        smoke test for generate_tmp_file_name function
-        """
-        name = generate_tmp_file_name()
-        self.assertIn('.tmp', name)
-
-    def test_quote_query(self):
-        """
-        upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]
-        ->
-        upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&last_modified=%5BNOW-1DAY%20TO%20NOW%5D
-        """
-        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]'
-        self.assertEqual(quote_query(query),
-                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&'
-                'last_modified=%5BNOW-1DAY%20TO%20NOW%5D')
+    def test_get_setting(self):
+        server_url = get_setting('CGHUB_SERVER')
+        new_url = 'http://someserver.com'
+        self.assertIn('http', server_url)
+        self.assertNotEqual(server_url, new_url)
+        server_url = get_setting(
+                    'CGHUB_SERVER', settings={'CGHUB_SERVER': new_url})
+        self.assertEqual(server_url, new_url)
 
     def test_prepare_query(self):
         """
         Quoting, limit -> rows, offset -> first, - -> :desc
+
+        upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]
+        ->
+        upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&last_modified=%5BNOW-1DAY%20TO%20NOW%5D
         """
         # quoting
         query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]'

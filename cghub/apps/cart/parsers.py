@@ -5,14 +5,15 @@ from xml.sax import handler, parse
 
 from django.conf import settings
 
-from cghub.wsapi.utils import urlopen, quote_query
-
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.core.utils import is_celery_alive
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 cart_logger = logging.getLogger('cart')
+
+
+# TODO(nanvel): user wsapi.request_details here
 
 
 class CartAttributesParser(handler.ContentHandler):

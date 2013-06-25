@@ -17,9 +17,6 @@ from django.utils import timezone
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 
-from cghub.wsapi.api import Results
-from cghub.wsapi.api import request as api_request
-
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
                                         generate_task_id, xml_add_spaces)

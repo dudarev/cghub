@@ -36,7 +36,6 @@ from cghub.apps.cart.tasks import cache_results_task
 from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
 from cghub.apps.core.utils import generate_task_id, paginator_params
 
-from cghub.wsapi.api import request as api_request
 from cghub.wsapi import browser_text_search
 
 
