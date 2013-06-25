@@ -1,4 +1,5 @@
 import sys
+import logging
 
 from djcelery.models import TaskState
 from celery import states
@@ -15,6 +16,7 @@ from django.template import loader, Context
 
 from cghub.wsapi.api import request as api_request
 from cghub.wsapi.api import multiple_request as api_multiple_request
+from cghub.wsapi.api_light import get_all_ids, load_attributes
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.cart.utils import metadata
@@ -27,6 +29,7 @@ from .forms import BatchSearchForm
 DEFAULT_QUERY = get_default_query()
 DEFAULT_SORT_BY = None
 WSAPI_SETTINGS = get_wsapi_settings()
+core_logger = logging.getLogger('core')
 
 
 class AjaxView(View):
@@ -141,16 +144,37 @@ class SearchView(TemplateView):
 
 
 class BatchSearchView(TemplateView):
-
+    # TODO write test for this view
     template_name = 'core/batch_search.html'
 
-    def get_context_data(self, **kwargs):
-        form = BatchSearchForm(self.request.POST or None, self.request.FILES or None)
-        text = self.request.GET.get('text')
-        if text:
-            ids = text.split()
-        # TODO wsapi function to search files by a list of ids
-        return {'form': form}
+    def get(self, request, *args, **kwargs):
+        form = BatchSearchForm()
+        return self.render_to_response({'form': form})
+
+    def post(self, request, **kwargs):
+        form = BatchSearchForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            text = request.POST.get('text')
+            uploads = request.FILES
+
+            ids = []
+            if text:
+                ids.extend(text.split())
+            if uploads:
+                ids.extend(uploads['file'].read().split())
+
+            found_ids = get_all_ids(query='analysis_id=(%s)' % ' OR '.join(ids), settings=WSAPI_SETTINGS)
+
+            not_found_ids = set(ids) - set(found_ids)
+
+            return self.render_to_response({'form': form, 'found': found_ids, 'not_found': not_found_ids})
+
+            # TODO add found_ids to cart and redirect to cart_page
+            # return HttpResponseRedirect(reverse('cart_page'))
+
+        else:
+            return HttpResponse("not valid")
+            core_logger.error('Empty form in batch search')
 
 
 class ItemDetailsView(TemplateView):
