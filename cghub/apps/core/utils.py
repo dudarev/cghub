@@ -2,6 +2,9 @@ import sys
 import urllib
 import traceback
 import hashlib
+import os
+import threading
+import socket
 
 from celery import states
 from djcelery.models import TaskState
@@ -226,3 +229,22 @@ def xml_add_spaces(xml, space=0, tab=2):
             space += tab
         position = end_position + 1
         last_element_type = element_type
+
+
+def makedirs_group_write(path):
+    "create a directory, including missing parents, ensuring it has group write permissions"
+    old_mask = os.umask(0002)
+    try:
+        os.makedirs(path)
+    finally:
+        os.umask(old_mask)
+
+
+def generate_tmp_file_name():
+    """
+    Returns filename in next format:
+    pid-threadId-host.tmp
+    """
+    return '{pid}-{thread}-{host}.tmp'.format(
+                    pid=os.getpid(), thread=threading.current_thread().name,
+                    host=socket.gethostname())

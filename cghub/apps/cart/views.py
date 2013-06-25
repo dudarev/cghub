@@ -30,7 +30,7 @@ from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
 import cghub.apps.cart.utils as cart_utils
 
-from cghub.wsapi.api_light import get_all_ids
+from cghub.wsapi.api import request_ids
 from cghub.wsapi.api import multiple_request as api_multiple_request
 from cghub.wsapi import browser_text_search
 
