@@ -117,7 +117,6 @@ def request_details(query, callback, sort_by=None, settings={}):
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
     response = urlopen(url, format='xml', settings=settings)
-
     parser = AttributesParser(callback)
     sax_parse(response, parser)
 

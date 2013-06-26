@@ -69,7 +69,7 @@ def file_size(value):
 @register.filter
 def only_date(value):
     """
-    Extracts date string from datetime lxml string.
+    Extracts date string from datetime string.
     """
     return unicode(value).split('T')[0]
 

@@ -5,7 +5,6 @@ import datetime
 import logging
 
 from StringIO import StringIO
-from lxml import etree, objectify
 
 from celery import states
 from djcelery.models import TaskState

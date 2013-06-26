@@ -1,9 +1,12 @@
 import os.path
 import sys
 
-from lxml import objectify
+from xml.sax import parse as sax_parse
 
 from django.conf import settings
+
+from cghub.wsapi import item_xml
+from cghub.wsapi.parsers import AttributesParser
 
 from cghub.apps.core.utils import (get_wsapi_settings, makedirs_group_write,
                                                 generate_tmp_file_name)
@@ -31,9 +34,9 @@ class AnalysisFileException(Exception):
         self.message = message
 
     def __str__(self):
-        return 'File for analysis_id={0}, which was last modified {1}. {2}'.format(
+        return 'File for analysis_id={0} that was last modified {1}. {2}'.format(
                                 self.analysis_id,
-                                self.last_modified,
+                                last_modified,
                                 self.message) 
 
 
@@ -82,8 +85,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         analysis_id.find('..') != -1 or
         last_modified.find('..') != -1):
         raise AnalysisFileException(
-                analysis_id, last_modified,
-                message='Bad analysis_id or last_modified')
+                analysis_id, last_modified, message='Bad analysis_id or last_modified')
     if is_cart_cache_exists(analysis_id, last_modified):
         return
     path = settings.CART_CACHE_DIR
@@ -101,28 +103,24 @@ def save_to_cart_cache(analysis_id, last_modified):
     path_full = os.path.join(path, 'analysisFull.xml')
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
-        result = api_request(
-                query='analysis_id={0}'.format(analysis_id),
-                ignore_cache=not USE_WSAPI_CACHE,
-                full=True,
-                use_api_light=False,
-                settings=WSAPI_SETTINGS)
-        if not hasattr(result, 'Result') or int(result.Hits.text) != 1:
+        xml, xml_short = item_xml(
+                analysis_id=analysis_id, with_short=True, settings=WSAPI_SETTINGS)
+        if xml_short.find('<Result id') == -1:
             raise AnalysisFileException(
-                    analysis_id, last_modified,
-                    message='File with specified analysis_id not found')
+                    analysis_id,
+                    last_modified,
+                    message='File with specified analysis_id does not exists')
         # if result.Result.last_modified != last_modified:
         # load most recent version
         # example tmp file name: 14985-MainThread-my-pc.tmp
         path_tmp = os.path.join(path, generate_tmp_file_name())
         with open(path_tmp, 'w') as f:
-            f.write(result.tostring())
+            f.write(xml)
             f.close()
         # manage in a atomic manner
         os.rename(path_tmp, path_full)
         with open(path_tmp, 'w') as f:
-            result.remove_attributes()
-            f.write(result.tostring())
+            f.write(xml_short)
             f.close()
         os.rename(path_tmp, path_short)
 
@@ -144,7 +142,7 @@ def get_analysis_path(analysis_id, last_modified, short=False):
 
 def get_analysis(analysis_id, last_modified, short=False):
     """
-    returns wsapi.api.Results object
+    returns analysis dict
 
     :param analysis_id: file analysis_id
     :param last_modified: file last_modified
@@ -153,9 +151,12 @@ def get_analysis(analysis_id, last_modified, short=False):
     path = get_cart_cache_file_path(analysis_id, last_modified, short=short)
     if not os.path.exists(path):
         save_to_cart_cache(analysis_id, last_modified)
-    result = Results.from_file(path, settings=WSAPI_SETTINGS)
-    return result
-
+    results = []
+    def callback(value):
+        results.append(value)
+    with open(path, 'r') as f:
+        sax_parse(f, AttributesParser(callback))
+    return results[0]
 
 def get_analysis_xml(analysis_id, last_modified, short=False):
     """

@@ -33,7 +33,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
 from cghub.apps.cart.parsers import parse_cart_attributes
 from cghub.apps.cart.tasks import cache_results_task
 
-from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
+from cghub.apps.core.tests import TEST_DATA_DIR, get_request
 from cghub.apps.core.utils import generate_task_id, paginator_params
 
 from cghub.wsapi import browser_text_search
@@ -315,7 +315,7 @@ class CartAddItemsTestCase(TestCase):
         self.assertTrue(data['task_id'])
 
 
-class CartCacheTestCase(WithCacheTestCase):
+class CartCacheTestCase(TestCase):
 
     """
     Cached files will be used
@@ -327,12 +327,15 @@ class CartCacheTestCase(WithCacheTestCase):
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
 
+    # use mock here
+    '''
     wsapi_cache_files = [
             '604f183c90858a9d1f1959fe0370c45d.xml',
             '833d652164e4317c6a01d17baca9297c.xml',
             '04431431d567221ad5cec406209e9d27.xml',
     ]
     cart_cache_files = [analysis_id, analysis_id2]
+    '''
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -439,18 +442,10 @@ class CartCacheTestCase(WithCacheTestCase):
         # test get_analysis
         # with cache
         analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
-        self.assertEqual(analysis.Hits, 1)
-        content = analysis.tostring()
-        self.assertIn('analysis_xml', content)
+        self.assertIn('analysis_xml', analysis)
         # short version
         analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
-        content = analysis.tostring()
-        self.assertNotIn('analysis_xml', content)
-        self.assertEqual(analysis.Hits, 1)
-        # without cache
-        shutil.rmtree(path)
-        analysis = get_analysis(self.analysis_id, self.last_modified)
-        self.assertEqual(analysis.Hits, 1)
+        self.assertNotIn('analysis_xml', analysis)
 
     def test_get_analysis_xml(self):
         xml, size = get_analysis_xml(

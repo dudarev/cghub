@@ -2,7 +2,6 @@ import sys
 
 from djcelery.models import TaskState
 from celery import states
-from lxml import etree
 from urllib2 import URLError
 
 from django.conf import settings
@@ -13,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi.api import request_page, item_details
+from cghub.wsapi import request_page, item_details
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.core.utils import (get_filters_string, get_default_query,
