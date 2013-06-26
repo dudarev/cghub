@@ -23,21 +23,23 @@ from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (manifest, metadata,
                             summary, add_ids_to_cart, add_files_to_cart,
-                            load_missing_attributes, cache_file,
+                            load_missing_attributes,
                             analysis_xml_iterator, summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
-from cghub.apps.cart.parsers import parse_cart_attributes
-from cghub.apps.cart.tasks import cache_results_task
+from cghub.apps.cart.tasks import (cache_results_task, cache_file,
+                                        add_files_to_cart_by_query_task)
 
-from cghub.apps.core.tests import WithCacheTestCase, TEST_DATA_DIR, get_request
-from cghub.apps.core.utils import generate_task_id, paginator_params
+from cghub.apps.core.tests import TEST_DATA_DIR, get_request
+from cghub.apps.core.utils import (generate_task_id, paginator_params, get_wsapi_settings)
 
-from cghub.wsapi.api import request as api_request
-from cghub.wsapi import browser_text_search
+from cghub.wsapi import browser_text_search, request_page
+
+
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -315,8 +317,46 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(data['action'], 'redirect')
         self.assertTrue(data['task_id'])
 
+    def test_add_files_to_cart_by_query(self):
+        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        # prefill cart by ids
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        session_data['cart'] = {}
+        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
+        for result in results:
+            session_data['cart'][result.get('analysis_id')] = {
+                            'analysis_id': result.get('analysis_id')}
+        session.session_data = Session.objects.encode(session_data)
+        session.save()
+        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
+                                        'assembly', 'files_size', 'analysis_id']
+        add_files_to_cart_by_query_task(
+                [query], attributes, session_key=self.client.session.session_key)
+        session_store = SessionStore(session_key=self.client.session.session_key)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        self.assertEqual(len(session_data['cart']), hits)
+        self.assertEqual(
+                    session_data['cart'][results[0].get('analysis_id')]['last_modified'],
+                    results[0].get('last_modified'))
+        self.assertIn('study', session_data['cart'][results[0].get('analysis_id')])
 
-class CartCacheTestCase(WithCacheTestCase):
+
+class CartCacheTestCase(TestCase):
 
     """
     Cached files will be used
@@ -327,13 +367,6 @@ class CartCacheTestCase(WithCacheTestCase):
     last_modified = '2013-05-16T20:50:58Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
-
-    wsapi_cache_files = [
-            '604f183c90858a9d1f1959fe0370c45d.xml',
-            '833d652164e4317c6a01d17baca9297c.xml',
-            '04431431d567221ad5cec406209e9d27.xml',
-    ]
-    cart_cache_files = [analysis_id, analysis_id2]
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -381,9 +414,9 @@ class CartCacheTestCase(WithCacheTestCase):
         try:
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid, '
-            'which was last modified 2013-05-16T20:50:58Z. '
-            'File with specified analysis_id not found')
+            self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid '
+            'that was last modified 2013-05-16T20:50:58Z. '
+            'File with specified analysis_id does not exists')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
         if os.path.isdir(path):
@@ -406,8 +439,8 @@ class CartCacheTestCase(WithCacheTestCase):
         except AnalysisFileException as e:
             self.assertEqual(
                 unicode(e),
-                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1, '
-                'which was last modified ../../same_outside_dir. '
+                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
+                'that was last modified ../../same_outside_dir. '
                 'Bad analysis_id or last_modified')
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
@@ -440,18 +473,10 @@ class CartCacheTestCase(WithCacheTestCase):
         # test get_analysis
         # with cache
         analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
-        self.assertEqual(analysis.Hits, 1)
-        content = analysis.tostring()
-        self.assertIn('analysis_xml', content)
+        self.assertIn('analysis_xml', analysis)
         # short version
         analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
-        content = analysis.tostring()
-        self.assertNotIn('analysis_xml', content)
-        self.assertEqual(analysis.Hits, 1)
-        # without cache
-        shutil.rmtree(path)
-        analysis = get_analysis(self.analysis_id, self.last_modified)
-        self.assertEqual(analysis.Hits, 1)
+        self.assertNotIn('analysis_xml', analysis)
 
     def test_get_analysis_xml(self):
         xml, size = get_analysis_xml(
@@ -570,53 +595,6 @@ class CartCacheTestCase(WithCacheTestCase):
                     old_time)
 
 
-class CartParsersTestCase(TestCase):
-
-    test_file = os.path.join(
-                    os.path.dirname(__file__),
-                    '../../../test_data/f1db42e28cca7a220508b4e9778f66fc.xml')
-
-    def test_parse_cart_attributes(self):
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-        # prefill cart by ids
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        session_data['cart'] = {}
-        session_data['cart']['5464f590-587a-4590-8145-f683410ec407'] = {'analysis_id': '5464f590-587a-4590-8145-f683410ec407'}
-        session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319'] = {'analysis_id': 'ff258e70-4a00-45b4-bda9-9134b05c0319'}
-        session.session_data = Session.objects.encode(session_data)
-        session.save()
-        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
-                                        'assembly', 'files_size', 'analysis_id']
-        session_store = SessionStore(session_key=self.client.session.session_key)
-        parse_cart_attributes(session_store, attributes, file_path=self.test_file,
-                                                    cache_files=False)
-        # check task created
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        # 5464f590-587a-4590-8145-f683410ec407 - 2012-05-10T06:23:39Z
-        # ff258e70-4a00-45b4-bda9-9134b05c0319 - 2012-05-18T03:25:49Z
-        self.assertEqual(
-                    session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['last_modified'],
-                    '2012-05-10T06:23:39Z')
-        self.assertTrue(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['study'])
-        self.assertTrue(int(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['files_size']))
-        self.assertEqual(
-                    session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319']['last_modified'],
-                    '2012-05-18T03:25:49Z')
-
-
 class CartFormsTestCase(TestCase):
 
     def test_selected_files_form(self):
@@ -715,13 +693,14 @@ class CartUtilsTestCase(TestCase):
                 request.session._session['cart'])
 
     def test_add_files_to_cart(self):
+        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         request = get_request()
-        filename = os.path.join(TEST_DATA_DIR ,'d35ccea87328742e26a8702dee596ee9.xml')
-        results = api_request(file_name=filename)
-        results.add_custom_fields()
+        hits, results = request_page(query=query)
+        self.assertTrue(hits)
         add_files_to_cart(request, results)
         cart = request.session._session['cart']
-        self.assertEqual(len(cart), 2)
+        self.assertEqual(len(cart), hits)
+        result = results[0]
         self.assertEqual(
-                cart['80e7daa9-6a53-4e78-a0ad-7f46667438c5']['upload_date'],
-                '2012-09-21T20:40:06Z')
+                    cart[result['analysis_id']]['upload_date'],
+                    result['upload_date'])

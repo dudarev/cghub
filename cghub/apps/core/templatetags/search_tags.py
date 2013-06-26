@@ -69,7 +69,7 @@ def file_size(value):
 @register.filter
 def only_date(value):
     """
-    Extracts date string from datetime lxml string.
+    Extracts date string from datetime string.
     """
     return unicode(value).split('T')[0]
 
@@ -299,7 +299,7 @@ def field_values(result, humanize_files_size=True):
     files_size = (
                     get_result_attr(result, 'files_size')
                     or get_result_attr(result, 'files')
-                    and get_result_attr(result, 'files').file[0].filesize)
+                    and get_result_attr(result, 'files')[0]['filesize'])
     if humanize_files_size:
         files_size = file_size(files_size)
     return {

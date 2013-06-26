@@ -2,7 +2,6 @@ import sys
 
 from djcelery.models import TaskState
 from celery import states
-from lxml import etree
 from urllib2 import URLError
 
 from django.conf import settings
@@ -13,8 +12,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi.api import request as api_request
-from cghub.wsapi.api import multiple_request as api_multiple_request
+from cghub.wsapi import request_page, item_details
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.core.utils import (get_filters_string, get_default_query,
@@ -56,15 +54,10 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         offset, limit = paginator_params(self.request)
-        results = api_request(query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
-                                limit=limit, use_api_light=True,
-                                settings=WSAPI_SETTINGS)
-        results.add_custom_fields()
-        if hasattr(results, 'Result'):
-            context['num_results'] = results.length or int(results.Hits.text)
-            context['results'] = results.Result
-        else:
-            context['num_results'] = 0
+        context['num_results'], context['results'] = request_page(
+                            query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
+                            limit=limit, settings=WSAPI_SETTINGS)
+        if context['num_results'] == 0:
             context['message'] = 'No results found.'
         return context
 
@@ -99,26 +92,19 @@ class SearchView(TemplateView):
             if 'xml_text' in query:
                 # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
                 queries_list = [query, u"analysis_id={0}".format(q)]
-                results = api_multiple_request(
+                context['num_results'], context['results'] = request_page(
                     queries_list=queries_list, sort_by=sort_by,
                     offset=offset, limit=limit, settings=WSAPI_SETTINGS)
             else:
-                results = api_request(query=query, sort_by=sort_by,
-                            offset=offset, limit=limit, use_api_light=True,
-                            settings=WSAPI_SETTINGS)
-            if hasattr(results, 'Result'):
+                context['num_results'], context['results'] = request_page(
+                            query=query, sort_by=sort_by, offset=offset,
+                            limit=limit, settings=WSAPI_SETTINGS)
+            if context['num_results'] != 0:
                 break
 
-        # this function calculates files_size attribute
-        # and adds refassem_short_name to Results
-        results.add_custom_fields()
-
-        if hasattr(results, 'Result'):
-            context['num_results'] = results.length or int(results.Hits.text)
-            context['results'] = results.Result
-        else:
-            context['num_results'] = 0
+        if context['num_results'] == 0:
             context['message'] = 'No results found.'
+
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -149,13 +135,15 @@ class ItemDetailsView(TemplateView):
     ajax_template_name = 'core/details_table.html'
 
     def get_context_data(self, **kwargs):
-        results = api_request(query='analysis_id=%s' % kwargs['analysis_id'],
-                                    full=True, settings=WSAPI_SETTINGS)
-        results.add_custom_fields()
-        if hasattr(results, 'Result'):
+        result = item_details(
+                    analysis_id=kwargs['analysis_id'], with_xml=True,
+                                                settings=WSAPI_SETTINGS)
+        if result:
+            xml = result['xml']
+            xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
             return {
-                'res': results.Result,
-                'raw_xml': repr(etree.tostring(results.Result).replace(' id="1"', '')),
+                'res': result,
+                'raw_xml': repr(xml.replace(' id="1"', '')),
                 'analysis_id': kwargs['analysis_id']}
         return {'res': None}
 

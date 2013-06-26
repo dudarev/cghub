@@ -6,7 +6,6 @@ import datetime
 import urllib2
 
 from urllib2 import URLError
-from lxml import objectify
 from mock import patch
 from djcelery.models import TaskState
 from celery import states
@@ -22,8 +21,7 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi.api import Results
-from cghub.wsapi.utils import makedirs_group_write
+from cghub.wsapi import request_ids, item_details, utils as wsapi_utils
 
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
@@ -32,7 +30,8 @@ from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
 from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
-                    decrease_start_date, xml_add_spaces, paginator_params)
+                    decrease_start_date, xml_add_spaces, paginator_params,
+                    makedirs_group_write, generate_tmp_file_name)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -40,6 +39,7 @@ from cghub.apps.cart.views import cart_add_files
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def get_request(url=reverse('home_page')):
@@ -65,60 +65,8 @@ def get_request(url=reverse('home_page')):
     return request
 
 
-class WithCacheTestCase(TestCase):
+class CoreTestCase(TestCase):
 
-    def setUp(self):
-        """
-        Copy cached files to default cache directory.
-        """
-
-        # cache filenames are generated as following:
-        # >>> from wsapi.cache import get_cache_file_name
-        # >>> get_cache_file_name('xml_text=6d5%2A', True)
-        # u'/tmp/wsapi/427dcd2c78d4be27efe3d0cde008b1f9.xml'
-
-        # wsapi cache
-        if not os.path.exists(settings.WSAPI_CACHE_DIR):
-            makedirs_group_write(settings.WSAPI_CACHE_DIR)
-        for f in self.wsapi_cache_files:
-            shutil.copy(
-                os.path.join(TEST_DATA_DIR, f),
-                os.path.join(settings.WSAPI_CACHE_DIR, f)
-            )
-        if self.wsapi_cache_files:
-            path = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
-            if not os.path.exists(path):
-                return
-            self.default_results = objectify.fromstring(
-                open(path).read())
-            self.default_results_count = len(self.default_results.findall('Result'))
-
-    def tearDown(self):
-        # wsapi cache
-        for f in self.wsapi_cache_files:
-            path = os.path.join(settings.WSAPI_CACHE_DIR, f)
-            if not os.path.exists(path):
-                continue
-            os.remove(path)
-        # cart cache
-        for f in self.cart_cache_files:
-            path = os.path.join(
-                    settings.CART_CACHE_DIR, f[:2], f[2:4], f)
-            if os.path.isdir(path):
-                # remove cart cache
-                shutil.rmtree(path)
-
-
-class CoreTestCase(WithCacheTestCase):
-
-    cart_cache_files = []
-    wsapi_cache_files = [
-        '24f05bdcef000bb97ce1faac7ed040ee.xml',
-        '4cc5fcb1fd66e39cddf4c90b78e97667.xml',
-        '7cd2c2b431595c744b22c0c21daa8763.ids',
-        '80854b20d08c55ed41234dc62fff82c8.ids',
-        '6cc087ba392e318a84f3d1d261863728.ids',
-    ]
     query = "6d54"
 
     def test_index(self):
@@ -139,21 +87,21 @@ class CoreTestCase(WithCacheTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_item_details_view(self):
-        analysis_id = '12345678-1234-1234-1234-123456789abc'
-        response = self.client.get(reverse('item_details', kwargs={'analysis_id': analysis_id}))
+        analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
+        bad_analysis_id = 'badd1bd2-f503-4775-951c-123456789112'
+        response = self.client.get(reverse(
+                'item_details', kwargs={'analysis_id': bad_analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
-        from cghub.wsapi.api import request as api_request
-        file_name = os.path.join(settings.WSAPI_CACHE_DIR, self.wsapi_cache_files[0])
-        results = api_request(file_name=file_name)
-        self.assertTrue(hasattr(results, 'Result'))
+        from cghub.wsapi import item_details
+        result = item_details(analysis_id=analysis_id, settings=WSAPI_SETTINGS)
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'analysis_id': results.Result.analysis_id}))
+                        kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
-        self.assertContains(response, results.Result.center_name)
+        self.assertContains(response, result['center_name'])
         # not ajax
         self.assertContains(response, '<head>')
         self.assertContains(response, 'Collapse all')
@@ -161,10 +109,10 @@ class CoreTestCase(WithCacheTestCase):
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
-                        kwargs={'analysis_id': results.Result.analysis_id}),
+                        kwargs={'analysis_id': analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, results.Result.center_name)
+        self.assertContains(response, result['center_name'])
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
         self.assertContains(response, 'Show metadata XML')
@@ -310,6 +258,13 @@ class UtilsTestCase(TestCase):
         self.assertEqual(paginator_params(request), (10, 10))
         request = get_request(url=url + '?limit=50')
         self.assertEqual(paginator_params(request), (0, 50))
+
+    def test_generate_tmp_file_name(self):
+        """
+        smoke test for generate_tmp_file_name function
+        """
+        name = generate_tmp_file_name()
+        self.assertIn('.tmp', name)
 
 
 class ContextProcessorsTestCase(TestCase):
@@ -554,14 +509,14 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
 
 
-class SearchViewPaginationTestCase(WithCacheTestCase):
+class SearchViewPaginationTestCase(TestCase):
 
-    cart_cache_files = []
-    wsapi_cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml',
-        '6cc087ba392e318a84f3d1d261863728.ids',
-    ]
     query = "6d54"
+
+    def setUp(self):
+        self.default_results_count, results = request_ids(
+                                query="all_metadata=('%s')" % self.query,
+                                settings=WSAPI_SETTINGS)
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -621,10 +576,7 @@ class PaginatorUnitTestCase(TestCase):
         )
 
 
-class MetadataViewTestCase(WithCacheTestCase):
-
-    cart_cache_files = ['7b9cd36a-8cbb-4e25-9c08-d62099c15ba1']
-    wsapi_cache_files = ['604f183c90858a9d1f1959fe0370c45d.xml']
+class MetadataViewTestCase(TestCase):
 
     """
     Cached files will be used
@@ -686,21 +638,20 @@ class SettingsTestCase(TestCase):
         settings.TABLE_COLUMNS and
         settings.DETAILS_FILEDS exists
         """
-        FILE_NAME = '871693661c3a3ed7898913da0de0c952.xml'
-
         from cghub.apps.core.attributes import COLUMN_NAMES
         from cghub.apps.core.templatetags.search_tags import field_values
+
+        analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
         names = list(settings.TABLE_COLUMNS)
         for name in names:
             self.assertIn(name, COLUMN_NAMES)
         for name in settings.DETAILS_FIELDS:
             if name not in names:
                 names.append(name)
-        result = Results.from_file(
-                        os.path.join(TEST_DATA_DIR, FILE_NAME),
-                        get_wsapi_settings())
-        result.add_custom_fields()
-        field_values_dict = field_values(result.Result)
+        result = item_details(
+                        analysis_id=analysis_id,
+                        settings=WSAPI_SETTINGS)
+        field_values_dict = field_values(result)
         for name in names:
             self.assertIn(name, field_values_dict)
 
@@ -717,42 +668,3 @@ class ErrorViewsTestCase(TestCase):
             r = error_500(request)
             self.assertEqual(r.status_code, 500)
             self.assertTrue(str(r).find('Connection to WS-API server failed') != -1)
-
-    def urlopen_mock(url):
-            raise urllib2.URLError('Connection error')
-
-    @patch('urllib2.urlopen', urlopen_mock)
-    def test_status_500_if_urlopen_exception(self):
-        """
-        User should be notified in case of error occured in cghub.wsapi.utils.urlopen 
-        """
-        was_exception = False
-        try:
-            r = self.client.get(reverse('home_page'))
-        except urllib2.URLError as e:
-            was_exception = True
-            self.assertIn('No response after', str(e))
-        except:
-            assert False, 'Enother exception than URLError raised'
-        self.assertTrue(was_exception)
-
-    @patch('urllib2.urlopen', urlopen_mock)
-    def test_cart_add_files_return_error_if_urlopen_exception(self):
-        # remove existing cache
-        # filters = '{"analyte_code":"(D)"}'
-        # cache file name = 2faab3400e367605bcf65cd3df490466.ids
-        path = os.path.join(
-                    settings.WSAPI_CACHE_DIR,
-                    '2faab3400e367605bcf65cd3df490466.ids')
-        if os.path.exists(path):
-            os.remove(path)
-        # create right request
-        request = get_request(url=reverse(
-                    'cart_add_remove_files', kwargs={'action': 'add'}))
-        request.POST = {}
-        request.POST['filters'] = '{"analyte_code":"(D)"}'
-        request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
-        response = cart_add_files(request)
-        self.assertEqual(response.status_code, 200)
-        result = json.loads(response.content)
-        self.assertEqual(result['action'], 'error')

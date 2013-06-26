@@ -26,8 +26,8 @@
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 div.btn-toolbar .btn{margin:0 6px 0 0;}
-h1,h2{padding-bottom:0.5em;}
-h1{font-size:24px;}
-h2{font-size:18px;}
-ul.help-sections{margin-top:1em;}
-.help-content{padding-left:50px;padding-top:25px;}
+#main-content h1,#main-content h2{padding-bottom:0.5em;}
+#main-content h1{font-size:24px;}
+#main-content h2{font-size:18px;}
+#main-content ul.help-sections{margin-top:1em;}
+#main-content .help-content{padding-left:50px;padding-top:25px;}

@@ -1,21 +1,28 @@
-import glob
 import datetime
 import os
 import logging
 
 from celery.task import task
 
+from celery import states
+from djcelery.models import TaskState
+
+from cghub.wsapi import request_details
+
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
+from django.utils import timezone
 
-from cghub.apps.cart.cache import AnalysisFileException, save_to_cart_cache
-from cghub.apps.cart.parsers import parse_cart_attributes
+from cghub.apps.cart.cache import (
+        AnalysisFileException, save_to_cart_cache, is_cart_cache_exists)
 
-from cghub.apps.core.utils import decrease_start_date
+from cghub.apps.core.utils import (
+        decrease_start_date, get_wsapi_settings, is_celery_alive, generate_task_id)
 
 
 cart_logger = logging.getLogger('cart')
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
@@ -33,6 +40,37 @@ def cache_results_task(analysis_id, last_modified):
         save_to_cart_cache(analysis_id, last_modified)
     except AnalysisFileException as e:
         cart_logger.error(str(e))
+
+
+def cache_file(analysis_id, last_modified, asinc=False):
+    """
+    Create celery task if asinc==True, or execute task function.
+    Previously check that task was not created yet.
+    """
+    if not asinc:
+        cache_results_task(analysis_id, last_modified)
+        return
+    task_id = generate_task_id(analysis_id=analysis_id, last_modified=last_modified)
+    try:
+        task = TaskState.objects.get(task_id=task_id)
+        # task failed, reexecute task
+        if (task.state == states.FAILURE or
+            task.tstamp < timezone.now() - datetime.timedelta(days=2)):
+            # restart
+            task.tstamp = timezone.now()
+            task.save()
+            cache_results_task.apply_async(
+                    kwargs={
+                        'analysis_id': analysis_id,
+                        'last_modified': last_modified},
+                    task_id=task_id)
+    except TaskState.DoesNotExist:
+        # run
+        cache_results_task.apply_async(
+                    kwargs={
+                        'analysis_id': analysis_id,
+                        'last_modified': last_modified},
+                    task_id=task_id)
 
 
 @task(ignore_result=True)
@@ -54,23 +92,27 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
         return
     # modify session
     session_store = SessionStore(session_key=session_key)
+    cart = session_store.get('cart', {})
+
+    celery_alive = is_celery_alive()
+
+    def callback(data):
+        analysis_id = data['analysis_id']
+        if analysis_id not in cart:
+            return
+        filtered_data = {}
+        for attr in attributes:
+            filtered_data[attr] = data.get(attr)
+        cart[analysis_id] = filtered_data
+        last_modified = data['last_modified']
+        if not is_cart_cache_exists(analysis_id, last_modified):
+            cache_file(analysis_id, last_modified, celery_alive)
+
+
     for query in queries:
-        parse_cart_attributes(
-            session_store, attributes, query=decrease_start_date(query))
+        if query:
+            query = decrease_start_date(query)
+            request_details(query=query, callback=callback, settings=WSAPI_SETTINGS)
 
-
-# FIXME(nanvel): now cache stored in folders
-'''
-@task(ignore_result=True)
-def cache_clear_task():
-    """
-    Removes files from settings.CART_CACHE_DIR which are older than
-    settings.TIME_DELETE_CART_CACHE_FILES_OLDER
-    """
-    files = glob.glob(os.path.join(settings.CART_CACHE_DIR, '*'))
-    now = datetime.datetime.now()
-    for file in files:
-        time_file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file))
-        if now - time_file_modified > settings.TIME_DELETE_CART_CACHE_FILES_OLDER:
-            os.remove(file)
-'''
+    session_store['cart'] = cart
+    session_store.save()

@@ -106,7 +106,7 @@ def ws_query( user_query ):
     if phrase is not None:
         raise RuntimeError( 'Unbalanced quotation marks in user query' )
 
-    phrases = map( lambda phrase: '"' + ' '.join( phrase ) + '"', phrases )
+    phrases = map( lambda phrase: "'" + ' '.join( phrase ) + "'", phrases )
 
     return '(' + ' '.join( phrases ) + ')'
 

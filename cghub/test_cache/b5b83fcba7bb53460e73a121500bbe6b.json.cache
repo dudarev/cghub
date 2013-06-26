@@ -1,0 +1,11 @@
+
+{
+	"result_set": {
+		"@date"  : "2013-06-26 16:06:44",
+		"query"  : "upload_date:[NOW-7DAY TO NOW] study:(phs000178 OR *Other_Sequencing_Multiisolate) state:(live)",
+		"hits"   : "0",
+		"results": [
+],
+"result_summary":{"downloadable_file_size":{"units":"KB","size":0},"state_count":{},"downloadable_file_count":0}}
+
+}
