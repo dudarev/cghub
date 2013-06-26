@@ -23,14 +23,14 @@ from cghub.apps.core.attributes import ATTRIBUTES
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.utils import (add_file_to_cart, remove_file_from_cart,
                             get_or_create_cart, get_cart_stats, cart_clear,
-                            load_missing_attributes, cache_file,
+                            load_missing_attributes,
                             cart_remove_files_without_attributes,
                             add_ids_to_cart, add_files_to_cart)
 from cghub.apps.cart.cache import is_cart_cache_exists
-from cghub.apps.cart.tasks import add_files_to_cart_by_query_task
+from cghub.apps.cart.tasks import add_files_to_cart_by_query_task, cache_file
 import cghub.apps.cart.utils as cart_utils
 
-from cghub.wsapi import browser_text_search
+from cghub.wsapi import browser_text_search, request_ids, request_page
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -79,20 +79,16 @@ def cart_add_all_files(request, celery_alive):
                     query += filter_str
                     queries = [query, u"analysis_id={0}".format(q)]
             if len(queries) > 1:
-                # add files to cart
-                # should be already cached, add immediately
-                results = api_multiple_request(
-                            queries_list=queries, settings=WSAPI_SETTINGS)
-                results.add_custom_fields()
-                add_files_to_cart(request, results)
+                # FIXME: replace by request_details
+                for query in queries:
+                    hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
+                    add_files_to_cart(request, results)
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
             if not queries:
                 # remove front ampersand
                 queries = [filter_str[1:]]
             # add ids to cart
-            ids = get_all_ids(
-                            query=queries[0], settings=WSAPI_SETTINGS,
-                            sort_by=filters.get('sort_by'))
+            hits, ids = request_ids(query=queries[0], settings=WSAPI_SETTINGS)
             add_ids_to_cart(request, ids)
             # add all attributes in task
             if celery_alive:

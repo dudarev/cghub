@@ -6,8 +6,7 @@ import logging
 
 from StringIO import StringIO
 
-from celery import states
-from djcelery.models import TaskState
+from cghub.wsapi import request_page
 
 from django.http import HttpResponse
 from django.core.servers import basehttp
@@ -21,7 +20,6 @@ from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
                                         generate_task_id, xml_add_spaces)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.apps.cart.tasks import cache_results_task
 from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
                                                         get_analysis_xml)
 
@@ -80,12 +78,12 @@ def add_files_to_cart(request, results):
     Fill cart by data contains in results.
 
     :param request: Request objects
-    :param results: wsapi.api.Results object 
+    :param results: attributes dict
     """
-    if not hasattr(results, 'Result'):
+    if len(results) == 0:
         return
     cart = get_or_create_cart(request)
-    for result in results.Result:
+    for result in results:
         current_dict = {}
         for attribute in ATTRIBUTES:
             current_dict[attribute] = result[attribute]
@@ -131,51 +129,15 @@ def load_missing_attributes(files):
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
         query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        result = api_request(
-            query=query,
-            ignore_cache=True,
-            use_api_light=False,
-            settings=WSAPI_SETTINGS)
-        if hasattr(result, 'Result'):
-            result.add_custom_fields()
-            for i in result.Result:
+        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
+        if hits != 0:
+            for result in results:
                 for f in files:
-                    if f['analysis_id'] == i.analysis_id:
+                    if f['analysis_id'] == result['analysis_id']:
                         for attr in ATTRIBUTES:
-                            f[attr] = getattr(i, attr)
+                            f[attr] = result.get(attr)
                         break
     return files
-
-
-def cache_file(analysis_id, last_modified, asinc=False):
-    """
-    Create celery task if asinc==True, or execute task function.
-    Previously check that task was not created yet.
-    """
-    if not asinc:
-        cache_results_task(analysis_id, last_modified)
-        return
-    task_id = generate_task_id(analysis_id=analysis_id, last_modified=last_modified)
-    try:
-        task = TaskState.objects.get(task_id=task_id)
-        # task failed, reexecute task
-        if (task.state == states.FAILURE or
-            task.tstamp < timezone.now() - datetime.timedelta(days=2)):
-            # restart
-            task.tstamp = timezone.now()
-            task.save()
-            cache_results_task.apply_async(
-                    kwargs={
-                        'analysis_id': analysis_id,
-                        'last_modified': last_modified},
-                    task_id=task_id)
-    except TaskState.DoesNotExist:
-        # run
-        cache_results_task.apply_async(
-                    kwargs={
-                        'analysis_id': analysis_id,
-                        'last_modified': last_modified},
-                    task_id=task_id)
 
 
 def analysis_xml_iterator(data, short=False, live_only=False):
@@ -240,8 +202,7 @@ def summary_tsv_iterator(data):
         except AnalysisFileException as e:
             cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
-        result.add_custom_fields()
-        fields = field_values(result.Result, humanize_files_size=False)
+        fields = field_values(result, humanize_files_size=False)
         row = []
         for field_name in COLUMNS:
             value = fields.get(field_name, None)

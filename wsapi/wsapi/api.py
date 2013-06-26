@@ -16,6 +16,7 @@ from xml.sax import parse as sax_parse, parseString as sax_parse_string
 
 from .utils import urlopen, prepare_query, get_setting
 from .parsers import IDsParser, AttributesParser
+from .exceptions import QueryRequired
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
@@ -58,6 +59,8 @@ def request_page(query, offset=None, limit=None, sort_by=None, settings={}):
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
+    if query is None:
+        raise QueryRequired
     query = prepare_query(
                 query=query, offset=offset, limit=limit, sort_by=sort_by)
     url = u'{0}{1}?{2}'.format(
@@ -81,6 +84,8 @@ def request_ids(query, sort_by=None, settings={}):
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
+    if query is None:
+        raise QueryRequired
     query = prepare_query(query=query, sort_by=sort_by)
     url = u'{0}{1}?{2}'.format(
             get_setting('CGHUB_SERVER', settings),
@@ -110,6 +115,8 @@ def request_details(query, callback, sort_by=None, settings={}):
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
+    if query is None:
+        raise QueryRequired
     query = prepare_query(query=query, sort_by=sort_by)
     url = u'{0}{1}?{2}'.format(
             get_setting('CGHUB_SERVER', settings),

@@ -1,6 +1,7 @@
 import os.path
 import sys
 
+from urllib2 import URLError
 from xml.sax import parse as sax_parse
 
 from django.conf import settings
@@ -36,7 +37,7 @@ class AnalysisFileException(Exception):
     def __str__(self):
         return 'File for analysis_id={0} that was last modified {1}. {2}'.format(
                                 self.analysis_id,
-                                last_modified,
+                                self.last_modified,
                                 self.message) 
 
 
@@ -103,14 +104,20 @@ def save_to_cart_cache(analysis_id, last_modified):
     path_full = os.path.join(path, 'analysisFull.xml')
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
-        xml, xml_short = item_xml(
-                analysis_id=analysis_id, with_short=True, settings=WSAPI_SETTINGS)
+        try:
+            xml, xml_short = item_xml(
+                    analysis_id=analysis_id, with_short=True, settings=WSAPI_SETTINGS)
+        except URLError:
+            raise AnalysisFileException(
+                    analysis_id,
+                    last_modified,
+                    message='File with specified analysis_id does not exists')
         if xml_short.find('<Result id') == -1:
             raise AnalysisFileException(
                     analysis_id,
                     last_modified,
                     message='File with specified analysis_id does not exists')
-        # if result.Result.last_modified != last_modified:
+        # if result['last_modified'] != last_modified:
         # load most recent version
         # example tmp file name: 14985-MainThread-my-pc.tmp
         path_tmp = os.path.join(path, generate_tmp_file_name())
