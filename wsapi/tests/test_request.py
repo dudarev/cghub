@@ -24,9 +24,12 @@ class RequestTest(unittest.TestCase):
 
     def test_request_details(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        data = []
         def callback(attributes):
-            pass
+            data.append(attributes)
         hits = request_details(query, callback)
+        self.assertTrue(len(data))
+        self.assertTrue(data[0]['last_modified'])
 
     def test_item_details(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'

@@ -60,6 +60,8 @@ def prepare_query(query, offset=None, limit=None, sort_by=None):
     if query is None:
         return query
     query = urllib2.unquote(query)
+    query = query.replace('"', "'")
+    query = query.replace('\-', "-")
     parts = []
     for part in query.split('&'):
         try:

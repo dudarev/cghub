@@ -120,7 +120,7 @@ def request_details(query, callback, sort_by=None, settings={}):
     query = prepare_query(query=query, sort_by=sort_by)
     url = u'{0}{1}?{2}'.format(
             get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_ID_URI', settings),
+            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
             query)
     wsapi_request_logger.info(urllib2.unquote(url))
     response = urlopen(url, format='xml', settings=settings)

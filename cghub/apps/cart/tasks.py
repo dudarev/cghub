@@ -100,7 +100,7 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
         analysis_id = attributes['analysis_id']
         if analysis_id not in cart:
             return
-        cart[analysis_id] = attributes
+        cart[analysis_id] = dict(attributes)
         last_modified = attributes['last_modified']
         if not is_cart_cache_exists(analysis_id, last_modified):
             cache_file(analysis_id, last_modified, celery_alive)
