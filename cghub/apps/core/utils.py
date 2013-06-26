@@ -24,11 +24,10 @@ WSAPI_SETTINGS_LIST = (
         'CGHUB_ANALYSIS_ID_URI',
         'CGHUB_ANALYSIS_DETAIL_URI',
         'CGHUB_ANALYSIS_FULL_URI',
-        'USE_CACHE',
-        'CACHE_BACKEND',
-        'CACHE_DIR',
         'HTTP_ERROR_ATTEMPTS',
         'HTTP_ERROR_SLEEP_AFTER',
+        'TESTING_MODE',
+        'TESTING_CACHE_DIR',
     )
 
 
@@ -94,6 +93,8 @@ def get_wsapi_settings():
         setting = getattr(settings, 'WSAPI_%s' % name, None)
         if setting != None:
             wsapi_settings[name] = setting
+    if 'TESTING_MODE' not in wsapi_settings:
+        wsapi_settings['TESTING_MODE'] = 'test' in sys.argv
     return wsapi_settings
 
 

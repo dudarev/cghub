@@ -9,6 +9,8 @@ Utility functions.
 
 import urllib2
 import time
+import hashlib
+import os
 
 from .settings import SETTINGS_DEFAULT
 
@@ -29,6 +31,22 @@ def get_setting(attribute, settings={}):
     return settings.get(attribute) or SETTINGS_DEFAULT.get(attribute)
 
 
+def get_from_test_cache(url, format, settings={}):
+    CACHE_DIR = get_setting('TESTING_CACHE_DIR', settings)
+    if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    md5 = hashlib.md5(url)
+    path = os.path.join(CACHE_DIR, '%s.%s.cache' % (md5.hexdigest(), format))
+    if os.path.exists(path):
+        return open(path, 'r')
+    headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
+    req = urllib2.Request(url, headers=headers)
+    content = urllib2.urlopen(req).read()
+    with open(path, 'w') as f:
+        f.write(content)
+    return open(path, 'r')
+
+
 def urlopen(url, format='xml', settings={}):
     """
     Retry to get answer from CGHUB server if HTTP503 raised.
@@ -39,6 +57,9 @@ def urlopen(url, format='xml', settings={}):
     :param format: 'xml' or 'json'
     :param settings: custom settings, see `wsapi.settings.py` for settings example
     """
+    if get_setting('TESTING_MODE', settings):
+        return get_from_test_cache(url, format, settings)
+    
     http_error_attempts = get_setting('HTTP_ERROR_ATTEMPTS', settings)
     http_error_sleep_after = get_setting('HTTP_ERROR_SLEEP_AFTER', settings)
     headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}

@@ -139,9 +139,11 @@ class ItemDetailsView(TemplateView):
                     analysis_id=kwargs['analysis_id'], with_xml=True,
                                                 settings=WSAPI_SETTINGS)
         if result:
+            xml = result['xml']
+            xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
             return {
                 'res': result,
-                'raw_xml': repr(result['xml'].replace(' id="1"', '')),
+                'raw_xml': repr(xml.replace(' id="1"', '')),
                 'analysis_id': kwargs['analysis_id']}
         return {'res': None}
 
