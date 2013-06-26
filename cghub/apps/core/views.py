@@ -161,20 +161,21 @@ class BatchSearchView(TemplateView):
             if text:
                 ids.extend(text.split())
             if uploads:
-                ids.extend(uploads['file'].read().split())
+                ids.extend(uploads['upload'].read().split())
 
             found_ids = get_all_ids(query='analysis_id=(%s)' % ' OR '.join(ids), settings=WSAPI_SETTINGS)
 
             not_found_ids = set(ids) - set(found_ids)
 
-            return self.render_to_response({'form': form, 'found': found_ids, 'not_found': not_found_ids})
+            if not_found_ids:
+                return self.render_to_response({'form': form, 'found': found_ids, 'not_found': not_found_ids})
 
             # TODO add found_ids to cart and redirect to cart_page
-            # return HttpResponseRedirect(reverse('cart_page'))
+            return HttpResponseRedirect(reverse('cart_page'))
 
         else:
-            return HttpResponse("not valid")
             core_logger.error('Empty form in batch search')
+            return self.render_to_response({'form': form, 'error': 'No ids for batch search!'})
 
 
 class ItemDetailsView(TemplateView):

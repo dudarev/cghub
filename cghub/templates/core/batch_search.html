@@ -30,19 +30,15 @@
 </div>
 
 <form method="POST" action="." enctype="multipart/form-data">
-    <div class="batch-text">
-        {{ form.text.errors }}
-        <label for="id_text">Space separated ids:</label>
-        {{ form.text }}
-    </div>
-    <div class="batch-file">
-        {{ form.file.errors }}
-        <label for="id_message">Or select file:</label>
-        {{ form.file }}
-    </div>
+    {% csrf_token %}
+    {{ form }}
     <div class="batch-submit">
         <button type="submit" class="btn">Search and add to cart</button>
     </div>
+
+    {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
 </form>
 {% if not_found %}
     <b>Files with these ids were not found:</b>
@@ -51,10 +47,12 @@
         <li>{{ id }}</li>
         {% endfor %}
     </ul>
-{% endif %}
 
-{% if found and not not_found%}
-    <b>All {{ found|length }} files were found. Adding to cart is not implemented yet</b>
+    <form id="id_add_batch_to_cart" method="POST" action="{% url cart_page %}">
+        Add {{ found|length }} found files to cart?
+        <button type="submit">Yes</button>
+        <button type="reset">No</button>
+    </form>
 {% endif %}
 </div>
 {% endblock %}
