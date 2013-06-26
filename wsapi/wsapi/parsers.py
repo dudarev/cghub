@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-wsapi.utils
+wsapi.parsers
 ~~~~~~~~~~~~~~~~~~~~
 
 xml.sax ContentHandelrs.
