@@ -21,7 +21,7 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi import request_ids, item_details
+from cghub.wsapi import request_ids, item_details, utils as wsapi_utils
 
 from cghub.apps.core.templatetags.pagination_tags import Paginator
 from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
@@ -31,7 +31,7 @@ from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
-                    makedirs_group_write)
+                    makedirs_group_write, generate_tmp_file_name)
 from cghub.apps.core.views import error_500
 from cghub.apps.core.filters_storage import ALL_FILTERS
 
@@ -67,16 +67,6 @@ def get_request(url=reverse('home_page')):
 
 class CoreTestCase(TestCase):
 
-    # TODO: use mock here
-    '''
-    wsapi_cache_files = [
-        '24f05bdcef000bb97ce1faac7ed040ee.xml',
-        '4cc5fcb1fd66e39cddf4c90b78e97667.xml',
-        '7cd2c2b431595c744b22c0c21daa8763.ids',
-        '80854b20d08c55ed41234dc62fff82c8.ids',
-        '6cc087ba392e318a84f3d1d261863728.ids',
-    ]
-    '''
     query = "6d54"
 
     def test_index(self):
@@ -269,14 +259,12 @@ class UtilsTestCase(TestCase):
         request = get_request(url=url + '?limit=50')
         self.assertEqual(paginator_params(request), (0, 50))
 
-    '''
     def test_generate_tmp_file_name(self):
         """
         smoke test for generate_tmp_file_name function
         """
         name = generate_tmp_file_name()
         self.assertIn('.tmp', name)
-    '''
 
 
 class ContextProcessorsTestCase(TestCase):
@@ -523,13 +511,6 @@ class TemplateTagsTestCase(TestCase):
 
 class SearchViewPaginationTestCase(TestCase):
 
-    # TODO: use mocks here
-    '''
-    wsapi_cache_files = [
-        'd35ccea87328742e26a8702dee596ee9.xml',
-        '6cc087ba392e318a84f3d1d261863728.ids',
-    ]
-    '''
     query = "6d54"
 
     def setUp(self):
@@ -596,12 +577,6 @@ class PaginatorUnitTestCase(TestCase):
 
 
 class MetadataViewTestCase(TestCase):
-
-    # TODO: use mock here
-    '''
-    cart_cache_files = ['7b9cd36a-8cbb-4e25-9c08-d62099c15ba1']
-    wsapi_cache_files = ['604f183c90858a9d1f1959fe0370c45d.xml']
-    '''
 
     """
     Cached files will be used

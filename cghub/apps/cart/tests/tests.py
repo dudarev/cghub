@@ -30,12 +30,16 @@ from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
-from cghub.apps.cart.tasks import cache_results_task, cache_file
+from cghub.apps.cart.tasks import (cache_results_task, cache_file,
+                                        add_files_to_cart_by_query_task)
 
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request
-from cghub.apps.core.utils import generate_task_id, paginator_params
+from cghub.apps.core.utils import (generate_task_id, paginator_params, get_wsapi_settings)
 
 from cghub.wsapi import browser_text_search, request_page
+
+
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -313,6 +317,44 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(data['action'], 'redirect')
         self.assertTrue(data['task_id'])
 
+    def test_add_files_to_cart_by_query(self):
+        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        # initialize session
+        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self.session = store
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+        # create session
+        s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+        s.save()
+        # prefill cart by ids
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        session_data['cart'] = {}
+        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
+        for result in results:
+            session_data['cart'][result.get('analysis_id')] = {
+                            'analysis_id': result.get('analysis_id')}
+        session.session_data = Session.objects.encode(session_data)
+        session.save()
+        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
+                                        'assembly', 'files_size', 'analysis_id']
+        add_files_to_cart_by_query_task(
+                [query], attributes, session_key=self.client.session.session_key)
+        session_store = SessionStore(session_key=self.client.session.session_key)
+        # check task created
+        session = Session.objects.get(session_key=self.client.session.session_key)
+        session_data = session.get_decoded()
+        self.assertEqual(len(session_data['cart']), hits)
+        self.assertEqual(
+                    session_data['cart'][results[0].get('analysis_id')]['last_modified'],
+                    results[0].get('last_modified'))
+        self.assertIn('study', session_data['cart'][results[0].get('analysis_id')])
+
 
 class CartCacheTestCase(TestCase):
 
@@ -325,16 +367,6 @@ class CartCacheTestCase(TestCase):
     last_modified = '2013-05-16T20:50:58Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
-
-    # use mock here
-    '''
-    wsapi_cache_files = [
-            '604f183c90858a9d1f1959fe0370c45d.xml',
-            '833d652164e4317c6a01d17baca9297c.xml',
-            '04431431d567221ad5cec406209e9d27.xml',
-    ]
-    cart_cache_files = [analysis_id, analysis_id2]
-    '''
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -562,51 +594,6 @@ class CartCacheTestCase(TestCase):
                     TaskState.objects.get(task_id=task_id).tstamp,
                     old_time)
 
-# TODO: rewrite
-class CartParsersTestCase(TestCase):
-
-    def test_parse_cart_attributes(self):
-        pass
-        '''
-        # initialize session
-        settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-        engine = import_module(settings.SESSION_ENGINE)
-        store = engine.SessionStore()
-        store.save()
-        self.session = store
-        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-        # create session
-        s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-        s.save()
-        # prefill cart by ids
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        session_data['cart'] = {}
-        session_data['cart']['5464f590-587a-4590-8145-f683410ec407'] = {'analysis_id': '5464f590-587a-4590-8145-f683410ec407'}
-        session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319'] = {'analysis_id': 'ff258e70-4a00-45b4-bda9-9134b05c0319'}
-        session.session_data = Session.objects.encode(session_data)
-        session.save()
-        attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
-                                        'assembly', 'files_size', 'analysis_id']
-        session_store = SessionStore(session_key=self.client.session.session_key)
-        parse_cart_attributes(session_store, attributes, file_path=self.test_file,
-                                                    cache_files=False)
-        # check task created
-        session = Session.objects.get(session_key=self.client.session.session_key)
-        session_data = session.get_decoded()
-        # 5464f590-587a-4590-8145-f683410ec407 - 2012-05-10T06:23:39Z
-        # ff258e70-4a00-45b4-bda9-9134b05c0319 - 2012-05-18T03:25:49Z
-        self.assertEqual(
-                    session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['last_modified'],
-                    '2012-05-10T06:23:39Z')
-        self.assertTrue(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['study'])
-        self.assertTrue(int(session_data['cart']['5464f590-587a-4590-8145-f683410ec407']['files_size']))
-        self.assertEqual(
-                    session_data['cart']['ff258e70-4a00-45b4-bda9-9134b05c0319']['last_modified'],
-                    '2012-05-18T03:25:49Z')
-        '''
 
 class CartFormsTestCase(TestCase):
 
