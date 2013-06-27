@@ -1,7 +1,6 @@
 import os.path
 import sys
 import shutil
-import contextlib
 import datetime
 import urllib2
 
@@ -14,6 +13,7 @@ from django.conf import settings
 from django.utils import simplejson as json
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
@@ -21,21 +21,22 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi import request_ids, item_details, utils as wsapi_utils
+from cghub.wsapi import request_ids, item_details
 
-from cghub.apps.core.templatetags.pagination_tags import Paginator
-from cghub.apps.core.templatetags.search_tags import (get_name_by_code,
+from cghub.apps.cart.views import cart_add_files
+
+from ..templatetags.pagination_tags import Paginator
+from ..templatetags.search_tags import (get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date, get_sample_type_by_code)
-from cghub.apps.core.utils import (WSAPI_SETTINGS_LIST, get_filters_string,
+from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
                     makedirs_group_write, generate_tmp_file_name)
-from cghub.apps.core.views import error_500
-from cghub.apps.core.filters_storage import ALL_FILTERS
-
-from cghub.apps.cart.views import cart_add_files
+from ..views import error_500
+from ..filters_storage import ALL_FILTERS
+from ..forms import BatchSearchForm
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
@@ -514,6 +515,29 @@ class BatchSearchTestCase(TestCase):
     def test_batch_search_view(self):
         response = self.client.get(reverse('batch_search_page'))
         self.assertEqual(response.status_code, 200)
+
+    def test_batch_search_form(self):
+        ids = [
+            '0005d2d0-aede-4f5c-89fa-aed12abfadd6',
+            '00007994-abeb-4b16-a6ad-7230300a29e9',
+            '000f332c-7fd9-4515-bf5f-9b77db43a3fd',
+        ]
+        f = SimpleUploadedFile(name='ids.csv', content=', '.join(ids))
+        form = BatchSearchForm({'text': ', '.join(ids)})
+        self.assertTrue(form.is_valid())
+        form = BatchSearchForm({}, {'upload': f})
+        self.assertTrue(form.is_valid())
+        for id in ids:
+            self.assertIn(id, form.cleaned_data['ids'])
+        form = BatchSearchForm({})
+        self.assertFalse(form.is_valid())
+        # test unsuported format
+        form = BatchSearchForm({'text': 'some bad ids'})
+        self.assertFalse(form.is_valid())
+        # unsupported file format
+        f = SimpleUploadedFile(name='ids.csv', content='bad content')
+        orm = BatchSearchForm({}, {'upload': f})
+        self.assertFalse(form.is_valid())
 
 
 class SearchViewPaginationTestCase(TestCase):
