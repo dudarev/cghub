@@ -512,21 +512,19 @@ class TemplateTagsTestCase(TestCase):
 
 class BatchSearchTestCase(TestCase):
 
-    def test_batch_search_view(self):
-        response = self.client.get(reverse('batch_search_page'))
-        self.assertEqual(response.status_code, 200)
-
     def test_batch_search_form(self):
         ids = [
             '0005d2d0-aede-4f5c-89fa-aed12abfadd6',
             '00007994-abeb-4b16-a6ad-7230300a29e9',
             '000f332c-7fd9-4515-bf5f-9b77db43a3fd',
+            '00007994-abeb-4b16-a6ad-7230300a29e9',
         ]
         f = SimpleUploadedFile(name='ids.csv', content=', '.join(ids))
         form = BatchSearchForm({'text': ', '.join(ids)})
         self.assertTrue(form.is_valid())
         form = BatchSearchForm({}, {'upload': f})
         self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.cleaned_data['ids']), 3)
         for id in ids:
             self.assertIn(id, form.cleaned_data['ids'])
         form = BatchSearchForm({})
@@ -538,6 +536,29 @@ class BatchSearchTestCase(TestCase):
         f = SimpleUploadedFile(name='ids.csv', content='bad content')
         orm = BatchSearchForm({}, {'upload': f})
         self.assertFalse(form.is_valid())
+
+    def test_batch_search_view(self):
+        response = self.client.get(reverse('batch_search_page'))
+        self.assertEqual(response.status_code, 200)
+        # submit wrong data
+        data = {'text': 'bad text'}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'not mutch analysis_id pattern')
+        # submit not existed analysis_id
+        data = {
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
+            '00007994-abeb-4b16-a6ad-7230300a29e9, '
+            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No results for')
+        # ok
+        data = {
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
+            '00007994-abeb-4b16-a6ad-7230300a29e9'}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertRedirects(response, reverse('cart_page'))
 
 
 class SearchViewPaginationTestCase(TestCase):

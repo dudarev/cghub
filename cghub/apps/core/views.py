@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi import request_page, item_details
+from cghub.wsapi import request_page, item_details, request_ids
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.cart.utils import metadata
@@ -134,7 +134,6 @@ class SearchView(TemplateView):
 
 
 class BatchSearchView(TemplateView):
-    # TODO write test for this view
     template_name = 'core/batch_search.html'
 
     def get(self, request, *args, **kwargs):
@@ -145,27 +144,21 @@ class BatchSearchView(TemplateView):
         form = BatchSearchForm(request.POST or None, request.FILES or None)
         if form.is_valid():
             text = request.POST.get('text')
-            uploads = request.FILES
 
-            ids = []
-            if text:
-                ids.extend(text.split())
-            if uploads:
-                ids.extend(uploads['upload'].read().split())
+            submitted_ids = form.cleaned_data['ids']
+            hits, ids = request_ids(
+                        query='analysis_id=(%s)' % ' OR '.join(submitted_ids),
+                        settings=WSAPI_SETTINGS)
 
-            found_ids = get_all_ids(query='analysis_id=(%s)' % ' OR '.join(ids), settings=WSAPI_SETTINGS)
-
-            not_found_ids = set(ids) - set(found_ids)
-
-            if not_found_ids:
-                return self.render_to_response({'form': form, 'found': found_ids, 'not_found': not_found_ids})
+            if hits < len(submitted_ids):
+                return self.render_to_response({
+                        'form': form,
+                        'not_found': list(set(submitted_ids) - set(ids))})
 
             # TODO add found_ids to cart and redirect to cart_page
             return HttpResponseRedirect(reverse('cart_page'))
 
-        else:
-            core_logger.error('Empty form in batch search')
-            return self.render_to_response({'form': form, 'error': 'No ids for batch search!'})
+        return self.render_to_response({'form': form, 'not_found': []})
 
 
 class ItemDetailsView(TemplateView):

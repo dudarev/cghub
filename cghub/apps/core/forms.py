@@ -28,8 +28,9 @@ class BatchSearchForm(forms.Form):
                 continue
             if not id_pattern.match(id):
                 raise forms.ValidationError(
-                                '%s not mutch analysis_id pattern' % id)
-            ids.append(id)
+                                '"%s" not mutch analysis_id pattern' % id)
+            if id not in ids:
+                ids.append(id)
 
         if upload:
             for i in upload.read().split(','):
@@ -38,8 +39,9 @@ class BatchSearchForm(forms.Form):
                     continue
                 if not id_pattern.match(id):
                     raise forms.ValidationError(
-                                '%s not mutch analysis_id pattern' % id)
-                ids.append(id)
+                                '"%s" not mutch analysis_id pattern' % id)
+                if id not in ids:
+                    ids.append(id)
 
         data['ids'] = ids
 

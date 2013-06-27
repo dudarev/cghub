@@ -31,28 +31,37 @@
 
 <form method="POST" action="." enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form }}
-    <div class="batch-submit">
-        <button type="submit" class="btn">Search and add to cart</button>
-    </div>
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+    {% if not_found %}
+        <div class="alert alert-error">
+            {{ not_found|length }} files were not found
+        </div>
+    {% endif %}
+    <label for="id_text">Comma separated list of ids:</label>
+    {{ form.text }}
+    <label for="id_upload">Or select file:</label>
+    {{ form.upload }}
 
-    {% if error %}
-        <div class="alert alert-error">{{ error }}</div>
+    {% if not_found %}
+        <input type="hidden" name="ignore" value="true" />
+        <div class="batch-submit">
+            <button type="submit" class="btn">Skip missed files and add to cart</button>
+        </div>
+        <h2>No results for next ids:</h2>
+        <ul>
+            {% for id in not_found %}
+            <li>{{ id }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="batch-submit">
+            <button type="submit" class="btn">Search and add to cart</button>
+        </div>
     {% endif %}
 </form>
-{% if not_found %}
-    <b>Files with these ids were not found:</b>
-    <ul>
-        {% for id in not_found %}
-        <li>{{ id }}</li>
-        {% endfor %}
-    </ul>
-
-    <form id="id_add_batch_to_cart" method="POST" action="{% url cart_page %}">
-        Add {{ found|length }} found files to cart?
-        <button type="submit">Yes</button>
-        <button type="reset">No</button>
-    </form>
-{% endif %}
 </div>
 {% endblock %}
