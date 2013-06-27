@@ -7,402 +7,198 @@ wsapi.api
 Functions for external use.
 
 """
+
+import json
 import urllib2
 import logging
 
-from lxml import objectify, etree
-from datetime import datetime
+from xml.sax import parse as sax_parse, parseString as sax_parse_string
 
-from exceptions import QueryRequired
-from cache import get_from_cache, save_to_cache
-from utils import get_setting, urlopen, quote_query
-
-from api_light import request_light
+from .utils import urlopen, prepare_query, get_setting
+from .parsers import IDsParser, AttributesParser
+from .exceptions import QueryRequired
 
 
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
 
-class Results(object):
+"""
+From WS API documentation:
+
+The querystring may also contain a parameter named ‘sort_by’ whose value is the attribute
+by which the results should be sorted. The attribute name may followed by :asc or :desc to
+indicate ascending or decending sort order. If ‘sort_by’ is not specified, results are sorted by
+‘last_modified’. If no sort order is specified, results are sorted in ascending order.
+
+The querystring may also contain a pagination parameters named start and rows. Parameter
+start defines how many results should be skipped and rows defines how many records output
+should have.
+"""
+
+
+def add_custom_fields(results):
     """
-    Wrapper class for results obtained with lxml. This object is returned by :func:`request`.
+    Calculate missing fields:
+    - files_size
     """
+    for result in results:
+        files_size = 0
+        for f in result['files']:
+            files_size += f['filesize']
+        result['files_size'] = files_size
 
-    CALCULATED_FIELDS = ('files_size', 'refassem_short_name',)
 
-    def __init__(self, lxml_results, settings):
-        """
-        :param lxml_results: needs to be converted with lxml.objectify
-        :param settings: wsapi settings dict, see `wsapi.settings.py`
+def request_page(query, offset=None, limit=None, sort_by=None, settings={}):
+    """
+    Makes a request to CGHub web service.
+    Returns page data in json format.
 
-        .. code-block :: python
+    :param query: a string with query to send to the server
+    :param offset: how many results should be skipped
+    :param limit: how many records output should have
+    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    if query is None:
+        raise QueryRequired
+    query = prepare_query(
+                query=query, offset=offset, limit=limit, sort_by=sort_by)
+    url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
+            query)
+    wsapi_request_logger.info(urllib2.unquote(url))
+    response = urlopen(url, format='json', settings=settings).read()
+    response = json.loads(response)
+    hits = int(response['result_set']['hits'])
+    results = response['result_set']['results'] if hits else []
+    add_custom_fields(results)
+    return hits, results
 
-            results = objectify.fromstring(open(cache_file_name, 'r').read())
-        """
-        self._lxml_results = lxml_results
-        self.settings = settings
-        self.is_custom_fields_calculated = False
-        # used by api_light to specify correct results count
-        self.length = 0
 
-    def __getattr__(self, attr):
-        if attr in self.__dict__:
-            return getattr(self, attr)
-        return getattr(self._lxml_results, attr)
+def request_ids(query, sort_by=None, settings={}):
+    """
+    Returns list of ids for specified query
 
-    def __getitem__(self, item):
-        return self[item]
+    :param query: a string with query to send to the server
+    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    if query is None:
+        raise QueryRequired
+    query = prepare_query(query=query, sort_by=sort_by)
+    url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_ID_URI', settings),
+            query)
+    wsapi_request_logger.info(urllib2.unquote(url))
+    response = urlopen(url, format='xml', settings=settings)
 
-    @classmethod
-    def from_file(cls, file_name, settings):
-        """
-        Initialize :class:`Results <Results>` from a file.
-        """
-        with open(file_name) as f:
-            return cls(
-                objectify.fromstring(
-                    f.read()
-                ),
-                settings=settings
-            )
+    hits = 0
+    results = []
 
-    def add_custom_fields(self):
-        """
-        Add files_size and refassem_short_name fields.
-        
-        Files size is stored in structures
+    def callback(value):
+        results.append(value)
 
-        .. code-block :: xml
+    parser = IDsParser(callback)
+    sax_parse(response, parser)
 
-            <files>
-                <file>
-                    ...
-                    <filesize></filesize>
-                </file>
-            </files>
+    return parser.hits, results
 
-        In real results we see only one file.
-        This function takes care of a situation if there will be several ``<file>`` elements.
 
-        Assembly short name is stored in analysis_xml in case of AnalysisFull uri,
-        otherwice in refassem_short_name:
+def request_details(query, callback, sort_by=None, settings={}):
+    """
+    Call callback function for every parsed result. Returns hits.
 
-        .. code-block :: xml
+    :param query: a string with query to send to the server
+    :param callback: callable, calls for every parsed result 
+    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    if query is None:
+        raise QueryRequired
+    query = prepare_query(query=query, sort_by=sort_by)
+    url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
+            query)
+    wsapi_request_logger.info(urllib2.unquote(url))
+    response = urlopen(url, format='xml', settings=settings)
+    parser = AttributesParser(callback)
+    sax_parse(response, parser)
 
-            <refassem_short_name>HG19</refassem_short_name>
+    return parser.hits
 
-            or
 
-            <analysis_xml>
-                <ANALYSIS_SET>
-                    <ANALYSIS>
-                        <ANALYSIS_TYPE>
-                            <REFERENCE_ALIGNMENT>
-                                <ASSEMBLY>
-                                    <STANDARD short_name="GRCh37-lite"/>
-                                </ASSEMBLY>
-                                ...
+def item_details(analysis_id, with_xml=False, settings={}):
+    """
+    Returns details for file with specified analysis id.
 
-        """
+    :param analysis_id: analysis id
+    :param with_xml: boolean, result additionally contains raw xml if True
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    url = u'{0}{1}/{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
+            analysis_id)
+    wsapi_request_logger.info(urllib2.unquote(url))
+    if not with_xml:
+        content = urlopen(url, format='json', settings=settings).read()
+        content = json.loads(content)
+        results = content['result_set']['results']
+        add_custom_fields(results)
+        if results:
+            return results[0]
+        return {}
+    else:
+        content = urlopen(url, format='xml', settings=settings).read()
+        results = []
 
-        if self.is_custom_fields_calculated:
-            return
-        if not hasattr(self, 'Result'):
-            return
-        for r in self.Result:
-            files_size = 0
-            for f in r.files.file:
-                files_size += int(f.filesize)
-            r.files_size = files_size
-            if not hasattr(r, 'refassem_short_name'):
-                r.refassem_short_name = r.analysis_xml.ANALYSIS_SET\
-                    .ANALYSIS.ANALYSIS_TYPE.REFERENCE_ALIGNMENT\
-                    .ASSEMBLY.STANDARD.get('short_name')
-        self.is_custom_fields_calculated = True
+        def callback(attributes):
+            results.append(attributes)
 
-    def sort(self, sort_by):
-        """
-        Sorts results by attribute ``sort_by``.
-        If ``sort_by`` starts with ``-`` the order is descending.
-        If ``sort_by`` is ``files_size`` it is calculated. See :py:meth:`add_custom_fields` for details.
-        """
-        from operator import itemgetter
+        sax_parse_string(content, AttributesParser(callback))
+        if results:
+            result = results[0]
+            content = content.replace('\t', '')
+            content = content.replace('\n', '')
+            result['xml'] = content
+            return result
+    return {}
 
-        # figure out order
-        reverse_order = False
-        if sort_by.startswith("-"):
-            reverse_order = True
-            sort_by = sort_by[1:]
 
-        if sort_by in self.CALCULATED_FIELDS:
-            self.add_custom_fields()
+def item_xml(analysis_id, with_short=False, settings={}):
+    """
+    Returns xml for specified analysis id.
 
-        self.Result = [x for x in self.Result]
-
-        try:
-            self.Result.sort(key=itemgetter(sort_by), reverse=reverse_order)
-        except AttributeError:
-            # no such child, return original unsorted result
-            return
-
-    def tostring(self):
-        """
-        Converts object to a string.
-        """
-        return etree.tostring(self._lxml_results)
-
-    def remove_attributes(self):
-        """
-        Removes some attributes from results to make them shorter.
-        """
-        attributes_to_remove = [
+    :param analysis_id: analysis id
+    :param with_short: boolean, additionally returns item without set of submission metadata if True
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+    """
+    url = u'{0}{1}/{2}'.format(
+            get_setting('CGHUB_SERVER', settings),
+            get_setting('CGHUB_ANALYSIS_FULL_URI', settings),
+            analysis_id)
+    wsapi_request_logger.info(urllib2.unquote(url))
+    xml = urlopen(url, format='xml', settings=settings).read()
+    xml = xml.replace('\t', '')
+    xml = xml.replace('\n', '')
+    if not with_short:
+        return xml
+    attributes_to_remove = (
             'sample_accession', 'legacy_sample_id',
             'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
             'analyte_code', 'sample_type', 'library_strategy',
-            'platform', 'analysis_xml', 'run_xml', 'experiment_xml', ]
-        for r in self.Result:
-            for a in attributes_to_remove:
-                r.remove(r.find(a))
-            r.analysis_attribute_uri = (get_setting('CGHUB_SERVER', self.settings) +
-                    get_setting('CGHUB_ANALYSIS_DETAIL_URI', self.settings) +
-                    '/' + r.analysis_id)
-            objectify.deannotate(r.analysis_attribute_uri)
-            etree.cleanup_namespaces(r)
-
-
-def merge_results(xml_results):
-    """
-    Merges search results into one object.
-
-    Iterable may contain instances of (even at the same time):
-
-    :class:`lxml.objectify.ObjectifiedElement`
-        Make sure it has Query, Hits attributes(may not contain Result attribute)
-    :class:`wsapi.api.Results`
-        Its attribute _lxml_results must meet requirements above
-
-    Merging excludes duplicates. Timestamp is added after merging.
-    Queries are aggregated.
-
-    Returns lxml.objectify.ObjectifiedElement instance containing merged xml data.
-    """
-    if not isinstance(xml_results, tuple) and not isinstance(xml_results, list):
-        raise Exception('xml_results must be tuple or list')
-
-    if not xml_results:
-        raise Exception('Nothing to merge!')
-
-    result = objectify.XML('<ResultSet></ResultSet>')
-    # list of already merged id
-    merged_ids = []
-    counter = 1
-
-    for xml_result in xml_results:
-        # In case of element is instance of wsapi.api.Results class
-        if hasattr(xml_result, '_lxml_results'):
-            xml = xml_result._lxml_results
-        else:
-            xml = xml_result
-
-        if hasattr(xml, 'Result'):
-            for r in xml.Result:
-                if not r.analysis_id in merged_ids:
-                    r.set('id', str(counter))
-                    counter += 1
-                    result.append(r)
-        result.insert(0, xml.Query)
-        # renew list of merged ids
-        merged_ids = result.xpath('/ResultSet/Result/analysis_id')
-
-    hits = 0
-    try:
-        hits = len(result.Result)
-    except AttributeError:
-        pass
-    result.insert(0, objectify.fromstring('<Hits>%d</Hits>' % hits))
-    result.set('date', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
-    return result
-
-
-def request(
-        query=None, offset=None, limit=None, sort_by=None,
-        get_attributes=True, full=False, file_name=None, ignore_cache=False,
-        use_api_light=False, settings={}):
-    """
-    Makes a request to CGHub web service or gets data from a file.
-    Returns parsed :class:`wsapi.api.Results` object.
-
-    If file_name specified reads results from file.
-    Else tries to get results from cache.
-    Else tries to get results from the server.
-    Then caches the results if needed and returns sorted results.
-
-    :param query: a string with query to send to the server
-    :param offset: offset for results (for paging)
-    :param limit: limit (also for paging)
-    :param sort_by: sort by this attribute (specify it as ``-date_modified`` to reverse sorting order)
-    :param get_attributes: boolean to get results with attributes or not (``True`` by default), see :ref:`wsi-api` for details
-    :param file_name: only this parameter maybe specified, in this case results are obtained from a file
-    :param use_api_light: use api_light to obtain results, it works more efficient with large queries
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
-    :param full: if True, will be used ANALYSIS_FULL uri instead of ANALYSIS_DETAIL uri
-    """
-
-    query = quote_query(query)
-    if sort_by:
-        urllib2.quote(sort_by)
-
-    if use_api_light:
-        hits, results = request_light(
-                            query=query,
-                            offset=offset or 0,
-                            limit=limit or 10,
-                            sort_by=sort_by,
-                            ignore_cache=ignore_cache,
-                            settings=settings)
-        results = Results(results, settings)
-        if sort_by and hasattr(results, 'Result'):
-            results.sort(sort_by)
-        results.length = hits
-        return results
-
-    results = []
-    results_from_cache = True
-
-    if query is None and file_name is None:
-        raise QueryRequired
-
-    if query is None and file_name:
-        results = objectify.fromstring(open(file_name, 'r').read())
-
-    # Getting results from the cache
-    if not len(results) and not ignore_cache:
-        results, cache_errors = get_from_cache(
-            query=query, get_attributes=get_attributes, full=full, settings=settings)
-
-    # Getting results from the server
-    if not len(results):
-        results_from_cache = False
-        server = get_setting('CGHUB_SERVER')
-        if get_attributes:
-            if full:
-                uri = get_setting('CGHUB_ANALYSIS_FULL_URI')
-            else:
-                uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI')
-        else:
-            uri = get_setting('CGHUB_ANALYSIS_ID_URI')
-        if not '=' in query:
-            raise ValueError("Query seems to be invalid (no '='): %s" % query)
-        url = u'{0}{1}?{2}'.format(server, uri, query)
-        wsapi_request_logger.info(urllib2.unquote(url))
-        response = urlopen(url).read()
-        results = objectify.fromstring(response)
-
-    # wrap result with extra methods
-    results = Results(results, settings)
-
-    # Saving results to the cache
-    if not ignore_cache and not results_from_cache:
-        save_to_cache(query=query, get_attributes=get_attributes,
-                                        data=results, settings=settings)
-
-    # Sort and slice if needed
-    if hasattr(results, 'Result'):
-        if sort_by:
-            results.sort(sort_by=sort_by)
-        if offset or limit:
-            offset = offset or 0
-            limit = limit or 0
-            if isinstance(results.Result, (list, tuple)):
-                results.Result = results.Result[offset:offset + limit]
-            else:
-                result_all = results.findall('Result')
-                idx_from = results.index(result_all[0])
-                for r in result_all:
-                    results.remove(r)
-                cslice = result_all[offset:offset + limit]
-                for i, c in enumerate(cslice):
-                    results.insert(i + idx_from, c)
-
-    return results
-
-
-def multiple_request(
-        queries_list=None, offset=None, limit=None, sort_by=None,
-        get_attributes=True, file_name=None, ignore_cache=False,
-        settings={}):
-    """
-    The only difference from wsapi.api.request is that the first argument can be
-    iterable(tuple or list) with many queries.
-
-    If takes string as first argument acts like request().
-
-    Returns :class:`wsapi.api.Results` instance
-    """
-    # FIXME: drop this when CGHub has done away with the need for multiple request hack.
-    if isinstance(queries_list, str):
-        return request(
-            queries_list, offset, limit, sort_by,
-            get_attributes, file_name, ignore_cache, use_api_light=True,
-            settings=settings)
-
-    if not isinstance(queries_list, tuple) and not isinstance(queries_list, list):
-        raise Exception('The first argument must be tuple or list')
-
-    results = []
-    results_from_cache = True
-
-    if not queries_list and file_name is None:
-        raise QueryRequired
-
-    if not queries_list and file_name:
-        results = objectify.fromstring(open(file_name, 'r').read())
-
-    # Getting results from the cache
-    if not len(results) and not ignore_cache:
-        results, cache_errors = get_from_cache(
-                query=str(list(queries_list)),
-                get_attributes=get_attributes,
-                settings=settings)
-
-    if not len(results):
-        results_from_cache = False
-        results_list = []
-        for query in queries_list:
-            results_list.append(
-                request(
-                    query=query, offset=None, limit=None, sort_by=None,
-                    get_attributes=get_attributes, file_name=file_name,
-                    ignore_cache=ignore_cache, settings=settings))
-        results = merge_results(results_list)
-
-    results = Results(results, settings)
-
-    # Saving results to the cache
-    if not ignore_cache and not results_from_cache:
-        save_to_cache(
-                    query=str(list(queries_list)),
-                    get_attributes=get_attributes,
-                    data=results,
-                    settings=settings)
-
-    # Sort and slice if needed
-    if hasattr(results, 'Result'):
-        if sort_by:
-            results.sort(sort_by=sort_by)
-        if offset or limit:
-            offset = offset or 0
-            limit = limit or 0
-            if isinstance(results.Result, (list, tuple)):
-                results.Result = results.Result[offset:offset + limit]
-            else:
-                result_all = results.findall('Result')
-                idx_from = results.index(result_all[0])
-                for r in result_all:
-                    results.remove(r)
-                cslice = result_all[offset:offset + limit]
-                for i, c in enumerate(cslice):
-                    results.insert(i + idx_from, c)
-
-    return results
+            'platform', 'analysis_xml', 'run_xml', 'experiment_xml')
+    short_xml = xml
+    for attr in attributes_to_remove:
+        start = 0
+        stop = 0
+        while start != -1 and stop != -1:
+            start = short_xml.find('<%s>' % attr)
+            if start != -1:
+                stop = short_xml.find('</%s>' % attr, start)
+            if start != -1 and stop != -1:
+                short_xml = short_xml[:start] + short_xml[stop + len(attr) + 3:]
+    return xml, short_xml

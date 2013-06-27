@@ -1,0 +1,11 @@
+
+{
+	"result_set": {
+		"@date"  : "2013-06-26 16:06:39",
+		"query"  : "all_metadata:('non_existent_search_query')",
+		"hits"   : "0",
+		"results": [
+],
+"result_summary":{"downloadable_file_size":{"units":"KB","size":0},"state_count":{},"downloadable_file_count":0}}
+
+}

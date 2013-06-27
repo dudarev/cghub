@@ -1,100 +1,99 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Test some utility methods such as:
-    - convertion to string
-    - abbreviation to attributes
-"""
 
 import unittest
-from lxml import objectify, etree
+import os
+import hashlib
+import urllib2
 
-from wsapi.api import request, merge_results
-from wsapi.utils import generate_tmp_file_name, quote_query
+from mock import patch
+
+from wsapi.utils import prepare_query, get_setting, urlopen
 
 
 class UtilsTestCase(unittest.TestCase):
 
-    def test_generate_tmp_file_name(self):
-        """
-        smoke test for generate_tmp_file_name function
-        """
-        name = generate_tmp_file_name()
-        self.assertIn('.tmp', name)
+    def test_get_setting(self):
+        server_url = get_setting('CGHUB_SERVER')
+        new_url = 'http://someserver.com'
+        self.assertIn('http', server_url)
+        self.assertNotEqual(server_url, new_url)
+        server_url = get_setting(
+                    'CGHUB_SERVER', settings={'CGHUB_SERVER': new_url})
+        self.assertEqual(server_url, new_url)
 
-    def test_quote_query(self):
+    def test_prepare_query(self):
         """
+        Quoting, limit -> rows, offset -> first, - -> :desc
+
         upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]
         ->
         upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&last_modified=%5BNOW-1DAY%20TO%20NOW%5D
         """
+        # quoting
         query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)&last_modified=[NOW-1DAY TO NOW]'
-        self.assertEqual(quote_query(query),
+        self.assertEqual(prepare_query(query),
                 'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&'
                 'last_modified=%5BNOW-1DAY%20TO%20NOW%5D')
+        # limit, offset
+        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)'
+        self.assertEqual(prepare_query(query, limit=10, offset=20),
+                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&start=20&rows=10')
+        # sort_by
+        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)'
+        self.assertEqual(prepare_query(query, sort_by='last_modified'),
+                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&sort_by=last_modified:asc')
+        # sort_by -
+        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)&sort_by=-last_modified'
+        self.assertEqual(prepare_query(query, sort_by='-last_modified'),
+                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29&sort_by=last_modified:desc')
+        # not allowed sort_by
+        query = 'upload_date=[NOW-7DAY TO NOW]&state=(live)'
+        self.assertEqual(prepare_query(query, sort_by='badsortby'),
+                'upload_date=%5BNOW-7DAY%20TO%20NOW%5D&state=%28live%29')
 
+    def test_get_from_test_cache(self):
+        from wsapi.utils import get_from_test_cache
+        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        format = 'xml'
+        CACHE_DIR = get_setting('TESTING_CACHE_DIR')
+        url = u'{0}{1}?{2}'.format(
+            get_setting('CGHUB_SERVER'),
+            get_setting('CGHUB_ANALYSIS_ID_URI'),
+            query)
+        md5 = hashlib.md5(url)
+        path = os.path.join(CACHE_DIR, '%s.%s.cache' % (md5.hexdigest(), format))
+        if os.path.exists(path):
+            os.remove(path)
+        settings = {'TESTING_MODE': True}
+        result = get_from_test_cache(url, format, settings)
+        content = result.read()
+        self.assertTrue(content)
+        self.assertTrue(os.path.exists(path))
+        get_from_test_cache(url, format, settings)
+        os.remove(path)
 
-class SortingTest(unittest.TestCase):
-    """Test functions that do sorting."""
+    def urlopen_mock(url):
+            raise urllib2.URLError('Connection error')
 
-    def test_tostring(self):
-        """
-        Tests that tostring method works.
-        """
-        results = request(file_name='tests/test_data/search.xml')
-        self.assertTrue('ResultSet' in results.tostring())
-
-    def test_remove_attributes(self):
-        """
-        Tests that attributes are removed with `remove_attributes`.
-        """
-        results = request(file_name='tests/test_data/aliquot_id.xml')
-        results.remove_attributes()
-        attributes_to_remove = ['sample_accession', 'legacy_sample_id', 
-                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
-                'analyte_code', 'sample_type', 'library_strategy',
-                'platform', 'analysis_xml', 'run_xml', 'experiment_xml',]
-        for a in attributes_to_remove:
-            self.assertRaises(AttributeError, getattr, results.Result, a)
-        # new attribute that must be there
-        self.assertEqual(
-                results.Result.analysis_attribute_uri,
-                "https://cghub.ucsc.edu/cghub/metadata/analysisDetail/e29aa109-d508-4621-9a92-9f7ff7e0018f"
-                )
-
-class XMLMergeTestCase(unittest.TestCase):
-    """
-    Tests for wsapi.api.merge_results utility
-    """
-    def test_merge_results(self):
-        res1 = request(file_name='tests/test_data/unmerged_1.xml')
-        res2 = request(file_name='tests/test_data/unmerged_2.xml')
-        xml = merge_results([res1, res2])
-        self.assertEqual(5, xml.Hits)
-        self.assertEqual(8, xml.countchildren()) # 8 for 5 result, 2 query and 1 hits tags
-        self.assertEqual(xml.xpath('/ResultSet/Query'), ['xml_text:6d5*', 'xml_text:6d7*'])
-
-    def test_errors(self):
+    @patch('urllib2.urlopen', urlopen_mock)
+    def test_urlopen_exceptions(self):
+        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        url = u'{0}{1}?{2}'.format(
+                get_setting('CGHUB_SERVER'),
+                get_setting('CGHUB_ANALYSIS_ID_URI'),
+                query)
+        was_exception = False
+        settings = {'TESTING_MODE': False}
         try:
-            merge_results({})
-            assert 'No exception raised when merge_results takes wrong arguments'
-        except Exception as e:
-            self.assertEqual(e.message, 'xml_results must be tuple or list')
+            urlopen(url, 'xml', settings)
+        except urllib2.URLError as e:
+            was_exception = True
+            self.assertIn('No response after', str(e))
+        except:
+            assert False, 'Enother exception than URLError raised'
+        self.assertTrue(was_exception)
 
-        try:
-            merge_results([])
-            assert 'No exception raised when merge_results takes wrong arguments'
-        except Exception as e:
-            self.assertEqual(e.message, 'Nothing to merge!')
-
-    def test_merging_empty_results(self):
-        res1 = objectify.fromstring('<ResultSet><Query>query1</Query><Hits>0</Hits></ResultSet>')
-        res2 = objectify.fromstring('<ResultSet><Query>query2</Query><Hits>0</Hits></ResultSet>')
-        result = merge_results([res1, res2])
-
-        date = result.get('date')
-        self.assertEqual(etree.tostring(result),
-            '<ResultSet date="%s"><Hits>0</Hits><Query>query2</Query><Query>query1</Query></ResultSet>' % date)
 
 if __name__ == '__main__':
     unittest.main()
