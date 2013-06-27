@@ -13,13 +13,18 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi import request_page, item_details, request_ids
+from cghub.wsapi import (request_page, item_details, request_ids,
+                                                    request_details)
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.cart.utils import metadata
+from cghub.apps.cart.cache import is_cart_cache_exists
+from cghub.apps.cart.tasks import cache_file
+
+from cghub.apps.core.attributes import ATTRIBUTES
 
 from .utils import (get_filters_string, get_default_query, get_wsapi_settings,
-                                                    paginator_params)
+                                        paginator_params, is_celery_alive)
 from .forms import BatchSearchForm
 
 
@@ -144,18 +149,39 @@ class BatchSearchView(TemplateView):
         form = BatchSearchForm(request.POST or None, request.FILES or None)
         if form.is_valid():
             text = request.POST.get('text')
-
             submitted_ids = form.cleaned_data['ids']
+            query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
             hits, ids = request_ids(
-                        query='analysis_id=(%s)' % ' OR '.join(submitted_ids),
+                        query=query,
                         settings=WSAPI_SETTINGS)
 
-            if hits < len(submitted_ids):
+            if hits < len(submitted_ids) and 'skip' not in request.POST:
                 return self.render_to_response({
                         'form': form,
                         'not_found': list(set(submitted_ids) - set(ids))})
 
-            # TODO add found_ids to cart and redirect to cart_page
+            # add files to cart
+            if hits:
+                celery_alive = is_celery_alive()
+
+                if 'cart' in request.session:
+                    cart = request.session['cart']
+                else:
+                    cart = {}
+                def callback(data):
+                    analysis_id = data['analysis_id']
+                    filtered_data = {}
+                    for attr in ATTRIBUTES:
+                        filtered_data[attr] = data.get(attr)
+                    cart[analysis_id] = filtered_data
+                    last_modified = data['last_modified']
+                    if not is_cart_cache_exists(analysis_id, last_modified):
+                        cache_file(analysis_id, last_modified, celery_alive)
+
+                request_details(
+                        query=query, callback=callback, settings=WSAPI_SETTINGS)
+                request.session['cart'] = cart
+
             return HttpResponseRedirect(reverse('cart_page'))
 
         return self.render_to_response({'form': form, 'not_found': []})

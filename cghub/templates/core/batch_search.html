@@ -15,7 +15,7 @@
         </a>
     </li>
     <li>
-        <a href="#batch-form" tabindex="2">
+        <a href="#id_text" tabindex="2">
             Skip to batch form
         </a>
     </li>
@@ -47,7 +47,7 @@
     {{ form.upload }}
 
     {% if not_found %}
-        <input type="hidden" name="ignore" value="true" />
+        <input type="hidden" name="skip" value="true" />
         <div class="batch-submit">
             <button type="submit" class="btn">Skip missed files and add to cart</button>
         </div>

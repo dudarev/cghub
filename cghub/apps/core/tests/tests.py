@@ -43,6 +43,21 @@ TEST_DATA_DIR = 'cghub/test_data/'
 WSAPI_SETTINGS = get_wsapi_settings()
 
 
+def create_session(self):
+    # initialize session
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    engine = import_module(settings.SESSION_ENGINE)
+    store = engine.SessionStore()
+    store.save()
+    self.session = store
+    self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+    # create session
+    s = Session(
+                expire_date=timezone.now() + datetime.timedelta(days=7),
+                session_key=store.session_key)
+    s.save()
+
+
 def get_request(url=reverse('home_page')):
     """
     Returns request object with session
@@ -553,12 +568,24 @@ class BatchSearchTestCase(TestCase):
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'No results for')
-        # ok
+        # ok, adding files to cart
+        create_session(self)
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
             '00007994-abeb-4b16-a6ad-7230300a29e9'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
+        self.assertEqual(len(self.client.session['cart']), 2)
+        # skip not existing and add
+        data = {
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
+            '00007994-abeb-4b16-a6ad-7230300a29e9, '
+            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+            'skip': 'true'}
+        self.client.session['cart'] = {}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertRedirects(response, reverse('cart_page'))
+        self.assertEqual(len(self.client.session['cart']), 2)
 
 
 class SearchViewPaginationTestCase(TestCase):
