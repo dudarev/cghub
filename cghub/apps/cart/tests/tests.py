@@ -33,7 +33,7 @@ from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_pa
 from cghub.apps.cart.tasks import (cache_results_task, cache_file,
                                         add_files_to_cart_by_query_task)
 
-from cghub.apps.core.tests import TEST_DATA_DIR, get_request
+from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
 from cghub.apps.core.utils import (generate_task_id, paginator_params, get_wsapi_settings)
 
 from cghub.wsapi import browser_text_search, request_page
@@ -52,21 +52,6 @@ def add_files_to_cart_dict(ids, selected_files=None):
                 '"state": "live", "last_modified": "2012-10-29T21:56:12Z"}},'
                 '"{2}":{{"analysis_id":"{2}", "files_size": 1048576, '
                 '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z"}}}}'.format(*ids)}
-
-
-def create_session(self):
-    # initialize session
-    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-    engine = import_module(settings.SESSION_ENGINE)
-    store = engine.SessionStore()
-    store.save()
-    self.session = store
-    self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-    # create session
-    s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-    s.save()
 
 
 class CartTestCase(TestCase):

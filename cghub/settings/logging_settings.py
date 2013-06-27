@@ -62,6 +62,11 @@ LOGGING = {
             'handlers': ['syslog'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'core': {
+            'handlers': ['syslog'],
+            'level': 'ERROR',
+            'propagate': True,
         }
     },
 }
