@@ -10,14 +10,15 @@ It is possible to set some settings for wsapi app.
 
 .. code-block:: python
 
-    WSAPI_CGHUB_SERVER = 'https://cghub.ucsc.edu'
+    WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu/'
     WSAPI_CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
-    WSAPI_CGHUB_ANALYSIS_ATTRIBUTES_URI = '/cghub/metadata/analysisAttributes'
-    WSAPI_USE_CACHE = True
-    WSAPI_CACHE_BACKEND = 'simple'
-    WSAPI_CACHE_DIR = '/tmp/wsapi/'
+    WSAPI_CGHUB_ANALYSIS_DETAIL_URI = '/cghub/metadata/analysisDetail'
+    WSAPI_CGHUB_ANALYSIS_FULL_URI = '/cghub/metadata/analysisFull'
     WSAPI_HTTP_ERROR_ATTEMPTS = 5
     WSAPI_HTTP_ERROR_SLEEP_AFTER = 1
+    WSAPI_TESTING_CACHE_DIR = os.path.join(os.path.dirname(__file__), '../test_cache')
+
+Use TESTING_MODE wsapi setting to enable caching results while testing.
 
 Celery
 ----------
@@ -52,18 +53,13 @@ In ``local.py`` define BROKER_URL
 
 	CELERY_IMPORTS = (
 	    "cghub.apps.cart.tasks",
-	    "cghub.apps.core.tasks",
 	    )
 
 	CELERYBEAT_SCHEDULE = {
-	    "clear-cart-cache": {
-	        "task": "cghub.apps.cart.tasks.cache_clear_task",
-	        "schedule": TIME_CHECK_CART_CACHE_INTERVAL,
-	        },
-	    "clear-api-cache": {
-	        "task": "cghub.apps.core.tasks.api_cache_clear_task",
-	        "schedule": TIME_CHECK_API_CACHE_INTERVAL,
-	        },
+	    #"clear-cart-cache": {
+	    #    "task": "cghub.apps.cart.tasks.cache_clear_task",
+	    #    "schedule": TIME_CHECK_CART_CACHE_INTERVAL,
+	    #    },
 	    }
 
 	CELERY_RESULT_BACKEND = "amqp"
@@ -81,46 +77,22 @@ Celery configured to send logs to syslog by default. See :ref:`logging section <
 Caching
 ---------
 
-Two types of caching is used:
+When items are added to the cart, XML for each result saves to cart cache.
 
-1. Requests are cached by the API.
-2. When items are added to the cart, requests are made to save XML for each result.
-
-API cache
-~~~~~~~~~~~~~
-
-API does not clean cache automatically. Celery task to do so is scheduled to run. Its parameters are stored in ``settings/cache.py``:
-
-.. code-block:: python
-
-    # cache.py
-
-    TIME_DELETE_API_CACHE_FILES_OLDER = timedelta(hours=2)
-    TIME_CHECK_API_CACHE_INTERVAL = timedelta(hours=1)
-
-They control how often the task is ran (1 hour above) and how old files are kept (2 hours). 
-The directory where the cache is kept is defined in the cghub settings ``cghub/settings/wsapi.py`` - `WSAPI_CACHE_DIR` (``/tmp/wsapi/`` by default).
-
-Cart cache
-~~~~~~~~~~~~~~~
-
-When a result is added to the cart a request to get its XML is made to external server, 
-so that XML could be quickly served when requested. It has similar parameters. The directory
-to keep files is also specified.
+Path to cart cache specified in settings:
 
 .. code-block:: python
 
     # cache.py
 
     CART_CACHE_DIR = '/tmp/cart/'
-    TIME_DELETE_CART_CACHE_FILES_OLDER = timedelta(hours=2)
-    TIME_CHECK_CART_CACHE_INTERVAL = timedelta(hours=1)
+
 
 Paging
 -------------
 
-The results are paged when requested from the server. This paging is done by the app, not by WSI API. 
-Number of results per page may be set in ``settings/ui.py``:
+Search results are paged when requested from the server. Paging is done by WSI API.
+Default number of results per page may be set in ``settings/ui.py``:
 
 .. code-block:: python
 

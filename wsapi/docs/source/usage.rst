@@ -8,24 +8,26 @@ Usage
 WSI API
 -----------
 
-Web service interface (WSI) to CGHub data is described in `CGHub documentation <https://cghub.ucsc.edu/help.html>`__
+Web service interface (WSI) to CGHub data is described in `CGHub documentation <https://cghub.ucsc.edu/help/help.html>`__
 (look for `User's Guide`).
 The Python API described in this documentation provides Python interface to it.
 
 At the moment WSI API provides several metadata resources (``analysisId``, ``analysisDetail``, 
 ``analysisSubmission``, ``analysisFull``, ``analysisObject``, ``analysisAttributes``)
 
-In the Python API wrapper ``analysisId`` and ``analysisAttributes`` are used now.
+In the Python API wrapper ``analysisId``, ``analysisDetail`` and ``analysisFull`` are used now.
 One may see example of possible responses for a specific id with HTTP requests as shown below:
 
 https://cghub.ucsc.edu/cghub/metadata/analysisId?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
 
-https://cghub.ucsc.edu/cghub/metadata/analysisAttributes?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+https://cghub.ucsc.edu/cghub/metadata/analysisDetail?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+
+https://cghub.ucsc.edu/cghub/metadata/analysisFull?aliquot_id=c0cfafbc-6d07-4ed5-bfdc-f5c3bf8437f6
+
+Data can be returned in json or xml format.
 
 The later returns more details for each query, while the former returns just enough information that could be used
 by the download program.
-
-Some ideas how WSI API may be extended are described in :doc:`future` section.
 
 Using Python API
 ---------------------
@@ -36,89 +38,48 @@ Example:
 
 .. code-block:: python
 
-    from wsapi.exceptions import QueryRequired
-    from wsapi.api import request
+    from wsapi import QueryRequired
+    from wsapi import request_page
 
     try:
-        request()
+        request_page()
     except QueryRequired:
         print 'request takes either query or file_name parameter'
 
-    results = request(file_name='tests/test_data/aliquot_id.xml')
-    first_experiment_title = results.Result[0].experiment_xml.EXPERIMENT_SET[0].EXPERIMENT[0].TITLE
-    first_analysis_title = results.Result[0].analysis_xml.ANALYSIS_SET[0].ANALYSIS[0].TITLE
-
-    # access to attributes
-    # <EXPERIMENT_REF accession="SRX074784" refcenter="BI" refname="7290.WR24924.Catch-62054.B045FABXX110327.P"/>
-
-    first_run_experiment_ref = results.Result[0].run_xml.RUN_SET[0].RUN[0].EXPERIMENT_REF
-    refname = first_run_experiment_ref.attrib['refname']
-
-.. code-block:: python
-
-    >>> from wsapi.api import multiple_request
-    >>> mr = multiple_request(queries_list=['xml_text=5c4da*', 'analysis_id=5c4da*'])
-    >>> mr
-    <wsapi.api.Results object at 0xa7c430c>
-    >>> xml = mr._lxml_results
-    >>> xml.Hits
+    hits, results = request_page(query='all_metadata=TCGA-04-1337-01A-01W-0484-10', offset=0, limit=10)
+    print hits
+    print results
+    '''
+    Output:
+    request takes either query or file_name parameter
     2
-    >>> xml.xpath('Query')
-    ['analysis_id:5c4da*', 'xml_text:5c4da*']
-    >>> xml.xpath('Result/analysis_id')
-    ['3f3f1d98-7657-4123-ae60-ff59e5dfd66c', '5c4da821-5329-47bc-8941-88f477afcbf1']
-
-Caching
-~~~~~~~
-
-All requests to the external server are cached. They are saved in the form of files in ``CACHE_DIR`` which is defined in :ref:`settings`. 
-It is a good idea to clean cache once in a while with :func:`wsapi.utils.clear_cache`. 
-Here is an example of using it with a periodic Celery task:
+    [{u'upload_date': u'2011-03-13T08:00:00Z', u'center_name': u'BCM',
+    u'aliquot_id': u'2e66cec2-3607-42bd-92a0-663acbdff603',
+    ...}, {..., u'published_date': u'2011-06-17T07:00:00Z',
+    u'analysis_full_uri': u'https://stage.cghub.ucsc.edu/cghub/metadata/analysisFull/55c0d3e7-b6e8-40d4-8a3e-73771a747c95'}]
+    '''
 
 .. code-block:: python
 
-    import datetime
+    from wsapi import requst_details
 
-    from django.conf import settings
-    from celery.task import task
+    def callback(data):
+        print data
 
-    from cghub.wsapi.utils import clear_cache
+    hits = request_details(query='all_metadata=TCGA-04-1337-01A-01W-0484-10')
+    print hits
+    '''
+    Output:
+    {u'upload_date': u'2011-03-13T08:00:00Z', u'center_name': u'BCM',
+    u'analysis_full_uri': u'https://stage.cghub.ucsc.edu/cghub/metadata/analysisFull/916d1bd2-f503-4775-951c-20ff19dfe409', ...}
+    {..., u'Result': u'https://stage.cghub.ucsc.edu/cghub/data/analysis/download/55c0d3e7-b6e8-40d4-8a3e-73771a747c95\n\t', 
+    u'published_date': u'2011-06-17T07:00:00Z', u'Query': u'all_metadata:TCGA-04-1337-01A-01W-0484-10'}
+    2
+    '''
 
-
-    @task(ignore_result=True)
-    def api_cache_clear_task():
-        """
-        Task to clear API cache.
-        """
-        now = datetime.datetime.now()
-        clear_cache(
-                cache_dir=settings.WSAPI_CACHE_DIR,
-                older_than=now - settings.TIME_DELETE_API_CACHE_FILES_OLDER)
-
-An example of :file:`celeryconfig` :
-
-.. code-block:: python
-
-    import settings
-
-    CELERY_IMPORTS = ("tasks",)
-
-    CELERYBEAT_SCHEDULE = {
-        "clear-api-cache": {
-            "task": "tasks.api_cache_clear_task",
-            "schedule": settings.TIME_CHECK_API_CACHE_INTERVAL,
-        },
-    }
-
-    CELERY_RESULT_BACKEND = "amqp"
-
-    CELERYD_CONCURRENCY = 1
-
-    # $ rabbitmqctl add_user myuser mypassword
-    # $ rabbitmqctl add_vhost myvhost
-    # $ rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
-    # Example
-    # BROKER_URL = "amqp://user:password@host:port/vhost"
-    # guest user if for example only
-
-    BROKER_URL = "amqp://guest:guest@localhost:5672//"
+All available functions:
+    - ``request_page(query, offset=None, limit=None, sort_by=None, settings={})``
+    - ``request_ids(query, sort_by=None, settings={})``
+    - ``request_details(query, callback, sort_by=None, settings={})``
+    - ``item_details(analysis_id, with_xml=False, settings={})``
+    - ``item_xml(analysis_id, with_short=False, settings={})``

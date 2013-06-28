@@ -106,12 +106,9 @@ Task can be easily created from any callable by using ``task()`` decorator.
 It is a common practice in Django to put tasks in their own module named tasks.py, and the worker will automatically go through the apps in INSTALLED_APPS to import these modules.
 
 Tasks in this project stored in:
-    - `cghub/apps/core/tasks.py`
     - `cghub/apps/cart/tasks.py`
 
 There are next tasks:
-
-.. autofunction:: cghub.apps.core.tasks.api_cache_clear_task
 
 .. autofunction:: cghub.apps.cart.tasks.cache_results_task
 
@@ -123,10 +120,6 @@ Caching
 =======
 
 There are next types of cache files:
-    - api cache:
-        - files obtained by api.py. Theirs names calculated as hash from query used to obtain them. If get_attributes==True and full=True, name will contain ‘_full’ before dot. If get_attributes==False, name will contain ‘_short’ before dot 
-        - files obtained by api.py using analysisId uri (when get_attributes==False), they ends with '-no-attr'
-        - list of ids created by api_light.py, they have extension '.ids'
     - cart cache
         - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculated using next pattern: ``{CART_CACHE_DIR}/{analysis_id[:2]}/{analysis_id[2:4]}/{analysis_id}/{last_modified}/analysis[Full|Short].xml``
 
@@ -182,6 +175,12 @@ User will be unable to remove items from cart, clear cart or sort items in cart 
 
 If celery will not working, all tasks will be executes as simple functions.
 
+Batch search
+============
+
+This feature allows to enter list of analysis_ids separated by comma or submit file that contains list of analysis_ids and add corresponding items to cart.
+User will be notified if for some of analysis_ids was found no results.
+
 Downloading metadata
 ====================
 
@@ -194,18 +193,15 @@ Used URI's
 ----------
 
 AnalysisId:
-    - used to obtain sorted list of ids when searching
-    - used by selectfilters management command to check that filter is used
-    - used by wsapi.api.request and wsapi.api.multiple_request when get_attributes == False
+    - used by wsapi.request_ids
 
 AnalysisDetail:
-    - used to obtain attributes for current displaying page
-    - used by wsapi.api.request and wsapi.api.multiple_request if get_attributes == True
-    - used by cart app to obtain attributes when adding to cart
+    - used by wsapi.request_page
+    - used by wsapi.request_details
+    - used by wsapi.item_details
 
 AnalysisFull:
-    - used when caching files in cart, see `caching`_
-    - used when showing file details
+    - used by wsapi.item_xml
 
 
 Displayed attributes

@@ -13,8 +13,6 @@ Contents:
 
     installation.rst
 
-    dependencies.rst
-
     usage.rst
 
     wsapi.rst
@@ -25,11 +23,7 @@ Contents:
 
     cgquery.rst
 
-    tried.rst
-
     validation.rst
-
-    future.rst
 
     docs.rst
 

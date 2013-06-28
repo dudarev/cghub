@@ -28,10 +28,26 @@ FORMAT_CHOICES = {
 
 
 def get_setting(attribute, settings={}):
+    """
+    First trying to get setting from specified settings, and then from wsapi default settings.
+
+    :param attribute: setting name
+    :param settings: custom settings passed to wsapi function from external app 
+    """
     return settings.get(attribute) or SETTINGS_DEFAULT.get(attribute)
 
 
 def get_from_test_cache(url, format, settings={}):
+    """
+    Used in TESTING_MODE.
+    Trying to get response from cache, if it fails - get response from server and save it to cache.
+
+    :param url: url that passed to urlopen
+    :param format: 'xml' or 'json'
+    :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: file object
+    """
     CACHE_DIR = get_setting('TESTING_CACHE_DIR', settings)
     if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
         os.makedirs(CACHE_DIR)
@@ -49,7 +65,8 @@ def get_from_test_cache(url, format, settings={}):
 
 def urlopen(url, format='xml', settings={}):
     """
-    Retry to get answer from CGHUB server if HTTP503 raised.
+    Wrapper for urllib2.urlopen.
+    Retry getting answer from CGHUB server if HTTP503 raised.
     Maximum attempts == HTTP_ERROR_ATTEMPTS.
     Time delay between attempts == HTTP_ERROR_SLEEP_AFTER.
 
@@ -76,7 +93,10 @@ def prepare_query(query, offset=None, limit=None, sort_by=None):
     """
     Quote all values in query and adds start, rows and sort_by if necessary.
 
-    :param :
+    :param query: raw string with query to send to the server
+    :param offset: how many results should be skipped
+    :param limit: how many records output should have
+    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     """
     if query is None:
         return query
