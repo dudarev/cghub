@@ -12,7 +12,6 @@ class RequestTest(unittest.TestCase):
     Just smoke tests.
     """
 
-    '''
     def test_request_page(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         hits, results = request_page(query=query)
@@ -43,7 +42,6 @@ class RequestTest(unittest.TestCase):
         self.assertIn('analysis_xml', xml)
         self.assertIn('analysis_id', short_xml)
         self.assertNotIn('analysis_xml', short_xml)
-    '''
 
 if __name__ == '__main__':
     unittest.main()

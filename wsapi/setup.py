@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # The current version of the system.  Format is #.#.#[-DEV].
-version = '0.0.2'
+version = '0.0.4'
 
 import distutils.sysconfig
 
@@ -59,15 +59,14 @@ possible_bundles = []
 
 setup(name='wsapi',
       description = '',
-      author='Artem Dudarev',
-      author_email='dudarev@gmail.com',
+      author='Oleksandr Polyeno',
+      author_email='polyenoom@gmail.com',
       url='',
       version=version,
       license='New BSD License',
       long_description='''
 ''',
       provides=[ 'cghub' ],
-      requires=[ 'lxml (>=2.3.4)' ],
       packages=packages,
       package_data=package_data,
       cmdclass = { 'update_version' : update_version },

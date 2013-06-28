@@ -10,7 +10,7 @@ wsapi
 """
 
 __title__ = 'wsapi'
-__version__ = '0.0.5'
+__version__ = '0.0.4'
 __author__ = 'Oleksandr Polyeno'
 __license__ = 'New BSD'
 __copyright__ = 'Copyright 2013 CGHub UCSC'

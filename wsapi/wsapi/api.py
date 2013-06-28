@@ -22,20 +22,6 @@ from .exceptions import QueryRequired
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
 
-"""
-From WS API documentation:
-
-The querystring may also contain a parameter named ‘sort_by’ whose value is the attribute
-by which the results should be sorted. The attribute name may followed by :asc or :desc to
-indicate ascending or decending sort order. If ‘sort_by’ is not specified, results are sorted by
-‘last_modified’. If no sort order is specified, results are sorted in ascending order.
-
-The querystring may also contain a pagination parameters named start and rows. Parameter
-start defines how many results should be skipped and rows defines how many records output
-should have.
-"""
-
-
 def add_custom_fields(results):
     """
     Calculate missing fields:
@@ -58,6 +44,8 @@ def request_page(query, offset=None, limit=None, sort_by=None, settings={}):
     :param limit: how many records output should have
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: (hits, results). hits - count of results found, results - results list (limited by limit param)
     """
     if query is None:
         raise QueryRequired
@@ -78,11 +66,14 @@ def request_page(query, offset=None, limit=None, sort_by=None, settings={}):
 
 def request_ids(query, sort_by=None, settings={}):
     """
+    Makes a request to CGHub web service.
     Returns list of ids for specified query
 
     :param query: a string with query to send to the server
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: (hits, results). hits - count of results found, results - list of results found
     """
     if query is None:
         raise QueryRequired
@@ -108,12 +99,15 @@ def request_ids(query, sort_by=None, settings={}):
 
 def request_details(query, callback, sort_by=None, settings={}):
     """
+    Makes a request to CGHub web service.
     Call callback function for every parsed result. Returns hits.
 
     :param query: a string with query to send to the server
     :param callback: callable, calls for every parsed result 
     :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: hits - count of results found
     """
     if query is None:
         raise QueryRequired
@@ -132,11 +126,14 @@ def request_details(query, callback, sort_by=None, settings={}):
 
 def item_details(analysis_id, with_xml=False, settings={}):
     """
+    Makes a request to CGHub web service.
     Returns details for file with specified analysis id.
 
     :param analysis_id: analysis id
     :param with_xml: boolean, result additionally contains raw xml if True
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: dict filled by item attributes if found, else - empty dict
     """
     url = u'{0}{1}/{2}'.format(
             get_setting('CGHUB_SERVER', settings),
@@ -170,11 +167,14 @@ def item_details(analysis_id, with_xml=False, settings={}):
 
 def item_xml(analysis_id, with_short=False, settings={}):
     """
+    Makes a request to CGHub web service.
     Returns xml for specified analysis id.
 
     :param analysis_id: analysis id
     :param with_short: boolean, additionally returns item without set of submission metadata if True
     :param settings: custom settings, see `wsapi.settings.py` for settings example
+
+    :return: xml string or (xml string, shortened xml string) if with_short==True
     """
     url = u'{0}{1}/{2}'.format(
             get_setting('CGHUB_SERVER', settings),
