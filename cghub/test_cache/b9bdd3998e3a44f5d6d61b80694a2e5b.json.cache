@@ -1,7 +1,7 @@
 
 {
 	"result_set": {
-		"@date"  : "2013-06-26 16:06:49",
+		"@date"  : "2013-06-28 08:49:48",
 		"query"  : "all_metadata:('6d54')",
 		"hits"   : "11",
 		"results": [

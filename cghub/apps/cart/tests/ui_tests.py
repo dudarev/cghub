@@ -7,8 +7,7 @@ from django.conf import settings
 from selenium import webdriver
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from cghub.apps.core.tests.ui_tests import (
-                        TEST_SETTINGS, TEST_CACHE_DIR, back_to_bytes)
+from cghub.apps.core.tests.ui_tests import TEST_SETTINGS, back_to_bytes
 from cghub.apps.core.attributes import COLUMN_NAMES
 
 
@@ -72,7 +71,7 @@ class CartUITestCase(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", TEST_CACHE_DIR)
+        fp.set_preference("browser.download.dir", settings.CART_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
@@ -171,9 +170,9 @@ class CartUITestCase(LiveServerTestCase):
 
             # check files downloading
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
-                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
-                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'manifest.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'summary.tsv'))
             except OSError:
                 pass
 
@@ -182,7 +181,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'manifest.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'manifest.xml'))
             except OSError:
                 assert False, "File manifest.xml wasn't downloaded"
 
@@ -191,7 +190,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 
@@ -200,7 +199,7 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'summary.tsv'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'summary.tsv'))
             except OSError:
                 assert False, "File summary.tsv wasn't downloaded"
 

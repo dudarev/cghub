@@ -1,0 +1,11 @@
+
+{
+	"result_set": {
+		"@date"  : "2013-06-28 09:00:17",
+		"query"  : "upload_date:[NOW-1DAY TO NOW] center_name:(BCM OR BCCAGSC OR BI) study:(phs000178) refassem_short_name:(NCBI36* OR HG18* OR GRCh37* OR HG19* OR HG18) sample_type:(10 OR 12 OR 20) platform:(ILLUMINA) state:(live OR submitted OR uploading) last_modified:[NOW-1DAY TO NOW] disease_abbr:(LAML OR BLCA OR LGG) analyte_code:(D OR H OR R) library_strategy:(Bisulfite-Seq OR OTHER OR RNA-Seq)",
+		"hits"   : "0",
+		"results": [
+],
+"result_summary":{"downloadable_file_size":{"units":"KB","size":0},"state_count":{},"downloadable_file_count":0}}
+
+}

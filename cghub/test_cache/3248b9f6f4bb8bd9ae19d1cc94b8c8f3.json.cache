@@ -1,7 +1,7 @@
 
 {
 	"result_set": {
-		"@date"  : "2013-06-26 16:06:39",
+		"@date"  : "2013-06-28 08:49:41",
 		"query"  : "all_metadata:('non_existent_search_query')",
 		"hits"   : "0",
 		"results": [

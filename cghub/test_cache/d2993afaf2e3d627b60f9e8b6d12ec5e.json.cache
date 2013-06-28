@@ -1,7 +1,7 @@
 
 {
 	"result_set": {
-		"@date"  : "2013-06-26 16:06:59",
+		"@date"  : "2013-06-28 08:49:53",
 		"query"  : "all_metadata:TCGA-04-1337-01A-01W-0484-10",
 		"hits"   : "2",
 		"results": [
