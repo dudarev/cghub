@@ -1,5 +1,7 @@
 import time
 import os
+import math
+
 from urllib import unquote
 from datetime import datetime, date, timedelta
 
@@ -16,8 +18,6 @@ from cghub.apps.core.filters_storage import ALL_FILTERS
 from cghub.apps.core.attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 from cghub.apps.help.models import HelpText
 
-
-TEST_CACHE_DIR = root('test_cache')
 
 TEST_SETTINGS = dict(
     TABLE_COLUMNS=(
@@ -106,9 +106,6 @@ TEST_SETTINGS = dict(
         'state': ('live',),
         'upload_date': '[NOW-7DAY+TO+NOW]',
     },
-    # use existing cache
-    WSAPI_CACHE_DIR=TEST_CACHE_DIR,
-    CART_CACHE_DIR=TEST_CACHE_DIR
 )
 
 def back_to_bytes(size_str):
@@ -631,7 +628,7 @@ class DetailsTestCase(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", TEST_CACHE_DIR)
+        fp.set_preference("browser.download.dir", settings.CART_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
@@ -754,7 +751,7 @@ class DetailsTestCase(LiveServerTestCase):
             driver.get(self.live_server_url)
             # remove saved metadata file if exists
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 pass
             td = driver.find_element_by_xpath("//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
@@ -778,7 +775,7 @@ class DetailsTestCase(LiveServerTestCase):
             time.sleep(3)
             # check that metadata file was downloaded
             try:
-                os.remove(os.path.join(TEST_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 
@@ -911,7 +908,7 @@ class SearchTestCase(LiveServerTestCase):
 
             found = self.selenium.find_element_by_xpath(
                                     "//section[@id='results-summary']/div[1]")
-            pages_count = (int(found.text.split()[1]) / 10) + 1
+            pages_count = math.ceil(1.0 * int(found.text.split()[1]) / 10)
 
             # check 'Prev'
             self.selenium.find_element_by_xpath(
@@ -1019,6 +1016,11 @@ class ColumnSelectTestCase(LiveServerTestCase):
             select = driver.find_element_by_css_selector(
                         "#ddcl-id-columns-selector > span:first-child > span")
         select.click()
+
+        # check all
+        driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
+        time.sleep(2)
+
         # uncheck one by one
         r = range(column_count)
         for i in r:
@@ -1091,7 +1093,9 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         /span[@class='ui-dropdownchecklist-text']")
             # select (all) option
             select.click()
-            driver.find_element_by_class_name('js-select-all').click()
+            driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
+            time.sleep(2)
+            select.click()
             # count visible columns
             columns_count = len(driver.find_elements_by_xpath(
                         "//div[@class='hDivBox']/table/thead/tr/th")) - 1

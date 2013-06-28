@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ResultSet date="2013-06-26 16:07:05">
+<ResultSet date="2013-06-28 08:49:59">
 	<Query>state:(live) all_metadata:('\(00b27c0f-acf5-434c-8efa-25b1f3c4f506\)')</Query>
 	<Hits>1</Hits>
 	<Result id="1">
