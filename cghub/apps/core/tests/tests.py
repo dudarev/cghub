@@ -533,15 +533,19 @@ class BatchSearchTestCase(TestCase):
             '00007994-abeb-4b16-a6ad-7230300a29e9',
             '000f332c-7fd9-4515-bf5f-9b77db43a3fd',
             '00007994-abeb-4b16-a6ad-7230300a29e9',
+            'TCGA-04-1337-01A-01W-0484-10',
         ]
-        f = SimpleUploadedFile(name='ids.csv', content=', '.join(ids))
-        form = BatchSearchForm({'text': ', '.join(ids)})
+        f = SimpleUploadedFile(name='ids.csv', content=' '.join(ids))
+        form = BatchSearchForm({'text': ' '.join(ids)})
         self.assertTrue(form.is_valid())
         form = BatchSearchForm({}, {'upload': f})
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.cleaned_data['ids']), 3)
+        self.assertEqual(len(form.cleaned_data['legacy_sample_ids']), 1)
         for id in ids:
-            self.assertIn(id, form.cleaned_data['ids'])
+            self.assertTrue(
+                    (id in form.cleaned_data['ids']) or
+                    (id in form.cleaned_data['legacy_sample_ids']))
         form = BatchSearchForm({})
         self.assertFalse(form.is_valid())
         # test unsuported format
@@ -559,27 +563,27 @@ class BatchSearchTestCase(TestCase):
         data = {'text': 'bad text'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'not mutch analysis_id pattern')
+        self.assertContains(response, 'not mutch any id pattern')
         # submit not existed analysis_id
         data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
-            '00007994-abeb-4b16-a6ad-7230300a29e9, '
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
+            '00007994-abeb-4b16-a6ad-7230300a29e9 '
             'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'No results for')
-        # ok, adding files to cart
+        # ok, adding files to cart (with newline delimiter)
         create_session(self)
         data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 \n'
             '00007994-abeb-4b16-a6ad-7230300a29e9'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)
         # skip not existing and add
         data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6, '
-            '00007994-abeb-4b16-a6ad-7230300a29e9, '
+            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
+            '00007994-abeb-4b16-a6ad-7230300a29e9 '
             'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
             'skip': 'true'}
         self.client.session['cart'] = {}
