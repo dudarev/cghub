@@ -18,31 +18,53 @@ class BatchSearchForm(forms.Form):
             raise forms.ValidationError('All fields are empty')
 
         # get list of ids
+        raw_ids = []
         ids = []
+        legacy_sample_ids = []
+        unvalidated_ids = []
         id_pattern = re.compile(
-                    '[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
-                    '[0-9abcdef]{4}-[0-9abcdef]{12}')
-        for i in text.split(','):
+                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
+                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
+        legacy_sample_id_pattern = re.compile(
+                    '^[0-9A-Z]{4}-[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{3}-'
+                    '[0-9A-Z]{3}-[0-9A-Z]{4}-[0-9A-Z]{2}$')
+        for i in text.split():
             id = i.strip()
             if not id:
                 continue
-            if not id_pattern.match(id):
-                raise forms.ValidationError(
-                                '"%s" not mutch analysis_id pattern' % id)
-            if id not in ids:
-                ids.append(id)
+            if id not in raw_ids:
+                raw_ids.append(id)
 
         if upload:
-            for i in upload.read().split(','):
+            for i in upload.read().split():
                 id = i.strip()
                 if not id:
                     continue
-                if not id_pattern.match(id):
-                    raise forms.ValidationError(
-                                '"%s" not mutch analysis_id pattern' % id)
+                if id not in raw_ids:
+                    raw_ids.append(id)
+
+        for id in raw_ids:
+            if id_pattern.match(id):
                 if id not in ids:
                     ids.append(id)
+                continue
+            elif legacy_sample_id_pattern.match(id):
+                if id not in legacy_sample_ids:
+                    legacy_sample_ids.append(id)
+                continue
+            elif id not in unvalidated_ids:
+                unvalidated_ids.append(id)
 
+        MAX_ITEMS_PER_REQUEST = 180
+
+        if (len(ids) > MAX_ITEMS_PER_REQUEST or
+                    len(legacy_sample_ids) > MAX_ITEMS_PER_REQUEST):
+            raise forms.ValidationError('Max count of ids that can be '
+                'submitted at once limited by %d' % MAX_ITEMS_PER_REQUEST)
+
+        data['raw_ids'] = raw_ids
         data['ids'] = ids
+        data['legacy_sample_ids'] = legacy_sample_ids
+        data['unvalidated_ids'] = unvalidated_ids
 
         return data

@@ -178,8 +178,16 @@ If celery will not working, all tasks will be executes as simple functions.
 Batch search
 ============
 
-This feature allows to enter list of analysis_ids separated by comma or submit file that contains list of analysis_ids and add corresponding items to cart.
-User will be notified if for some of analysis_ids was found no results.
+This feature allows to enter list of ids (analysis_id, aliquot_id, legacy_sample_id, participant_id or sample_id) separated by whitespace or newline, or submit file that contains list of ids and add corresponding items to cart.
+
+First, search will be done by analysis_id, if results will be found not for all aids, will be done search by aliquot_id, participant_id and sample_id.
+
+If some ids matches legacy_sample_id pattern, will be done search by legacy_sample_id.
+
+User has 2 choices:
+    - immediately add all found items to cart
+    - show search results before adding them to cart
+
 
 Downloading metadata
 ====================
