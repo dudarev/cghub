@@ -147,21 +147,67 @@ class BatchSearchView(TemplateView):
 
     def post(self, request, **kwargs):
         form = BatchSearchForm(request.POST or None, request.FILES or None)
+        found = {}
+        unvalidated = []
+        submitted = 0
         if form.is_valid():
             text = request.POST.get('text')
             submitted_ids = form.cleaned_data['ids']
-            query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
-            hits, ids = request_ids(
+            submitted_legacy_sample_ids = form.cleaned_data['legacy_sample_ids']
+            # search by analysis_id and legacy_sample_id first
+            # and then if some ids were not found,
+            # search them by sample_id, participant_id and aliquot_id
+            ids = []
+            if submitted_ids:
+                query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
+                hits, _ids = request_ids(
                         query=query,
                         settings=WSAPI_SETTINGS)
+                ids = _ids
+                found['analysis_id'] = hits
 
-            if hits < len(submitted_ids) and 'skip' not in request.POST:
-                return self.render_to_response({
-                        'form': form,
-                        'not_found': list(set(submitted_ids) - set(ids))})
+                if hits != len(submitted_ids):
+                    # search them by sample_id
+                    query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
+                    hits, _ids = request_ids(
+                            query=query,
+                            settings=WSAPI_SETTINGS)
+                    found['sample_id'] = hits
+                    for id in _ids:
+                        if id not in ids:
+                            ids.append(id)
+                    # search by participant_id and aliquot_id
+                    query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
+                    hits, _ids = request_ids(
+                            query=query,
+                            settings=WSAPI_SETTINGS)
+                    found['participant_id'] = hits
+                    for id in _ids:
+                        if id not in ids:
+                            ids.append(id)
+                    # search by aliquot_id
+                    query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
+                    hits, _ids = request_ids(
+                            query=query,
+                            settings=WSAPI_SETTINGS)
+                    found['aliquot_id'] = hits
+                    for id in _ids:
+                        if id not in ids:
+                            ids.append(id)
+
+            if submitted_legacy_sample_ids:
+                query = 'legacy_sample_id=(%s)' % ' OR '.join(
+                                            submitted_legacy_sample_ids)
+                hits, _ids = request_ids(
+                                            query=query,
+                                            settings=WSAPI_SETTINGS)
+                found['legacy_sample_id'] = hits
+                for id in _ids:
+                    if id not in ids:
+                        ids.append(id)
 
             # add files to cart
-            if hits:
+            if ids and 'add_to_cart' in request.GET:
                 celery_alive = is_celery_alive()
 
                 if 'cart' in request.session:
@@ -178,13 +224,27 @@ class BatchSearchView(TemplateView):
                     if not is_cart_cache_exists(analysis_id, last_modified):
                         cache_file(analysis_id, last_modified, celery_alive)
 
+                query = 'analysis_id=(%s)' % ' OR '.join(ids)
                 request_details(
                         query=query, callback=callback, settings=WSAPI_SETTINGS)
                 request.session['cart'] = cart
 
-            return HttpResponseRedirect(reverse('cart_page'))
+                return HttpResponseRedirect(reverse('cart_page'))
 
-        return self.render_to_response({'form': form, 'not_found': []})
+            unvalidated = form.cleaned_data.get('unvalidated_ids')
+            submitted = (
+                    len(form.cleaned_data.get('ids')) +
+                    len(form.cleaned_data.get('legacy_sample_ids')) +
+                    len(unvalidated))
+
+            # show ids list in textarea even if they were submitted as file
+            form = BatchSearchForm(initial={
+                    'text': ' '.join(form.cleaned_data['raw_ids'])})
+
+        return self.render_to_response({
+                    'form': form, 'found': found,
+                    'submitted': submitted,
+                    'unvalidated': unvalidated})
 
 
 class ItemDetailsView(TemplateView):

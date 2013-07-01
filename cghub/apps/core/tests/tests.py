@@ -546,24 +546,27 @@ class BatchSearchTestCase(TestCase):
             self.assertTrue(
                     (id in form.cleaned_data['ids']) or
                     (id in form.cleaned_data['legacy_sample_ids']))
+        self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 0)
         form = BatchSearchForm({})
         self.assertFalse(form.is_valid())
         # test unsuported format
-        form = BatchSearchForm({'text': 'some bad ids'})
-        self.assertFalse(form.is_valid())
+        form = BatchSearchForm({'text': 'somebadids'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 1)
         # unsupported file format
-        f = SimpleUploadedFile(name='ids.csv', content='bad content')
+        f = SimpleUploadedFile(name='ids.csv', content='badcontent')
         orm = BatchSearchForm({}, {'upload': f})
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 1)
 
     def test_batch_search_view(self):
         response = self.client.get(reverse('batch_search_page'))
         self.assertEqual(response.status_code, 200)
         # submit wrong data
-        data = {'text': 'bad text'}
+        data = {'text': 'badtext'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'not mutch any id pattern')
+        self.assertContains(response, 'Identifiers with wrong format')
         # submit not existed analysis_id
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
@@ -571,23 +574,24 @@ class BatchSearchTestCase(TestCase):
             'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No results for')
+        self.assertContains(response, 'Found by analysis_id: 2')
         # ok, adding files to cart (with newline delimiter)
         create_session(self)
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 \n'
             '00007994-abeb-4b16-a6ad-7230300a29e9'}
-        response = self.client.post(reverse('batch_search_page'), data)
+        response = self.client.post(
+                '%s?add_to_cart=true' % reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)
         # skip not existing and add
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
             '00007994-abeb-4b16-a6ad-7230300a29e9 '
-            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
-            'skip': 'true'}
+            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
         self.client.session['cart'] = {}
-        response = self.client.post(reverse('batch_search_page'), data)
+        response = self.client.post(
+                '%s?add_to_cart=true' % reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)
 

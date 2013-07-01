@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
+{% load static from staticfiles %}
+
 {% block title %}Batch search - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/batch_search.less" media="all">
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/batch_search.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/batch_search.css" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/batch_search.css' %}?v=1" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -36,31 +38,33 @@
             {{ form.non_field_errors }}
         </div>
     {% endif %}
-    {% if not_found %}
-        <div class="alert alert-error">
-            {{ not_found|length }} files were not found
-        </div>
-    {% endif %}
-    <label for="id_text">Comma separated list of ids:</label>
+    <label for="id_text">List of ids:</label>
     {{ form.text }}
     <label for="id_upload">Or select file:</label>
     {{ form.upload }}
 
-    {% if not_found %}
-        <input type="hidden" name="skip" value="true" />
-        <div class="batch-submit">
-            <button type="submit" class="btn">Skip missed files and add to cart</button>
-        </div>
-        <h2>No results for next ids:</h2>
+    <div class="batch-submit">
+        <button type="submit" class="btn">Search and show results</button>
+        <button type="submit" class="btn" onclick="$(this).parents('form').attr('action', '?add_to_cart=true')">Search and add items to cart</button>
+    </div>
+
+    {% if found %}
+        <h2>Results:</h2>
         <ul>
-            {% for id in not_found %}
-            <li>{{ id }}</li>
+            <li>Submitted ids: {{ submitted }}</li>
+            <li>ids with wrong format: {{ unvalidated|length }}</li>
+            {% for name, count in found.items %}
+                <li>Found by {{ name }}: {{ count }}</li>
             {% endfor %}
         </ul>
-    {% else %}
-        <div class="batch-submit">
-            <button type="submit" class="btn">Search and add to cart</button>
-        </div>
+    {% endif %}
+    {% if unvalidated %}
+        <h2>Identifiers with wrong format:</h2>
+        <ul>
+        {% for id in unvalidated %}
+            <li>{{ id }}</li>
+        {% endfor %}
+        </ul>
     {% endif %}
 </form>
 </div>
