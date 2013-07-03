@@ -11,3 +11,7 @@ COOKIE_MAX_AGE = 31536000
 # if user will try to add to cart more than specified number files,
 # confirmation popup will be shown
 MANY_FILES = 100
+
+# max amount of ids can be placed in one query
+# analysis_id=(00007994-abeb-4b16-a6ad-7230300a29e9 or 1003468a-e3a2-4a01-a045-62d53af7cdf2 or ...)
+MAX_ITEMS_IN_QUERY = 180
