@@ -29,6 +29,6 @@
 div.btn-toolbar .btn{margin:0 6px 0 0;}
 .batch-search-content{margin-left:40px;}.batch-search-content h1{line-height:1;}
 .batch-search-content h2{line-height:1.5;font-size:16px;}
-.batch-search-content form{padding-right:10px;}.batch-search-content form textarea{width:100%;}
+.batch-search-content form{padding-right:10px;}.batch-search-content form textarea{width:100%;font-family:"Lucida Console",Monaco,monospace;}
 .batch-search-content form .batch-submit{margin:20px 0;}.batch-search-content form .batch-submit button{margin-right:15px;}
 .batch-search-content form .alert ul{margin:0;}.batch-search-content form .alert ul li{list-style:none;}

@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.conf import settings
 
 
 class BatchSearchForm(forms.Form):
@@ -25,9 +26,7 @@ class BatchSearchForm(forms.Form):
         id_pattern = re.compile(
                     '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
                     '[0-9abcdef]{4}-[0-9abcdef]{12}$')
-        legacy_sample_id_pattern = re.compile(
-                    '^[0-9A-Z]{4}-[0-9A-Z]{2}-[0-9A-Z]{4}-[0-9A-Z]{3}-'
-                    '[0-9A-Z]{3}-[0-9A-Z]{4}-[0-9A-Z]{2}$')
+        legacy_sample_id_pattern = re.compile('^[A-Z]{2,8}-.{10,30}$')
         for i in text.split():
             id = i.strip()
             if not id:
@@ -55,12 +54,10 @@ class BatchSearchForm(forms.Form):
             elif id not in unvalidated_ids:
                 unvalidated_ids.append(id)
 
-        MAX_ITEMS_PER_REQUEST = 180
-
-        if (len(ids) > MAX_ITEMS_PER_REQUEST or
-                    len(legacy_sample_ids) > MAX_ITEMS_PER_REQUEST):
+        if (len(ids) > settings.MAX_ITEMS_IN_QUERY or
+                    len(legacy_sample_ids) > settings.MAX_ITEMS_IN_QUERY):
             raise forms.ValidationError('Max count of ids that can be '
-                'submitted at once limited by %d' % MAX_ITEMS_PER_REQUEST)
+                'submitted at once limited by %d' % settings.MAX_ITEMS_IN_QUERY)
 
         data['raw_ids'] = raw_ids
         data['ids'] = ids

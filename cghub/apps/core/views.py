@@ -224,9 +224,13 @@ class BatchSearchView(TemplateView):
                     if not is_cart_cache_exists(analysis_id, last_modified):
                         cache_file(analysis_id, last_modified, celery_alive)
 
-                query = 'analysis_id=(%s)' % ' OR '.join(ids)
-                request_details(
+                part = 0
+                for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
+                    query = 'analysis_id=(%s)' % ' OR '.join(
+                            ids[part : part + settings.MAX_ITEMS_IN_QUERY])
+                    request_details(
                         query=query, callback=callback, settings=WSAPI_SETTINGS)
+
                 request.session['cart'] = cart
 
                 return HttpResponseRedirect(reverse('cart_page'))
@@ -239,7 +243,7 @@ class BatchSearchView(TemplateView):
 
             # show ids list in textarea even if they were submitted as file
             form = BatchSearchForm(initial={
-                    'text': ' '.join(form.cleaned_data['raw_ids'])})
+                    'text': '\n'.join(form.cleaned_data['raw_ids'])})
 
         return self.render_to_response({
                     'form': form, 'found': found,
