@@ -21,7 +21,7 @@ Settings:
 import os.path
 
 
-WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu/'
+WSAPI_CGHUB_SERVER = 'https://192.35.223.223/'
 WSAPI_CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
 WSAPI_CGHUB_ANALYSIS_DETAIL_URI = '/cghub/metadata/analysisDetail'
 WSAPI_CGHUB_ANALYSIS_FULL_URI = '/cghub/metadata/analysisFull'
