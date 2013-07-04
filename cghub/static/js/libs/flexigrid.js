@@ -316,9 +316,9 @@
                 $newLast.addClass('flLastCol');
                 $newLast.css('width', nw);
                 if($.browser.mozilla) {
-                    $('.bDiv').children().width($hDivBox.width());
+                    $('.bDiv').find('table').width($hDivBox.width());
                 } else {
-                    $('.bDiv').children().width($hDivBox.width() - 1);
+                    $('.bDiv').find('table').width($hDivBox.width() - 1);
                 }
                 $('tr', this.bDiv).each(
                     function () {
@@ -326,7 +326,6 @@
                         $tdDiv.css('width', nw);
                         g.addTitleToCell($tdDiv);
                 });
-                widthDiff = $hDivBox.parent().width() - $hDivBox.width();
                 this.hDiv.scrollLeft = this.bDiv.scrollLeft;
                 this.rePosDrag();
                 this.fixHeight();
