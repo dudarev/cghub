@@ -84,8 +84,6 @@
                     var n = $('thead tr:first th:visible', g.hDiv).index(this);
                     var cdpos = parseInt($('div', this).width());
                     if (cdleft == 0) cdleft -= Math.floor(p.cgwidth / 2);
-                    if ($.browser.mozilla) {
-                    }
                     cdpos = cdpos + cdleft + cdpad;
                     if (isNaN(cdpos)) {
                         cdpos = 0;
