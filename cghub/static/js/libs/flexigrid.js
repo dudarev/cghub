@@ -30,7 +30,7 @@
             total: 1, //total pages
             useRp: true, //use the results per page select box
             rp: 15, //results per page
-            rpOptions: [10, 15, 20, 30, 50], //allowed per-page values 
+            rpOptions: [10, 15, 20, 30, 50], //allowed per-page values
             title: false,
             idProperty: 'id',
             pagestat: 'Displaying {from} to {to} of {total} items',
@@ -75,6 +75,10 @@
                     top: g.hDiv.offsetTop + 1
                 });
                 var cdpad = this.cdpad;
+                // Fix mozilla column drag edges to aling properly
+                if ($.browser.mozilla) {
+                    cdpad += 1;
+                }
                 $('div', g.cDrag).hide();
                 $('thead tr:first th:visible', this.hDiv).each(function () {
                     var n = $('thead tr:first th:visible', g.hDiv).index(this);
@@ -147,7 +151,7 @@
                         sx: e.pageX,
                         hgo: hgo
                     };
-                } 
+                }
                     /* column dragging disable */
                     /*
                     else if (dragtype == 'colMove') {//column header drag
@@ -245,7 +249,7 @@
                     } else if (p.saveColWidth) {
                         var name = this.colName(n);
                         $.cookie('flexiwidths/'+name, nw, {path: '/'});
-                    }           
+                    }
                 } else if (this.vresize) {
                     this.vresize = false;
                 } else if (this.colCopy) {
@@ -312,9 +316,9 @@
                 $newLast.addClass('flLastCol');
                 $newLast.css('width', nw);
                 if($.browser.mozilla) {
-                    $('.bDiv').children().width($hDivBox.width());
+                    $('.bDiv').find('table').width($hDivBox.width());
                 } else {
-                    $('.bDiv').children().width($hDivBox.width() - 1);
+                    $('.bDiv').find('table').width($hDivBox.width() - 1);
                 }
                 $('tr', this.bDiv).each(
                     function () {
@@ -322,7 +326,6 @@
                         $tdDiv.css('width', nw);
                         g.addTitleToCell($tdDiv);
                 });
-                widthDiff = $hDivBox.parent().width() - $hDivBox.width();
                 this.hDiv.scrollLeft = this.bDiv.scrollLeft;
                 this.rePosDrag();
                 this.fixHeight();
@@ -462,7 +465,7 @@
                                 if( offs >0 ) {
                                     $(td).css('background',  text.substr(offs+7,7) );
                                 }
-                                
+
                                 $(td).attr('abbr', $(this).attr('abbr'));
                                 $(tr).append(td);
                                 td = null;
@@ -505,13 +508,13 @@
                             var td = document.createElement('td');
                             var idx = $(this).attr('axis').substr(3);
                             td.align = this.align;
-                            
+
                             var text = $("cell:eq(" + idx + ")", robj).text();
                             var offs = text.indexOf( '<BGCOLOR=' );
                             if( offs >0 ) {
                                 $(td).css('background',  text.substr(offs+7,7) );
                             }
-                            td.innerHTML = text;                            
+                            td.innerHTML = text;
                             $(td).attr('abbr', $(this).attr('abbr'));
                             $(tr).append(td);
                             td = null;
@@ -782,8 +785,8 @@
                         }
                         if (e.ctrlKey)
                         {
-                            $(this).toggleClass('trSelected'); 
-                            g.multisel = true; 
+                            $(this).toggleClass('trSelected');
+                            g.multisel = true;
                             this.focus();
                         }
                     }).mouseup(function () {
@@ -809,7 +812,7 @@
                     }
                 });
             },
-            
+
             combo_flag: true,
             combo_resetIndex: function(selObj)
             {
@@ -823,7 +826,7 @@
                 eval( selObj.options[selObj.selectedIndex].value );
                 selObj.selectedIndex = 0;
                 this.combo_flag = false;
-            },          
+            },
             //Add title attribute to div if cell contents is truncated
             addTitleToCell: function(tdDiv) {
                 if(p.addTitleToCell) {
@@ -831,14 +834,14 @@
                         $div = (tdDiv instanceof jQuery) ? tdDiv : $(tdDiv),
                         div_w = $div.outerWidth(),
                         span_w = 0;
-                    
+
                     $('body').children(':first').before($span);
                     $span.html($div.html());
                     $span.css('font-size', '' + $div.css('font-size'));
                     $span.css('padding-left', '' + $div.css('padding-left'));
                     span_w = $span.innerWidth();
                     $span.remove();
-                    
+
                     if(span_w > div_w) {
                         $div.attr('title', $div.text());
                     } else {
@@ -973,10 +976,10 @@
                     if (btn.bimage) // if bimage defined, use its string as an image url for this buttons style (RS)
                         $('span',btnDiv).css( 'background', 'url('+btn.bimage+') no-repeat center left' );
                         $('span',btnDiv).css( 'paddingLeft', 20 );
-                        
+
                     if (btn.tooltip) // add title if exists (RS)
                         $('span',btnDiv)[0].title = btn.tooltip;
-                        
+
                     btnDiv.onpress = btn.onpress;
                     btnDiv.name = btn.name;
                     if (btn.id) {
@@ -1004,19 +1007,19 @@
             $(g.gDiv).prepend(g.tDiv);
         }
         g.hDiv.className = 'hDiv';
-        
+
         // Define a combo button set with custom action'ed calls when clicked.
         if( p.combobuttons && $(g.tDiv2) )
         {
             var btnDiv = document.createElement('div');
             btnDiv.className = 'fbutton';
-            
+
             var tSelect = document.createElement('select');
             $(tSelect).change( function () { g.combo_doSelectAction( tSelect ) } );
             $(tSelect).click( function () { g.combo_resetIndex( tSelect) } );
             tSelect.className = 'cselect';
             $(btnDiv).append(tSelect);
-            
+
             for (i=0;i<p.combobuttons.length;i++)
             {
                 var btn = p.combobuttons[i];
@@ -1024,8 +1027,8 @@
                 {
                     var btnOpt = document.createElement('option');
                     btnOpt.innerHTML = btn.name;
-                    
-                    if (btn.bclass) 
+
+                    if (btn.bclass)
                         $(btnOpt)
                         .addClass(btn.bclass)
                         .css({paddingLeft:20})
@@ -1033,21 +1036,21 @@
                     if (btn.bimage)  // if bimage defined, use its string as an image url for this buttons style (RS)
                         $(btnOpt).css( 'background', 'url('+btn.bimage+') no-repeat center left' );
                         $(btnOpt).css( 'paddingLeft', 20 );
-                        
+
                     if (btn.tooltip) // add title if exists (RS)
                         $(btnOpt)[0].title = btn.tooltip;
-                        
+
                     if (btn.onpress)
                     {
                         btnOpt.value = btn.onpress;
                     }
                     $(tSelect).append(btnOpt);
-                } 
+                }
             }
             $('.tDiv2').append(btnDiv);
-        }       
-    
-        
+        }
+
+
         $(t).before(g.hDiv);
         g.hTable.cellPadding = 0;
         g.hTable.cellSpacing = 0;
@@ -1202,8 +1205,8 @@
                     height: cdheight + hdheight
                 }).mousedown(function (e) {
                     g.dragStart('colresize', e, this);
-                }).dblclick(function(e){ 
-                    g.autoResizeColumn(this); 
+                }).dblclick(function(e){
+                    g.autoResizeColumn(this);
                 });
                 if ($.browser.msie && $.browser.version < 7.0) {
                     g.fixHeight($(g.gDiv).height());
@@ -1314,7 +1317,7 @@
                 if (p.qtype == '') {
                     p.qtype = sitems[0].name;
                 }
-                $(g.sDiv).append("<div class='sDiv2'>" + p.findtext + 
+                $(g.sDiv).append("<div class='sDiv2'>" + p.findtext +
                         " <input type='text' value='" + p.query +"' size='30' name='q' class='qsbox' /> "+
                         " <select name='qtype'>" + sopt + "</select></div>");
                 //Split into separate selectors because of bug in jQuery 1.3.2
@@ -1380,7 +1383,7 @@
                 top: gtop
             }).noSelect();
             var cn = 0;
-            $('th div', g.hDiv).each(function () {                
+            $('th div', g.hDiv).each(function () {
                 var kcol = $("th[axis='col" + cn + "']", g.hDiv)[0];
                 var chk = 'checked="checked"';
                 if (kcol.style.display == 'none') {
@@ -1549,7 +1552,7 @@
                 if (allOption.is(':checked')) {
                     text = 'All'
                 }
-                $(selector).next().find('.ui-dropdownchecklist-text').html(text).css({'color': '#333'});                
+                $(selector).next().find('.ui-dropdownchecklist-text').html(text).css({'color': '#333'});
             }
             columnSelectMenu.dropdownchecklist({
                 firstItemChecksAll: true,
