@@ -51,12 +51,12 @@
 <header class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid" id="nav-bar">
-            <a class="brand" href="https://cghub.ucsc.edu/" tabindex="10"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
+            <a class="brand" href="https://cghub.ucsc.edu/" tabindex="25"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
             <ul class="nav">
-                <li><a href="{% url home_page %}" tabindex="11"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
-                <li><a href="{% url cart_page %}" tabindex="12"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
-                <li><a href="{% url help_page %}?from={{ request.path }}" tabindex="13"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
-                <li><a href="{% url accessibility_page %}" tabindex="14"><span class="js-common-tooltip" data-key="accessibility-link">Accessibility</span></a></li>
+                <li><a href="{% url home_page %}" tabindex="26"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
+                <li><a href="{% url cart_page %}" tabindex="27"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart|length }})</span></a></li>
+                <li><a href="{% url help_page %}?from={{ request.path }}" tabindex="28"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
+                <li><a href="{% url accessibility_page %}" tabindex="29"><span class="js-common-tooltip" data-key="accessibility-link">Accessibility</span></a></li>
             </ul>
             <ul class="nav pull-right">
                 <li>
@@ -68,7 +68,7 @@
             </ul>
             <form class="navbar-search pull-right" action="{% url search_page %}">
                 <label for="id-search-field" class="hidden">Search</label>
-                <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q" tabindex="18">
+                <input id="id-search-field" type="text" class="search-query span2 js-common-tooltip" data-key="search-box" placeholder="Search" name="q" tabindex="109">
             </form>
         </div>
     </div>

@@ -50,9 +50,13 @@ DATE_FILTERS_HTML_IDS = OrderedDict([
 # TCGA descriptions should match those in codeTablesReport when possible:
 #   https://tcga-data.nci.nih.gov/datareports/codeTablesReport.htm
 #
+# TARGET studies are: phs000463 phs000464 phs000465 phs000466 phs000467 phs000468 phs000469 phs000471
+#
 # Keep names in sync with app/cghub/settings/help.py
+#
 
-# FIXME: would be good to have these class
+
+# FIXME: would be good to have these as class
 
 ALL_FILTERS = OrderedDict([
     ("study", {
@@ -60,6 +64,7 @@ ALL_FILTERS = OrderedDict([
         "filters": OrderedDict([
             ("phs000178", "TCGA"),
             ("*Other_Sequencing_Multiisolate", "CCLE"),
+            ("phs0004*", "TARGET"),
             ('TCGA_MUT_BENCHMARK_4', 'TCGA Benchmark'),
         ]),
         "selectFilter": False,
@@ -67,26 +72,32 @@ ALL_FILTERS = OrderedDict([
     ("disease_abbr", {
         "title": "By Disease",
         "filters": OrderedDict([
-            ("LAML", "Acute Myeloid Leukemia"),
+            ("ACC",  "Adrenocortical carcinoma"),
             ("BLCA", "Bladder Urothelial Carcinoma"),
-            ("LGG", "Brain Lower Grade Glioma"),
             ("BRCA", "Breast invasive carcinoma"),
             ("CESC", "Cervical squamous cell carcinoma and endocervical adenocarcinoma"),
-            ("LCLL", "Chronic Lymphocytic Leukemia"),
-            ("COAD", "Colon adenocarcinoma"),
             ("CNTL", "Controls"),
+            ("COAD", "Colon adenocarcinoma"),
+            ("DLBC", "Lymphoid Neoplasm Diffuse Large B-cell Lymphoma"),
             ("ESCA", "Esophageal carcinoma"),
-            ("GBM", "Glioblastoma multiforme"),
+            ("GBM",  "Glioblastoma multiforme"),
             ("HNSC", "Head and Neck squamous cell carcinoma"),
             ("KICH", "Kidney Chromophobe"),
             ("KIRC", "Kidney renal clear cell carcinoma"),
             ("KIRP", "Kidney renal papillary cell carcinoma"),
+            ("LAML", "Acute Myeloid Leukemia"),
+            ("LCLL", "Chronic Lymphocytic Leukemia"),
+            ("LCML", "Chronic Myelogenous Leukemia"),
+            ("LGG",  "Brain Lower Grade Glioma"),
             ("LIHC", "Liver hepatocellular carcinoma"),
             ("LUAD", "Lung adenocarcinoma"),
             ("LUSC", "Lung squamous cell carcinoma"),
-            ("DLBC", "Lymphoid Neoplasm Diffuse Large B-cell Lymphoma"),
-            ("OV", "Ovarian serous cystadenocarcinoma"),
+            ("MESO", "Mesothelioma"),
+            ("MISC", "Miscellaneous"),
+            ("MM",   "Multiple Myeloma Plasma cell leukemia"),
+            ("OV",   "Ovarian serous cystadenocarcinoma"),
             ("PAAD", "Pancreatic adenocarcinoma"),
+            ("PCPG", "Pheochromocytoma and Paraganglioma"),
             ("PRAD", "Prostate adenocarcinoma"),
             ("READ", "Rectum adenocarcinoma"),
             ("SARC", "Sarcoma"),
@@ -94,6 +105,8 @@ ALL_FILTERS = OrderedDict([
             ("STAD", "Stomach adenocarcinoma"),
             ("THCA", "Thyroid carcinoma"),
             ("UCEC", "Uterine Corpus Endometrioid Carcinoma"),
+            ("UCS",  "Uterine Carcinosarcoma"),
+            ("UVM",  "Uveal Melanoma"),
         ]),
     }),
     ("sample_type", {

@@ -172,6 +172,21 @@ DETAILS_FIELDS = (
     'Sample id',
 )
 
+# study id to name
+study_id_to_name = {
+    "TCGA": "TCGA",  # FIXME not sure why TCGA comes in instead of phs000178
+    "phs000178": "TCGA",
+    "Homo sapiens Other_Sequencing_Multiisolate": "CCLE",
+    "phs000463": "TARGET (ALL I)",
+    "phs000464": "TARGET (ALL II)",
+    "phs000465": "TARGET (AML)",
+    "phs000466": "TARGET (CCSK)",
+    "phs000467": "TARGET (NBL)",
+    "phs000468": "TARGET (OS)",
+    "phs000469": "TARGET (PPTP)",
+    "phs000471": "TARGET (WT)",
+}
+
 # tissue source site and disease study
 tss_id_to_description = {
     '01': 'International Genomics Consortium: Ovarian serous cystadenocarcinoma',
@@ -865,12 +880,27 @@ tss_id_to_description = {
     'S7': 'University Hospital Motol: Pheochromocytoma and Paraganglioma',
 }
 
+# Center abbreviations to full name.
+# This information is also maintained in help.py
+center_to_center_name = {
+    'BCM': 'Baylor College of Medicine',
+    'BCCAGSC': 'Canada\'s Michael Smith Genome Sciences Centre',
+    'BI': 'Broad Institute of MIT and Harvard',
+    'HMS-RK': 'Harvard Medical School',
+    'UNC-LCCC': 'University of North Carolina',
+    'USC-JHU': 'University of Southern California / Johns Hopkins',
+    'WUGSC': 'Washington University School of Medicine',
+}
+
 def study_resolver(val):
-    if val.find('Other_Sequencing_Multiisolate') != -1:
-        return 'CCLE'
-    return val
+    study = study_id_to_name.get(val)
+    if study == None:
+        raise Exception("unknown study: \""+ str(val) + "\"")
+    return study
 
 def tss_resolver(tss_id):
+    if tss_id in ("", None):
+        return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
     tss_id = str(tss_id)  # FIXME: this should never be an int
     tss_desc = tss_id_to_description.get(tss_id)
     if tss_desc == None:
@@ -878,14 +908,18 @@ def tss_resolver(tss_id):
     else:
         return tss_desc + " [" + tss_id + "]"
 
+def center_name_resolver(center):
+    return center_to_center_name.get(center, center)
+
 VALUE_RESOLVERS = {
     'Study': study_resolver,
     'TSS id': tss_resolver,
+    'Center Name': center_name_resolver,
 }
 
 DEFAULT_PAGINATOR_LIMIT = 10
 
 DEFAULT_FILTERS = {
-    'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+    'study': ('phs000178','*Other_Sequencing_Multiisolate', 'phs0004*'),
     'state': ('live',),
 }
