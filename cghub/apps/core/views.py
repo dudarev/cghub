@@ -34,6 +34,18 @@ WSAPI_SETTINGS = get_wsapi_settings()
 core_logger = logging.getLogger('core')
 
 
+def query_from_get(data):
+    q = data.get('q')
+    filter_str = get_filters_string(data)
+    if q:
+        # FIXME: temporary hack to work around GNOS not quoting Solr query
+        if browser_text_search.useAllMetadataIndex:
+            return u"all_metadata={0}".format(browser_text_search.ws_query(q)) + filter_str
+        else:
+            return u"xml_text={0}".format(u"("+q+u")") + filter_str
+    return filter_str[1:]  # remove front ampersand
+
+
 class AjaxView(View):
 
     http_method_names = ['get']
@@ -53,26 +65,32 @@ class HomeView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         # if there are any GET parameters - redirect to search page
         if request.GET:
-            return HttpResponseRedirect(reverse('search_page') + '?' +
-                            request.GET.urlencode())
-        if settings.LAST_QUERY_COOKIE in request.COOKIES:
-            return HttpResponseRedirect(reverse('search_page') + '?' +
-                            request.COOKIES[settings.LAST_QUERY_COOKIE])
+            return HttpResponseRedirect(
+                    reverse('search_page') + '?' + request.GET.urlencode())
         return super(HomeView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         offset, limit = paginator_params(self.request)
         context['num_results'], context['results'] = request_page(
-                            query=DEFAULT_QUERY, sort_by=DEFAULT_SORT_BY,
+                            query=self.query, sort_by=DEFAULT_SORT_BY,
                             limit=limit, settings=WSAPI_SETTINGS)
         if context['num_results'] == 0:
             context['message'] = 'No results found.'
         return context
 
     def get(self, request, *args, **kwargs):
+        if settings.LAST_QUERY_COOKIE in request.COOKIES:
+            get = {}
+            for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
+                parts = i.split('=')
+                if len(parts) == 2:
+                    get[parts[0]] = parts[1]
+            self.query = query_from_get(get)
+        else:
+            self.query = DEFAULT_QUERY
         # populating GET with query for proper work of applied_filters templatetag
-        request.GET = QueryDict(DEFAULT_QUERY, mutable=True)
+        request.GET = QueryDict(self.query, mutable=True)
         return super(HomeView, self).get(request, *args, **kwargs)
 
 
@@ -86,15 +104,7 @@ class SearchView(TemplateView):
         offset, limit = paginator_params(self.request)
         # will be saved to cookie in get method
         self.paginator_limit = limit
-        filter_str = get_filters_string(self.request.GET)
-        if q:
-            # FIXME: temporary hack to work around GNOS not quoting Solr query
-            if browser_text_search.useAllMetadataIndex:
-                query = u"all_metadata={0}".format(browser_text_search.ws_query(q)) + filter_str
-            else:
-                query = u"xml_text={0}".format(u"("+q+u")") + filter_str
-        else:
-            query = filter_str[1:]  # remove front ampersand
+        query = query_from_get(self.request.GET)
 
         # set offset to zero if no results returned
         for offset in (offset, 0):

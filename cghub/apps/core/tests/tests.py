@@ -146,7 +146,8 @@ class CoreTestCase(TestCase):
                 self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
                 'q=%s' % self.query)
         response = self.client.get(reverse('home_page'))
-        self.assertRedirects(response, '%s?q=%s' % (reverse('search_page'), self.query))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.query)
 
     def test_save_limit_in_cookies(self):
         with self.settings(DEFAULT_FILTERS = {
