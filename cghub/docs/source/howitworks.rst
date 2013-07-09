@@ -180,7 +180,7 @@ Batch search
 
 This feature allows to enter list of ids (analysis_id, aliquot_id, legacy_sample_id, participant_id or sample_id) separated by whitespace or newline, or submit file that contains list of ids and add corresponding items to cart.
 
-First, search will be done by analysis_id, if results will be found not for all aids, will be done search by aliquot_id, participant_id and sample_id.
+First, search will be done by analysis_id, if results will be found not for all ids, will be done search by aliquot_id, participant_id and sample_id.
 
 If some ids matches legacy_sample_id pattern, will be done search by legacy_sample_id.
 
