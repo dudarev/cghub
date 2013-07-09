@@ -47,11 +47,11 @@ def add_files_to_cart_dict(ids, selected_files=None):
         selected_files = ids
     return {'selected_files': selected_files,
             'attributes': '{{"{0}":{{"analysis_id":"{0}", "files_size": 1048576, '
-                '"state": "live", "last_modified": "2012-10-29T21:56:12Z"}},'
+                '"state": "live", "last_modified": "2012-10-29T21:56:12Z", "study": "TCGA"}},'
                 '"{1}":{{"analysis_id":"{1}", "files_size": 1048576, '
-                '"state": "live", "last_modified": "2012-10-29T21:56:12Z"}},'
+                '"state": "live", "last_modified": "2012-10-29T21:56:12Z", "study": "TCGA"}},'
                 '"{2}":{{"analysis_id":"{2}", "files_size": 1048576, '
-                '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z"}}}}'.format(*ids)}
+                '"state": "bad_data", "last_modified": "2012-10-29T21:56:12Z", "study": "TCGA"}}}}'.format(*ids)}
 
 
 class CartTestCase(TestCase):
@@ -214,11 +214,11 @@ class CartTerminateTestCase(TestCase):
         self.session._session['cart'] = {
             '7850f073-642a-40a8-b49d-e328f27cfd66': {
                 'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
-                'study': 'live',
+                'state': 'live', 'study': 'TCGA',
                 'last_modified': '2012-05-10T06:23:39Z'},
             '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
                 'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
-                'study': 'live',
+                'state': 'live', 'study': 'TCGA',
                 'last_modified': '2012-05-10T06:23:39Z'},
             '226e11c8-b873-4c37-88cd-18dcd7f28733': {
                 'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},

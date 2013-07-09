@@ -7,10 +7,79 @@
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/help.css" media="all">
     {% endif %}
 {% endblock %}
+{% block accessibility_links %}
+<ul title="Accessibility links" id="accessibility-links">
+    <li>
+        <a href="#nav-bar" tabindex="1">
+            Skip to Navigation bar
+        </a>
+    </li>
+    <li>
+        <a href="#intro" tabindex="2">
+            Skip to Reference Assemblies Introduction
+        </a>
+    </li>
+    <li>
+        <a href="#NCBI-human-build36" tabindex="3">
+            Skip to NCBI-human-build36
+        </a>
+    </li>
+    <li>
+        <a href="#HG18" tabindex="4">
+            Skip to HG18
+        </a>
+    </li>
+    <li>
+        <a href="#NCBI36_BCCAGSC_variant" tabindex="5">
+            Skip to NCBI36_BCCAGSC_variant
+        </a>
+    </li>
+    <li>
+        <a href="#NCBI36_BCM_variant" tabindex="6">
+            Skip to NCBI36_BCM_variant
+        </a>
+    </li>
+    <li>
+        <a href="#NCBI36_WUGSC_variant" tabindex="7">
+            Skip to NCBI36_WUGSC_variant
+        </a>
+    </li>
+    <li>
+        <a href="#HG18_Broad_variant" tabindex="8">
+            Skip to HG18_Broad_variant
+        </a>
+    </li>
+    <li>
+        <a href="#GRCh37" tabindex="9">
+            Skip to GRCh37
+        </a>
+    </li>
+    <li>
+        <a href="#HG19" tabindex="10">
+            Skip to HG19
+        </a>
+    </li>
+    <li>
+        <a href="#GRCh37-lite_HPV_Redux-build" tabindex="11">
+            Skip to GRCh37-lite-+-HPV_Redux-build
+        </a>
+    </li>
+    <li>
+        <a href="#GRCh37_BI_Variant" tabindex="12">
+            Skip to GRCh37_BI_Variant
+        </a>
+    </li>
+    <li>
+        <a href="#HG19_Broad_variant" tabindex="13">
+            Skip to HG19_Broad_variant
+        </a>
+    </li>
+</ul>
+{% endblock %}
 {% block main_content %}
     <div class="span6 help-content">
         <h1><a href="{% url help_page %}">Help</a>: Reference Assemblies </h1>
-        <p>The reference assembly for a given BAM file is identified in
+        <p id="intro">The reference assembly for a given BAM file is identified in
           the ANALYSIS metadata XML object.  A single, symbolic
           identifier in the STANDARD tag short_name
           attribute identifies the assembly.  All assemblies are based on one
@@ -119,7 +188,7 @@
             unlocalized scaffolds in an arbitrary order and orientation.
             The assembly is available at <a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/</a>.
           </dd>
-          <dt><span id="GRCh37-lite-+-HPV_Redux-build">GRCh37-lite-+-HPV_Redux-build</span></dt>
+          <dt><span id="GRCh37-lite_HPV_Redux-build">GRCh37-lite-+-HPV_Redux-build</span></dt>
           <dd>- A description and distribution of this assembly variant is not
             available.</dd>
           <dt><span id="GRCh37_BI_Variant">GRCh37_BI_Variant</span></dt>

@@ -86,7 +86,8 @@ def urlopen(url, format='xml', settings={}):
             return urllib2.urlopen(req)
         except urllib2.URLError:
             time.sleep(http_error_sleep_after)
-    raise urllib2.URLError('No response after %d attempts' % http_error_attempts)
+    raise urllib2.URLError('No response after %d attempts: %s' % (http_error_attempts, url))
+
 
 
 def prepare_query(query, offset=None, limit=None, sort_by=None):
