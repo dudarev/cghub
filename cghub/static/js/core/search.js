@@ -8,7 +8,7 @@ jQuery(function ($) {
     }
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
-        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>',
         nothingSelectedTitle: 'No selected files',
         nothingSelectedContent: 'Please select some files to add them to cart',
         init:function () {

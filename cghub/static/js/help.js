@@ -8,7 +8,6 @@ jQuery(function ($) {
         this.cghub = cghub;
     }
     cghub.help = {
-        hoverTime: 250, /* time, after which tooltip will be shown, in ms */
         hintShow: false,
         keysIgnore: ['analysis id', 'uploaded', 'modified', 'barcode', 'files size',
                 'aliquot id', 'tss id', 'participant id', 'sample id'],
@@ -99,7 +98,7 @@ jQuery(function ($) {
                     }
                     cghub.help.hintShow = true;
                     cghub.help.showToolTip($target, find_key($target));
-                }, cghub.help.hoverTime);
+                }, cghub.vars.tooltipHoverTime);
             });
             $(document).on('mouseenter', '.js-tooltip, .js-tooltip > *', function(){
                 if(cghub.help.tooltipHideTimeout) {
