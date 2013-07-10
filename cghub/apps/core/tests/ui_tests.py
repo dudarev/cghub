@@ -285,9 +285,9 @@ class SidebarTestCase(LiveServerTestCase):
     def test_select_all(self):
         """
         1. Open 'By Center' filter (Selected all items by default)
-        2. Click on '(all)'
+        2. Click on '(Toggle all)'
         3. Check that all checkboxes unchecked
-        4. Click on '(all)'
+        4. Click on '(Toggle all)'
         5. Check that all checkboxes checked
         """
         with self.settings(**TEST_SETTINGS):
@@ -996,7 +996,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         1. Uncheck all columns one by one
         2. After every click, check that all previous columns are hidden and all next are visible
         3. Also check that last column takes all free space
-        4. Click on '(all)'
+        4. Click on '(Toggle all)'
         5. Check that all columns visible
 
         :param location: 'search' or 'cart'
@@ -1047,7 +1047,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
                     if col.is_displayed():
                         all_columns_width += col.size.get('width', 0)
                 self.assertTrue(full_width - all_columns_width < 3)
-        # select (all) option
+        # select (Toggle all) option
         driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
         r2 = range(column_count)
         for x in r2:
@@ -1079,7 +1079,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
         """
         Check that 'Reset to defaults' button works properly.
         1. Open search page (default query)
-        2. Make all columns visible (check '(all)')
+        2. Make all columns visible (check '(Toggle all)')
         3. Count visible columns
         4. Click on 'Reset to defaults'
         5. Count visible columns
@@ -1091,7 +1091,7 @@ class ColumnSelectTestCase(LiveServerTestCase):
             select = driver.find_element_by_xpath(
                         "//form[@id='id_add_files_form']/span/span\
                         /span[@class='ui-dropdownchecklist-text']")
-            # select (all) option
+            # select (Toggle all) option
             select.click()
             driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
             time.sleep(2)
@@ -1147,7 +1147,7 @@ class ResetFiltersTestCase(LiveServerTestCase):
     def get_selected_filters(self):
         """
         Return selected filters as text.
-        '(all)' skipped
+        '(Toggle all)' skipped
         """
         texts = self.selenium.find_elements_by_css_selector(
                     '.base-sidebar .ui-dropdownchecklist-text > span')
