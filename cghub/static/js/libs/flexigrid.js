@@ -1559,8 +1559,12 @@
                 width: 170,
                 zIndex: 1010,
                 textFormatFunction: function(options) {
-                    $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-                    return 'selecting...';
+                    if (!options.length) return 'Not all';
+                    var allOption = $(options[0]).parent().next().next().find('input[value = "(Toggle all)"]');
+                    if (allOption.is(':checked')) {
+                        return 'All'
+                    }
+                    return 'Not all'
                 },
                 onComplete: onComplete,
                 onItemClick: function(checkbox, selector) {
