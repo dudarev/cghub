@@ -115,7 +115,9 @@
         cghub.vars = {
             helpHintUrl: "{% url help_hint %}",
             helpTextUrl: "{% url help_text %}",
-            taskStatusUrl: "{% url celery_task_status %}"
+            taskStatusUrl: "{% url celery_task_status %}",
+            supportEmail: "{{ SUPPORT_EMAIL }}",
+            tooltipHoverTime: {{ TOOLTIP_HOVER_TIME }}
         }
     });
 </script>

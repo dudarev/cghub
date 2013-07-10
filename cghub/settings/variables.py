@@ -8,10 +8,16 @@ PAGINATOR_LIMIT_COOKIE = 'paginator_limit'
 # 31536000.0
 COOKIE_MAX_AGE = 31536000
 
-# if user will try to add to cart more than specified number files,
+# if user will try to add to cart more than specified number of files,
 # confirmation popup will be shown
 MANY_FILES = 100
 
 # max amount of ids can be placed in one query
 # analysis_id=(00007994-abeb-4b16-a6ad-7230300a29e9 or 1003468a-e3a2-4a01-a045-62d53af7cdf2 or ...)
 MAX_ITEMS_IN_QUERY = 180
+
+# shows after ... Please contact admin:
+SUPPORT_EMAIL = 'support@cghub.ucsc.edu'
+
+# time, after which tooltip will be shown, in ms
+TOOLTIP_HOVER_TIME = 250
