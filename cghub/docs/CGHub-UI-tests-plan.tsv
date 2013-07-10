@@ -6,7 +6,7 @@ Links navigations
 LINKS-1	Links (Home, Cart, Help) lead to correct pages.	Expected pages are open when links are clicked. 
 LINKS-2	Access application without trailing slash in URL. I.E. "https://stage-browser.cghub.ucsc.edu"	Application behaves as expected for all links. 
 Sidebar navigation		
-SIDEBAR-1	Clicking (all) checkbox selects or deselects all in that category.	
+SIDEBAR-1	Clicking (Toggle all) checkbox selects or deselects all in that category.	
 SIDEBAR-2	Data filters should only allow either one first age range or the age range from the calander to be selected.	Age values are exclusive and setting an age value clears the explict period select.  Selecting a period from the calendar clears the age value. 
 SIDEBAR-3	Correct URL is created when only some values are selected	When a user clicks correct page is displayed. Try applying selections in several categories. 
 SIDEBAR-4	Reset' button on the sidebar resets filters.	When a user clicks on the 'Reset' button, applied filters are reset. 

@@ -9,7 +9,7 @@
     </select>
   {% else %}
     <select class="filter-select" data-section="{{ section }}" multiple tabindex="{{ forloop.counter|add:30 }}" id="id-{{section|slugify}}">
-      <option value="(all)">(all)</option>
+      <option value="(Toggle all)">(Toggle all)</option>
       {% for filter_value, filter_name in filters.filters.items %}
       <option value="{{ filter_value }}">
       {{ filter_name }}
