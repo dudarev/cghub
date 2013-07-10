@@ -268,8 +268,8 @@ class ItemDetailsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         result = item_details(
-                    analysis_id=kwargs['analysis_id'], with_xml=True,
-                                                settings=WSAPI_SETTINGS)
+                    analysis_id=kwargs['analysis_id'],
+                    with_xml=True, full=True, settings=WSAPI_SETTINGS)
         if result:
             xml = result['xml']
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]

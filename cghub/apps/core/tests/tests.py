@@ -139,6 +139,8 @@ class CoreTestCase(TestCase):
         self.assertContains(response, 'Sample Accession')
         # test raw_xml
         self.assertTrue(response.context['raw_xml'])
+        # check all entries are present
+        self.assertIn('run_xml', response.context['raw_xml'])
 
     def test_save_filters_state(self):
         response = self.client.get('%s?q=%s' % (reverse('search_page'), self.query))

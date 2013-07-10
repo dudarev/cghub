@@ -124,20 +124,25 @@ def request_details(query, callback, sort_by=None, settings={}):
     return parser.hits
 
 
-def item_details(analysis_id, with_xml=False, settings={}):
+def item_details(analysis_id, with_xml=False, full=False, settings={}):
     """
     Makes a request to CGHub web service.
     Returns details for file with specified analysis id.
 
     :param analysis_id: analysis id
     :param with_xml: boolean, result additionally contains raw xml if True
+    :param full: boolean, if True, will be used ANALYSIS_FULL uri
     :param settings: custom settings, see `wsapi.settings.py` for settings example
 
     :return: dict filled by item attributes if found, else - empty dict
     """
+    if full:
+        uri = get_setting('CGHUB_ANALYSIS_FULL_URI', settings)
+    else:
+        uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings)
     url = u'{0}{1}/{2}'.format(
             get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
+            uri,
             analysis_id)
     wsapi_request_logger.info(urllib2.unquote(url))
     if not with_xml:
