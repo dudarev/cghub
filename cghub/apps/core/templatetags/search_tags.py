@@ -251,11 +251,11 @@ def sort_link(request, attribute, link_anchor):
 
     sorting_arrow = direction_label
     if direction_label:
+        triangle = '<span class="{0}-triangle"></span>'
         if direction_label == 'up':
-            sorting_arrow = "&nbsp;&uarr;"
+            sorting_arrow = triangle.format('up')
         if direction_label == 'down':
-            sorting_arrow = "&nbsp;&darr;"
-
+            sorting_arrow = triangle.format('down')
 
     path = request.path or '/search/'
     href = escape(path + '?' + urllib.urlencode(data))
