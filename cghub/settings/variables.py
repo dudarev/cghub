@@ -8,7 +8,7 @@ PAGINATOR_LIMIT_COOKIE = 'paginator_limit'
 # 31536000.0
 COOKIE_MAX_AGE = 31536000
 
-# if user will try to add to cart more than specified number files,
+# if user will try to add to cart more than specified number of files,
 # confirmation popup will be shown
 MANY_FILES = 100
 

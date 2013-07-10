@@ -1,6 +1,7 @@
 Settings
 =================
 
+
 WSAPI
 ----------
 
@@ -19,6 +20,27 @@ It is possible to set some settings for wsapi app.
     WSAPI_TESTING_CACHE_DIR = os.path.join(os.path.dirname(__file__), '../test_cache')
 
 Use TESTING_MODE wsapi setting to enable caching results while testing.
+
+
+Variables
+----------
+
+Most useful variables:
+
+.. code-block:: python
+
+    # if user will try to add to cart more than specified number of files,
+    # confirmation popup will be shown
+    MANY_FILES = 100
+
+    # shows after ... Please contact admin:
+    SUPPORT_EMAIL = 'support@cghub.ucsc.edu'
+
+    # time, after which tooltip will be shown, in ms
+    TOOLTIP_HOVER_TIME = 250
+
+See more in ``cghub/settings/variable.py``.
+
 
 Celery
 ----------
