@@ -28,6 +28,7 @@ class RequestTest(unittest.TestCase):
         hits = request_details(query, callback)
         self.assertTrue(len(data))
         self.assertTrue(data[0]['last_modified'])
+        self.assertTrue(data[0]['files'][0]['checksum']['@type'])
 
     def test_item_details(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
