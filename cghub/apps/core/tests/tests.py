@@ -145,13 +145,14 @@ class CoreTestCase(TestCase):
         self.assertIn('run_xml', response.context['raw_xml'])
 
     def test_save_filters_state(self):
+        # TODO: Extend this test (only filters should be persistent, not query)
         response = self.client.get('%s?q=%s' % (reverse('search_page'), self.query))
         self.assertEqual(
                 self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
                 'q=%s' % self.query)
         response = self.client.get(reverse('home_page'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.query)
+        self.assertNotContains(response, self.query)
 
     def test_save_limit_in_cookies(self):
         with self.settings(DEFAULT_FILTERS = {
