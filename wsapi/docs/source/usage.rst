@@ -39,16 +39,16 @@ Example:
 .. code-block:: python
 
     from wsapi import QueryRequired
-    from wsapi import request_page
+    from wsapi import Request
 
     try:
-        request_page()
+        Request()
     except QueryRequired:
         print 'request takes either query or file_name parameter'
 
-    hits, results = request_page(query='all_metadata=TCGA-04-1337-01A-01W-0484-10', offset=0, limit=10)
-    print hits
-    print results
+    result = Request(query='all_metadata=TCGA-04-1337-01A-01W-0484-10', offset=0, limit=10)
+    print result.hits
+    print result.results
     '''
     Output:
     request takes either query or file_name parameter
@@ -58,28 +58,3 @@ Example:
     ...}, {..., u'published_date': u'2011-06-17T07:00:00Z',
     u'analysis_full_uri': u'https://stage.cghub.ucsc.edu/cghub/metadata/analysisFull/55c0d3e7-b6e8-40d4-8a3e-73771a747c95'}]
     '''
-
-.. code-block:: python
-
-    from wsapi import requst_details
-
-    def callback(data):
-        print data
-
-    hits = request_details(query='all_metadata=TCGA-04-1337-01A-01W-0484-10')
-    print hits
-    '''
-    Output:
-    {u'upload_date': u'2011-03-13T08:00:00Z', u'center_name': u'BCM',
-    u'analysis_full_uri': u'https://stage.cghub.ucsc.edu/cghub/metadata/analysisFull/916d1bd2-f503-4775-951c-20ff19dfe409', ...}
-    {..., u'Result': u'https://stage.cghub.ucsc.edu/cghub/data/analysis/download/55c0d3e7-b6e8-40d4-8a3e-73771a747c95\n\t', 
-    u'published_date': u'2011-06-17T07:00:00Z', u'Query': u'all_metadata:TCGA-04-1337-01A-01W-0484-10'}
-    2
-    '''
-
-All available functions:
-    - ``request_page(query, offset=None, limit=None, sort_by=None, settings={})``
-    - ``request_ids(query, sort_by=None, settings={})``
-    - ``request_details(query, callback, sort_by=None, settings={})``
-    - ``item_details(analysis_id, with_xml=False, settings={})``
-    - ``item_xml(analysis_id, with_short=False, settings={})``

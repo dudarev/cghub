@@ -8,31 +8,29 @@ API Documentation
 Main Interface
 --------------
 
-All functionality is implemented in function ``wsapi.api``.
+All functionality is implemented in function ``wsapi.Request``.
 
 wsapi.api
 ~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: wsapi.api.request_page
+.. autoclass:: wsapi.api.Request
+    :members:
+    :undoc-members:
+    :member-order: bysource
 
-.. autofunction:: wsapi.api.request_ids
+    .. automethod:: wsapi.api.Request.__init__
 
-.. autofunction:: wsapi.api.request_details
-
-.. autofunction:: wsapi.api.item_details
-
-.. autofunction:: wsapi.api.item_xml
 
 .. _settings:
 
 Settings
 --------------
 
-Settings dict can be passed to ``request_page``, ``request_ids``, ``request_details``, ``item_details`` or ``item_xml`` function:
+Settings dict can be passed to wsapi.api.Request:
 
 .. code-block:: python
 
-    hits, results = request_page(query=query, limit=10,
+    result = Request(query=query, limit=10,
                         settings={
                             'CGHUB_SERVER': 'https://cghub.ucsc.edu',
                             'CGHUB_ANALYSIS_ID_URI': '/cghub/metadata/analysisId'})
