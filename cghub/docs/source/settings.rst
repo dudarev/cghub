@@ -25,7 +25,8 @@ Use TESTING_MODE wsapi setting to enable caching results while testing.
 Variables
 ----------
 
-Most useful variables:
+Some of cghub browser site settings specified in cghub/settings/variables.py file.
+Most useful:
 
 .. code-block:: python
 
@@ -38,8 +39,6 @@ Most useful variables:
 
     # time, after which tooltip will be shown, in ms
     TOOLTIP_HOVER_TIME = 250
-
-See more in ``cghub/settings/variable.py``.
 
 
 Celery

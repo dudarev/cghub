@@ -21,8 +21,6 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi import request_ids, item_details
-
 from cghub.apps.cart.views import cart_add_files
 
 from ..templatetags.pagination_tags import Paginator
@@ -33,7 +31,8 @@ from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
-                    makedirs_group_write, generate_tmp_file_name)
+                    makedirs_group_write, generate_tmp_file_name,
+                    WSAPIRequest)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm
@@ -110,14 +109,17 @@ class CoreTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
-        from cghub.wsapi import item_details
-        result = item_details(analysis_id=analysis_id, settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(
+                    query='analysis_id=%s' % analysis_id,
+                    full=True, with_xml=True,
+                    settings=WSAPI_SETTINGS)
+        self.assertEqual(result.hits, 1)
         response = self.client.get(
                         reverse('item_details',
                         kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
-        self.assertContains(response, result['center_name'])
+        self.assertContains(response, result.results[0]['center_name'])
         # not ajax
         self.assertContains(response, '<head>')
         self.assertContains(response, 'Collapse all')
@@ -128,7 +130,7 @@ class CoreTestCase(TestCase):
                         kwargs={'analysis_id': analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, result['center_name'])
+        self.assertContains(response, result.results[0]['center_name'])
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
         self.assertContains(response, 'Show metadata XML')
@@ -143,13 +145,14 @@ class CoreTestCase(TestCase):
         self.assertIn('run_xml', response.context['raw_xml'])
 
     def test_save_filters_state(self):
+        # TODO: Extend this test (only filters should be persistent, not query)
         response = self.client.get('%s?q=%s' % (reverse('search_page'), self.query))
         self.assertEqual(
                 self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
                 'q=%s' % self.query)
         response = self.client.get(reverse('home_page'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.query)
+        self.assertNotContains(response, self.query)
 
     def test_save_limit_in_cookies(self):
         with self.settings(DEFAULT_FILTERS = {
@@ -167,6 +170,20 @@ class CoreTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
+
+    def test_custom_fields(self):
+        """
+        Test custom fields added in wsapi.Request.patch_result.
+        See cghub.apps.core.utils.WSAPIRequest.
+        """
+        analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
+        result = WSAPIRequest(
+                        query='analysis_id=%s' % analysis_id,
+                        settings=WSAPI_SETTINGS)
+        self.assertEqual(result.hits, 1)
+        result = result.results[0]
+        self.assertTrue(result['files_size'] + 1)
+        self.assertTrue(result['checksum'])
 
 
 class UtilsTestCase(TestCase):
@@ -612,9 +629,12 @@ class SearchViewPaginationTestCase(TestCase):
     query = "6d54"
 
     def setUp(self):
-        self.default_results_count, results = request_ids(
-                                query="all_metadata=('%s')" % self.query,
-                                settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(
+                        query="all_metadata=('%s')" % self.query,
+                        only_ids=True,
+                        settings=WSAPI_SETTINGS)
+        self.default_results_count = result.hits
+        self.results = result.results
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -746,10 +766,11 @@ class SettingsTestCase(TestCase):
         for name in settings.DETAILS_FIELDS:
             if name not in names:
                 names.append(name)
-        result = item_details(
-                        analysis_id=analysis_id,
+        result = WSAPIRequest(
+                        query='analysis_id=%s' % analysis_id,
                         settings=WSAPI_SETTINGS)
-        field_values_dict = field_values(result)
+        self.assertEqual(result.hits, 1)
+        field_values_dict = field_values(result.results[0])
         for name in names:
             self.assertIn(name, field_values_dict)
 

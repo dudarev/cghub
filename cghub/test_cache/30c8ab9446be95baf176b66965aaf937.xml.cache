@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-07-11 13:02:41">
+	<Query>all_metadata:TCGA-04-1337-01A-01W-0484-10</Query>
+	<Hits>2</Hits>
+	<Result id="1">
+		<analysis_id>916d1bd2-f503-4775-951c-20ff19dfe409</analysis_id>
+		<state>live</state>
+		<reason></reason>
+		<last_modified>2013-05-16T20:52:18Z</last_modified>
+		<upload_date>2011-03-13T08:00:00Z</upload_date>
+		<published_date>2011-05-04T07:00:00Z</published_date>
+		<center_name>BCM</center_name>
+		<study>phs000178</study>
+		<aliquot_id>2e66cec2-3607-42bd-92a0-663acbdff603</aliquot_id>
+		<files>
+			<file>
+				<filename>TCGA-04-1337-01A-01W-0484-10_SOLiD_whole_exome_extensions.bam</filename>
+				<filesize>28999371542</filesize>
+				<checksum type="MD5">85590e116bc334f6ac92b41df72eb22c</checksum>
+			</file>
+			<file>
+				<filename>TCGA-04-1337-01A-01W-0484-10_SOLiD_whole_exome_extensions.bam.bai</filename>
+				<filesize>7288072</filesize>
+				<checksum type="md5">d98ee6edd59dae8f5552c060bdcbc250</checksum>
+			</file>
+		</files>
+		<sample_accession>SRS009019</sample_accession>
+		<legacy_sample_id>TCGA-04-1337-01A-01W-0484-10</legacy_sample_id>
+		<disease_abbr>OV</disease_abbr>
+		<tss_id>04</tss_id>
+		<participant_id>d1e974e7-dd68-40cc-ad06-2b57d964e5a1</participant_id>
+		<sample_id>d8ab03a2-3dc9-433f-b9f3-644f0fb7313f</sample_id>
+		<analyte_code>W</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ABI_SOLID</platform>
+		<refassem_short_name>NCBI36_BCM_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/916d1bd2-f503-4775-951c-20ff19dfe409</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/916d1bd2-f503-4775-951c-20ff19dfe409</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/916d1bd2-f503-4775-951c-20ff19dfe409</analysis_data_uri>
+	</Result>
+	<Result id="2">
+		<analysis_id>55c0d3e7-b6e8-40d4-8a3e-73771a747c95</analysis_id>
+		<state>live</state>
+		<reason></reason>
+		<last_modified>2013-06-03T20:59:51Z</last_modified>
+		<upload_date>2011-04-29T07:00:00Z</upload_date>
+		<published_date>2011-06-17T07:00:00Z</published_date>
+		<center_name>BCM</center_name>
+		<study>phs000178</study>
+		<aliquot_id>2e66cec2-3607-42bd-92a0-663acbdff603</aliquot_id>
+		<files>
+			<file>
+				<filename>TCGA-04-1337-01A-01W-0484-10_SOLiD.bam</filename>
+				<filesize>19479159300</filesize>
+				<checksum type="MD5">fa69ef5dd6554f926eaec72c32a4c8bf</checksum>
+			</file>
+			<file>
+				<filename>TCGA-04-1337-01A-01W-0484-10_SOLiD.bam.bai</filename>
+				<filesize>6448272</filesize>
+				<checksum type="md5">aee3f8e1a15c89af8823a4350d5802b8</checksum>
+			</file>
+		</files>
+		<sample_accession>SRS009019</sample_accession>
+		<legacy_sample_id>TCGA-04-1337-01A-01W-0484-10</legacy_sample_id>
+		<disease_abbr>OV</disease_abbr>
+		<tss_id>04</tss_id>
+		<participant_id>d1e974e7-dd68-40cc-ad06-2b57d964e5a1</participant_id>
+		<sample_id>d8ab03a2-3dc9-433f-b9f3-644f0fb7313f</sample_id>
+		<analyte_code>W</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ABI_SOLID</platform>
+		<refassem_short_name>NCBI36_BCM_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/55c0d3e7-b6e8-40d4-8a3e-73771a747c95</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/55c0d3e7-b6e8-40d4-8a3e-73771a747c95</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/55c0d3e7-b6e8-40d4-8a3e-73771a747c95</analysis_data_uri>
+	</Result>
+	<ResultSummary>
+		<downloadable_file_count>4</downloadable_file_count>
+		<downloadable_file_size units="GB">45.16</downloadable_file_size>
+		<state_count>
+			<live>2</live>
+		</state_count>
+	</ResultSummary>
+</ResultSet>

@@ -11,7 +11,7 @@ except ImportError:
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
 
-from cghub.wsapi import request_page
+from cghub.wsapi import WSAPIRequest
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
@@ -118,10 +118,10 @@ class Command(BaseCommand):
                     for date in DATE_RANGES:
                         query = '%s=(%s)&%s' % (key, urllib.quote(filter), date)
                         self.stdout.write('query: %s\n' % query)
-                        hits, results = request_page(
+                        result = WSAPIReuest(
                                     query=query, offset=0, limit=10,
                                     settings=get_wsapi_settings())
-                        if hits:
+                        if result.hits:
                             is_filter_used[(key, filter)] = True
                             break
                     self.stdout.write('is_used: %s\n' %

@@ -4,7 +4,7 @@
 wsapi.api
 ~~~~~~~~~~~~~~~~~~~~
 
-Functions for external use.
+Code for external use.
 
 """
 
@@ -22,188 +22,91 @@ from .exceptions import QueryRequired
 wsapi_request_logger = logging.getLogger('wsapi.request')
 
 
-def add_custom_fields(results):
-    """
-    Calculate missing fields:
-    - files_size
-    """
-    for result in results:
-        files_size = 0
-        for f in result['files']:
-            files_size += f['filesize']
-        result['files_size'] = files_size
+class Request(object):
 
+    def __init__(
+                self, query, only_ids=False, full=False, with_xml=False,
+                offset=None, limit=None, sort_by=None, callback=None,
+                                            from_file=None, settings={}):
+        """
+        :param query: a string with query to send to the server
+        :param only_ids: boolean, only ids will be returned in result, will be used analysisId uri
+        :param full: boolean, if True, will be used analysisFull uri, otherwise - analysisDetail uri
+        :param with_xml: boolean, self.xml will be filled by response xml if True
+        :param offset: how many results should be skipped
+        :param limit: how many records output should have
+        :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
+        :param callback: callable, calls for every parsed result if specified (in this case self.results will be empty)
+        :param from_file: if specified, will be used as xml source (query will be ignored)
+        :param settings: custom settings, see `wsapi.settings.py` for settings example
+        """
+        if query is None and not from_file:
+            raise QueryRequired
+        if only_ids:
+            self.parser_class = IDsParser
+            self.uri = get_setting('CGHUB_ANALYSIS_ID_URI', settings)
+        else:
+            self.parser_class = AttributesParser
+            if full:
+                self.uri = get_setting('CGHUB_ANALYSIS_FULL_URI', settings)
+            else:
+                self.uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings)
+        self.query = query
+        self.with_xml = with_xml
+        self.only_ids = only_ids
+        self.limit = limit
+        self.offset = offset
+        self.sort_by = sort_by
+        self.callback = callback
+        self.from_file = from_file
+        self.settings = settings
 
-def request_page(query, offset=None, limit=None, sort_by=None, settings={}):
-    """
-    Makes a request to CGHub web service.
-    Returns page data in json format.
+        self.results = []
+        self.hits = 0
+        self.xml = ''
 
-    :param query: a string with query to send to the server
-    :param offset: how many results should be skipped
-    :param limit: how many records output should have
-    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
+        self._get_data()
 
-    :return: (hits, results). hits - count of results found, results - results list (limited by limit param)
-    """
-    if query is None:
-        raise QueryRequired
-    query = prepare_query(
-                query=query, offset=offset, limit=limit, sort_by=sort_by)
-    url = u'{0}{1}?{2}'.format(
-            get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
-            query)
-    wsapi_request_logger.info(urllib2.unquote(url))
-    response = urlopen(url, format='json', settings=settings).read()
-    response = json.loads(response)
-    hits = int(response['result_set']['hits'])
-    results = response['result_set']['results'] if hits else []
-    add_custom_fields(results)
-    return hits, results
+    def patch_result(self, result):
+        """
+        May be overridden to add some custom fields to results
+        """
+        return result
 
+    def _process_result(self, result):
+        if not self.only_ids:
+            result = dict(self.patch_result(result))
+        if self.callback:
+            self.callback(result)
+        else:
+            self.results.append(result)
 
-def request_ids(query, sort_by=None, settings={}):
-    """
-    Makes a request to CGHub web service.
-    Returns list of ids for specified query
+    def _get_data(self):
 
-    :param query: a string with query to send to the server
-    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
+        parser = self.parser_class(self._process_result)
 
-    :return: (hits, results). hits - count of results found, results - list of results found
-    """
-    if query is None:
-        raise QueryRequired
-    query = prepare_query(query=query, sort_by=sort_by)
-    url = u'{0}{1}?{2}'.format(
-            get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_ID_URI', settings),
-            query)
-    wsapi_request_logger.info(urllib2.unquote(url))
-    response = urlopen(url, format='xml', settings=settings)
+        if self.from_file:
+            sax_parse(self.from_file, parser)
+            self.hits = parser.hits
+            return
 
-    hits = 0
-    results = []
+        query = prepare_query(
+                    query=self.query, offset=self.offset,
+                    limit=self.limit, sort_by=self.sort_by)
+        url = u'{0}{1}?{2}'.format(
+                    get_setting('CGHUB_SERVER', self.settings),
+                    self.uri, query)
+        wsapi_request_logger.info(urllib2.unquote(url))
 
-    def callback(value):
-        results.append(value)
+        
+        if self.with_xml:
+            response = urlopen(
+                        url, format='xml', settings=self.settings).read()
+            self.xml = response.replace('\t', '')
+            self.xml = self.xml.replace('\n', '')
+            sax_parse_string(response, parser)
+        else:
+            response = urlopen(url, format='xml', settings=self.settings)
+            sax_parse(response, parser)
 
-    parser = IDsParser(callback)
-    sax_parse(response, parser)
-
-    return parser.hits, results
-
-
-def request_details(query, callback, sort_by=None, settings={}):
-    """
-    Makes a request to CGHub web service.
-    Call callback function for every parsed result. Returns hits.
-
-    :param query: a string with query to send to the server
-    :param callback: callable, calls for every parsed result 
-    :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
-
-    :return: hits - count of results found
-    """
-    if query is None:
-        raise QueryRequired
-    query = prepare_query(query=query, sort_by=sort_by)
-    url = u'{0}{1}?{2}'.format(
-            get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings),
-            query)
-    wsapi_request_logger.info(urllib2.unquote(url))
-    response = urlopen(url, format='xml', settings=settings)
-    parser = AttributesParser(callback)
-    sax_parse(response, parser)
-
-    return parser.hits
-
-
-def item_details(analysis_id, with_xml=False, full=False, settings={}):
-    """
-    Makes a request to CGHub web service.
-    Returns details for file with specified analysis id.
-
-    :param analysis_id: analysis id
-    :param with_xml: boolean, result additionally contains raw xml if True
-    :param full: boolean, if True, will be used ANALYSIS_FULL uri
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
-
-    :return: dict filled by item attributes if found, else - empty dict
-    """
-    if full:
-        uri = get_setting('CGHUB_ANALYSIS_FULL_URI', settings)
-    else:
-        uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings)
-    url = u'{0}{1}/{2}'.format(
-            get_setting('CGHUB_SERVER', settings),
-            uri,
-            analysis_id)
-    wsapi_request_logger.info(urllib2.unquote(url))
-    if not with_xml:
-        content = urlopen(url, format='json', settings=settings).read()
-        content = json.loads(content)
-        results = content['result_set']['results']
-        add_custom_fields(results)
-        if results:
-            return results[0]
-        return {}
-    else:
-        content = urlopen(url, format='xml', settings=settings).read()
-        results = []
-
-        def callback(attributes):
-            results.append(attributes)
-
-        sax_parse_string(content, AttributesParser(callback))
-        if results:
-            result = results[0]
-            content = content.replace('\t', '')
-            content = content.replace('\n', '')
-            result['xml'] = content
-            return result
-    return {}
-
-
-def item_xml(analysis_id, with_short=False, settings={}):
-    """
-    Makes a request to CGHub web service.
-    Returns xml for specified analysis id.
-
-    :param analysis_id: analysis id
-    :param with_short: boolean, additionally returns item without set of submission metadata if True
-    :param settings: custom settings, see `wsapi.settings.py` for settings example
-
-    :return: xml string or (xml string, shortened xml string) if with_short==True
-    """
-    url = u'{0}{1}/{2}'.format(
-            get_setting('CGHUB_SERVER', settings),
-            get_setting('CGHUB_ANALYSIS_FULL_URI', settings),
-            analysis_id)
-    wsapi_request_logger.info(urllib2.unquote(url))
-    xml = urlopen(url, format='xml', settings=settings).read()
-    xml = xml.replace('\t', '')
-    xml = xml.replace('\n', '')
-    if not with_short:
-        return xml
-    attributes_to_remove = (
-            'sample_accession', 'legacy_sample_id',
-            'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
-            'analyte_code', 'sample_type', 'library_strategy',
-            'platform', 'analysis_xml', 'run_xml', 'experiment_xml')
-    short_xml = xml
-    for attr in attributes_to_remove:
-        start = 0
-        stop = 0
-        while start != -1 and stop != -1:
-            start = short_xml.find('<%s>' % attr)
-            if start != -1:
-                stop = short_xml.find('</%s>' % attr, start)
-            if start != -1 and stop != -1:
-                short_xml = short_xml[:start] + short_xml[stop + len(attr) + 3:]
-    return xml, short_xml
+        self.hits = parser.hits

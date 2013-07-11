@@ -11,7 +11,7 @@ List of columns to display:
         'Disease',
 
 Available column_names: 'Assembly', 'Barcode', 'Center', 'Center Name',
-'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
+'Checksum', 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
 'Library Type', 'Modified', 'Platform', 'Platform Name', 'Sample Accession',
 'Sample Type', 'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
 
@@ -79,6 +79,9 @@ COLUMN_STYLES = {
     'Center Name': {
         'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
+    'Checksum': {
+        'width': 200, 'align': 'left', 'default_state': 'hidden',
+        },
     'Disease': {
         'width': 65, 'align': 'left', 'default_state': 'visible',
         },
@@ -135,6 +138,7 @@ TABLE_COLUMNS = (
     'Library Type',
     'Center',
     'Center Name',
+    'Checksum',
     'Platform',
     'Platform Name',
     'Assembly',
@@ -157,6 +161,7 @@ DETAILS_FIELDS = (
     'Library Type',
     'Center',
     'Center Name',
+    'Checksum',
     'Platform',
     'Platform Name',
     'Assembly',

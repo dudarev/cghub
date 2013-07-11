@@ -29,13 +29,13 @@ Example of usage:
 
 .. code-block:: python
 
-    from wsapi import requst_page
+    from wsapi import Request
 
-    hits, results = request_page(
+    result = Request(
                 query='all_metadata=TCGA-04-1337-01A-01W-0484-10',
                 limit=10, settings={'TESTING_MODE': True})
 
-    hits, results = request_page(
+    result = Request(
                 query='all_metadata=TCGA-04-1337-01A-01W-0484-10',
                 limit=10, settings={'TESTING_MODE': True})
 

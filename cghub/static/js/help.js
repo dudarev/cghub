@@ -10,7 +10,7 @@ jQuery(function ($) {
     cghub.help = {
         hintShow: false,
         keysIgnore: ['analysis id', 'uploaded', 'modified', 'barcode', 'files size',
-                'aliquot id', 'tss id', 'participant id', 'sample id'],
+                'aliquot id', 'tss id', 'participant id', 'sample id', 'checksum'],
         init:function () {
             cghub.help.bindEvents();
             cghub.help.activateTableHeaderTooltipHelp();
