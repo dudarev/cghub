@@ -1529,7 +1529,7 @@
                 }
             }
             function checkOnlyDefaultColumns(){
-                var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(all)"]'),
+                var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(Toggle all)"]'),
                     allChecked=true;
                 allColumnCheckboxes.each(
                     function(i, checkbox){
@@ -1544,11 +1544,11 @@
                         }
                     }
                 );
-                setCheckboxStatus('(all)', allChecked);
+                setCheckboxStatus('(Toggle all)', allChecked);
             }
             function onComplete(selector) {
                 var text = 'Not all',
-                    allOption = $(selector).next().next().find('input[value = "(all)"]');
+                    allOption = $(selector).next().next().find('input[value = "(Toggle all)"]');
                 if (allOption.is(':checked')) {
                     text = 'All'
                 }
@@ -1559,18 +1559,22 @@
                 width: 170,
                 zIndex: 1010,
                 textFormatFunction: function(options) {
-                    $(options).parent().next().find('.ui-dropdownchecklist-text').html('selecting...').css({'color': '#08c'});
-                    return 'selecting...';
+                    if (!options.length) return 'Not all';
+                    var allOption = $(options[0]).parent().next().next().find('input[value = "(Toggle all)"]');
+                    if (allOption.is(':checked')) {
+                        return 'All'
+                    }
+                    return 'Not all'
                 },
                 onComplete: onComplete,
                 onItemClick: function(checkbox, selector) {
                     var value = $(checkbox).val(),
-                        allOption = $(selector).next().next().find('input[value = "(all)"]');
-                    if (value != '(all)') {
+                        allOption = $(selector).next().next().find('input[value = "(Toggle all)"]');
+                    if (value != '(Toggle all)') {
                         grid.toggleCol(value, $(checkbox).is(':checked'))
                     } else {
                         var is_checked = allOption.is(':checked');
-                        $(selector).next().next().find('input[value != "(all)"]').each(function(i, el) {
+                        $(selector).next().next().find('input[value != "(Toggle all)"]').each(function(i, el) {
                             grid.toggleCol($(el).val(), is_checked)
                         })
                     }

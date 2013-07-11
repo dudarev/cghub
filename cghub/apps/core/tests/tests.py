@@ -291,11 +291,18 @@ class ContextProcessorsTestCase(TestCase):
     def test_settings(self):
         # test cghub.apps.core.context_processors.settings
         MANY_FILES = 101
-        with self.settings(MANY_FILES=MANY_FILES):
+        SUPPORT_EMAIL = 'some@email.com'
+        TOOLTIP_HOVER_TIME = 250
+        with self.settings(
+                MANY_FILES=MANY_FILES,
+                SUPPORT_EMAIL=SUPPORT_EMAIL,
+                TOOLTIP_HOVER_TIME=TOOLTIP_HOVER_TIME):
             factory = RequestFactory()
             request = factory.get('/')
             context = RequestContext(request)
             self.assertEqual(context['MANY_FILES'], MANY_FILES)
+            self.assertEqual(context['SUPPORT_EMAIL'], SUPPORT_EMAIL)
+            self.assertEqual(context['TOOLTIP_HOVER_TIME'], TOOLTIP_HOVER_TIME)
 
 
 class TemplateTagsTestCase(TestCase):

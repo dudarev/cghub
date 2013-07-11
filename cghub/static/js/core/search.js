@@ -8,7 +8,7 @@ jQuery(function ($) {
     }
     cghub.search = {
         addToCartErrorTitle: 'Error Adding to Cart',
-        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>',
+        addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>',
         nothingSelectedTitle: 'No selected files',
         nothingSelectedContent: 'Please select some files to add them to cart',
         init:function () {
@@ -99,7 +99,7 @@ jQuery(function ($) {
                     /* for date filters */
                     $select.find('option[value=""]').attr('selected', 'selected');
                     /* for other filters */
-                    $select.find('option[value="(all)"]').attr('selected', 'selected');
+                    $select.find('option[value="(Toggle all)"]').attr('selected', 'selected');
                 }
             });
             if('q' in filters) {
@@ -169,7 +169,7 @@ jQuery(function ($) {
                 countSelected = 1;
                 preview = 'Please select';
             }
-            if (preview.indexOf('(all)') != -1) {
+            if (preview.indexOf('(Toggle all)') != -1) {
                 countSelected = 1;
                 preview = 'All';
             }
@@ -296,7 +296,7 @@ jQuery(function ($) {
             // loop by sections excluding date
             sections.each(function (i, section) {
                 var dropContainer = $(section).next().next(),
-                    all_checked = Boolean(dropContainer.find('input[value = "(all)"]:checked').length),
+                    all_checked = Boolean(dropContainer.find('input[value = "(Toggle all)"]:checked').length),
                     query = '',
                     section_name = $(section).attr('data-section');
                 // Checked some boxes

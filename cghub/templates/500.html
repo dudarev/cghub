@@ -11,7 +11,7 @@
         <p>Connection to WS-API server failed, please try later.</p>
         <p><a href="{% url home_page %}">Go to home page</a>.</p>
     {% else %}
-        <p>Server error. Please contact <a href="mailto:support@cghub.ucsc.edu">support@cghub.ucsc.edu</a>.</p>
+        <p>Server error. Please contact <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
     {% endif %}
 </div>
 {% endblock %}
