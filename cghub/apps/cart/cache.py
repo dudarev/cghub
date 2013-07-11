@@ -6,11 +6,9 @@ from xml.sax import parse as sax_parse
 
 from django.conf import settings
 
-from cghub.wsapi import item_xml
-from cghub.wsapi.parsers import AttributesParser
-
-from cghub.apps.core.utils import (get_wsapi_settings, makedirs_group_write,
-                                                generate_tmp_file_name)
+from cghub.apps.core.utils import (
+                            get_wsapi_settings, makedirs_group_write,
+                            generate_tmp_file_name, WSAPIRequest)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -105,8 +103,27 @@ def save_to_cart_cache(analysis_id, last_modified):
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
         try:
-            xml, xml_short = item_xml(
-                    analysis_id=analysis_id, with_short=True, settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(
+                            query='analysis_id=%s' % analysis_id,
+                            full=True, with_xml=True,
+                            settings=WSAPI_SETTINGS)
+            xml = result.xml
+            # remove some attributes in short_xml
+            attributes_to_remove = (
+                'sample_accession', 'legacy_sample_id',
+                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
+                'analyte_code', 'sample_type', 'library_strategy',
+                'platform', 'analysis_xml', 'run_xml', 'experiment_xml')
+            xml_short = xml
+            for attr in attributes_to_remove:
+                start = 0
+                stop = 0
+                while start != -1 and stop != -1:
+                    start = xml_short.find('<%s>' % attr)
+                    if start != -1:
+                        stop = xml_short.find('</%s>' % attr, start)
+                    if start != -1 and stop != -1:
+                        xml_short = xml_short[:start] + xml_short[stop + len(attr) + 3:]
         except URLError:
             raise AnalysisFileException(
                     analysis_id,
@@ -162,8 +179,9 @@ def get_analysis(analysis_id, last_modified, short=False):
     def callback(value):
         results.append(value)
     with open(path, 'r') as f:
-        sax_parse(f, AttributesParser(callback))
-    return results[0]
+        result = WSAPIRequest(query=None, from_file=f)
+    return result.results[0]
+
 
 def get_analysis_xml(analysis_id, last_modified, short=False):
     """

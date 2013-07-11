@@ -201,15 +201,13 @@ Used URI's
 ----------
 
 AnalysisId:
-    - used by wsapi.request_ids
+    - used by wsapi.Request if wsapi.Request.only_ids == True
 
 AnalysisDetail:
-    - used by wsapi.request_page
-    - used by wsapi.request_details
-    - used by wsapi.item_details
+    - used by wsapi.Request
 
 AnalysisFull:
-    - used by wsapi.item_xml
+    - used by wsapi.Request if wsapi.Request.full == True
 
 
 Displayed attributes
@@ -235,3 +233,35 @@ Displayed attributes
     - study (Study)
     - tss_id (TSS id)
     - upload_date (Uploaded)
+
+Custom fields
+=============
+
+Custom fields can be added by overriding wsapi.Request.patch_result method.
+
+Next custom fields were added:
+
+    - files_size
+    - checksum
+
+See ``cghub/apps/core/utils.py``.
+
+.. code-block:: python
+
+    class WSAPIRequest(Request):
+        """
+        Override patch_result method to add custom fields.
+        """
+
+        def patch_result(self, result):
+            # files_size_field
+            files_size = 0
+            for f in result['files']:
+                files_size += f['filesize']
+            result['files_size'] = files_size
+            # checksum
+            if result['files']:
+                result['checksum'] = result['files'][0]['checksum']['#text']
+            else:
+                result['checksum'] = None
+            return result

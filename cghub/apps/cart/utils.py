@@ -6,8 +6,6 @@ import logging
 
 from StringIO import StringIO
 
-from cghub.wsapi import request_page
-
 from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
@@ -16,12 +14,15 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
-                                        generate_task_id, xml_add_spaces)
+from cghub.apps.core.utils import (
+                                get_wsapi_settings, get_wsapi_settings,
+                                generate_task_id, xml_add_spaces,
+                                WSAPIRequest)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
-                                                        get_analysis_xml)
+from cghub.apps.cart.cache import (
+                                AnalysisFileException, get_analysis,
+                                get_analysis_xml)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -129,9 +130,9 @@ def load_missing_attributes(files):
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
         query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
-        if hits != 0:
-            for result in results:
+        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        if result.hits != 0:
+            for result in result.results:
                 for f in files:
                     if f['analysis_id'] == result['analysis_id']:
                         for attr in ATTRIBUTES:

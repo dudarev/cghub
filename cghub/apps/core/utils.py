@@ -9,6 +9,8 @@ import socket
 from celery import states
 from djcelery.models import TaskState
 
+from cghub.wsapi import Request
+
 from django.core.mail import mail_admins
 from django.conf import settings
 
@@ -249,3 +251,23 @@ def generate_tmp_file_name():
     return '{pid}-{thread}-{host}.tmp'.format(
                     pid=os.getpid(), thread=threading.current_thread().name,
                     host=socket.gethostname())
+
+
+class WSAPIRequest(Request):
+    """
+    Override patch_result method to add custom fields.
+    """
+
+    def patch_result(self, result):
+        # files_size_field
+        files_size = 0
+        for f in result['files']:
+            files_size += f['filesize']
+        result['files_size'] = files_size
+        # checksum
+        if result['files']:
+            result['checksum'] = result['files'][0]['checksum']['#text']
+        else:
+            result['checksum'] = None
+        return result
+    

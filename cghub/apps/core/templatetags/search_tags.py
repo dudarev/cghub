@@ -296,10 +296,7 @@ def get_result_attr(result, attr):
 
 
 def field_values(result, humanize_files_size=True):
-    files_size = (
-                    get_result_attr(result, 'files_size')
-                    or get_result_attr(result, 'files')
-                    and get_result_attr(result, 'files')[0]['filesize'])
+    files_size = get_result_attr(result, 'files_size')
     if humanize_files_size:
         files_size = file_size(files_size)
     return {
@@ -309,6 +306,7 @@ def field_values(result, humanize_files_size=True):
         'Center Name': get_name_by_code(
             'center_name',
             get_result_attr(result, 'center_name')),
+        'Checksum': get_result_attr(result, 'checksum'),
         'Disease': get_result_attr(result, 'disease_abbr'),
         'Disease Name': get_name_by_code(
             'disease_abbr',

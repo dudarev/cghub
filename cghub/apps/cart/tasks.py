@@ -7,8 +7,6 @@ from celery.task import task
 from celery import states
 from djcelery.models import TaskState
 
-from cghub.wsapi import request_details
-
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
@@ -18,7 +16,8 @@ from cghub.apps.cart.cache import (
         AnalysisFileException, save_to_cart_cache, is_cart_cache_exists)
 
 from cghub.apps.core.utils import (
-        decrease_start_date, get_wsapi_settings, is_celery_alive, generate_task_id)
+                    decrease_start_date, get_wsapi_settings,
+                    is_celery_alive, generate_task_id, WSAPIRequest)
 
 
 cart_logger = logging.getLogger('cart')
@@ -112,7 +111,9 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
     for query in queries:
         if query:
             query = decrease_start_date(query)
-            request_details(query=query, callback=callback, settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(
+                            query=query, callback=callback,
+                            settings=WSAPI_SETTINGS)
 
     session_store['cart'] = cart
     session_store.save()
