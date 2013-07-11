@@ -52,6 +52,7 @@ class Request(object):
                 self.uri = get_setting('CGHUB_ANALYSIS_DETAIL_URI', settings)
         self.query = query
         self.with_xml = with_xml
+        self.only_ids = only_ids
         self.limit = limit
         self.offset = offset
         self.sort_by = sort_by
@@ -80,7 +81,8 @@ class Request(object):
         wsapi_request_logger.info(urllib2.unquote(url))
 
         def callback(value):
-            value = self.patch_result(value)
+            if not self.only_ids:
+                value = self.patch_result(value)
             if self.callback:
                 self.callback(value)
             else:

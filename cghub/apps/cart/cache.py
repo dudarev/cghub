@@ -6,12 +6,12 @@ from xml.sax import parse as sax_parse
 
 from django.conf import settings
 
-from cghub.wsapi import Request as WSAPIRequest
 # TODO(nanvel): Remove this import 
 from cghub.wsapi.parsers import AttributesParser
 
-from cghub.apps.core.utils import (get_wsapi_settings, makedirs_group_write,
-                                                generate_tmp_file_name)
+from cghub.apps.core.utils import (
+                            get_wsapi_settings, makedirs_group_write,
+                            generate_tmp_file_name, WSAPIRequest)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -110,11 +110,23 @@ def save_to_cart_cache(analysis_id, last_modified):
                             query='analysis_id=%s' % analysis_id,
                             full=True, with_xml=True,
                             settings=WSAPI_SETTINGS)
-            # TODO(nanvel): Fix it
             xml = result.xml
+            # remove some attributes in short_xml
+            attributes_to_remove = (
+                'sample_accession', 'legacy_sample_id',
+                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
+                'analyte_code', 'sample_type', 'library_strategy',
+                'platform', 'analysis_xml', 'run_xml', 'experiment_xml')
             xml_short = xml
-            #xml, xml_short = item_xml(
-            #        analysis_id=analysis_id, with_short=True, )
+            for attr in attributes_to_remove:
+                start = 0
+                stop = 0
+                while start != -1 and stop != -1:
+                    start = xml_short.find('<%s>' % attr)
+                    if start != -1:
+                        stop = xml_short.find('</%s>' % attr, start)
+                    if start != -1 and stop != -1:
+                        xml_short = xml_short[:start] + xml_short[stop + len(attr) + 3:]
         except URLError:
             raise AnalysisFileException(
                     analysis_id,

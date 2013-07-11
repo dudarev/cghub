@@ -19,24 +19,28 @@ from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
+from cghub.wsapi import browser_text_search
+
 from cghub.settings.utils import PROJECT_ROOT
 
-from cghub.apps.cart.utils import (manifest, metadata,
+from cghub.apps.cart.utils import (
+                            manifest, metadata,
                             summary, add_ids_to_cart, add_files_to_cart,
                             load_missing_attributes,
                             analysis_xml_iterator, summary_tsv_iterator,
                             cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
-from cghub.apps.cart.cache import (AnalysisFileException, get_cart_cache_file_path, 
+from cghub.apps.cart.cache import (
+                    AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from cghub.apps.cart.tasks import (cache_results_task, cache_file,
                                         add_files_to_cart_by_query_task)
 
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
-from cghub.apps.core.utils import (generate_task_id, paginator_params, get_wsapi_settings)
-
-from cghub.wsapi import browser_text_search, Request as WSAPIRequest
+from cghub.apps.core.utils import (
+                            generate_task_id, paginator_params,
+                            get_wsapi_settings, WSAPIRequest)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()

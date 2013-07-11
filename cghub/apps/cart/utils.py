@@ -6,8 +6,6 @@ import logging
 
 from StringIO import StringIO
 
-from cghub.wsapi import Request as WSAPIRequest
-
 from django.http import HttpResponse
 from django.core.servers import basehttp
 from django.conf import settings
@@ -16,12 +14,15 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import (get_wsapi_settings, get_wsapi_settings,
-                                        generate_task_id, xml_add_spaces)
+from cghub.apps.core.utils import (
+                                get_wsapi_settings, get_wsapi_settings,
+                                generate_task_id, xml_add_spaces,
+                                WSAPIRequest)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.apps.cart.cache import (AnalysisFileException, get_analysis,
-                                                        get_analysis_xml)
+from cghub.apps.cart.cache import (
+                                AnalysisFileException, get_analysis,
+                                get_analysis_xml)
 
 
 WSAPI_SETTINGS = get_wsapi_settings()

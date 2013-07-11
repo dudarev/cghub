@@ -6,14 +6,14 @@ from celery import states
 from urllib2 import URLError
 
 from django.conf import settings
-from django.http import (QueryDict, HttpResponseRedirect, HttpResponse,
-                                        Http404, HttpResponseServerError)
+from django.http import (
+                        QueryDict, HttpResponseRedirect, HttpResponse,
+                        Http404, HttpResponseServerError)
 from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi import Request as WSAPIRequest
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.cart.utils import metadata
@@ -22,8 +22,9 @@ from cghub.apps.cart.tasks import cache_file
 
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from .utils import (get_filters_string, get_default_query, get_wsapi_settings,
-                                        paginator_params, is_celery_alive)
+from .utils import (
+                get_filters_string, get_default_query, get_wsapi_settings,
+                paginator_params, is_celery_alive, WSAPIRequest)
 from .forms import BatchSearchForm
 
 

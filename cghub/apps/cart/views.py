@@ -15,12 +15,13 @@ from django.utils import timezone
 from django.utils.http import cookie_date
 from django.utils.importlib import import_module
 
-from cghub.apps.core.utils import (is_celery_alive,
-                    generate_task_id, get_wsapi_settings,
-                    get_filters_string, is_task_done, paginator_params)
+from cghub.apps.core.utils import (
+                    is_celery_alive, generate_task_id, get_wsapi_settings,
+                    get_filters_string, is_task_done, paginator_params,
+                    WSAPIRequest)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.wsapi import browser_text_search, Request as WSAPIRequest
+from cghub.wsapi import browser_text_search
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedFilesForm, AllFilesForm

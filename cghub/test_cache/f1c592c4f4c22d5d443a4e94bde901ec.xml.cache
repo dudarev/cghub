@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-07-11 13:02:22">
+	<Query>analysis_id:badd1bd2-f503-4775-951c-123456789112</Query>
+	<Hits>0</Hits>
+	<ResultSummary>
+		<downloadable_file_count>0</downloadable_file_count>
+		<downloadable_file_size units="KB">0</downloadable_file_size>
+		<state_count>
+		</state_count>
+	</ResultSummary>
+</ResultSet>

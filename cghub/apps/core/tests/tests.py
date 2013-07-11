@@ -21,8 +21,6 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.wsapi import Request as WSAPIRequest
-
 from cghub.apps.cart.views import cart_add_files
 
 from ..templatetags.pagination_tags import Paginator
@@ -33,7 +31,8 @@ from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     get_wsapi_settings, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
-                    makedirs_group_write, generate_tmp_file_name)
+                    makedirs_group_write, generate_tmp_file_name,
+                    WSAPIRequest)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm
