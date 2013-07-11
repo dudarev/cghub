@@ -6,7 +6,7 @@ import logging
 
 from StringIO import StringIO
 
-from cghub.wsapi import request_page
+from cghub.wsapi import Request as WSAPIRequest
 
 from django.http import HttpResponse
 from django.core.servers import basehttp
@@ -129,9 +129,9 @@ def load_missing_attributes(files):
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
         query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
-        if hits != 0:
-            for result in results:
+        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        if result.hits != 0:
+            for result in result.results:
                 for f in files:
                     if f['analysis_id'] == result['analysis_id']:
                         for attr in ATTRIBUTES:

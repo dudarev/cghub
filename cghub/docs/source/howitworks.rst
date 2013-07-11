@@ -201,15 +201,13 @@ Used URI's
 ----------
 
 AnalysisId:
-    - used by wsapi.request_ids
+    - used by wsapi.Request if wsapi.Request.only_ids == True
 
 AnalysisDetail:
-    - used by wsapi.request_page
-    - used by wsapi.request_details
-    - used by wsapi.item_details
+    - used by wsapi.Request
 
 AnalysisFull:
-    - used by wsapi.item_xml
+    - used by wsapi.Request if wsapi.Request.full == True
 
 
 Displayed attributes

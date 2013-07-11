@@ -36,7 +36,7 @@ from cghub.apps.cart.tasks import (cache_results_task, cache_file,
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
 from cghub.apps.core.utils import (generate_task_id, paginator_params, get_wsapi_settings)
 
-from cghub.wsapi import browser_text_search, request_page
+from cghub.wsapi import browser_text_search, Request as WSAPIRequest
 
 
 WSAPI_SETTINGS = get_wsapi_settings()
@@ -320,10 +320,10 @@ class CartAddItemsTestCase(TestCase):
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
         session_data['cart'] = {}
-        hits, results = request_page(query=query, settings=WSAPI_SETTINGS)
-        for result in results:
-            session_data['cart'][result.get('analysis_id')] = {
-                            'analysis_id': result.get('analysis_id')}
+        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        for r in result.results:
+            session_data['cart'][r.get('analysis_id')] = {
+                            'analysis_id': r.get('analysis_id')}
         session.session_data = Session.objects.encode(session_data)
         session.save()
         attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
@@ -334,11 +334,11 @@ class CartAddItemsTestCase(TestCase):
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
-        self.assertEqual(len(session_data['cart']), hits)
+        self.assertEqual(len(session_data['cart']), result.hits)
         self.assertEqual(
-                    session_data['cart'][results[0].get('analysis_id')]['last_modified'],
-                    results[0].get('last_modified'))
-        self.assertIn('study', session_data['cart'][results[0].get('analysis_id')])
+                    session_data['cart'][result.results[0].get('analysis_id')]['last_modified'],
+                    result.results[0].get('last_modified'))
+        self.assertIn('study', session_data['cart'][result.results[0].get('analysis_id')])
 
 
 class CartCacheTestCase(TestCase):
@@ -680,12 +680,12 @@ class CartUtilsTestCase(TestCase):
     def test_add_files_to_cart(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         request = get_request()
-        hits, results = request_page(query=query)
-        self.assertTrue(hits)
-        add_files_to_cart(request, results)
+        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        self.assertTrue(result.hits)
+        add_files_to_cart(request, result.results)
         cart = request.session._session['cart']
-        self.assertEqual(len(cart), hits)
-        result = results[0]
+        self.assertEqual(len(cart), result.hits)
+        result = result.results[0]
         self.assertEqual(
                     cart[result['analysis_id']]['upload_date'],
                     result['upload_date'])

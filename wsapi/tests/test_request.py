@@ -11,18 +11,18 @@ class RequestTest(unittest.TestCase):
     Just smoke tests.
     """
 
-    def test_request_page(self):
+    def test_request_paginated(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         result = Request(query=query, offset=0, limit=10)
         self.assertTrue(len(result.results))
 
-    def test_request_ids(self):
+    def test_request_only_ids(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         result = Request(query=query, only_ids=True)
         self.assertTrue(len(result.results))
         self.assertEqual(len(result.results), result.hits)
 
-    def test_request_details(self):
+    def test_request_with_callback(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         data = []
         def callback(attributes):
@@ -33,7 +33,7 @@ class RequestTest(unittest.TestCase):
         self.assertTrue(data[0]['files'][0]['checksum']['@type'])
         self.assertFalse(result.xml)
 
-    def test_item_details(self):
+    def test_request_full_and_xml(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
         result = Request(
                         query='analysis_id=%s' % analysis_id,

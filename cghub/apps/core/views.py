@@ -13,8 +13,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi import (request_page, item_details, request_ids,
-                                                    request_details)
+from cghub.wsapi import Request as WSAPIRequest
 from cghub.wsapi import browser_text_search
 
 from cghub.apps.cart.utils import metadata
@@ -72,10 +71,12 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         offset, limit = paginator_params(self.request)
-        context['num_results'], context['results'] = request_page(
+        result = WSAPIRequest(
                             query=self.query, sort_by=DEFAULT_SORT_BY,
                             limit=limit, settings=WSAPI_SETTINGS)
-        if context['num_results'] == 0:
+        context['num_results'] = result.hits
+        context['results'] = result.results
+        if result.hits == 0:
             context['message'] = 'No results found.'
         return context
 
@@ -111,14 +112,17 @@ class SearchView(TemplateView):
             if 'xml_text' in query:
                 # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
                 queries_list = [query, u"analysis_id={0}".format(q)]
-                context['num_results'], context['results'] = request_page(
-                    queries_list=queries_list, sort_by=sort_by,
-                    offset=offset, limit=limit, settings=WSAPI_SETTINGS)
+                # FIXME: need to handle queries_list properly
+                result = WSAPIRequest(
+                        query=queries_list[0], sort_by=sort_by,
+                        offset=offset, limit=limit, settings=WSAPI_SETTINGS)
             else:
-                context['num_results'], context['results'] = request_page(
+                result = WSAPIRequest(
                             query=query, sort_by=sort_by, offset=offset,
                             limit=limit, settings=WSAPI_SETTINGS)
-            if context['num_results'] != 0:
+            context['num_results'] = result.hits
+            context['results'] = result.results
+            if result.hits != 0:
                 break
 
         if context['num_results'] == 0:
@@ -170,49 +174,53 @@ class BatchSearchView(TemplateView):
             ids = []
             if submitted_ids:
                 query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
-                hits, _ids = request_ids(
+                result = WSAPIRequest(
                         query=query,
+                        only_ids=True,
                         settings=WSAPI_SETTINGS)
-                ids = _ids
-                found['analysis_id'] = hits
-
-                if hits != len(submitted_ids):
+                found['analysis_id'] = result.hits
+                ids = result.results
+                if result.hits != len(submitted_ids):
                     # search them by sample_id
                     query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
-                    hits, _ids = request_ids(
+                    result = WSAPIRequest(
                             query=query,
+                            only_ids=True,
                             settings=WSAPI_SETTINGS)
-                    found['sample_id'] = hits
-                    for id in _ids:
+                    found['sample_id'] = result.hits
+                    for id in result.results:
                         if id not in ids:
                             ids.append(id)
                     # search by participant_id and aliquot_id
                     query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
-                    hits, _ids = request_ids(
+                    result = WSAPIRequest(
                             query=query,
+                            only_ids=True,
                             settings=WSAPI_SETTINGS)
-                    found['participant_id'] = hits
-                    for id in _ids:
+                    found['participant_id'] = result.hits
+                    for id in result.results:
                         if id not in ids:
                             ids.append(id)
                     # search by aliquot_id
                     query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
-                    hits, _ids = request_ids(
+                    result = WSAPIRequest(
                             query=query,
+                            only_ids=True,
                             settings=WSAPI_SETTINGS)
-                    found['aliquot_id'] = hits
-                    for id in _ids:
+                    found['aliquot_id'] = result.hits
+                    for id in result.results:
                         if id not in ids:
                             ids.append(id)
 
             if submitted_legacy_sample_ids:
                 query = 'legacy_sample_id=(%s)' % ' OR '.join(
                                             submitted_legacy_sample_ids)
-                hits, _ids = request_ids(
-                                            query=query,
-                                            settings=WSAPI_SETTINGS)
-                found['legacy_sample_id'] = hits
-                for id in _ids:
+                result = WSAPIRequest(
+                        query=query,
+                        only_ids=True,
+                        settings=WSAPI_SETTINGS)
+                found['legacy_sample_id'] = result.hits
+                for id in result.results:
                     if id not in ids:
                         ids.append(id)
 
@@ -238,7 +246,7 @@ class BatchSearchView(TemplateView):
                 for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
                     query = 'analysis_id=(%s)' % ' OR '.join(
                             ids[part : part + settings.MAX_ITEMS_IN_QUERY])
-                    request_details(
+                    result = WSAPIRequest(
                         query=query, callback=callback, settings=WSAPI_SETTINGS)
 
                 request.session['cart'] = cart
@@ -267,14 +275,14 @@ class ItemDetailsView(TemplateView):
     ajax_template_name = 'core/details_table.html'
 
     def get_context_data(self, **kwargs):
-        result = item_details(
-                    analysis_id=kwargs['analysis_id'],
+        result = WSAPIRequest(
+                    query='analysis_id=%s' % kwargs['analysis_id'],
                     with_xml=True, full=True, settings=WSAPI_SETTINGS)
-        if result:
-            xml = result['xml']
+        if result.hits:
+            xml = result.xml
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
             return {
-                'res': result,
+                'res': result.results[0],
                 'raw_xml': repr(xml.replace(' id="1"', '')),
                 'analysis_id': kwargs['analysis_id']}
         return {'res': None}

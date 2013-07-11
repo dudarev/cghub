@@ -6,7 +6,8 @@ from xml.sax import parse as sax_parse
 
 from django.conf import settings
 
-from cghub.wsapi import item_xml
+from cghub.wsapi import Request as WSAPIRequest
+# TODO(nanvel): Remove this import 
 from cghub.wsapi.parsers import AttributesParser
 
 from cghub.apps.core.utils import (get_wsapi_settings, makedirs_group_write,
@@ -105,8 +106,15 @@ def save_to_cart_cache(analysis_id, last_modified):
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
         try:
-            xml, xml_short = item_xml(
-                    analysis_id=analysis_id, with_short=True, settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(
+                            query='analysis_id=%s' % analysis_id,
+                            full=True, with_xml=True,
+                            settings=WSAPI_SETTINGS)
+            # TODO(nanvel): Fix it
+            xml = result.xml
+            xml_short = xml
+            #xml, xml_short = item_xml(
+            #        analysis_id=analysis_id, with_short=True, )
         except URLError:
             raise AnalysisFileException(
                     analysis_id,
@@ -164,6 +172,7 @@ def get_analysis(analysis_id, last_modified, short=False):
     with open(path, 'r') as f:
         sax_parse(f, AttributesParser(callback))
     return results[0]
+
 
 def get_analysis_xml(analysis_id, last_modified, short=False):
     """

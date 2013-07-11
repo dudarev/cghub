@@ -64,7 +64,7 @@ class Request(object):
 
         self._get_data()
 
-    def add_custom_fields(self, result):
+    def patch_result(self, result):
         """
         May be overridden to add some custom fields to results
         """
@@ -80,7 +80,7 @@ class Request(object):
         wsapi_request_logger.info(urllib2.unquote(url))
 
         def callback(value):
-            value = self.add_custom_fields(value)
+            value = self.patch_result(value)
             if self.callback:
                 self.callback(value)
             else:
