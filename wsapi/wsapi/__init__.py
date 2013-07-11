@@ -16,7 +16,5 @@ __license__ = 'New BSD'
 __copyright__ = 'Copyright 2013 CGHub UCSC'
 
 
-from .api import (
-    request_page, request_ids, request_details, item_details, item_xml)
-from .exceptions import (
-    RequestException, QueryRequired)
+from .api import Request
+from .exceptions import RequestException, QueryRequired

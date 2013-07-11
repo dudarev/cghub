@@ -14,6 +14,7 @@ COLUMN_NAMES = {
     'Barcode': 'legacy_sample_id',
     'Center': 'center_name',
     'Center Name': 'center_name',
+    #'Checksum': 'checksum',
     'Disease': 'disease_abbr',
     'Disease Name': 'disease_abbr',
     'Experiment Type': 'analyte_code',

@@ -26,7 +26,7 @@ DEFAULT_TESTING_CACHE_DIR = os.path.join(
 
 
 SETTINGS_DEFAULT = dict(
-    CGHUB_SERVER='https://stage.cghub.ucsc.edu/',
+    CGHUB_SERVER='https://192.35.223.223/',
     CGHUB_ANALYSIS_ID_URI='/cghub/metadata/analysisId',
     CGHUB_ANALYSIS_DETAIL_URI='/cghub/metadata/analysisDetail',
     CGHUB_ANALYSIS_FULL_URI='/cghub/metadata/analysisFull',

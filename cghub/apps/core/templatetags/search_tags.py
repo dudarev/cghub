@@ -296,12 +296,11 @@ def get_result_attr(result, attr):
 
 
 def field_values(result, humanize_files_size=True):
-    files_size = (
-                    get_result_attr(result, 'files_size')
-                    or get_result_attr(result, 'files')
-                    and get_result_attr(result, 'files')[0]['filesize'])
+    files_size = get_result_attr(result, 'files_size')
     if humanize_files_size:
         files_size = file_size(files_size)
+    # TODO(namvel): make it safe
+    # checksum = result['files'][0]['checksum']['#text']
     return {
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
@@ -309,6 +308,7 @@ def field_values(result, humanize_files_size=True):
         'Center Name': get_name_by_code(
             'center_name',
             get_result_attr(result, 'center_name')),
+        # 'Checksum': checksum,
         'Disease': get_result_attr(result, 'disease_abbr'),
         'Disease Name': get_name_by_code(
             'disease_abbr',
