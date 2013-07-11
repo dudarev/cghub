@@ -71,6 +71,14 @@ class Request(object):
         """
         return result
 
+    def _process_result(self, result):
+        if not self.only_ids:
+            result = dict(self.patch_result(result))
+        if self.callback:
+            self.callback(result)
+        else:
+            self.results.append(result)
+
     def _get_data(self):
         query = prepare_query(
                     query=self.query, offset=self.offset,
@@ -80,15 +88,7 @@ class Request(object):
                     self.uri, query)
         wsapi_request_logger.info(urllib2.unquote(url))
 
-        def callback(value):
-            if not self.only_ids:
-                value = self.patch_result(value)
-            if self.callback:
-                self.callback(value)
-            else:
-                self.results.append(value)
-
-        parser = self.parser_class(callback)
+        parser = self.parser_class(self._process_result)
         if self.with_xml:
             response = urlopen(
                         url, format='xml', settings=self.settings).read()
