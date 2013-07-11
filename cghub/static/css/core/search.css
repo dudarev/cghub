@@ -22,7 +22,9 @@
 .sort-link{display:block;}
 .search-query{color:#333 !important;}
 .data-table{visibility:hidden;}
-.flexigrid{width:100%;}.flexigrid div.bDiv{overflow-x:scroll !important;overflow-y:hidden !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
+.flexigrid{width:100%;}.flexigrid div.hDivBox span.up-triangle{display:inline-block;height:16px;width:16px;background-image:url('../../img/triangle-up.png');vertical-align:middle;}
+.flexigrid div.hDivBox span.down-triangle{display:inline-block;height:16px;width:16px;background-image:url('../../img/triangle-down.png');vertical-align:middle;}
+.flexigrid div.bDiv{overflow-x:scroll !important;overflow-y:hidden !important;}.flexigrid div.bDiv tr.trSelected td{background-color:#d5effc;}
 .flexigrid div.bDiv tr td.tdSelected{background-color:#ddddbb;}
 .flexigrid div.bDiv tr{cursor:pointer;}.flexigrid div.bDiv tr td:first-child{cursor:default;}
 .tooltip{position:fixed;display:none;max-width:250px;background:#F8F8C1;visibility:visible;padding:5px;font-size:12px;opacity:1;color:#000;padding:5px 6px 4px 10px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;border:1px solid #996;z-index:1110;}
