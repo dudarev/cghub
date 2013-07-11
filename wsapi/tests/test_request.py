@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import os.path
 
 from wsapi.api import Request
 
@@ -43,6 +44,12 @@ class RequestTest(unittest.TestCase):
         self.assertIn('analysis_id', result.xml)
         self.assertIn('analysis_xml', result.xml)
 
+    def test_request_from_file(self):
+        current_dir = os.path.dirname(__file__)
+        xml_file = open(os.path.join(
+                current_dir, 'test_data/analysisdetail.xml'), 'r')
+        result = Request(query=None, from_file=xml_file)
+        self.assertTrue(result.hits)
 
 if __name__ == '__main__':
     unittest.main()

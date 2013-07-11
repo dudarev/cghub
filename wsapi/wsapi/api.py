@@ -27,7 +27,7 @@ class Request(object):
     def __init__(
                 self, query, only_ids=False, full=False, with_xml=False,
                 offset=None, limit=None, sort_by=None, callback=None,
-                                                        settings={}):
+                                            from_file=None, settings={}):
         """
         :param query: a string with query to send to the server
         :param only_ids: boolean, only ids will be returned in result, will be used analysisId uri
@@ -37,9 +37,10 @@ class Request(object):
         :param limit: how many records output should have
         :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
         :param callback: callable, calls for every parsed result if specified (in this case self.results will be empty)
+        :param from_file: if specified, will be used as xml source (query will be ignored)
         :param settings: custom settings, see `wsapi.settings.py` for settings example
         """
-        if query is None:
+        if query is None and not from_file:
             raise QueryRequired
         if only_ids:
             self.parser_class = IDsParser
@@ -57,6 +58,7 @@ class Request(object):
         self.offset = offset
         self.sort_by = sort_by
         self.callback = callback
+        self.from_file = from_file
         self.settings = settings
 
         self.results = []
@@ -80,6 +82,14 @@ class Request(object):
             self.results.append(result)
 
     def _get_data(self):
+
+        parser = self.parser_class(self._process_result)
+
+        if self.from_file:
+            sax_parse(self.from_file, parser)
+            self.hits = parser.hits
+            return
+
         query = prepare_query(
                     query=self.query, offset=self.offset,
                     limit=self.limit, sort_by=self.sort_by)
@@ -88,7 +98,7 @@ class Request(object):
                     self.uri, query)
         wsapi_request_logger.info(urllib2.unquote(url))
 
-        parser = self.parser_class(self._process_result)
+        
         if self.with_xml:
             response = urlopen(
                         url, format='xml', settings=self.settings).read()

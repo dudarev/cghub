@@ -170,6 +170,20 @@ class CoreTestCase(TestCase):
             self.assertEqual(
                 response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
 
+    def test_custom_fields(self):
+        """
+        Test custom fields added in wsapi.Request.patch_result.
+        See cghub.apps.core.utils.WSAPIRequest.
+        """
+        analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
+        result = WSAPIRequest(
+                        query='analysis_id=%s' % analysis_id,
+                        settings=WSAPI_SETTINGS)
+        self.assertEqual(result.hits, 1)
+        result = result.results[0]
+        self.assertTrue(result['files_size'] + 1)
+        self.assertTrue(result['checksum'])
+
 
 class UtilsTestCase(TestCase):
     IDS_IN_CART = ["4b7c5c51-36d4-45a4-ae4d-0e8154e4f0c6",

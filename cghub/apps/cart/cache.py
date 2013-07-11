@@ -6,9 +6,6 @@ from xml.sax import parse as sax_parse
 
 from django.conf import settings
 
-# TODO(nanvel): Remove this import 
-from cghub.wsapi.parsers import AttributesParser
-
 from cghub.apps.core.utils import (
                             get_wsapi_settings, makedirs_group_write,
                             generate_tmp_file_name, WSAPIRequest)
@@ -182,8 +179,8 @@ def get_analysis(analysis_id, last_modified, short=False):
     def callback(value):
         results.append(value)
     with open(path, 'r') as f:
-        sax_parse(f, AttributesParser(callback))
-    return results[0]
+        result = WSAPIRequest(query=None, from_file=f)
+    return result.results[0]
 
 
 def get_analysis_xml(analysis_id, last_modified, short=False):

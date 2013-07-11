@@ -264,5 +264,10 @@ class WSAPIRequest(Request):
         for f in result['files']:
             files_size += f['filesize']
         result['files_size'] = files_size
+        # checksum
+        if result['files']:
+            result['checksum'] = result['files'][0]['checksum']['#text']
+        else:
+            result['checksum'] = None
         return result
     
