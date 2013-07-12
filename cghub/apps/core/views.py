@@ -25,7 +25,7 @@ from cghub.apps.core.attributes import ATTRIBUTES
 from .utils import (
                 get_filters_string, get_default_query, get_wsapi_settings,
                 paginator_params, is_celery_alive, WSAPIRequest)
-from .forms import BatchSearchForm
+from .forms import BatchSearchForm, AnalysisIDsForm
 
 
 DEFAULT_QUERY = get_default_query()
@@ -160,114 +160,123 @@ class BatchSearchView(TemplateView):
         form = BatchSearchForm()
         return self.render_to_response({'form': form})
 
-    def post(self, request, **kwargs):
-        form = BatchSearchForm(request.POST or None, request.FILES or None)
+    def search(self, submitted_ids, submitted_legacy_sample_ids):
+        """
+        Search by analysis_id and legacy_sample_id first.
+        Then if some ids were not found,
+        search them by sample_id, participant_id and aliquot_id.
+        """
         found = {}
-        unvalidated = []
-        submitted = 0
-        if form.is_valid():
-            text = request.POST.get('text')
-            submitted_ids = form.cleaned_data['ids']
-            submitted_legacy_sample_ids = form.cleaned_data['legacy_sample_ids']
-            # search by analysis_id and legacy_sample_id first
-            # and then if some ids were not found,
-            # search them by sample_id, participant_id and aliquot_id
-            ids = []
-            if submitted_ids:
-                query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(
+        ids = []
+        if submitted_ids:
+            query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
+            result = WSAPIRequest(
                         query=query,
                         only_ids=True,
                         settings=WSAPI_SETTINGS)
-                found['analysis_id'] = result.hits
-                ids = result.results
-                if result.hits != len(submitted_ids):
-                    # search them by sample_id
-                    query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
-                    result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
-                    found['sample_id'] = result.hits
-                    for id in result.results:
-                        if id not in ids:
-                            ids.append(id)
-                    # search by participant_id and aliquot_id
-                    query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
-                    result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
-                    found['participant_id'] = result.hits
-                    for id in result.results:
-                        if id not in ids:
-                            ids.append(id)
-                    # search by aliquot_id
-                    query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
-                    result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
-                    found['aliquot_id'] = result.hits
-                    for id in result.results:
-                        if id not in ids:
-                            ids.append(id)
-
-            if submitted_legacy_sample_ids:
-                query = 'legacy_sample_id=(%s)' % ' OR '.join(
-                                            submitted_legacy_sample_ids)
+            found['analysis_id'] = result.hits
+            ids = result.results
+            if result.hits != len(submitted_ids):
+                # search them by sample_id
+                query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
                 result = WSAPIRequest(
-                        query=query,
-                        only_ids=True,
-                        settings=WSAPI_SETTINGS)
-                found['legacy_sample_id'] = result.hits
+                            query=query,
+                            only_ids=True,
+                            settings=WSAPI_SETTINGS)
+                found['sample_id'] = result.hits
+                for id in result.results:
+                    if id not in ids:
+                        ids.append(id)
+                # search by participant_id and aliquot_id
+                query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
+                result = WSAPIRequest(
+                            query=query,
+                            only_ids=True,
+                            settings=WSAPI_SETTINGS)
+                found['participant_id'] = result.hits
+                for id in result.results:
+                    if id not in ids:
+                        ids.append(id)
+                # search by aliquot_id
+                query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
+                result = WSAPIRequest(
+                            query=query,
+                            only_ids=True,
+                            settings=WSAPI_SETTINGS)
+                found['aliquot_id'] = result.hits
                 for id in result.results:
                     if id not in ids:
                         ids.append(id)
 
-            # add files to cart
-            if ids and 'add_to_cart' in request.GET:
-                celery_alive = is_celery_alive()
+        if submitted_legacy_sample_ids:
+            query = 'legacy_sample_id=(%s)' % ' OR '.join(
+                                        submitted_legacy_sample_ids)
+            result = WSAPIRequest(
+                        query=query,
+                        only_ids=True,
+                        settings=WSAPI_SETTINGS)
+            found['legacy_sample_id'] = result.hits
+            for id in result.results:
+                if id not in ids:
+                    ids.append(id)
 
-                if 'cart' in request.session:
-                    cart = request.session['cart']
-                else:
-                    cart = {}
-                def callback(data):
-                    analysis_id = data['analysis_id']
-                    filtered_data = {}
-                    for attr in ATTRIBUTES:
-                        filtered_data[attr] = data.get(attr)
-                    cart[analysis_id] = filtered_data
-                    last_modified = data['last_modified']
-                    if not is_cart_cache_exists(analysis_id, last_modified):
-                        cache_file(analysis_id, last_modified, celery_alive)
+        return ids, found
 
-                part = 0
-                for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
-                    query = 'analysis_id=(%s)' % ' OR '.join(
-                            ids[part : part + settings.MAX_ITEMS_IN_QUERY])
-                    result = WSAPIRequest(
-                        query=query, callback=callback, settings=WSAPI_SETTINGS)
+    def post(self, request, **kwargs):
+        if 'ids' in request.POST:
+            form = AnalysisIDsForm(request.POST)
+            if form.is_valid():
+                ids = form.cleaned_data['ids']
+            else:
+                ids = []
 
-                request.session['cart'] = cart
+            celery_alive = is_celery_alive()
 
-                return HttpResponseRedirect(reverse('cart_page'))
+            if 'cart' in request.session:
+                cart = request.session['cart']
+            else:
+                cart = {}
 
-            unvalidated = form.cleaned_data.get('unvalidated_ids')
-            submitted = (
-                    len(form.cleaned_data.get('ids')) +
-                    len(form.cleaned_data.get('legacy_sample_ids')) +
-                    len(unvalidated))
+            def callback(data):
+                analysis_id = data['analysis_id']
+                filtered_data = {}
+                for attr in ATTRIBUTES:
+                    filtered_data[attr] = data.get(attr)
+                cart[analysis_id] = filtered_data
+                last_modified = data['last_modified']
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                    cache_file(analysis_id, last_modified, celery_alive)
 
-            # show ids list in textarea even if they were submitted as file
-            form = BatchSearchForm(initial={
-                    'text': '\n'.join(form.cleaned_data['raw_ids'])})
+            part = 0
+            for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
+                query = 'analysis_id=(%s)' % ' OR '.join(
+                        ids[part : part + settings.MAX_ITEMS_IN_QUERY])
+                result = WSAPIRequest(
+                    query=query, callback=callback, settings=WSAPI_SETTINGS)
 
-        return self.render_to_response({
-                    'form': form, 'found': found,
-                    'submitted': submitted,
-                    'unvalidated': unvalidated})
+            request.session['cart'] = cart
+
+            return HttpResponseRedirect(reverse('cart_page'))
+
+        else:
+            form = BatchSearchForm(request.POST or None, request.FILES or None)
+            if form.is_valid():
+                submitted_ids = form.cleaned_data['ids']
+                submitted_legacy_sample_ids = form.cleaned_data['legacy_sample_ids']
+                unvalidated = form.cleaned_data.get('unvalidated_ids')
+                submitted = (
+                        len(form.cleaned_data.get('ids')) +
+                        len(form.cleaned_data.get('legacy_sample_ids')) +
+                        len(unvalidated))
+
+                ids, found = self.search(submitted_ids, submitted_legacy_sample_ids)
+
+                return self.render_to_response({
+                        'form': form, 'found': found, 'ids': ids,
+                        'submitted': submitted,
+                        'unvalidated': unvalidated})
+            return self.render_to_response({
+                        'form': form, 'found': None})
 
 
 class ItemDetailsView(TemplateView):

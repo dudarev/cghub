@@ -35,7 +35,7 @@ from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
                     WSAPIRequest)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
-from ..forms import BatchSearchForm
+from ..forms import BatchSearchForm, AnalysisIDsForm
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
@@ -603,25 +603,24 @@ class BatchSearchTestCase(TestCase):
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Found by analysis_id: 2')
-        # ok, adding files to cart (with newline delimiter)
+        # ok, adding files to cart
+        ids = response.content
+        ids = ids[ids.find('<textarea'):ids.find('</textarea>')]
+        ids = ids[ids.find('>') + 1:]
         create_session(self)
-        data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 \n'
-            '00007994-abeb-4b16-a6ad-7230300a29e9'}
-        response = self.client.post(
-                '%s?add_to_cart=true' % reverse('batch_search_page'), data)
+        data = {'ids': ids}
+        response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)
-        # skip not existing and add
+
+    def test_analysis_ids_form(self):
         data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
+            'ids': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
             '00007994-abeb-4b16-a6ad-7230300a29e9 '
             'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
-        self.client.session['cart'] = {}
-        response = self.client.post(
-                '%s?add_to_cart=true' % reverse('batch_search_page'), data)
-        self.assertRedirects(response, reverse('cart_page'))
-        self.assertEqual(len(self.client.session['cart']), 2)
+        form = AnalysisIDsForm(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.cleaned_data['ids']), 3)
 
 
 class SearchViewPaginationTestCase(TestCase):

@@ -31,41 +31,11 @@
 <h1>Batch search</h1>
 </div>
 
-<form method="POST" action="." enctype="multipart/form-data">
-    {% csrf_token %}
-    {% if form.non_field_errors %}
-        <div class="alert alert-error">
-            {{ form.non_field_errors }}
-        </div>
-    {% endif %}
-    <label for="id_text">List of ids:</label>
-    {{ form.text }}
-    <label for="id_upload">Or select file:</label>
-    {{ form.upload }}
+{% if submitted %}
+    {% include 'core/batch_search_result.html' %}
+{% else %}
+    {% include 'core/batch_search_form.html' %}
+{% endif %}
 
-    <div class="batch-submit">
-        <button type="submit" class="btn">Search and show results</button>
-        <button type="submit" class="btn" onclick="$(this).parents('form').attr('action', '?add_to_cart=true')">Search and add items to cart</button>
-    </div>
-
-    {% if found %}
-        <h2>Results:</h2>
-        <ul>
-            <li>Submitted ids: {{ submitted }}</li>
-            <li>ids with wrong format: {{ unvalidated|length }}</li>
-            {% for name, count in found.items %}
-                <li>Found by {{ name }}: {{ count }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    {% if unvalidated %}
-        <h2>Identifiers with wrong format:</h2>
-        <ul>
-        {% for id in unvalidated %}
-            <li>{{ id }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-</form>
 </div>
 {% endblock %}

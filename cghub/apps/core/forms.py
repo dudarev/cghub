@@ -65,3 +65,33 @@ class BatchSearchForm(forms.Form):
         data['unvalidated_ids'] = unvalidated_ids
 
         return data
+
+
+class AnalysisIDsForm(forms.Form):
+    ids = forms.CharField(
+                    widget=forms.Textarea,
+                    label='Space separated list of analysis ids')
+
+    def clean(self):
+        data = self.cleaned_data
+        ids = data.get('ids')
+
+        if not ids or ids.isspace():
+            raise forms.ValidationError('No analysis_ids found')
+
+        id_pattern = re.compile(
+                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
+                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
+
+        cleaned_ids = []
+
+        for i in ids.split():
+            id = i.strip()
+            if not id:
+                continue
+            if id_pattern.match(id) and id not in cleaned_ids:
+                cleaned_ids.append(id)
+
+        data['ids'] = cleaned_ids
+
+        return data
