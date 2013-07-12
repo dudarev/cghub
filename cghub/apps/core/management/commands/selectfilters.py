@@ -22,10 +22,10 @@ def get_all_filters(key, start='', count_all=None):
     count = 0
     for c in CHARACTERS:
         query = '%s=%s%s*' % (key, start, c)
-        print 'Searching [%s]' % query
+        self.stdout.write('Searching [%s]' % query)
         result = WSAPIRequest(
                 query=query, limit=5, sort_by=key, settings=WSAPI_SETTINGS)
-        print '- Found %d' % result.hits
+        self.stdout.write('- Found %d' % result.hits)
         count += result.hits
         if result.hits:
             filters.append(result.results[0][key])
