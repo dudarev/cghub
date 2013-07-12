@@ -243,6 +243,7 @@ Next custom fields were added:
 
     - files_size
     - checksum
+    - filename
 
 See ``cghub/apps/core/utils.py``.
 
@@ -262,6 +263,8 @@ See ``cghub/apps/core/utils.py``.
             # checksum
             if result['files']:
                 result['checksum'] = result['files'][0]['checksum']['#text']
+                result['filename'] = result['files'][0]['filename']
             else:
                 result['checksum'] = None
+                result['filename'] = None
             return result

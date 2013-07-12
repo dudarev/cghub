@@ -1,7 +1,4 @@
-import os
-import pickle
-import urllib
-from optparse import make_option
+import string
 
 try:
     from collections import OrderedDict
@@ -11,136 +8,115 @@ except ImportError:
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
 
-from cghub.wsapi import WSAPIRequest
-
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
-from cghub.apps.core.utils import get_wsapi_settings
+from cghub.apps.core.utils import get_wsapi_settings, WSAPIRequest
 
 
-FILTERS_USED_FILE_NAME = os.path.join(
-                            os.path.dirname(__file__),
-                            '../../is_filter_used.pkl')
-
-# FIXME: markd believes this works around slow queries and should be
-# dropped when speedup is done.
-DATE_RANGES = [
-    'upload_date=[NOW-1DAY%20TO%20NOW]',
-    'upload_date=[NOW-7DAY%20TO%20NOW]',
-    'upload_date=[NOW-1MONTH%20TO%20NOW]',
-    'upload_date=[NOW-2MONTH%20TO%20NOW]',
-    'upload_date=[NOW-3MONTH%20TO%20NOW]',
-    'upload_date=[NOW-6MONTH%20TO%20NOW]',
-    'upload_date=[NOW-12MONTH%20TO%20NOW]',
-    'upload_date=[NOW-24MONTH%20TO%20NOW]',
-    'upload_date=[NOW-48MONTH%20TO%20NOW]',
-    '',
-]
+CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
+WSAPI_SETTINGS = get_wsapi_settings()
 
 
-def save_checked(is_filter_used):
-    """
-    Saves filters for which it is already checked if they exist.
-    """
-    f = open(FILTERS_USED_FILE_NAME, 'w')
-    pickle.dump(is_filter_used, f)
-    f.close()
-
-
-def load_checked():
-    """
-    Loads already checked filters.
-    """
-    if os.path.exists(FILTERS_USED_FILE_NAME):
-        f = open(FILTERS_USED_FILE_NAME, 'r')
-        return pickle.load(f)
-    else:
-        return {}
-
-
-def format_dict(d, tab=4 * ' ', padding=''):
-    isOrderedDict = isinstance(d, OrderedDict)
-    if isOrderedDict:
-        s = ['OrderedDict([\n']
-    else:
-        s = ['{\n']
-    for k, v in d.items():
-        if isinstance(v, dict) or isinstance(v, OrderedDict):
-            v = format_dict(v, tab, padding=padding + tab)
-        else:
-            v = repr(v)
-        if isOrderedDict:
-            s.append('%s(%r, %s),\n' % (padding + tab, k, v))
-        else:
-            s.append('%s%r: %s,\n' % (padding + tab, k, v))
-    if isOrderedDict:
-        s.append('%s])' % padding)
-    else:
-        s.append('%s}' % padding)
-    return ''.join(s)
+def get_all_filters(key, start='', count_all=None):
+    filters = []
+    count = 0
+    for c in CHARACTERS:
+        query = '%s=%s%s*' % (key, start, c)
+        print 'Searching [%s]' % query
+        result = WSAPIRequest(
+                query=query, limit=5, sort_by=key, settings=WSAPI_SETTINGS)
+        print '- Found %d' % result.hits
+        count += result.hits
+        if result.hits:
+            filters.append(result.results[0][key])
+            if count_all and count_all == count:
+                return filters
+            result = WSAPIRequest(
+                    query=query, limit=5, sort_by='-%s' % key,
+                    settings=WSAPI_SETTINGS)
+            # if some other filters which starts from start+c exists
+            if result.results[0][key] not in filters:
+                for f in get_all_filters(
+                            key=key, start='%s%s' % (start, c),
+                            count_all=result.hits):
+                    if f not in filters:
+                        filters.append(f)
+    return filters
 
 
 class Command(BaseCommand):
     help = 'Check what filters are used.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '-c',
-            action='store_true',
-            dest='clean',
-            default=False,
-            help='cleans previously pickled checked filters'),
-    )
-
-    # FIXME: exceeds max sane function length, break into more functions
     def handle(self, *args, **options):
-        self.stdout.write('Checking filters\n')
-        if options['clean']:
-            is_filter_used = {}
-        else:
-            is_filter_used = load_checked()
 
-        # populate dict is_filter_used
-        # { (filter_name, filter_value): True/False }
+        self.stdout.write('Checking filters\n')
+
+        used_filters = {}
+        unused_filters = {}
+        new_filters = {}
+
         for key in ALL_FILTERS:
             if not ALL_FILTERS[key].get('selectFilter', True):
                 continue
-            self.stdout.write(key)
-            self.stdout.write('\n')
+
+            # get all results count
+            result = WSAPIRequest(
+                    query='%s=*' % key, limit=5, only_ids=True,
+                    settings=WSAPI_SETTINGS)
+            count_all = result.hits
+
+            self.stdout.write('Checking %s filters\n' % key)
+
+            used_filters[key] = []
+            unused_filters[key] = []
+            new_filters[key] = []
+            count = 0
+
             for filter in ALL_FILTERS[key]['filters']:
-                self.stdout.write('  %s\n' % filter)
-                if (key, filter) in is_filter_used:
-                    self.stdout.write('this filter is already checked, is_used: %s\n' %
-                                      is_filter_used[(key, filter)])
+                self.stdout.write('- Filter %s ... ' % filter)
+                result = WSAPIRequest(
+                            query='%s=%s' % (key, filter), limit=5,
+                            only_ids=True, settings=WSAPI_SETTINGS)
+                count += result.hits
+                if result.hits:
+                    self.stdout.write('added\n')
+                    used_filters[key].append(filter)
                 else:
-                    self.stdout.write('checking filter\n')
-                    is_filter_used[(key, filter)] = False
-                    for date in DATE_RANGES:
-                        query = '%s=(%s)&%s' % (key, urllib.quote(filter), date)
-                        self.stdout.write('query: %s\n' % query)
-                        result = WSAPIReuest(
-                                    query=query, offset=0, limit=10,
-                                    settings=get_wsapi_settings())
-                        if result.hits:
-                            is_filter_used[(key, filter)] = True
-                            break
-                    self.stdout.write('is_used: %s\n' %
-                                      is_filter_used[(key, filter)])
-                    save_checked(is_filter_used)
-                self.stdout.write('\n')
+                    self.stdout.write('removed\n')
+                    unused_filters[key].append(filter)
+            if count < count_all:
+                self.stdout.write(
+                        'Some other filters for %s exists (%d from %d).\n' % (
+                                        key, count_all - count, count_all))
+                self.stdout.write('Searching for other filters ...\n')
+                new_filters[key] = list(
+                        set(get_all_filters(key, count_all=count_all)) -
+                        set(used_filters[key]))
 
         # delete those filters that are not used
+        self.stdout.write('Removing those filters that are not used ...\n')
         for key in ALL_FILTERS:
-            if ALL_FILTERS[key].get('selectFilter', True):
-                self.stdout.write(key)
-                self.stdout.write('\n')
-                for filter in ALL_FILTERS[key]['filters']:
-                    if not is_filter_used[(key, filter)]:
-                        self.stdout.write('  deleting %s\n' % filter)
-                        del ALL_FILTERS[key]['filters'][filter]
+            if not ALL_FILTERS[key].get('selectFilter', True):
+                continue
+            for filter in unused_filters[key]:
+                del ALL_FILTERS[key]['filters'][filter]
+                self.stdout.write('- Removed %s:%s\n' % (key, filter))
 
-        # write needed filters to json-file
+        # add new filters that are not present in filters_storage_full.py
+        self.stdout.write('Adding new filters ...\n')
+        for key in ALL_FILTERS:
+            if not ALL_FILTERS[key].get('selectFilter', True):
+                continue
+            for filter in new_filters[key]:
+                ALL_FILTERS[key]['filters'][filter] = filter
+                self.stdout.write('- Added new filter %s:%s\n' % (key, filter))
+                self.stdout.write('! Please add this filter to filters_storage_full.py')
+            # sorting by key
+            ALL_FILTERS[key]['filters'] = OrderedDict(
+                            sorted(ALL_FILTERS[key]['filters'].items()))
+
+        # write filters found to filters_storage.json
         json_filters = open(JSON_FILTERS_FILE_NAME, 'w')
         json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], json_filters, indent=2)
         json_filters.close()
-        self.stdout.write('\n\nFile %s is created\n' % JSON_FILTERS_FILE_NAME)
+        self.stdout.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)

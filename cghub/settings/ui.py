@@ -65,10 +65,10 @@ function obtains value and should return new value, for example:
 
 COLUMN_STYLES = {
     'Analysis Id': {
-        'width': 220, 'align': 'left', 'default_state': 'visible',
+        'width': 250, 'align': 'left', 'default_state': 'visible',
         },
     'Assembly': {
-        'width': 120, 'align': 'left', 'default_state': 'visible',
+        'width': 170, 'align': 'left', 'default_state': 'visible',
         },
     'Barcode': {
         'width': 235, 'align': 'left', 'default_state': 'visible',
@@ -77,10 +77,10 @@ COLUMN_STYLES = {
         'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Center Name': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden',
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
     'Checksum': {
-        'width': 200, 'align': 'left', 'default_state': 'hidden',
+        'width': 250, 'align': 'left', 'default_state': 'hidden',
         },
     'Disease': {
         'width': 65, 'align': 'left', 'default_state': 'visible',
@@ -90,6 +90,9 @@ COLUMN_STYLES = {
         },
     'Experiment Type': {
         'width': 95, 'align': 'left', 'default_state': 'hidden',
+        },
+    'Filename': {
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
     'Files Size': {
         'width': 75, 'align': 'right', 'default_state': 'visible',
@@ -107,7 +110,7 @@ COLUMN_STYLES = {
         'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Accession': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden',
+        'width': 120, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Type': {
         'width': 75, 'align': 'left', 'default_state': 'visible',
@@ -138,11 +141,12 @@ TABLE_COLUMNS = (
     'Library Type',
     'Center',
     'Center Name',
-    'Checksum',
     'Platform',
     'Platform Name',
     'Assembly',
+    'Filename',
     'Files Size',
+    'Checksum',
     'Analysis Id',
     'Sample Accession',
     'Uploaded',
@@ -165,6 +169,7 @@ DETAILS_FIELDS = (
     'Platform',
     'Platform Name',
     'Assembly',
+    'Filename',
     'Files Size',
     'Analysis Id',
     'Sample Accession',
