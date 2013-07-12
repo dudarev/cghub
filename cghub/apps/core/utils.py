@@ -267,7 +267,9 @@ class WSAPIRequest(Request):
         # checksum
         if result['files']:
             result['checksum'] = result['files'][0]['checksum']['#text']
+            result['filename'] = result['files'][0]['filename']
         else:
             result['checksum'] = None
+            result['filename'] = None
         return result
     

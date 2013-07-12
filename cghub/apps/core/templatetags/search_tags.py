@@ -314,6 +314,7 @@ def field_values(result, humanize_files_size=True):
         'Experiment Type': get_name_by_code(
             'analyte_code',
             get_result_attr(result, 'analyte_code')),
+        'Filename': get_result_attr(result, 'filename'),
         'Files Size': files_size,
         'Modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),

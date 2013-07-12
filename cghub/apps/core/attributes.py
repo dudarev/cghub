@@ -18,6 +18,7 @@ COLUMN_NAMES = {
     'Disease': 'disease_abbr',
     'Disease Name': 'disease_abbr',
     'Experiment Type': 'analyte_code',
+    'Filename': 'filename',
     'Files Size': 'files_size',
     'Library Type': 'library_strategy',
     'Modified': 'last_modified',
