@@ -1,0 +1,16 @@
+<form method="POST" action="." enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+    <label for="id_text">List of ids:</label>
+    {{ form.text }}
+    <label for="id_upload">Or select file:</label>
+    {{ form.upload }}
+
+    <div class="batch-submit">
+        <button type="submit" class="btn">Search</button>
+    </div>
+</form>
