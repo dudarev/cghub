@@ -102,6 +102,13 @@ module.exports = function (grunt) {
                     jsStaticFolder + 'table.js'],
                 dest:jsStaticFolder + 'core/search.min.js'
             },
+            core_batch_search:{
+                src:cssStaticFolder + 'core/batch_search.js',
+                dest:cssStaticFolder + 'core/batch_search.min.js',
+                options:{
+                    compress:true
+                }
+            },
             flexigrid:{
                 src:[jsStaticFolder + 'libs/flexigrid.js',
                     jsStaticFolder + 'libs/bootstrap-contextmenu.js'],

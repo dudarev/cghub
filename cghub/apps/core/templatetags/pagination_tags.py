@@ -1,5 +1,6 @@
 from django import template
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from cghub.apps.core.utils import paginator_params
 
@@ -54,6 +55,10 @@ class Paginator(object):
         get_copy = request.GET.copy()
         offset_limit = paginator_params(request)
 
+        if 'limit' in get_copy:
+            del get_copy['limit']
+        if 'offset' in get_copy:
+            del get_copy['offset']
         if len(get_copy.keys()) > 0:
             getvars = '{0}'.format(get_copy.urlencode())
         else:
@@ -61,7 +66,7 @@ class Paginator(object):
         # patch for the home page where sort_by=-last_modified 
         # is enabled and should remain
         # on other paginated pages
-        if request.path == u'/':
+        if request.path == reverse('home_page'):
             getvars += '&sort_by=-last_modified'
         return getvars
 

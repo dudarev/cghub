@@ -31,11 +31,21 @@
 <h1>Batch search</h1>
 </div>
 
-{% if submitted %}
+{% if ids %}
     {% include 'core/batch_search_result.html' %}
 {% else %}
     {% include 'core/batch_search_form.html' %}
 {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_body_js %}
+    {% if debug %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/batch_search.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/table.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/batch_search.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/table.min.js"></script>
+    {% endif %}
 {% endblock %}
