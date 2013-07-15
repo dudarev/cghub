@@ -16,10 +16,23 @@
             Skip to Navigation bar
         </a>
     </li>
+    {% if found %}
     <li>
-        <a href="#id_text" tabindex="2">
+        <a href="#batch-search-summary" tabindex="2">
+            Skip to results summary
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        {% if ids %}
+        <a href="#id-check-all-checkbox" tabindex="3">
+            Skip to results table
+        </a>
+        {% else %}
+        <a href="#id_text" tabindex="3">
             Skip to batch form
         </a>
+        {% endif %}
     </li>
 </ul>
 {% endblock %}

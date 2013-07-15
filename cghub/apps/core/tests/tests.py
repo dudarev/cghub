@@ -578,14 +578,14 @@ class BatchSearchTestCase(TestCase):
         form = BatchSearchForm({})
         self.assertFalse(form.is_valid())
         # test unsuported format
-        form = BatchSearchForm({'text': 'somebadids'})
+        form = BatchSearchForm({
+                'text': 'somebadids 00007994-abeb-4b16-a6ad-7230300a29e9'})
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 1)
         # unsupported file format
-        f = SimpleUploadedFile(name='ids.csv', content='badcontent')
-        orm = BatchSearchForm({}, {'upload': f})
-        self.assertTrue(form.is_valid())
-        self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 1)
+        f = SimpleUploadedFile(name='ids.csv', content='badcontent ')
+        form = BatchSearchForm({}, {'upload': f})
+        self.assertFalse(form.is_valid())
 
     def test_batch_search_view(self):
         response = self.client.get(reverse('batch_search_page'))
@@ -594,7 +594,7 @@ class BatchSearchTestCase(TestCase):
         data = {'text': 'badtext'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Identifiers with wrong format')
+        self.assertContains(response, 'No valid ids was found')
         # submit not existed analysis_id
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
@@ -608,7 +608,7 @@ class BatchSearchTestCase(TestCase):
         ids = ids[ids.find('<textarea'):ids.find('</textarea>')]
         ids = ids[ids.find('>') + 1:]
         create_session(self)
-        data = {'ids': ids}
+        data = {'ids': ids, 'add_to_cart': 'true'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)

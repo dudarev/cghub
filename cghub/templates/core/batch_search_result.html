@@ -2,7 +2,7 @@
 {% load pagination_tags %}
 
 {% if found %}
-<ul>
+<ul id="batch-search-summary" tabindex="31">
     <li>Submitted ids: {{ submitted }}</li>
         {% for name, count in found.items %}
         <li>Found by {{ name }}: {{ count }}</li>
@@ -18,7 +18,7 @@
 
 <form method="POST" action="{% url batch_search_page %}">
     {% csrf_token %}
-    <textarea name="ids" class="js-ids-storage" style="display: none;">{{ ids|join:' ' }}</textarea>
+    <textarea name="ids" class="js-ids-storage" style="display: none;" tabindex="-1">{{ ids|join:' ' }}</textarea>
     <input type="hidden" name="add_to_cart" value="">
 
     <div class="btn-toolbar">

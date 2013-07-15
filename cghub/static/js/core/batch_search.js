@@ -36,6 +36,10 @@ jQuery(function ($) {
             var $data_table = $('.bDiv table');
             $data_table.wrap($('<fieldset/>'));
             $data_table.parent().prepend($('<legend class="hidden">Select files to remove from:</legend>'));
+            /* disable sorting */
+            $('.sort-link').attr('title', '').attr('href', '#').on('click', function() {
+                return false;
+            });
         },
         removeIDs:function () {
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked'),
