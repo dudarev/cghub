@@ -1,24 +1,56 @@
-<h2>Results:</h2>
-<ul>
+{% load search_tags %}
+{% load pagination_tags %}
+
+{% if found %}
+<ul id="batch-search-summary" tabindex="31">
     <li>Submitted ids: {{ submitted }}</li>
-    <li>ids with wrong format: {{ unvalidated|length }}</li>
-    {% for name, count in found.items %}
+        {% for name, count in found.items %}
         <li>Found by {{ name }}: {{ count }}</li>
-    {% endfor %}
+        {% endfor %}
+    {% if unvalidated %}
+    <li>
+        Identifiers with wrong format ({{ unvalidated|length }}):
+        <div class="ids-not-found">{% for id in unvalidated %}{{ id }} {% endfor %}</div>
+    </li>
+    {% endif %}
 </ul>
-{% if unvalidated %}
-<h2>Identifiers with wrong format:</h2>
-    <ul>
-    {% for id in unvalidated %}
-        <li>{{ id }}</li>
-    {% endfor %}
-    </ul>
 {% endif %}
 
-<form method="POST" action="." enctype="multipart/form-data">
+<form method="POST" action="{% url batch_search_page %}">
     {% csrf_token %}
-    <textarea name="ids" style="display: none;">{{ ids|join:' ' }}</textarea>
-    <div class="batch-submit">
-        <button type="submit" class="btn">Add {{ ids|length }} items to cart</button>
+    <textarea name="ids" class="js-ids-storage" style="display: none;" tabindex="-1">{{ ids|join:' ' }}</textarea>
+    <input type="hidden" name="add_to_cart" value="">
+
+    <div class="btn-toolbar">
+        <div class="cart-btn-group">
+            <button class="btn ids-remove">Remove selected items</button>
+            <button class="btn ids-add-to-cart">Add {{ ids|length }} items to cart</button>
+        </div>
+    </div>
+
+    {% items_per_page request 10 25 50 %}
+
+    <div class="column-select-label">
+        <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
+            Columns:
+        </label>
+    </div>
+    <select id="id-columns-selector" class="column-select" title="Select columns to display in results area" multiple>
+        <option value="(Toggle all)">(Toggle all)</option>
+    </select>
+
+    {% include 'data_table.html' %}
+
+    {% items_per_page request 10 25 50 %}
+
+    {% with num_results=ids|length %}
+        {% pagination %}
+    {% endwith %}
+
+    <div class="btn-toolbar">
+        <div class="cart-btn-group">
+            <button class="btn ids-remove">Remove selected items</button>
+            <button class="btn ids-add-to-cart">Add {{ ids|length }} items to cart</button>
+        </div>
     </div>
 </form>

@@ -29,8 +29,25 @@
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 div.btn-toolbar .btn{margin:0 6px 0 0;}
-.batch-search-content{margin-left:40px;}.batch-search-content h1{line-height:1;}
+.ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
+span.ui-dropdownchecklist-text{padding-top:1px;}
+.ui-dropdownchecklist-selector-wrapper{margin-bottom:5px;}
+.ui-dropdownchecklist-item>input[type="checkbox"],.ui-dropdownchecklist-item>input[type="radio"]{float:left;margin-right:2px;margin-left:2px;}
+.ui-dropdownchecklist-item{padding-top:3px;}
+.ui-dropdownchecklist-dropcontainer{height:auto !important;}
+.ui-dropdownchecklist-dropcontainer-wrapper{margin-top:-5px;}
+.ui-state-hover,.ui-state-active{background-color:white;cursor:pointer;}
+.ui-dropdownchecklist-close{text-align:center !important;}
+.column-select{display:none;}
+.column-select-label{float:left;height:25px;padding-top:3px;}
+.column-select-label>label{margin-right:5px;}
+.sidebar .filter-label{font-weight:bold;margin-bottom:0;font-size:13px;}
+.items-per-page-label{float:left;height:25px;margin-right:25px;padding-top:3px;}
+.batch-search-content{margin-left:50px;margin-bottom:50px;}.batch-search-content h1{line-height:1;}
 .batch-search-content h2{line-height:1.5;font-size:16px;}
-.batch-search-content form{padding-right:10px;}.batch-search-content form textarea{width:100%;font-family:"Lucida Console",Monaco,monospace;}
+.batch-search-content .cart-btn-group{padding-bottom:15px;}
+.batch-search-content ul{margin:0;}.batch-search-content ul li{margin:0;padding:0;list-style:none;}
+.batch-search-content .ids-not-found{width:100%;font-family:"Lucida Console",Monaco,monospace;font-size:13px;}
+.batch-search-content form{margin-top:30px;padding-right:10px;}.batch-search-content form textarea{width:100%;font-family:"Lucida Console",Monaco,monospace;}
 .batch-search-content form .batch-submit{margin:20px 0;}.batch-search-content form .batch-submit button{margin-right:15px;}
 .batch-search-content form .alert ul{margin:0;}.batch-search-content form .alert ul li{list-style:none;}

@@ -16,10 +16,23 @@
             Skip to Navigation bar
         </a>
     </li>
+    {% if found %}
     <li>
-        <a href="#id_text" tabindex="2">
+        <a href="#batch-search-summary" tabindex="2">
+            Skip to results summary
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        {% if ids %}
+        <a href="#id-check-all-checkbox" tabindex="3">
+            Skip to results table
+        </a>
+        {% else %}
+        <a href="#id_text" tabindex="3">
             Skip to batch form
         </a>
+        {% endif %}
     </li>
 </ul>
 {% endblock %}
@@ -31,11 +44,21 @@
 <h1>Batch search</h1>
 </div>
 
-{% if submitted %}
+{% if ids %}
     {% include 'core/batch_search_result.html' %}
 {% else %}
     {% include 'core/batch_search_form.html' %}
 {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_body_js %}
+    {% if debug %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/batch_search.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/table.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/core/batch_search.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/table.min.js"></script>
+    {% endif %}
 {% endblock %}

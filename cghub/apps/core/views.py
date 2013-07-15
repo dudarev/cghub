@@ -16,7 +16,7 @@ from django.template import loader, Context
 
 from cghub.wsapi import browser_text_search
 
-from cghub.apps.cart.utils import metadata
+from cghub.apps.cart.utils import metadata, load_missing_attributes
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import cache_file
 
@@ -228,37 +228,56 @@ class BatchSearchView(TemplateView):
             if form.is_valid():
                 ids = form.cleaned_data['ids']
             else:
-                ids = []
+                return HttpResponseRedirect(reverse('batch_search_page'))
 
-            celery_alive = is_celery_alive()
+            if request.POST.get('add_to_cart'):
+                celery_alive = is_celery_alive()
 
-            if 'cart' in request.session:
-                cart = request.session['cart']
+                if 'cart' in request.session:
+                    cart = request.session['cart']
+                else:
+                    cart = {}
+
+                def callback(data):
+                    analysis_id = data['analysis_id']
+                    filtered_data = {}
+                    for attr in ATTRIBUTES:
+                        filtered_data[attr] = data.get(attr)
+                    cart[analysis_id] = filtered_data
+                    last_modified = data['last_modified']
+                    if not is_cart_cache_exists(analysis_id, last_modified):
+                        cache_file(analysis_id, last_modified, celery_alive)
+
+                part = 0
+                for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
+                    query = 'analysis_id=(%s)' % ' OR '.join(
+                            ids[part : part + settings.MAX_ITEMS_IN_QUERY])
+                    result = WSAPIRequest(
+                                query=query, callback=callback,
+                                settings=WSAPI_SETTINGS)
+
+                request.session['cart'] = cart
+
+                return HttpResponseRedirect(reverse('cart_page'))
             else:
-                cart = {}
+                ids = sorted(ids)
+                results = []
+                try:
+                    offset = int(request.GET.get('offset', 0))
+                    limit = int(request.GET.get(
+                            'limit', settings.DEFAULT_PAGINATOR_LIMIT))
+                except ValueError:
+                    offset = 0
+                    limit = settings.DEFAULT_PAGINATOR_LIMIT
+                for i in ids[offset:(offset + limit)]:
+                    results.append({'analysis_id': i})
+                results = load_missing_attributes(results)
 
-            def callback(data):
-                analysis_id = data['analysis_id']
-                filtered_data = {}
-                for attr in ATTRIBUTES:
-                    filtered_data[attr] = data.get(attr)
-                cart[analysis_id] = filtered_data
-                last_modified = data['last_modified']
-                if not is_cart_cache_exists(analysis_id, last_modified):
-                    cache_file(analysis_id, last_modified, celery_alive)
-
-            part = 0
-            for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
-                query = 'analysis_id=(%s)' % ' OR '.join(
-                        ids[part : part + settings.MAX_ITEMS_IN_QUERY])
-                result = WSAPIRequest(
-                    query=query, callback=callback, settings=WSAPI_SETTINGS)
-
-            request.session['cart'] = cart
-
-            return HttpResponseRedirect(reverse('cart_page'))
-
+                return self.render_to_response({
+                        'form': form, 'ids': ids,
+                        'results': results})
         else:
+            # submitted search form
             form = BatchSearchForm(request.POST or None, request.FILES or None)
             if form.is_valid():
                 submitted_ids = form.cleaned_data['ids']
@@ -271,9 +290,15 @@ class BatchSearchView(TemplateView):
 
                 ids, found = self.search(submitted_ids, submitted_legacy_sample_ids)
 
+                ids = sorted(ids)
+                results = []
+                for i in ids[:settings.DEFAULT_PAGINATOR_LIMIT]:
+                    results.append({'analysis_id': i})
+                results = load_missing_attributes(results)
+
                 return self.render_to_response({
                         'form': form, 'found': found, 'ids': ids,
-                        'submitted': submitted,
+                        'submitted': submitted, 'results': results,
                         'unvalidated': unvalidated})
             return self.render_to_response({
                         'form': form, 'found': None})
