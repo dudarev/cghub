@@ -15,13 +15,18 @@ jQuery(function ($) {
         cacheElements:function () {
             cghub.batch_search.$searchTable = $('table.data-table');
             cghub.batch_search.$removeBtn = $('.ids-remove');
+            cghub.batch_search.$addToCartBtn = $('.ids-add-to-cart');
+            cghub.batch_search.$addToCartInput = $('input[name=add_to_cart]');
             cghub.batch_search.$idsStorage = $('.js-ids-storage');
             cghub.batch_search.$paginationLinks = $('.pagination li a');
             cghub.batch_search.$form = $('form');
+            cghub.batch_search.$items_per_page_links = $('.items-per-page-label a');
         },
         bindEvents:function () {
             cghub.batch_search.$removeBtn.on('click', cghub.batch_search.removeIDs);
             cghub.batch_search.$paginationLinks.on('click', cghub.batch_search.goToPage);
+            cghub.batch_search.$items_per_page_links.on('click', cghub.batch_search.goToPage);
+            cghub.batch_search.$addToCartBtn.on('click', cghub.batch_search.addToCart);
         },
         initFlexigrid:function () {
             cghub.batch_search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
@@ -51,7 +56,10 @@ jQuery(function ($) {
             var action = $(this).attr('href');
             cghub.batch_search.$form.attr('action', action).submit();
             return false;
-        }
+        },
+        addToCart:function () {
+            cghub.batch_search.$addToCartInput.val('true');
+        },
     };
     cghub.batch_search.init();
 });

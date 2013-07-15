@@ -1,23 +1,19 @@
 {% load search_tags %}
 {% load pagination_tags %}
 
-<h2>Results:</h2>
 {% if found %}
 <ul>
     <li>Submitted ids: {{ submitted }}</li>
-    <li>ids with wrong format: {{ unvalidated|length }}</li>
         {% for name, count in found.items %}
         <li>Found by {{ name }}: {{ count }}</li>
         {% endfor %}
-    </ul>
     {% if unvalidated %}
-    <h2>Identifiers with wrong format:</h2>
-        <ul>
-        {% for id in unvalidated %}
-        <li>{{ id }}</li>
-        {% endfor %}
-    </ul>
+    <li>
+        Identifiers with wrong format ({{ unvalidated|length }}):
+        <div class="ids-not-found">{% for id in unvalidated %}{{ id }} {% endfor %}</div>
+    </li>
     {% endif %}
+</ul>
 {% endif %}
 
 <form method="POST" action="{% url batch_search_page %}">
