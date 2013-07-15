@@ -228,7 +228,7 @@ class BatchSearchView(TemplateView):
             if form.is_valid():
                 ids = form.cleaned_data['ids']
             else:
-                ids = []
+                return HttpResponseRedirect(reverse('batch_search_page'))
 
             if request.POST.get('add_to_cart'):
                 celery_alive = is_celery_alive()

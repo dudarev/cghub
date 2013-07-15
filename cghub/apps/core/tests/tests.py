@@ -612,6 +612,10 @@ class BatchSearchTestCase(TestCase):
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
         self.assertEqual(len(self.client.session['cart']), 2)
+        # redirect to batch_search_page if all items were deleted
+        data = {'ids': ''}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertRedirects(response, reverse('batch_search_page'))
 
     def test_analysis_ids_form(self):
         data = {
