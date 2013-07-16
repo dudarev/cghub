@@ -158,7 +158,7 @@
           "filter_id": "id_date_year"
         }
       }, 
-      "title": "By Upload Time"
+      "title": "By Upload Date"
     }, 
     "last_modified": {
       "filters": {
@@ -183,7 +183,7 @@
           "filter_name": "Last 12 months"
         }
       }, 
-      "title": "By Time Modified"
+      "title": "By Modification Date"
     }, 
     "state": {
       "filters": {
