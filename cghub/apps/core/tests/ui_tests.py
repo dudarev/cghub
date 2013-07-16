@@ -314,12 +314,12 @@ class SidebarTestCase(LiveServerTestCase):
 
     def test_select_date(self):
         """
-        1. Open 'By Time Modified' filter
+        1. Open 'By Modification Date' filter
         2. Select 'Any date' option
         3. Check that other options unchecked
         4. Click on 'Today' option
         5. Check that other unchecked
-        6. Open 'By Upload Time' filter
+        6. Open 'By Upload Date' filter
         7. Go To 2
         """
         with self.settings(**TEST_SETTINGS):
@@ -327,7 +327,7 @@ class SidebarTestCase(LiveServerTestCase):
             driver.get(self.live_server_url)
             driver.find_element_by_css_selector("span.ui-dropdownchecklist-text").click()
 
-            # Open 'By Time Modified' filter
+            # Open 'By Modification Date' filter
             driver.find_element_by_xpath(
                 "//span[@id='ddcl-id-last_modified']/span/span").click()
 
@@ -349,7 +349,7 @@ class SidebarTestCase(LiveServerTestCase):
                     rb = driver.find_element_by_id("ddcl-id-last_modified-i{0}".format(i))
                     self.assertFalse(rb.is_selected())
 
-            # open 'By Upload Time' filter
+            # open 'By Upload Date' filter
             driver.find_element_by_xpath(
                 "//span[@id='ddcl-id-upload_date']/span/span").click()
 
@@ -556,7 +556,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
 
     def test_custom_upload_date(self):
         """
-        1. Open 'By Upload Time' filter
+        1. Open 'By Upload Date' filter
         2. Click on 'Custom period' button
         3. Check that custom period popup visible
         4. Click 'Cancel', check that popup closed
@@ -569,7 +569,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            # scroll to 'By Upload Time' filter
+            # scroll to 'By Upload Date' filter
             scroll_page_to_filter(driver, 'upload_date')
 
             # check popup displayed and cancel button works
@@ -597,7 +597,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
 
     def test_custom_last_modified(self):
         """
-        1. Open 'By Time Modified' filter
+        1. Open 'By Modification Date' filter
         2. Click on 'Custom period' button
         3. Select period
         4. Clcik 'Submit'
@@ -606,7 +606,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
-            # scroll to 'By Time Modified' filter
+            # scroll to 'By Modification Date' filter
             scroll_page_to_filter(driver, 'last_modified')
 
             dates = self.TEST_DATES[0]

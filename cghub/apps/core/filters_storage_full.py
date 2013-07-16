@@ -249,7 +249,7 @@ ALL_FILTERS = OrderedDict([
         "selectFilter": False,
     }),
     ('upload_date', {
-        'title': 'By Upload Time',
+        'title': 'By Upload Date',
         'filters': OrderedDict([
             ('', {
                 'filter_id': 'id_date_any',
@@ -275,7 +275,7 @@ ALL_FILTERS = OrderedDict([
         "selectFilter": False,
     }),
     ("last_modified", {
-        "title": "By Modification Time",
+        "title": "By Modification Date",
         "filters": OrderedDict([
             ("", {
                 'filter_name': "Any date",
