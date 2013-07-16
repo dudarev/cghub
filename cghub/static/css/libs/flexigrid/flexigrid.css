@@ -229,7 +229,18 @@
 
 /* end toolbar*/
 .flexigrid div.hDiv {
+    /* cghub ticket:339 */
 	background: #fafafa url(images/fhbg.gif) repeat-x bottom;
+    /* Safari 4-5, Chrome 1-9 */
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eee), to(#fff));
+    /* Safari 5.1, Chrome 10+ */
+    background: -webkit-linear-gradient(top, #fff, #eee); 
+    /* Firefox 3.6+ */
+    background: -moz-linear-gradient(top, #fff, #eee);
+    /* IE 10 */
+    background: -ms-linear-gradient(top, #fff, #eee);
+    /* Opera 11.10+ */
+    background: -o-linear-gradient(top, #fff, #eee);
 	position: relative;
 	border: 1px solid #ccc;
 	border-bottom: 0px;
@@ -360,7 +371,8 @@
 	font-weight: normal;
 	height: 24px;
 	cursor: default;
-	white-space: nowrap;
+    /* cghub ticket:339 */
+	white-space: normal;
 	overflow: hidden;
 }
 
@@ -378,14 +390,12 @@ div.colCopy {
 	border-bottom: 0px solid #ccc;
 }
 
-.flexigrid div.hDiv th.thOver {
-	
+.flexigrid div.hDiv th {
+    border-bottom: 1px solid #eee;
 }
 
-.flexigrid div.hDiv th.thOver div,.flexigrid div.hDiv th.sorted.thOver div
-	{
-	border-bottom: 1px solid orange;
-	padding-bottom: 4px;
+.flexigrid div.hDiv th.thOver {
+    border-bottom: 1px solid orange;
 }
 
 .flexigrid div.hDiv th.sorted div {

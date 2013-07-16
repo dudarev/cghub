@@ -33,7 +33,7 @@
 .flexigrid div.fbutton span{float:left;display:block;padding:3px;}
 .flexigrid div.fbutton:hover,.flexigrid div.fbutton.fbOver{padding:0px;border:1px solid #ccc;}
 .flexigrid div.fbutton:hover div,.flexigrid div.fbutton.fbOver div{padding:0px 2px;border-left:1px solid #fff;border-top:1px solid #fff;border-right:1px solid #eee;border-bottom:1px solid #eee;}
-.flexigrid div.hDiv{background:#fafafa url(images/fhbg.gif) repeat-x bottom;position:relative;border:1px solid #ccc;border-bottom:0px;overflow:hidden;}
+.flexigrid div.hDiv{background:#fafafa url(images/fhbg.gif) repeat-x bottom;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#eeeeee), to(#ffffff));background:-webkit-linear-gradient(top, #ffffff, #eeeeee);background:-moz-linear-gradient(top, #ffffff, #eeeeee);background:-ms-linear-gradient(top, #ffffff, #eeeeee);background:-o-linear-gradient(top, #ffffff, #eeeeee);position:relative;border:1px solid #ccc;border-bottom:0px;overflow:hidden;}
 .flexigrid div.hDiv table{border-right:1px solid #fff;}
 @-moz-document url-prefix(){.flexigrid div.hDiv table{margin-left:-1px;}}.flexigrid div.cDrag{float:left;position:absolute;z-index:2;overflow:visible;}
 .flexigrid div.cDrag div{float:left;background:none;display:block;position:absolute;height:24px;width:5px;cursor:col-resize;}
@@ -49,10 +49,11 @@
 .flexigrid div.vGrip span{display:block;margin:1px auto;width:20px;height:1px;overflow:hidden;border-top:1px solid #aaa;border-bottom:1px solid #aaa;background:none;}
 .flexigrid div.hDiv th,.flexigrid div.bDiv td{text-align:left;border-right:1px solid #ddd;border-left:1px solid #fff;overflow:hidden;vertical-align:top !important;padding-left:0;padding-right:0;}
 .flexigrid div.hDiv th div,.flexigrid div.bDiv td div,div.colCopy div{padding:5px;border-left:0px solid #fff;}
-.flexigrid div.hDiv th,div.colCopy{font-weight:normal;height:24px;cursor:default;white-space:nowrap;overflow:hidden;}
+.flexigrid div.hDiv th,div.colCopy{font-weight:normal;height:24px;cursor:default;white-space:normal;overflow:hidden;}
 div.colCopy{font-family:Arial,Helvetica,sans-serif;font-size:11px;background:#fafafa url(images/fhbg.gif) repeat-x bottom;border:1px solid #ccc;border-bottom:0px;overflow:hidden;}
 .flexigrid div.hDiv th.sorted{background:url(images/wbg.gif) repeat-x 0px -1px;border-bottom:0px solid #ccc;}
-.flexigrid div.hDiv th.thOver div,.flexigrid div.hDiv th.sorted.thOver div{border-bottom:1px solid orange;padding-bottom:4px;}
+.flexigrid div.hDiv th{border-bottom:1px solid #eee;}
+.flexigrid div.hDiv th.thOver{border-bottom:1px solid orange;}
 .flexigrid div.hDiv th.sorted div{border-bottom:0px solid #ccc;padding-bottom:5px;}
 .flexigrid div.hDiv th.thMove{background:#fff;color:#fff;}
 .flexigrid div.hDiv th.sorted.thMove div{border-bottom:1px solid #fff;padding-bottom:4px;}
