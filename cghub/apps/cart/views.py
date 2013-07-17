@@ -114,11 +114,6 @@ def cart_add_all_files(request, celery_alive):
                                         'session_key': request.session.session_key},
                             task_id=task_id)
                 except TaskState.DoesNotExist:
-                    # files will be added later by celery task
-                    task = TaskState(
-                                state=states.RETRY, tstamp=timezone.now(),
-                                task_id=task_id)
-                    task.save()
                     add_files_to_cart_by_query_task.apply_async(
                             kwargs={
                                     'queries': queries,
