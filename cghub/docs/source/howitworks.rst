@@ -152,22 +152,26 @@ Adding selected files to cart
 -----------------------------
 
 The following sequence of actions are performing:
-    - when user click on 'Add to cart', attributes values for selected files that stored in table transmitted
-    - obtained attributes are saved to cart (stored in Session)
-    - if file not in cache yet, will be created task to cache it
+    - when user click on 'Add to cart' button, attributes values for selected items that stored in table transmitted
+    - obtained items data saves to cart (stored in Session)
+    - if cart cache file for some of added items not exists yet, will be created task to create it.
 
 Adding all files to cart
 ------------------------
 
 Here are next sequence of actions:
-    - when user click 'Add all to cart', transmitted only current query
+    - when user click 'Add all to cart' button, current query will be sended to server
     - if amount of files to add to cart will be more then ``settings.MANY_FILES``, will be shown confirmation popup for confirming the number
-    - all ids for specified query will be added to cart immediately (uses the same wsapi cache as used for displaying results on search page - same query and sort_by. If cache file was not found, will search other files with same query(but with different sort_by) in cache, if file still be not found, it will be downloaded)
-    - then will be created task to obtain all attributes for specified query and fill cart
-    - will be checked that every file exists in cache, if not - will be created task to cache it
-    - task id transmitted back to user and saves into cookies
-    - js script will check task status periodically untill it will be success or fails. In case when task fails, will be shown popup with error message
-    - when user opens cart page and attributes for some files will be not loaded yet, missed attributes for current page will be loaded immediately and will be shown alert
+    - all ids for specified query will be added to cart immediately (for example, cart content will be extended by: {'000f332c-7fd9-4515-bf5f-9b77db43a3fd': {'analysis_id': '000f332c-7fd9-4515-bf5f-9b77db43a3fd'}, '0009cf7a-c9a8-4551-80f6-71d58af6ab72': {'analysis_id': '0009cf7a-c9a8-4551-80f6-71d58af6ab72'}, ...}). It takes much less time than obtaining all data.
+    - when id adds to cart, will be checked is cart cache file exists for this item. If not - will be created task to add cart cache for this item.
+    - if user opens cart page when it contains only ids, data for this certain page will be downloaded from server and displayed
+    - after ids added to cart, will be created task to obtain full data for specified query and fill cart by all necessary attributes (for example, '000f332c-7fd9-4515-bf5f-9b77db43a3fd': {'analysis_id': '000f332c-7fd9-4515-bf5f-9b77db43a3fd'} should become '000f332c-7fd9-4515-bf5f-9b77db43a3fd': {'analysis_id': '000f332c-7fd9-4515-bf5f-9b77db43a3fd', 'satte': 'live', 'study': 'phs000178', ...}). Adding more data to cart performs by callback function that calls every time when an entire result is obtained by sax parser from cghub server. So, no intermediate data stored.
+    - this task id is returned back to user in response and saved into cookies
+    - js script will checks task status periodically until it will become success or fails. In case when task fails, will be shown popup with error message, otherwise task id will be removed from cookies (if current page is cart page, it will be reloaded)
+
+Task ids for obtaining all data to add to cart calculates from query and session key. This implemented to restrict executing the same tasks by one user. Before adding new task, we checks is this task was created before. If task exists, but it already done (task.state not in (states.RECEIVED, states.STARTED)) we reexecute task (change task.status to states.RETRY before), else, if task not done yet, we redirect user to cart page with no action. If task not exists, we create it.
+
+Cart data is stored in user session. Session saves to database if it was changed every time when response returned by server. But in django view for adding files to cart we manage session manually: create it if it not exists and save. This decision become because of we need to have current session id to give it to task, but session, if it was not exist before, we'll obtain it unique id only after django view code will be executed.
 
 Default ``settings.MANY_FILES`` located in ``cghub/settings/variables.py``.
 
