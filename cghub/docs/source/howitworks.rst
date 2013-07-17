@@ -171,6 +171,10 @@ Here are next sequence of actions:
 
 Task ids for obtaining all data to add to cart calculates from query and session key. This implemented to restrict executing the same tasks by one user. Before adding new task, we checks is this task was created before. If task exists, but it already done (task.state not in (states.RECEIVED, states.STARTED)) we reexecute task (change task.status to states.RETRY before), else, if task not done yet, we redirect user to cart page with no action. If task not exists, we create it.
 
+Manual tasks ids generating also necessary because of it allows to obtain task.id and save it to session before task will be created (and possible launched).
+
+Task ids for saving files to cart cache creates in same manner. It is necessary to avoid duplicating tasks to obtain files for the same item.
+
 Cart data is stored in user session. Session saves to database if it was changed every time when response returned by server. But in django view for adding files to cart we manage session manually: create it if it not exists and save. This decision become because of we need to have current session id to give it to task, but session, if it was not exist before, we'll obtain it unique id only after django view code will be executed.
 
 Default ``settings.MANY_FILES`` located in ``cghub/settings/variables.py``.
