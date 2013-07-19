@@ -8,7 +8,6 @@
 
 # BROKER_URL = "amqp://user:password@host:port/vhost"
 
-# WSAPI_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/wsapi'
 # CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
 
 # # logging settings, example of using SysLogHandler
