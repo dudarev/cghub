@@ -6,6 +6,7 @@ from .cache import TIME_CHECK_CART_CACHE_INTERVAL,  TIME_CHECK_API_CACHE_INTERVA
 djcelery.setup_loader()
 
 CELERY_IMPORTS = (
+    "cghub.apps.core.tasks",
     "cghub.apps.cart.tasks",
     )
 
