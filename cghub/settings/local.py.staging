@@ -1,4 +1,3 @@
 BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
 
-WSAPI_CACHE_DIR = '/tmp/wsapi/'
 CART_CACHE_DIR = '/tmp/cart/'

@@ -5,5 +5,4 @@ DATABASES = {
         }
 }
 
-WSAPI_CACHE_DIR = '/tmp/cart/'
-CART_CACHE_DIR = WSAPI_CACHE_DIR
+CART_CACHE_DIR = '/tmp/cart/'
