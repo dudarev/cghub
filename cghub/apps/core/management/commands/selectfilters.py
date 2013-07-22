@@ -17,15 +17,15 @@ CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
 WSAPI_SETTINGS = get_wsapi_settings()
 
 
-def get_all_filters(key, start='', count_all=None):
+def get_all_filters(stdout, key, start='', count_all=None):
     filters = []
     count = 0
     for c in CHARACTERS:
         query = '%s=%s%s*' % (key, start, c)
-        self.stdout.write('Searching [%s]' % query)
+        stdout.write('Searching [%s]' % query)
         result = WSAPIRequest(
                 query=query, limit=5, sort_by=key, settings=WSAPI_SETTINGS)
-        self.stdout.write('- Found %d' % result.hits)
+        stdout.write('- Found %d\n' % result.hits)
         count += result.hits
         if result.hits:
             filters.append(result.results[0][key])
@@ -37,7 +37,8 @@ def get_all_filters(key, start='', count_all=None):
             # if some other filters which starts from start+c exists
             if result.results[0][key] not in filters:
                 for f in get_all_filters(
-                            key=key, start='%s%s' % (start, c),
+                            stdout=stdout, key=key,
+                            start='%s%s' % (start, c),
                             count_all=result.hits):
                     if f not in filters:
                         filters.append(f)
@@ -90,7 +91,9 @@ class Command(BaseCommand):
                                         key, count_all - count, count_all))
                 self.stdout.write('Searching for other filters ...\n')
                 new_filters[key] = list(
-                        set(get_all_filters(key, count_all=count_all)) -
+                        set(get_all_filters(
+                                stdout=self.stdout,
+                                key=key, count_all=count_all)) -
                         set(used_filters[key]))
 
         # delete those filters that are not used
