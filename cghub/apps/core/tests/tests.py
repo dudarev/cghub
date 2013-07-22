@@ -8,12 +8,14 @@ from urllib2 import URLError
 from mock import patch
 from djcelery.models import TaskState
 from celery import states
+from StringIO import StringIO
 
 from django.conf import settings
 from django.utils import simplejson as json
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
@@ -551,6 +553,16 @@ class TemplateTagsTestCase(TestCase):
         """
         self.assertEqual(get_sample_type_by_code('07', 'shortcut'), 'TAM')
         self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
+
+
+class ManagementTestCase(TestCase):
+
+    def test_celery_status(self):
+        # is_celery_alive is True while testing
+        result = StringIO()
+        call_command('celerystatus', stdout=result)
+        result.seek(0)
+        self.assertIn('Result was not saved to TaskState table', result.read())
 
 
 class BatchSearchTestCase(TestCase):
