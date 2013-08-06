@@ -2,17 +2,13 @@ import os.path
 import sys
 
 from urllib2 import URLError
-from xml.sax import parse as sax_parse
 
 from django.conf import settings
 
 from cghub.apps.core.utils import (
-                            makedirs_group_write,
-                            generate_tmp_file_name, WSAPIRequest)
+                            makedirs_group_write, generate_tmp_file_name,
+                            RequestFull, ResultFromFile)
 
-
-# use wsapi cache when testing
-USE_WSAPI_CACHE = 'test' in sys.argv
 
 RESULT_START = '<Result id="1">'
 RESULT_STOP = '</Result>'
@@ -101,9 +97,8 @@ def save_to_cart_cache(analysis_id, last_modified):
     path_short = os.path.join(path, 'analysisShort.xml')
     if not (os.path.exists(path_full) and os.path.exists(path_short)):
         try:
-            result = WSAPIRequest(
-                            query='analysis_id=%s' % analysis_id,
-                            full=True, with_xml=True)
+            api_request = RequestFull(query={'analysis_id': analysis_id})
+            result = api_request[0]
             xml = result.xml
             # remove some attributes in short_xml
             attributes_to_remove = (
@@ -121,7 +116,7 @@ def save_to_cart_cache(analysis_id, last_modified):
                         stop = xml_short.find('</%s>' % attr, start)
                     if start != -1 and stop != -1:
                         xml_short = xml_short[:start] + xml_short[stop + len(attr) + 3:]
-        except URLError:
+        except URLError, IndexError:
             raise AnalysisFileException(
                     analysis_id,
                     last_modified,
@@ -176,8 +171,8 @@ def get_analysis(analysis_id, last_modified, short=False):
     def callback(value):
         results.append(value)
     with open(path, 'r') as f:
-        result = WSAPIRequest(query=None, from_file=f)
-    return result.results[0]
+        api_request = ResultFromFile(query={'filename': f})
+    return api_request[0]
 
 
 def get_analysis_xml(analysis_id, last_modified, short=False):

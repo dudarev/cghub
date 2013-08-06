@@ -17,8 +17,8 @@ from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (
                     is_celery_alive, generate_task_id,
-                    get_filters_string, is_task_done, paginator_params,
-                    WSAPIRequest)
+                    get_filters_dict, is_task_done, paginator_params,
+                    RequestIDs)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.wsapi import browser_text_search
@@ -63,32 +63,30 @@ def cart_add_all_files(request, celery_alive):
     if form.is_valid():
         try:
             # calculate query
-            filters = form.cleaned_data['filters']
-            filter_str = get_filters_string(filters)
-            q = filters.get('q')
+            raw_filters = form.cleaned_data['filters']
+            filters = get_filters_dict(raw_filters)
+            q = raw_filters.get('q')
             queries = []
             if q:
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
                 if browser_text_search.useAllMetadataIndex:
-                    query = u"all_metadata={0}".format(
-                            browser_text_search.ws_query(q)) + filter_str
+                    query = {'all_metadata': browser_text_search.ws_query(q) + filter_str}
                     queries = [query]
                 else:
-                    query = u"xml_text={0}".format(u"("+q+u")")
-                    query += filter_str
-                    queries = [query, u"analysis_id={0}".format(q)]
+                    query = {'xml_text': u"(%s)" % q}
+                    query.update(filters)
+                    queries = [query, {'analysis_id': q}]
             if len(queries) > 1:
                 for query in queries:
-                    result = WSAPIRequest(query=query)
+                    result = RequestDetail(query=query)
                     add_files_to_cart(request, result.results)
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
             if not queries:
-                # remove front ampersand
-                queries = [filter_str[1:]]
+                queries = [filters]
             # add ids to cart
-            result = WSAPIRequest(query=queries[0], only_ids=True)
-            add_ids_to_cart(request, result.results)
+            api_request = RequestIDs(query=queries[0])
+            add_ids_to_cart(request, api_request.call())
             # add all attributes in task
             if celery_alive:
                 # check task is already exists

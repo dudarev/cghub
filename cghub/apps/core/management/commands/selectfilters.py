@@ -10,7 +10,7 @@ from django.utils import simplejson as json
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
-from cghub.apps.core.utils import WSAPIRequest
+from cghub.apps.core.utils import RequestDetail, RequestIDs
 
 
 CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
@@ -20,22 +20,30 @@ def get_all_filters(stdout, key, start='', count_all=None):
     filters = []
     count = 0
     for c in CHARACTERS:
-        query = '%s=%s%s*' % (key, start, c)
+        query = {key: '%s%s*' % (start, c)}
         stdout.write('Searching [%s]' % query)
-        result = WSAPIRequest(query=query, limit=5, sort_by=key)
+        api_request = RequestDetail(query=query, limit=5, sort_by=key)
         stdout.write('- Found %d\n' % result.hits)
-        count += result.hits
-        if result.hits:
-            filters.append(result.results[0][key])
+        try:
+            result = api_request.call()[0]
+        except IndexError:
+            pass
+        count += api_request.hits
+        if api_request.hits:
+            filters.append(result[key].text)
             if count_all and count_all == count:
                 return filters
-            result = WSAPIRequest(query=query, limit=5, sort_by='-%s' % key)
+            api_request = RequestDetail(query=query, limit=5, sort_by='-%s' % key)
+            try:
+                result = api_request.call()[0]
+            except IndexError:
+                result = None
             # if some other filters which starts from start+c exists
-            if result.results[0][key] not in filters:
+            if result and result[key].text not in filters:
                 for f in get_all_filters(
                             stdout=stdout, key=key,
                             start='%s%s' % (start, c),
-                            count_all=result.hits):
+                            count_all=api_request.hits):
                     if f not in filters:
                         filters.append(f)
     return filters
@@ -57,8 +65,13 @@ class Command(BaseCommand):
                 continue
 
             # get all results count
-            result = WSAPIRequest(query='%s=*' % key, limit=5, only_ids=True)
-            count_all = result.hits
+            api_request = RequestIDs(query={key: '*'}, limit=5)
+            try:
+                result = api_request.call()[0]
+            except IndexError:
+                pass
+
+            count_all = api_request.hits
 
             self.stdout.write('Checking %s filters\n' % key)
 
@@ -69,11 +82,13 @@ class Command(BaseCommand):
 
             for filter in ALL_FILTERS[key]['filters']:
                 self.stdout.write('- Filter %s ... ' % filter)
-                result = WSAPIRequest(
-                            query='%s=%s' % (key, filter),
-                            limit=5, only_ids=True)
-                count += result.hits
-                if result.hits:
+                api_request = RequestIDs(query={key: filter}, limit=5)
+                try:
+                    result = api_request.call()[0]
+                except IndexError:
+                    pass
+                count += api_request.hits
+                if api_request.hits:
                     self.stdout.write('added\n')
                     used_filters[key].append(filter)
                 else:

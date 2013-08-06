@@ -15,13 +15,11 @@ from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (
-                                generate_task_id,
-                                xml_add_spaces, WSAPIRequest)
+                                generate_task_id, xml_add_spaces,
+                                RequestDetail)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.apps.cart.cache import (
-                                AnalysisFileException, get_analysis,
-                                get_analysis_xml)
+from .cache import AnalysisFileException, get_analysis, get_analysis_xml
 
 
 cart_logger = logging.getLogger('cart')
@@ -127,15 +125,14 @@ def load_missing_attributes(files):
         if len(f) == 1:
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
-        query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        result = WSAPIRequest(query=query)
-        if result.hits != 0:
-            for result in result.results:
-                for f in files:
-                    if f['analysis_id'] == result['analysis_id']:
-                        for attr in ATTRIBUTES:
-                            f[attr] = result.get(attr)
-                        break
+        query = {'analysis_id': [files_to_upload])
+        api_request = RequestDetail(query=query)
+        for result in api_request.call():
+            for f in files:
+                if f['analysis_id'] == result.analysis_id.text:
+                    for attr in ATTRIBUTES:
+                        f[attr] = result[attr].text
+                    break
     return files
 
 

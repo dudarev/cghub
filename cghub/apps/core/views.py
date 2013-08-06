@@ -23,8 +23,9 @@ from cghub.apps.cart.tasks import cache_file
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from .utils import (
-                get_filters_string, get_default_query,
-                paginator_params, is_celery_alive, WSAPIRequest)
+                get_filters_dict, get_default_query,
+                paginator_params, is_celery_alive, RequestDetail,
+                RequestIDs, RequestFull)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 
@@ -35,14 +36,15 @@ core_logger = logging.getLogger('core')
 
 def query_from_get(data):
     q = data.get('q')
-    filter_str = get_filters_string(data)
+    filters = get_filters_dict(data)
     if q:
         # FIXME: temporary hack to work around GNOS not quoting Solr query
         if browser_text_search.useAllMetadataIndex:
-            return u"all_metadata={0}".format(browser_text_search.ws_query(q)) + filter_str
+            return {'all_metadata': browser_text_search.ws_query(q) + filter_str}
         else:
-            return u"xml_text={0}".format(u"("+q+u")") + filter_str
-    return filter_str[1:]  # remove front ampersand
+            filters.update({'xml_text': '(%s)' % q})
+            return filters
+    return filters
 
 
 class AjaxView(View):
@@ -71,12 +73,14 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         offset, limit = paginator_params(self.request)
-        result = WSAPIRequest(
-                            query=self.query, sort_by=DEFAULT_SORT_BY,
-                            limit=limit)
-        context['num_results'] = result.hits
-        context['results'] = result.results
-        if result.hits == 0:
+        api_request = RequestDetail(
+                    query=self.query, sort_by=DEFAULT_SORT_BY, limit=limit)
+        results = []
+        for result in api_request.call():
+            results.append(result)
+        context['num_results'] = api_request.hits
+        context['results'] = results
+        if api_request.hits == 0:
             context['message'] = 'No results found.'
         return context
 
@@ -111,18 +115,21 @@ class SearchView(TemplateView):
         for offset in (offset, 0):
             if 'xml_text' in query:
                 # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
-                queries_list = [query, u"analysis_id={0}".format(q)]
+                queries_list = [query, {'analysis_id': q}]
                 # FIXME: need to handle queries_list properly
-                result = WSAPIRequest(
+                api_request = RequestDetail(
                         query=queries_list[0], sort_by=sort_by,
                         offset=offset, limit=limit)
             else:
-                result = WSAPIRequest(
-                            query=query, sort_by=sort_by, offset=offset,
-                            limit=limit)
-            context['num_results'] = result.hits
-            context['results'] = result.results
-            if result.hits != 0:
+                api_request = RequestDetail(
+                        query=query, sort_by=sort_by, offset=offset,
+                        limit=limit)
+            results = []
+            for result in api_request.call():
+                results.append(result)
+            context['num_results'] = api_request.hits
+            context['results'] = results
+            if api_request.hits != 0:
                 break
 
         if context['num_results'] == 0:
@@ -132,7 +139,7 @@ class SearchView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         # set default query if no query specified
-        if not get_filters_string(request.GET) and not 'q' in request.GET:
+        if not get_filters_dict(request.GET) and not 'q' in request.GET:
             return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
         return super(SearchView, self).dispatch(request, *args, **kwargs)
 
@@ -168,41 +175,46 @@ class BatchSearchView(TemplateView):
         found = {}
         ids = []
         if submitted_ids:
-            query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
-            result = WSAPIRequest(query=query, only_ids=True)
-            found['analysis_id'] = result.hits
-            ids = result.results
-            if result.hits != len(submitted_ids):
+            query = {'analysis_id': submitted_ids}
+            api_request = RequestIDs(query=query)
+            ids = []
+            for result in api_request.call():
+                ids.append(result.analysis_id.text)
+            found['analysis_id'] = api_request.hits
+            if api_request.hits != len(submitted_ids):
                 # search them by sample_id
-                query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(query=query, only_ids=True)
-                found['sample_id'] = result.hits
-                for id in result.results:
-                    if id not in ids:
-                        ids.append(id)
+                query = {'sample_id': submitted_ids}
+                api_request = RequestIDs(query=query)
+                for result in api_request.call():
+                    analysis_id = result.analysis_id.text
+                    if analysis_id not in ids:
+                        ids.append(analysis_id)
+                found['sample_id'] = api_request.hits
                 # search by participant_id and aliquot_id
-                query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(query=query, only_ids=True)
-                found['participant_id'] = result.hits
-                for id in result.results:
-                    if id not in ids:
-                        ids.append(id)
+                query = {'participant_id':  submitted_ids}
+                api_request = RequestIDs(query=query)
+                for result in api_request.call():
+                    analysis_id = result.analysis_id.text
+                    if analysis_id not in ids:
+                        ids.append(analysis_id)
+                found['participant_id'] = api_request.hits
                 # search by aliquot_id
-                query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(query=query, only_ids=True)
-                found['aliquot_id'] = result.hits
-                for id in result.results:
-                    if id not in ids:
-                        ids.append(id)
+                query = {'aliquot_id': submitted_ids}
+                api_request = RequestIDs(query=query)
+                for result in api_request.call():
+                    analysis_id = result.analysis_id.text
+                    if analysis_id not in ids:
+                        ids.append(analysis_id)
+                found['aliquot_id'] = api_request.hits
 
         if submitted_legacy_sample_ids:
-            query = 'legacy_sample_id=(%s)' % ' OR '.join(
-                                        submitted_legacy_sample_ids)
-            result = WSAPIRequest(query=query, only_ids=True)
-            found['legacy_sample_id'] = result.hits
-            for id in result.results:
-                if id not in ids:
-                    ids.append(id)
+            query = {'legacy_sample_id': submitted_legacy_sample_ids}
+            api_request = RequestIDs(query=query)
+            for result in api_request.call():
+                analysis_id = result.analysis_id.text
+                if analysis_id not in ids:
+                    ids.append(analysis_id)
+            found['legacy_sample_id'] = api_request.hits
 
         return ids, found
 
@@ -222,21 +234,19 @@ class BatchSearchView(TemplateView):
                 else:
                     cart = {}
 
-                def callback(data):
-                    analysis_id = data['analysis_id']
-                    filtered_data = {}
-                    for attr in ATTRIBUTES:
-                        filtered_data[attr] = data.get(attr)
-                    cart[analysis_id] = filtered_data
-                    last_modified = data['last_modified']
-                    if not is_cart_cache_exists(analysis_id, last_modified):
-                        cache_file(analysis_id, last_modified, celery_alive)
-
                 part = 0
                 for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
-                    query = 'analysis_id=(%s)' % ' OR '.join(
-                            ids[part : part + settings.MAX_ITEMS_IN_QUERY])
-                    result = WSAPIRequest(query=query, callback=callback)
+                    query = {'analysis_id': ids[part : part + settings.MAX_ITEMS_IN_QUERY]}
+                    api_request = RequestDetail(query=query)
+                    for result in api_request.call():
+                        analysis_id = result.analysis_id
+                        filtered_data = {}
+                        for attr in ATTRIBUTES:
+                            filtered_data[attr] = result[attr]
+                        cart[analysis_id] = filtered_data
+                        last_modified = result.last_modified
+                        if not is_cart_cache_exists(analysis_id, last_modified):
+                            cache_file(analysis_id, last_modified, celery_alive)
 
                 request.session['cart'] = cart
 
@@ -292,16 +302,17 @@ class ItemDetailsView(TemplateView):
     ajax_template_name = 'core/details_table.html'
 
     def get_context_data(self, **kwargs):
-        result = WSAPIRequest(
-                    query='analysis_id=%s' % kwargs['analysis_id'],
-                    with_xml=True, full=True)
-        if result.hits:
+        api_request = RequestFull(query={'analysis_id': kwargs['analysis_id']})
+        try:
+            result = api_request.call()[0]
             xml = result.xml
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
             return {
-                'res': result.results[0],
+                'res': result,
                 'raw_xml': repr(xml.replace(' id="1"', '')),
                 'analysis_id': kwargs['analysis_id']}
+        except IndexError:
+            pass
         return {'res': None}
 
     def get_template_names(self):

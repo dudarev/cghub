@@ -1,5 +1,5 @@
 import sys
-import urllib
+import urllib2
 import traceback
 import hashlib
 import os
@@ -20,15 +20,12 @@ from cghub.apps.core.attributes import DATE_ATTRIBUTES
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
 
 
-def get_filters_string(attributes):
-    filter_str = ''
+def get_filters_dict(attributes):
+    filters_dict = ''
     for attr in ALLOWED_ATTRIBUTES:
         if attributes.get(attr):
-                filter_str += '&%s=%s' % (
-                    attr,
-                    attributes.get(attr)
-                )
-    return filter_str
+            filters_dict[attr] = attributes[attr]
+    return filters_dict
 
 
 def get_default_query():
@@ -131,15 +128,12 @@ def decrease_start_date(query):
     Works for upload_date, last_modified.
     """
     targets = ('upload_date', 'last_modified',)
-    new_query = []
-    filters = query.split('&')
-    try:
-        for f in filters:
-            attribute, value = f.split('=')
-            if attribute not in targets:
-                new_query.append(f)
-                continue
-            value = urllib.unquote(value)
+    for target in targets:
+        value = query.get(target)
+        if not value:
+            continue
+        value = urllib2.unquote(value)
+        try:
             first, second = value.split('TO')
             period = first[5:-1]
             days = None
@@ -150,12 +144,11 @@ def decrease_start_date(query):
             elif 'YEAR' in period:
                 days = int(period.split('YEAR')[0]) * 366
             if not days:
-                return query
+                continue
             days += 1
-            new_query.append('%s=' % attribute + urllib.quote('[NOW-%dDAY TO%s' % (days, second)))
-        return '&'.join(new_query)
-    except:
-        pass
+            query[target] = '[NOW-%dDAY TO%s' % (days, second)
+        except:
+            continue
     return query
 
 
@@ -246,12 +239,6 @@ class APIRequest(Request):
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
                 sleep_time=getattr(settings, 'API_HTTP_ERROR_SLEEP_AFTER', 1))
 
-    def patch_result(self, result, result_xml):
-        result.xml = result_xml
-        result.filesize = result['files.file.0.filesize']
-        result.checksum = result['files.file.0.checksum']
-        result.filename = result['files.file.0.filename']
-    
 
 class RequestIDs(APIRequest):
 
@@ -269,3 +256,13 @@ class RequestFull(APIRequest):
 
     def analysis_uri(self):
         return self.CGHUB_ANALYSIS_FULL_URI
+
+    def patch_result(self, result, result_xml):
+        result.xml = result_xml
+
+
+class ResultFromFile(RequestFull):
+
+    def get_xml_file(self, url):
+        filename = self.query['filename']
+        return open(filename, 'r')

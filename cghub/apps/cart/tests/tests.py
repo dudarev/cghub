@@ -24,22 +24,22 @@ from cghub.wsapi import browser_text_search
 from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (
-                            manifest, metadata,
-                            summary, add_ids_to_cart, add_files_to_cart,
-                            load_missing_attributes,
-                            analysis_xml_iterator, summary_tsv_iterator,
-                            cart_remove_files_without_attributes)
+                    manifest, metadata, summary, add_ids_to_cart,
+                    add_files_to_cart, load_missing_attributes,
+                    analysis_xml_iterator, summary_tsv_iterator,
+                    cart_remove_files_without_attributes)
 from cghub.apps.cart.forms import SelectedFilesForm, AllFilesForm
 from cghub.apps.cart.cache import (
                     AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
-from cghub.apps.cart.tasks import (cache_results_task, cache_file,
-                                        add_files_to_cart_by_query_task)
+from cghub.apps.cart.tasks import (
+                    cache_results_task, cache_file,
+                    add_files_to_cart_by_query_task)
 
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
 from cghub.apps.core.utils import (
-                            generate_task_id, paginator_params, Request)
+                    generate_task_id, paginator_params, RequestDetail)
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -303,7 +303,7 @@ class CartAddItemsTestCase(TestCase):
         self.assertTrue(data['task_id'])
 
     def test_add_files_to_cart_by_query(self):
-        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        query = {'all_metadata': 'TCGA-04-1337-01A-01W-0484-10'}
         # initialize session
         settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
         engine = import_module(settings.SESSION_ENGINE)
@@ -320,10 +320,12 @@ class CartAddItemsTestCase(TestCase):
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
         session_data['cart'] = {}
-        result = RequestDetail(query=query)
-        for r in result.results:
-            session_data['cart'][r.get('analysis_id')] = {
-                            'analysis_id': r.get('analysis_id')}
+        api_request = RequestDetail(query=query)
+        results = []
+        for r in api_request.call():
+            results.append(r)
+            session_data['cart'][r.analysis_id.text)] = {
+                                'analysis_id': r.analysis_id.text)}
         session.session_data = Session.objects.encode(session_data)
         session.save()
         attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
@@ -336,9 +338,9 @@ class CartAddItemsTestCase(TestCase):
         session_data = session.get_decoded()
         self.assertEqual(len(session_data['cart']), result.hits)
         self.assertEqual(
-                    session_data['cart'][result.results[0].get('analysis_id')]['last_modified'],
-                    result.results[0].get('last_modified'))
-        self.assertIn('study', session_data['cart'][result.results[0].get('analysis_id')])
+                session_data['cart'][results.analysis_id.text]['last_modified'],
+                results[0].last_modified.text)
+        self.assertIn('study', session_data['cart'][results[0].analysis_id.text])
 
 
 class CartCacheTestCase(TestCase):
@@ -678,14 +680,17 @@ class CartUtilsTestCase(TestCase):
                 request.session._session['cart'])
 
     def test_add_files_to_cart(self):
-        query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
+        query = {'all_metadata': 'TCGA-04-1337-01A-01W-0484-10'}
         request = get_request()
-        result = WSAPIRequest(query=query)
-        self.assertTrue(result.hits)
-        add_files_to_cart(request, result.results)
+        api_request = RequestDetail(query=query)
+        results = []
+        for r in api_request.call():
+            results.append(r)
+        self.assertTrue(api_request.hits)
+        add_files_to_cart(request, results)
         cart = request.session._session['cart']
-        self.assertEqual(len(cart), result.hits)
-        result = result.results[0]
+        self.assertEqual(len(cart), api_request.hits)
+        result = results[0]
         self.assertEqual(
-                    cart[result['analysis_id']]['upload_date'],
-                    result['upload_date'])
+                    cart[result.analysis_id.text]['upload_date'],
+                    result.upload_date.text)
