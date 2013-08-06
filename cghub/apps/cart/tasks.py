@@ -13,15 +13,15 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.utils import timezone
 
 from cghub.apps.cart.cache import (
-        AnalysisFileException, save_to_cart_cache, is_cart_cache_exists)
+                AnalysisFileException, save_to_cart_cache,
+                is_cart_cache_exists)
 
 from cghub.apps.core.utils import (
-                    decrease_start_date, get_wsapi_settings,
-                    is_celery_alive, generate_task_id, WSAPIRequest)
+                decrease_start_date, is_celery_alive,
+                generate_task_id, RequestDetail)
 
 
 cart_logger = logging.getLogger('cart')
-WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
@@ -95,25 +95,21 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
 
     celery_alive = is_celery_alive()
 
-    def callback(data):
-        analysis_id = data['analysis_id']
-        if analysis_id not in cart:
-            return
-        filtered_data = {}
-        for attr in attributes:
-            filtered_data[attr] = data.get(attr)
-        cart[analysis_id] = filtered_data
-        last_modified = data['last_modified']
-        if not is_cart_cache_exists(analysis_id, last_modified):
-            cache_file(analysis_id, last_modified, celery_alive)
-
-
     for query in queries:
         if query:
             query = decrease_start_date(query)
-            result = WSAPIRequest(
-                            query=query, callback=callback,
-                            settings=WSAPI_SETTINGS)
+            api_request = RequestDetail(query=query)
+            for result in api_request.call():
+                analysis_id = result['analysis_id']
+                if analysis_id not in cart:
+                    return
+                filtered_data = {}
+                for attr in attributes:
+                    filtered_data[attr] = result.get(attr)
+                cart[analysis_id] = filtered_data
+                last_modified = result['last_modified']
+                if not is_cart_cache_exists(analysis_id, last_modified):
+                    cache_file(analysis_id, last_modified, celery_alive)
 
     session_store['cart'] = cart
     session_store.save()

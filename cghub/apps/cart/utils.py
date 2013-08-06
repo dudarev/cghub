@@ -15,17 +15,13 @@ from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (
-                                get_wsapi_settings, get_wsapi_settings,
                                 generate_task_id, xml_add_spaces,
-                                WSAPIRequest)
+                                RequestDetail)
 from cghub.apps.core.attributes import ATTRIBUTES
 
-from cghub.apps.cart.cache import (
-                                AnalysisFileException, get_analysis,
-                                get_analysis_xml)
+from .cache import AnalysisFileException, get_analysis, get_analysis_xml
 
 
-WSAPI_SETTINGS = get_wsapi_settings()
 cart_logger = logging.getLogger('cart')
 
 
@@ -65,12 +61,13 @@ def get_cart_stats(request):
     return stats
 
 
-def add_ids_to_cart(request, ids):
+def add_ids_to_cart(request, results):
     """ adds file file_dict to cart """
     cart = get_or_create_cart(request)
-    for i in ids:
-        if i not in cart:
-            cart[i] = {'analysis_id': i}
+    for result in results:
+        analysis_id = result['analysis_id']
+        if analysis_id not in cart:
+            cart[analysis_id] = {'analysis_id': analysis_id}
     request.session.modified = True
 
 
@@ -81,13 +78,11 @@ def add_files_to_cart(request, results):
     :param request: Request objects
     :param results: attributes dict
     """
-    if len(results) == 0:
-        return
     cart = get_or_create_cart(request)
     for result in results:
         current_dict = {}
         for attribute in ATTRIBUTES:
-            current_dict[attribute] = result[attribute]
+            current_dict[attribute] = result.get(attribute)
         cart[current_dict['analysis_id']] = current_dict
     request.session.modified = True
 
@@ -129,15 +124,14 @@ def load_missing_attributes(files):
         if len(f) == 1:
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
-        query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
-        if result.hits != 0:
-            for result in result.results:
-                for f in files:
-                    if f['analysis_id'] == result['analysis_id']:
-                        for attr in ATTRIBUTES:
-                            f[attr] = result.get(attr)
-                        break
+        query = {'analysis_id': files_to_upload}
+        api_request = RequestDetail(query=query)
+        for result in api_request.call():
+            for f in files:
+                if f['analysis_id'] == result['analysis_id']:
+                    for attr in ATTRIBUTES:
+                        f[attr] = result.get(attr)
+                    break
     return files
 
 

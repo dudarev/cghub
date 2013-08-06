@@ -26,22 +26,22 @@ from django.contrib.sessions.models import Session
 from cghub.apps.cart.views import cart_add_files
 
 from ..templatetags.pagination_tags import Paginator
-from ..templatetags.search_tags import (get_name_by_code,
+from ..templatetags.search_tags import (
+                    get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date, get_sample_type_by_code)
-from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query,
+from ..utils import (
+                    get_filters_dict, query_dict_to_str,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
                     makedirs_group_write, generate_tmp_file_name,
-                    WSAPIRequest)
+                    RequestFull, RequestDetail, RequestIDs)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
-WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def create_session(self):
@@ -111,17 +111,15 @@ class CoreTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u'No data.')
 
-        result = WSAPIRequest(
-                    query='analysis_id=%s' % analysis_id,
-                    full=True, with_xml=True,
-                    settings=WSAPI_SETTINGS)
-        self.assertEqual(result.hits, 1)
+        api_request = RequestFull(query={'analysis_id': analysis_id})
+        result = api_request.call().next()
+        self.assertEqual(api_request.hits, 1)
         response = self.client.get(
                         reverse('item_details',
                         kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, u'No data.')
-        self.assertContains(response, result.results[0]['center_name'])
+        self.assertContains(response, result['center_name'])
         # not ajax
         self.assertContains(response, '<head>')
         self.assertContains(response, 'Collapse all')
@@ -132,7 +130,7 @@ class CoreTestCase(TestCase):
                         kwargs={'analysis_id': analysis_id}),
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, result.results[0]['center_name'])
+        self.assertContains(response, result['center_name'])
         self.assertNotContains(response, 'Collapse all')
         self.assertNotContains(response, 'Expand all')
         self.assertContains(response, 'Show metadata XML')
@@ -157,18 +155,23 @@ class CoreTestCase(TestCase):
         self.assertNotContains(response, self.query)
 
     def test_save_limit_in_cookies(self):
-        with self.settings(DEFAULT_FILTERS = {
+        DEFAULT_FILTERS = {
                 'study': ('phs000178','*Other_Sequencing_Multiisolate'),
                 'state': ('live',),
-                'upload_date': '[NOW-7DAY+TO+NOW]'}):
+                'upload_date': '[NOW-7DAY+TO+NOW]'}
+        with self.settings(DEFAULT_FILTERS = DEFAULT_FILTERS):
             response = self.client.get(
-                    '%s?%s' % (reverse('search_page'), get_default_query()))
+                    '%s?%s' % (
+                            reverse('search_page'),
+                            query_dict_to_str(DEFAULT_FILTERS)))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                     response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value,
                     str(settings.DEFAULT_PAGINATOR_LIMIT))
             response = self.client.get(
-                    '%s?%s&limit=25' % (reverse('search_page'), get_default_query()))
+                    '%s?%s&limit=25' % (
+                            reverse('search_page'),
+                            query_dict_to_str(DEFAULT_FILTERS)))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
@@ -176,16 +179,15 @@ class CoreTestCase(TestCase):
     def test_custom_fields(self):
         """
         Test custom fields added in wsapi.Request.patch_result.
-        See cghub.apps.core.utils.WSAPIRequest.
+        See cghub.apps.core.utils.Request*.
         """
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
-        result = WSAPIRequest(
-                        query='analysis_id=%s' % analysis_id,
-                        settings=WSAPI_SETTINGS)
-        self.assertEqual(result.hits, 1)
-        result = result.results[0]
+        api_request = RequestDetail(query={'analysis_id': analysis_id})
+        result = api_request.call().next()
+        self.assertEqual(api_request.hits, 1)
         self.assertTrue(result['files_size'] + 1)
-        self.assertTrue(result['checksum'])
+        self.assertTrue(isinstance(result['checksum'], str))
+        self.assertTrue(isinstance(result['filename'], str))
 
 
 class UtilsTestCase(TestCase):
@@ -194,18 +196,12 @@ class UtilsTestCase(TestCase):
     FILES_IN_CART = {IDS_IN_CART[0]: {"state": "live"},
                      IDS_IN_CART[1]: {"state": "bad_data"}}
 
-    def test_get_filters_string(self):
-        res = get_filters_string({
+    def test_get_filters_dict(self):
+        res = get_filters_dict({
                         'study': 'TGGA',
                         'center_name': 'BCM',
                         'bad_param': 'bad'})
-        self.assertEqual(res, '&study=TGGA&center_name=BCM')
-
-    def test_get_wsapi_settings(self):
-        value = 'somesetting'
-        key = WSAPI_SETTINGS_LIST[0]
-        with self.settings(**{'WSAPI_%s' % key: value}):
-            self.assertEqual(get_wsapi_settings()[key], value)
+        self.assertEqual(res, {'study': 'TGGA', 'center_name': 'BCM'})
 
     def test_generate_task_id(self):
         test_data = [
@@ -222,30 +218,28 @@ class UtilsTestCase(TestCase):
         for data in test_data:
             self.assertEqual(generate_task_id(**data['dict']), data['result'])
 
-    def test_get_default_query(self):
-        with self.settings(
-            DEFAULT_FILTERS = {
-                'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
-                'state': ('live',),
-                'upload_date': '[NOW-7DAY+TO NOW]'}):
-            self.assertEqual(
-                get_default_query(),
-                'upload_date=[NOW-7DAY TO NOW]&study=(phs000178 OR *Other_Sequencing_Multiisolate)&state=(live)')
-        # if not existing filter keys
-        with self.settings(
-            DEFAULT_FILTERS = {
-                'study': ('phs000178', 'bad_key'),
-                'state': ('live',),
-                'upload_date': '[NOW-7DAY TO NOW]'}):
-            self.assertEqual(
-                get_default_query(),
-                'upload_date=[NOW-7DAY TO NOW]&study=(phs000178)&state=(live)')
-        # empty filters
-        with self.settings(
-            DEFAULT_FILTERS = {}):
-            self.assertEqual(
-                get_default_query(),
-                '')
+    def test_query_dict_to_str(self):
+        TEST_DATA_SET = [
+            {
+                'dict': {
+                    'study': ['phs000178', '*Other_Sequencing_Multiisolate'],
+                    'state': ('live',),
+                    'upload_date': '[NOW-7DAY+TO NOW]'},
+                'str': 'upload_date=[NOW-7DAY TO NOW]&study=(phs000178 OR *Other_Sequencing_Multiisolate)&state=(live)'
+            }, {
+                'dict': {
+                'study': ('phs000178',),
+                'state': 'live',
+                'upload_date': '[NOW-7DAY TO NOW]'},
+                'str': 'upload_date=[NOW-7DAY TO NOW]&study=(phs000178)&state=live'
+            }, {
+                'dict': {},
+                'str': '',
+            }
+        ]
+
+        for data in TEST_DATA_SET:
+            self.assertEqual(query_dict_to_str(data['dict']), data['str'])
 
     def test_is_task_done(self):
         task_id = 'some-id-0000'
@@ -263,21 +257,30 @@ class UtilsTestCase(TestCase):
         self.assertTrue(is_task_done(task_id))
 
     def test_decrease_start_date(self):
-        TEST_DATA = {
-            'last_modified=[NOW-60DAY TO NOW-56DAY]&state=(live)':
-                    'last_modified=%5BNOW-61DAY%20TO%20NOW-56DAY%5D&state=(live)',
-            'upload_date=[NOW-2MONTH TO NOW-1MONTH]&state=(live)':
-                    'upload_date=%5BNOW-63DAY%20TO%20NOW-1MONTH%5D&state=(live)',
-            'upload_date=[NOW-10DAY TO NOW-3DAY]&last_modified=[NOW-1YEAR TO NOW-3DAY]':
-                    'upload_date=%5BNOW-11DAY%20TO%20NOW-3DAY%5D&last_modified=%5BNOW-367DAY%20TO%20NOW-3DAY%5D',
-            'state=(live)': 'state=(live)',
-            'last_modified=[]': 'last_modified=[]',
-            'upload_date=%5BNOW-16DAY%20TO%20NOW-15DAY%5D&state=%28live%29':
-                    'upload_date=%5BNOW-17DAY%20TO%20NOW-15DAY%5D&state=%28live%29'
-        }
+        TEST_DATA = [
+            {
+                'input': {'last_modified': '[NOW-60DAY TO NOW-56DAY]', 'state': '(live)'},
+                'output': {'last_modified': '[NOW-61DAY TO NOW-56DAY]', 'state': '(live)'}
+            }, {
+                'input': {'upload_date': '[NOW-2MONTH TO NOW-1MONTH]', 'state': '(live)'},
+                'output': {'upload_date': '[NOW-63DAY TO NOW-1MONTH]', 'state': '(live)'}
+            }, {
+                'input': {'upload_date': '[NOW-10DAY TO NOW-3DAY]', 'last_modified': '[NOW-1YEAR TO NOW-3DAY]'},
+                'output': {'upload_date': '[NOW-11DAY TO NOW-3DAY]', 'last_modified': '[NOW-367DAY TO NOW-3DAY]'}
+            }, {
+                'input': {'state': '(live)'},
+                'output': {'state': '(live)'}
+            }, {
+                'input': {'last_modified': '[]'},
+                'output': {'last_modified': '[]'}
+            }, {
+                'input': {'upload_date': '%5BNOW-16DAY%20TO%20NOW-15DAY%5D', 'state': '%28live%29'},
+                'output': {'upload_date': '[NOW-17DAY TO NOW-15DAY]', 'state': '%28live%29'}
+            }
+        ]
 
-        for i in TEST_DATA:
-            self.assertEqual(decrease_start_date(i), TEST_DATA[i])
+        for data in TEST_DATA:
+            self.assertEqual(decrease_start_date(data['input']), data['output'])
 
     def test_xml_add_spaces(self):
         xml = """<ResultSet date="2013-11-06 09:24:56"><Hits>10</Hits><Result id="1"><analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id><state>live</state><reason/><last_modified>2013-06-09T07:27:48Z</last_modified><upload_date>2013-06-09T06:51:41Z</upload_date></Result></ResultSet>"""
@@ -644,12 +647,11 @@ class SearchViewPaginationTestCase(TestCase):
     query = "6d54"
 
     def setUp(self):
-        result = WSAPIRequest(
-                        query="all_metadata=('%s')" % self.query,
-                        only_ids=True,
-                        settings=WSAPI_SETTINGS)
-        self.default_results_count = result.hits
-        self.results = result.results
+        api_request = RequestIDs(query={'all_metadata': self.query})
+        self.results = []
+        for result in api_request.call():
+            self.results.append(result)
+        self.default_results_count = api_request.hits
 
     def test_pagination_default_pagination(self):
         response = self.client.get(reverse('search_page') +
@@ -781,11 +783,10 @@ class SettingsTestCase(TestCase):
         for name in settings.DETAILS_FIELDS:
             if name not in names:
                 names.append(name)
-        result = WSAPIRequest(
-                        query='analysis_id=%s' % analysis_id,
-                        settings=WSAPI_SETTINGS)
-        self.assertEqual(result.hits, 1)
-        field_values_dict = field_values(result.results[0])
+        api_request = RequestDetail(query={'analysis_id': analysis_id})
+        result = api_request.call().next()
+        self.assertEqual(api_request.hits, 1)
+        field_values_dict = field_values(result)
         for name in names:
             self.assertIn(name, field_values_dict)
 
