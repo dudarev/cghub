@@ -9,50 +9,36 @@ import socket
 from celery import states
 from djcelery.models import TaskState
 from cghub_python_api import Request
+from cghub_python_api.utils import urlopen
 
 from django.core.mail import mail_admins
 from django.conf import settings
 
 from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES
+from cghub.apps.core.attributes import DATE_ATTRIBUTES, ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
 
 
 def get_filters_dict(attributes):
-    filters_dict = ''
+    filters_dict = {}
     for attr in ALLOWED_ATTRIBUTES:
         if attributes.get(attr):
             filters_dict[attr] = attributes[attr]
     return filters_dict
 
 
-def get_default_query():
-    """
-    Taking in mind settings.DEFAULT_FILTERS returns query string.
-    For example:
-    DEFAULT_FILTERS = {
-        'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
-        'state': ('live',),
-        'upload_date': '[NOW-7DAY TO NOW]',
-    }
-    result should be:
-    upload_date=[NOW-7DAY+TO+NOW]&study=(phs000178+OR+*Other_Sequencing_Multiisolate)&state=(live)
-    """
-    filters_list = []
-    DEFAULT_FILTERS = settings.DEFAULT_FILTERS
-    for f in DEFAULT_FILTERS:
-        if f in ALLOWED_ATTRIBUTES:
-            if f in DATE_ATTRIBUTES:
-                filters_list.append('%s=%s' % (f, DEFAULT_FILTERS[f]))
-            else:
-                allowed_keys = ALL_FILTERS[f]['filters'].keys()
-                filters_list.append('%s=(%s)' % (
-                        f,
-                        ' OR '.join([v for v in DEFAULT_FILTERS[f] if v in allowed_keys])
-                ))
-    return '&'.join(filters_list).replace('+', ' ')
+def query_dict_to_str(query):
+    parts = []
+    for key, value in query.iteritems():
+        if isinstance(value, list) or isinstance(value, tuple):
+            value_str = ' OR '.join([v for v in value])
+            value_str = '(%s)' % value_str.replace('+', ' ')
+        else:
+            value_str = str(value).replace('+', ' ')
+        parts.append('='.join([key, value_str]))
+    return '&'.join(parts)
 
 
 def paginator_params(request):
@@ -224,14 +210,10 @@ def generate_tmp_file_name():
 
 class APIRequest(Request):
 
-    def analysis_uri(self):
-        return self.CGHUB_ANALYSIS_DETAIL_URI
-
     def patch_input_data(self):
         server_url = getattr(settings, 'CGHUB_SERVER')
         if server_url:
             self.server_url = server_url
-        self.uri = self.analysis_uri()
 
     def get_xml_file(self, url):
         return urlopen(
@@ -239,26 +221,43 @@ class APIRequest(Request):
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
                 sleep_time=getattr(settings, 'API_HTTP_ERROR_SLEEP_AFTER', 1))
 
+    def patch_result(self, result, result_xml):
+        new_result = {}
+        for attr in ATTRIBUTES:
+            if result[attr].exist:
+                new_result[attr] = result[attr].text
+        new_result['filename'] = result['files.file.0.filename'].text
+        try:
+            new_result['files_size'] = int(result['files.file.0.filesize'].text)
+        except TypeError:
+            new_result['files_size'] = 0
+        new_result['checksum'] = result['files.file.0.checksum'].text
+        return new_result
 
 class RequestIDs(APIRequest):
 
-    def analysis_uri(self):
-        return self.CGHUB_ANALYSIS_ID_URI
+    def patch_input_data(self):
+        super(RequestIDs, self).patch_input_data()
+        self.uri = self.CGHUB_ANALYSIS_ID_URI
 
 
-class RequestDetails(APIRequest):
+class RequestDetail(APIRequest):
 
-    def analysis_uri(self):
-        return self.CGHUB_ANALYSIS_DETAIL_URI
+    def patch_input_data(self):
+        super(RequestDetail, self).patch_input_data()
+        self.uri = self.CGHUB_ANALYSIS_DETAIL_URI
 
 
 class RequestFull(APIRequest):
 
-    def analysis_uri(self):
-        return self.CGHUB_ANALYSIS_FULL_URI
+    def patch_input_data(self):
+        super(RequestFull, self).patch_input_data()
+        self.uri = self.CGHUB_ANALYSIS_FULL_URI
 
     def patch_result(self, result, result_xml):
-        result.xml = result_xml
+        new_result = super(RequestFull, self).patch_result(result, result_xml)
+        new_result['xml'] = result_xml
+        return new_result
 
 
 class ResultFromFile(RequestFull):

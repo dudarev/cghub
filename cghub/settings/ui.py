@@ -185,6 +185,7 @@ DETAILS_FIELDS = (
 # study id to name
 study_id_to_name = {
     "TCGA": "TCGA",  # FIXME not sure why TCGA comes in instead of phs000178
+    "TCGA Benchmark": "TCGA Benchmark",
     "phs000178": "TCGA",
     "Homo sapiens Other_Sequencing_Multiisolate": "CCLE",
     "phs000463": "TARGET (ALL I)",

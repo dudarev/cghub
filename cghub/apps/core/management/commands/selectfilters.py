@@ -25,21 +25,21 @@ def get_all_filters(stdout, key, start='', count_all=None):
         api_request = RequestDetail(query=query, limit=5, sort_by=key)
         stdout.write('- Found %d\n' % result.hits)
         try:
-            result = api_request.call()[0]
-        except IndexError:
+            result = api_request.call().next()
+        except StopIteration:
             pass
         count += api_request.hits
         if api_request.hits:
-            filters.append(result[key].text)
+            filters.append(getattr(result, key))
             if count_all and count_all == count:
                 return filters
             api_request = RequestDetail(query=query, limit=5, sort_by='-%s' % key)
             try:
-                result = api_request.call()[0]
-            except IndexError:
+                result = api_request.call().next()
+            except StopIteration:
                 result = None
             # if some other filters which starts from start+c exists
-            if result and result[key].text not in filters:
+            if result and getattr(result, key) not in filters:
                 for f in get_all_filters(
                             stdout=stdout, key=key,
                             start='%s%s' % (start, c),
@@ -67,8 +67,8 @@ class Command(BaseCommand):
             # get all results count
             api_request = RequestIDs(query={key: '*'}, limit=5)
             try:
-                result = api_request.call()[0]
-            except IndexError:
+                result = api_request.call().next()
+            except StopIteration:
                 pass
 
             count_all = api_request.hits
@@ -84,8 +84,8 @@ class Command(BaseCommand):
                 self.stdout.write('- Filter %s ... ' % filter)
                 api_request = RequestIDs(query={key: filter}, limit=5)
                 try:
-                    result = api_request.call()[0]
-                except IndexError:
+                    result = api_request.call().next()
+                except StopIteration:
                     pass
                 count += api_request.hits
                 if api_request.hits:

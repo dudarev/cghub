@@ -15,13 +15,12 @@ from django.utils import timezone
 from django.utils.http import cookie_date
 from django.utils.importlib import import_module
 
+from cghub.apps.core import browser_text_search
 from cghub.apps.core.utils import (
                     is_celery_alive, generate_task_id,
                     get_filters_dict, is_task_done, paginator_params,
-                    RequestIDs)
+                    RequestIDs, RequestDetail)
 from cghub.apps.core.attributes import ATTRIBUTES
-
-from cghub.wsapi import browser_text_search
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedFilesForm, AllFilesForm
@@ -71,7 +70,8 @@ def cart_add_all_files(request, celery_alive):
                 # FIXME: temporary hack to work around GNOS not quoting Solr query
                 # FIXME: this is temporary hack, need for multiple requests will be fixed at CGHub
                 if browser_text_search.useAllMetadataIndex:
-                    query = {'all_metadata': browser_text_search.ws_query(q) + filter_str}
+                    query = {'all_metadata': browser_text_search.ws_query(q)}
+                    query.update(filters)
                     queries = [query]
                 else:
                     query = {'xml_text': u"(%s)" % q}
@@ -79,8 +79,8 @@ def cart_add_all_files(request, celery_alive):
                     queries = [query, {'analysis_id': q}]
             if len(queries) > 1:
                 for query in queries:
-                    result = RequestDetail(query=query)
-                    add_files_to_cart(request, result.results)
+                    api_request = RequestDetail(query=query)
+                    add_files_to_cart(request, api_request.call())
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
             if not queries:
                 queries = [filters]

@@ -100,14 +100,14 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
             query = decrease_start_date(query)
             api_request = RequestDetail(query=query)
             for result in api_request.call():
-                analysis_id = result.analysis_id.text
+                analysis_id = result['analysis_id']
                 if analysis_id not in cart:
                     return
                 filtered_data = {}
                 for attr in attributes:
-                    filtered_data[attr] = result[attr].text
+                    filtered_data[attr] = result.get(attr)
                 cart[analysis_id] = filtered_data
-                last_modified = result.last_modified
+                last_modified = result['last_modified']
                 if not is_cart_cache_exists(analysis_id, last_modified):
                     cache_file(analysis_id, last_modified, celery_alive)
 

@@ -19,8 +19,6 @@ from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 
-from cghub.wsapi import browser_text_search
-
 from cghub.settings.utils import PROJECT_ROOT
 
 from cghub.apps.cart.utils import (
@@ -37,6 +35,7 @@ from cghub.apps.cart.tasks import (
                     cache_results_task, cache_file,
                     add_files_to_cart_by_query_task)
 
+from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
 from cghub.apps.core.utils import (
                     generate_task_id, paginator_params, RequestDetail)
@@ -324,8 +323,8 @@ class CartAddItemsTestCase(TestCase):
         results = []
         for r in api_request.call():
             results.append(r)
-            session_data['cart'][r.analysis_id.text)] = {
-                                'analysis_id': r.analysis_id.text)}
+            session_data['cart'][r['analysis_id']] = {
+                                'analysis_id': r['analysis_id']}
         session.session_data = Session.objects.encode(session_data)
         session.save()
         attributes = ['study', 'center_name', 'analyte_code', 'last_modified',
@@ -336,11 +335,11 @@ class CartAddItemsTestCase(TestCase):
         # check task created
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
-        self.assertEqual(len(session_data['cart']), result.hits)
+        self.assertEqual(len(session_data['cart']), api_request.hits)
         self.assertEqual(
-                session_data['cart'][results.analysis_id.text]['last_modified'],
-                results[0].last_modified.text)
-        self.assertIn('study', session_data['cart'][results[0].analysis_id.text])
+                session_data['cart'][results[0]['analysis_id']]['last_modified'],
+                results[0]['last_modified'])
+        self.assertIn('study', session_data['cart'][results[0]['analysis_id']])
 
 
 class CartCacheTestCase(TestCase):
@@ -460,10 +459,10 @@ class CartCacheTestCase(TestCase):
         # test get_analysis
         # with cache
         analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
-        self.assertIn('analysis_xml', analysis)
+        self.assertIn('analysis_xml', analysis['xml'])
         # short version
         analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
-        self.assertNotIn('analysis_xml', analysis)
+        self.assertNotIn('analysis_xml', analysis['xml'])
 
     def test_get_analysis_xml(self):
         xml, size = get_analysis_xml(
@@ -634,10 +633,10 @@ class CartUtilsTestCase(TestCase):
     def test_add_ids_to_cart(self):
         request = get_request()
         # try to add ids
-        ids = (
-            '7850f073-642a-40a8-b49d-e328f27cfd66',
-            '796e11c8-b873-4c37-88cd-18dcd7f287ec')
-        add_ids_to_cart(request, ids)
+        results = [
+            {'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66'},
+            {'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec'}]
+        add_ids_to_cart(request, results)
         # check ids saved to session
         self.assertEqual(
                 request.session._session['cart'][
@@ -692,5 +691,5 @@ class CartUtilsTestCase(TestCase):
         self.assertEqual(len(cart), api_request.hits)
         result = results[0]
         self.assertEqual(
-                    cart[result.analysis_id.text]['upload_date'],
-                    result.upload_date.text)
+                    cart[result['analysis_id']]['upload_date'],
+                    result['upload_date'])

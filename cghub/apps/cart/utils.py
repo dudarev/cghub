@@ -61,12 +61,13 @@ def get_cart_stats(request):
     return stats
 
 
-def add_ids_to_cart(request, ids):
+def add_ids_to_cart(request, results):
     """ adds file file_dict to cart """
     cart = get_or_create_cart(request)
-    for i in ids:
-        if i not in cart:
-            cart[i] = {'analysis_id': i}
+    for result in results:
+        analysis_id = result['analysis_id']
+        if analysis_id not in cart:
+            cart[analysis_id] = {'analysis_id': analysis_id}
     request.session.modified = True
 
 
@@ -77,13 +78,11 @@ def add_files_to_cart(request, results):
     :param request: Request objects
     :param results: attributes dict
     """
-    if len(results) == 0:
-        return
     cart = get_or_create_cart(request)
     for result in results:
         current_dict = {}
         for attribute in ATTRIBUTES:
-            current_dict[attribute] = result[attribute]
+            current_dict[attribute] = result.get(attribute)
         cart[current_dict['analysis_id']] = current_dict
     request.session.modified = True
 
@@ -125,13 +124,13 @@ def load_missing_attributes(files):
         if len(f) == 1:
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
-        query = {'analysis_id': [files_to_upload])
+        query = {'analysis_id': files_to_upload}
         api_request = RequestDetail(query=query)
         for result in api_request.call():
             for f in files:
-                if f['analysis_id'] == result.analysis_id.text:
+                if f['analysis_id'] == result['analysis_id']:
                     for attr in ATTRIBUTES:
-                        f[attr] = result[attr].text
+                        f[attr] = result.get(attr)
                     break
     return files
 

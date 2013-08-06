@@ -14,22 +14,19 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.wsapi import browser_text_search
-
 from cghub.apps.cart.utils import metadata, load_missing_attributes
 from cghub.apps.cart.cache import is_cart_cache_exists
 from cghub.apps.cart.tasks import cache_file
 
-from cghub.apps.core.attributes import ATTRIBUTES
-
+from cghub.apps.core import browser_text_search
+from .attributes import ATTRIBUTES
 from .utils import (
-                get_filters_dict, get_default_query,
+                get_filters_dict, query_dict_to_str,
                 paginator_params, is_celery_alive, RequestDetail,
                 RequestIDs, RequestFull)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 
-DEFAULT_QUERY = get_default_query()
 DEFAULT_SORT_BY = None
 core_logger = logging.getLogger('core')
 
@@ -40,10 +37,9 @@ def query_from_get(data):
     if q:
         # FIXME: temporary hack to work around GNOS not quoting Solr query
         if browser_text_search.useAllMetadataIndex:
-            return {'all_metadata': browser_text_search.ws_query(q) + filter_str}
+            filters.update({'all_metadata': browser_text_search.ws_query(q)})
         else:
             filters.update({'xml_text': '(%s)' % q})
-            return filters
     return filters
 
 
@@ -86,16 +82,15 @@ class HomeView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         if settings.LAST_QUERY_COOKIE in request.COOKIES:
-            get = {}
+            self.query = {}
             for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
                 parts = i.split('=')
                 if len(parts) == 2 and parts[0] != 'q':
-                    get[parts[0]] = parts[1]
-            self.query = query_from_get(get)
+                    self.query[parts[0]] = parts[1]
         else:
-            self.query = DEFAULT_QUERY
+            self.query = settings.DEFAULT_FILTERS
         # populating GET with query for proper work of applied_filters templatetag
-        request.GET = QueryDict(self.query, mutable=True)
+        request.GET = QueryDict(query_dict_to_str(self.query), mutable=True)
         return super(HomeView, self).get(request, *args, **kwargs)
 
 
@@ -140,7 +135,9 @@ class SearchView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         # set default query if no query specified
         if not get_filters_dict(request.GET) and not 'q' in request.GET:
-            return HttpResponseRedirect(reverse('search_page') + '?' + DEFAULT_QUERY)
+            return HttpResponseRedirect(
+                    reverse('search_page') + '?' + query_dict_to_str(
+                                            settings.DEFAULT_FILTERS))
         return super(SearchView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -179,14 +176,14 @@ class BatchSearchView(TemplateView):
             api_request = RequestIDs(query=query)
             ids = []
             for result in api_request.call():
-                ids.append(result.analysis_id.text)
+                ids.append(result['analysis_id'])
             found['analysis_id'] = api_request.hits
             if api_request.hits != len(submitted_ids):
                 # search them by sample_id
                 query = {'sample_id': submitted_ids}
                 api_request = RequestIDs(query=query)
                 for result in api_request.call():
-                    analysis_id = result.analysis_id.text
+                    analysis_id = result['analysis_id']
                     if analysis_id not in ids:
                         ids.append(analysis_id)
                 found['sample_id'] = api_request.hits
@@ -194,7 +191,7 @@ class BatchSearchView(TemplateView):
                 query = {'participant_id':  submitted_ids}
                 api_request = RequestIDs(query=query)
                 for result in api_request.call():
-                    analysis_id = result.analysis_id.text
+                    analysis_id = result['analysis_id']
                     if analysis_id not in ids:
                         ids.append(analysis_id)
                 found['participant_id'] = api_request.hits
@@ -202,7 +199,7 @@ class BatchSearchView(TemplateView):
                 query = {'aliquot_id': submitted_ids}
                 api_request = RequestIDs(query=query)
                 for result in api_request.call():
-                    analysis_id = result.analysis_id.text
+                    analysis_id = result['analysis_id']
                     if analysis_id not in ids:
                         ids.append(analysis_id)
                 found['aliquot_id'] = api_request.hits
@@ -211,7 +208,7 @@ class BatchSearchView(TemplateView):
             query = {'legacy_sample_id': submitted_legacy_sample_ids}
             api_request = RequestIDs(query=query)
             for result in api_request.call():
-                analysis_id = result.analysis_id.text
+                analysis_id = result['analysis_id']
                 if analysis_id not in ids:
                     ids.append(analysis_id)
             found['legacy_sample_id'] = api_request.hits
@@ -239,12 +236,12 @@ class BatchSearchView(TemplateView):
                     query = {'analysis_id': ids[part : part + settings.MAX_ITEMS_IN_QUERY]}
                     api_request = RequestDetail(query=query)
                     for result in api_request.call():
-                        analysis_id = result.analysis_id
+                        analysis_id = result['analysis_id']
                         filtered_data = {}
                         for attr in ATTRIBUTES:
                             filtered_data[attr] = result[attr]
                         cart[analysis_id] = filtered_data
-                        last_modified = result.last_modified
+                        last_modified = result['last_modified']
                         if not is_cart_cache_exists(analysis_id, last_modified):
                             cache_file(analysis_id, last_modified, celery_alive)
 
@@ -304,14 +301,14 @@ class ItemDetailsView(TemplateView):
     def get_context_data(self, **kwargs):
         api_request = RequestFull(query={'analysis_id': kwargs['analysis_id']})
         try:
-            result = api_request.call()[0]
-            xml = result.xml
+            result = api_request.call().next()
+            xml = result['xml']
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
             return {
                 'res': result,
                 'raw_xml': repr(xml.replace(' id="1"', '')),
                 'analysis_id': kwargs['analysis_id']}
-        except IndexError:
+        except StopIteration:
             pass
         return {'res': None}
 
