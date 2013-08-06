@@ -2,7 +2,6 @@ import os.path
 import sys
 import shutil
 import datetime
-import urllib2
 
 from urllib2 import URLError
 from mock import patch
