@@ -8,7 +8,7 @@ from .middleware import *
 from .template import *
 from .apps import *
 from .cache import *
-from .wsapi import *
+from .api import *
 from .ui import *
 from .help import *
 from .variables import *

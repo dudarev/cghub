@@ -39,11 +39,7 @@ from cghub.apps.cart.tasks import (cache_results_task, cache_file,
 
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
 from cghub.apps.core.utils import (
-                            generate_task_id, paginator_params,
-                            get_wsapi_settings, WSAPIRequest)
-
-
-WSAPI_SETTINGS = get_wsapi_settings()
+                            generate_task_id, paginator_params, Request)
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -324,7 +320,7 @@ class CartAddItemsTestCase(TestCase):
         session = Session.objects.get(session_key=self.client.session.session_key)
         session_data = session.get_decoded()
         session_data['cart'] = {}
-        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        result = RequestDetail(query=query)
         for r in result.results:
             session_data['cart'][r.get('analysis_id')] = {
                             'analysis_id': r.get('analysis_id')}
@@ -684,7 +680,7 @@ class CartUtilsTestCase(TestCase):
     def test_add_files_to_cart(self):
         query = 'all_metadata=TCGA-04-1337-01A-01W-0484-10'
         request = get_request()
-        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(query=query)
         self.assertTrue(result.hits)
         add_files_to_cart(request, result.results)
         cart = request.session._session['cart']

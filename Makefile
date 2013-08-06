@@ -33,13 +33,9 @@ testcoverage:
 
 test:
 	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
-	cd wsapi && nosetests -s
 
 test_web:
 	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
-
-test_api:
-	cd wsapi && nosetests -s
 
 test_ui:
 	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_UI)

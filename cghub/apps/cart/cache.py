@@ -7,11 +7,9 @@ from xml.sax import parse as sax_parse
 from django.conf import settings
 
 from cghub.apps.core.utils import (
-                            get_wsapi_settings, makedirs_group_write,
+                            makedirs_group_write,
                             generate_tmp_file_name, WSAPIRequest)
 
-
-WSAPI_SETTINGS = get_wsapi_settings()
 
 # use wsapi cache when testing
 USE_WSAPI_CACHE = 'test' in sys.argv
@@ -105,8 +103,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         try:
             result = WSAPIRequest(
                             query='analysis_id=%s' % analysis_id,
-                            full=True, with_xml=True,
-                            settings=WSAPI_SETTINGS)
+                            full=True, with_xml=True)
             xml = result.xml
             # remove some attributes in short_xml
             attributes_to_remove = (

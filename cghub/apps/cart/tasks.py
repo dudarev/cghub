@@ -16,12 +16,11 @@ from cghub.apps.cart.cache import (
         AnalysisFileException, save_to_cart_cache, is_cart_cache_exists)
 
 from cghub.apps.core.utils import (
-                    decrease_start_date, get_wsapi_settings,
-                    is_celery_alive, generate_task_id, WSAPIRequest)
+                    decrease_start_date, is_celery_alive,
+                    generate_task_id, WSAPIRequest)
 
 
 cart_logger = logging.getLogger('cart')
-WSAPI_SETTINGS = get_wsapi_settings()
 
 
 @task(ignore_result=True)
@@ -111,9 +110,7 @@ def add_files_to_cart_by_query_task(queries, attributes, session_key):
     for query in queries:
         if query:
             query = decrease_start_date(query)
-            result = WSAPIRequest(
-                            query=query, callback=callback,
-                            settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query=query, callback=callback)
 
     session_store['cart'] = cart
     session_store.save()

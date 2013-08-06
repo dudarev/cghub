@@ -23,14 +23,13 @@ from cghub.apps.cart.tasks import cache_file
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from .utils import (
-                get_filters_string, get_default_query, get_wsapi_settings,
+                get_filters_string, get_default_query,
                 paginator_params, is_celery_alive, WSAPIRequest)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 
 DEFAULT_QUERY = get_default_query()
 DEFAULT_SORT_BY = None
-WSAPI_SETTINGS = get_wsapi_settings()
 core_logger = logging.getLogger('core')
 
 
@@ -74,7 +73,7 @@ class HomeView(TemplateView):
         offset, limit = paginator_params(self.request)
         result = WSAPIRequest(
                             query=self.query, sort_by=DEFAULT_SORT_BY,
-                            limit=limit, settings=WSAPI_SETTINGS)
+                            limit=limit)
         context['num_results'] = result.hits
         context['results'] = result.results
         if result.hits == 0:
@@ -116,11 +115,11 @@ class SearchView(TemplateView):
                 # FIXME: need to handle queries_list properly
                 result = WSAPIRequest(
                         query=queries_list[0], sort_by=sort_by,
-                        offset=offset, limit=limit, settings=WSAPI_SETTINGS)
+                        offset=offset, limit=limit)
             else:
                 result = WSAPIRequest(
                             query=query, sort_by=sort_by, offset=offset,
-                            limit=limit, settings=WSAPI_SETTINGS)
+                            limit=limit)
             context['num_results'] = result.hits
             context['results'] = result.results
             if result.hits != 0:
@@ -170,39 +169,27 @@ class BatchSearchView(TemplateView):
         ids = []
         if submitted_ids:
             query = 'analysis_id=(%s)' % ' OR '.join(submitted_ids)
-            result = WSAPIRequest(
-                        query=query,
-                        only_ids=True,
-                        settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query=query, only_ids=True)
             found['analysis_id'] = result.hits
             ids = result.results
             if result.hits != len(submitted_ids):
                 # search them by sample_id
                 query = 'sample_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
+                result = WSAPIRequest(query=query, only_ids=True)
                 found['sample_id'] = result.hits
                 for id in result.results:
                     if id not in ids:
                         ids.append(id)
                 # search by participant_id and aliquot_id
                 query = 'participant_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
+                result = WSAPIRequest(query=query, only_ids=True)
                 found['participant_id'] = result.hits
                 for id in result.results:
                     if id not in ids:
                         ids.append(id)
                 # search by aliquot_id
                 query = 'aliquot_id=(%s)' % ' OR '.join(submitted_ids)
-                result = WSAPIRequest(
-                            query=query,
-                            only_ids=True,
-                            settings=WSAPI_SETTINGS)
+                result = WSAPIRequest(query=query, only_ids=True)
                 found['aliquot_id'] = result.hits
                 for id in result.results:
                     if id not in ids:
@@ -211,10 +198,7 @@ class BatchSearchView(TemplateView):
         if submitted_legacy_sample_ids:
             query = 'legacy_sample_id=(%s)' % ' OR '.join(
                                         submitted_legacy_sample_ids)
-            result = WSAPIRequest(
-                        query=query,
-                        only_ids=True,
-                        settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query=query, only_ids=True)
             found['legacy_sample_id'] = result.hits
             for id in result.results:
                 if id not in ids:
@@ -252,9 +236,7 @@ class BatchSearchView(TemplateView):
                 for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
                     query = 'analysis_id=(%s)' % ' OR '.join(
                             ids[part : part + settings.MAX_ITEMS_IN_QUERY])
-                    result = WSAPIRequest(
-                                query=query, callback=callback,
-                                settings=WSAPI_SETTINGS)
+                    result = WSAPIRequest(query=query, callback=callback)
 
                 request.session['cart'] = cart
 
@@ -312,7 +294,7 @@ class ItemDetailsView(TemplateView):
     def get_context_data(self, **kwargs):
         result = WSAPIRequest(
                     query='analysis_id=%s' % kwargs['analysis_id'],
-                    with_xml=True, full=True, settings=WSAPI_SETTINGS)
+                    with_xml=True, full=True)
         if result.hits:
             xml = result.xml
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]

@@ -16,7 +16,7 @@ from django.utils.http import cookie_date
 from django.utils.importlib import import_module
 
 from cghub.apps.core.utils import (
-                    is_celery_alive, generate_task_id, get_wsapi_settings,
+                    is_celery_alive, generate_task_id,
                     get_filters_string, is_task_done, paginator_params,
                     WSAPIRequest)
 from cghub.apps.core.attributes import ATTRIBUTES
@@ -25,16 +25,15 @@ from cghub.wsapi import browser_text_search
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedFilesForm, AllFilesForm
-from .utils import (add_file_to_cart, remove_file_from_cart,
-                            get_or_create_cart, get_cart_stats, cart_clear,
-                            load_missing_attributes,
-                            cart_remove_files_without_attributes,
-                            add_ids_to_cart, add_files_to_cart)
+from .utils import (
+                add_file_to_cart, remove_file_from_cart,
+                get_or_create_cart, get_cart_stats, cart_clear,
+                load_missing_attributes,
+                cart_remove_files_without_attributes,
+                add_ids_to_cart, add_files_to_cart)
 from .cache import is_cart_cache_exists
 from .tasks import add_files_to_cart_by_query_task, cache_file
 
-
-WSAPI_SETTINGS = get_wsapi_settings()
 
 cart_logger = logging.getLogger('cart')
 
@@ -81,15 +80,14 @@ def cart_add_all_files(request, celery_alive):
                     queries = [query, u"analysis_id={0}".format(q)]
             if len(queries) > 1:
                 for query in queries:
-                    result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+                    result = WSAPIRequest(query=query)
                     add_files_to_cart(request, result.results)
                 return {'action': 'redirect', 'redirect': reverse('cart_page')}
             if not queries:
                 # remove front ampersand
                 queries = [filter_str[1:]]
             # add ids to cart
-            result = WSAPIRequest(
-                    query=queries[0], only_ids=True, settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query=queries[0], only_ids=True)
             add_ids_to_cart(request, result.results)
             # add all attributes in task
             if celery_alive:

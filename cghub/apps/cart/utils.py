@@ -15,9 +15,8 @@ from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import (
-                                get_wsapi_settings, get_wsapi_settings,
-                                generate_task_id, xml_add_spaces,
-                                WSAPIRequest)
+                                generate_task_id,
+                                xml_add_spaces, WSAPIRequest)
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from cghub.apps.cart.cache import (
@@ -25,7 +24,6 @@ from cghub.apps.cart.cache import (
                                 get_analysis_xml)
 
 
-WSAPI_SETTINGS = get_wsapi_settings()
 cart_logger = logging.getLogger('cart')
 
 
@@ -130,7 +128,7 @@ def load_missing_attributes(files):
             files_to_upload.append(f['analysis_id'])
     if files_to_upload:
         query = 'analysis_id=' + urllib2.quote('(%s)' % ' OR '.join(files_to_upload))
-        result = WSAPIRequest(query=query, settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(query=query)
         if result.hits != 0:
             for result in result.results:
                 for f in files:

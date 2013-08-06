@@ -8,8 +8,7 @@ import socket
 
 from celery import states
 from djcelery.models import TaskState
-
-from cghub.wsapi import Request
+from cghub_python_api import Request
 
 from django.core.mail import mail_admins
 from django.conf import settings
@@ -19,18 +18,6 @@ from cghub.apps.core.attributes import DATE_ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
-
-
-WSAPI_SETTINGS_LIST = (
-        'CGHUB_SERVER',
-        'CGHUB_ANALYSIS_ID_URI',
-        'CGHUB_ANALYSIS_DETAIL_URI',
-        'CGHUB_ANALYSIS_FULL_URI',
-        'HTTP_ERROR_ATTEMPTS',
-        'HTTP_ERROR_SLEEP_AFTER',
-        'TESTING_MODE',
-        'TESTING_CACHE_DIR',
-    )
 
 
 def get_filters_string(attributes):
@@ -87,17 +74,6 @@ def paginator_params(request):
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
-
-
-def get_wsapi_settings():
-    wsapi_settings = {}
-    for name in WSAPI_SETTINGS_LIST:
-        setting = getattr(settings, 'WSAPI_%s' % name, None)
-        if setting != None:
-            wsapi_settings[name] = setting
-    if 'TESTING_MODE' not in wsapi_settings:
-        wsapi_settings['TESTING_MODE'] = 'test' in sys.argv
-    return wsapi_settings
 
 
 def generate_task_id(**d):
@@ -253,23 +229,43 @@ def generate_tmp_file_name():
                     host=socket.gethostname())
 
 
-class WSAPIRequest(Request):
-    """
-    Override patch_result method to add custom fields.
-    """
+class APIRequest(Request):
 
-    def patch_result(self, result):
-        # files_size_field
-        files_size = 0
-        for f in result['files']:
-            files_size += f['filesize']
-        result['files_size'] = files_size
-        # checksum
-        if result['files']:
-            result['checksum'] = result['files'][0]['checksum']['#text']
-            result['filename'] = result['files'][0]['filename']
-        else:
-            result['checksum'] = None
-            result['filename'] = None
-        return result
+    def analysis_uri(self):
+        return self.CGHUB_ANALYSIS_DETAIL_URI
+
+    def patch_input_data(self):
+        server_url = getattr(settings, 'CGHUB_SERVER')
+        if server_url:
+            self.server_url = server_url
+        self.uri = self.analysis_uri()
+
+    def get_xml_file(self, url):
+        return urlopen(
+                url=url,
+                max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
+                sleep_time=getattr(settings, 'API_HTTP_ERROR_SLEEP_AFTER', 1))
+
+    def patch_result(self, result, result_xml):
+        result.xml = result_xml
+        result.filesize = result['files.file.0.filesize']
+        result.checksum = result['files.file.0.checksum']
+        result.filename = result['files.file.0.filename']
     
+
+class RequestIDs(APIRequest):
+
+    def analysis_uri(self):
+        return self.CGHUB_ANALYSIS_ID_URI
+
+
+class RequestDetails(APIRequest):
+
+    def analysis_uri(self):
+        return self.CGHUB_ANALYSIS_DETAIL_URI
+
+
+class RequestFull(APIRequest):
+
+    def analysis_uri(self):
+        return self.CGHUB_ANALYSIS_FULL_URI

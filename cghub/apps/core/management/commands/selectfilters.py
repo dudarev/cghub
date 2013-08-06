@@ -10,11 +10,10 @@ from django.utils import simplejson as json
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
-from cghub.apps.core.utils import get_wsapi_settings, WSAPIRequest
+from cghub.apps.core.utils import WSAPIRequest
 
 
 CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
-WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def get_all_filters(stdout, key, start='', count_all=None):
@@ -23,17 +22,14 @@ def get_all_filters(stdout, key, start='', count_all=None):
     for c in CHARACTERS:
         query = '%s=%s%s*' % (key, start, c)
         stdout.write('Searching [%s]' % query)
-        result = WSAPIRequest(
-                query=query, limit=5, sort_by=key, settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(query=query, limit=5, sort_by=key)
         stdout.write('- Found %d\n' % result.hits)
         count += result.hits
         if result.hits:
             filters.append(result.results[0][key])
             if count_all and count_all == count:
                 return filters
-            result = WSAPIRequest(
-                    query=query, limit=5, sort_by='-%s' % key,
-                    settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query=query, limit=5, sort_by='-%s' % key)
             # if some other filters which starts from start+c exists
             if result.results[0][key] not in filters:
                 for f in get_all_filters(
@@ -61,9 +57,7 @@ class Command(BaseCommand):
                 continue
 
             # get all results count
-            result = WSAPIRequest(
-                    query='%s=*' % key, limit=5, only_ids=True,
-                    settings=WSAPI_SETTINGS)
+            result = WSAPIRequest(query='%s=*' % key, limit=5, only_ids=True)
             count_all = result.hits
 
             self.stdout.write('Checking %s filters\n' % key)
@@ -76,8 +70,8 @@ class Command(BaseCommand):
             for filter in ALL_FILTERS[key]['filters']:
                 self.stdout.write('- Filter %s ... ' % filter)
                 result = WSAPIRequest(
-                            query='%s=%s' % (key, filter), limit=5,
-                            only_ids=True, settings=WSAPI_SETTINGS)
+                            query='%s=%s' % (key, filter),
+                            limit=5, only_ids=True)
                 count += result.hits
                 if result.hits:
                     self.stdout.write('added\n')

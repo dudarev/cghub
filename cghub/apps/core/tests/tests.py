@@ -26,11 +26,12 @@ from django.contrib.sessions.models import Session
 from cghub.apps.cart.views import cart_add_files
 
 from ..templatetags.pagination_tags import Paginator
-from ..templatetags.search_tags import (get_name_by_code,
+from ..templatetags.search_tags import (
+                    get_name_by_code,
                     table_header, table_row, file_size, details_table,
                     period_from_query, only_date, get_sample_type_by_code)
-from ..utils import (WSAPI_SETTINGS_LIST, get_filters_string,
-                    get_wsapi_settings, get_default_query,
+from ..utils import (
+                    get_filters_string, get_default_query,
                     generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
                     makedirs_group_write, generate_tmp_file_name,
@@ -41,7 +42,6 @@ from ..forms import BatchSearchForm, AnalysisIDsForm
 
 
 TEST_DATA_DIR = 'cghub/test_data/'
-WSAPI_SETTINGS = get_wsapi_settings()
 
 
 def create_session(self):
@@ -113,8 +113,7 @@ class CoreTestCase(TestCase):
 
         result = WSAPIRequest(
                     query='analysis_id=%s' % analysis_id,
-                    full=True, with_xml=True,
-                    settings=WSAPI_SETTINGS)
+                    full=True, with_xml=True)
         self.assertEqual(result.hits, 1)
         response = self.client.get(
                         reverse('item_details',
@@ -179,9 +178,7 @@ class CoreTestCase(TestCase):
         See cghub.apps.core.utils.WSAPIRequest.
         """
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
-        result = WSAPIRequest(
-                        query='analysis_id=%s' % analysis_id,
-                        settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(query='analysis_id=%s' % analysis_id)
         self.assertEqual(result.hits, 1)
         result = result.results[0]
         self.assertTrue(result['files_size'] + 1)
@@ -200,12 +197,6 @@ class UtilsTestCase(TestCase):
                         'center_name': 'BCM',
                         'bad_param': 'bad'})
         self.assertEqual(res, '&study=TGGA&center_name=BCM')
-
-    def test_get_wsapi_settings(self):
-        value = 'somesetting'
-        key = WSAPI_SETTINGS_LIST[0]
-        with self.settings(**{'WSAPI_%s' % key: value}):
-            self.assertEqual(get_wsapi_settings()[key], value)
 
     def test_generate_task_id(self):
         test_data = [
@@ -646,8 +637,7 @@ class SearchViewPaginationTestCase(TestCase):
     def setUp(self):
         result = WSAPIRequest(
                         query="all_metadata=('%s')" % self.query,
-                        only_ids=True,
-                        settings=WSAPI_SETTINGS)
+                        only_ids=True)
         self.default_results_count = result.hits
         self.results = result.results
 
@@ -781,9 +771,7 @@ class SettingsTestCase(TestCase):
         for name in settings.DETAILS_FIELDS:
             if name not in names:
                 names.append(name)
-        result = WSAPIRequest(
-                        query='analysis_id=%s' % analysis_id,
-                        settings=WSAPI_SETTINGS)
+        result = WSAPIRequest(query='analysis_id=%s' % analysis_id)
         self.assertEqual(result.hits, 1)
         field_values_dict = field_values(result.results[0])
         for name in names:
