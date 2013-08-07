@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load search_tags %}
 {% load pagination_tags %}
+{% load static from staticfiles %}
 {% block title %}Cart - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/cart/cart.less" media="all">
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/cart/cart.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cart/cart.css?v=1" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/cart/cart.css' %}?v=1" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -99,9 +100,9 @@
 {% endblock %}
 {% block extra_body_js %}
     {% if debug %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/table.js"></script>
+        <script type="text/javascript" src="{% static 'js/cart/cart.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/table.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/cart/cart.min.js?version=1"></script>
+        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=1"></script>
     {% endif %}
 {% endblock %}

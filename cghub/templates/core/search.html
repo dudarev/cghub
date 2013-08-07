@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load search_tags %}
 {% load pagination_tags %}
+{% load static from staticfiles %}
 {% block title %}Browser - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/search.less" media="all">
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/search.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/search.css?v=1" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/search.css' %}?v=1" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -61,7 +62,7 @@
                 <div class="search-btn-group">
                     <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
                     <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button" >Add all to cart</button>
-                    <img src="{{ STATIC_URL }}img/spinner.gif" class="js-spinner spinner" alt="Working ...">
+                    <img src="{% static 'img/spinner.gif' %}" class="js-spinner spinner" alt="Working ...">
                 </div>
 
             </div>
@@ -95,9 +96,9 @@
 {% endblock %}
 {% block extra_body_js %}
     {% if debug %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/table.js"></script>
+        <script type="text/javascript" src="{% static 'js/core/search.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/table.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/core/search.min.js?v=1"></script>
+        <script type="text/javascript" src="{% static 'js/core/search.min.js' %}?v=1"></script>
     {% endif %}
 {% endblock %}

@@ -13,4 +13,4 @@ celery==3.0.11
 django-celery==3.0.11
 selenium==2.31.0
 mock==1.0.1
--e git+git://github.com/42cc/cghub-python-api.git#egg=cghub_python_api
+# -e git+git://github.com/42cc/cghub-python-api.git#egg=cghub_python_api

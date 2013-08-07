@@ -208,6 +208,35 @@ def generate_tmp_file_name():
                     host=socket.gethostname())
 
 
+def get_from_test_cache(url, format='xml'):
+    """
+    Used while testing.
+    Trying to get response from cache, if it fails - get response from server and save it to cache.
+
+    :param url: url that passed to urlopen
+    :param format: 'xml' or 'json'
+
+    :return: file object
+    """
+    FORMAT_CHOICES = {
+        'xml': 'text/xml',
+        'json': 'application/json'
+    }
+    CACHE_DIR = settings.TEST_CACHE_DIR
+    if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    md5 = hashlib.md5(url)
+    path = os.path.join(CACHE_DIR, '%s.%s.cache' % (md5.hexdigest(), format))
+    if os.path.exists(path):
+        return open(path, 'r')
+    headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
+    req = urllib2.Request(url, headers=headers)
+    content = urllib2.urlopen(req).read()
+    with open(path, 'w') as f:
+        f.write(content)
+    return open(path, 'r')
+
+
 class APIRequest(Request):
 
     def patch_input_data(self):
@@ -216,6 +245,8 @@ class APIRequest(Request):
             self.server_url = server_url
 
     def get_xml_file(self, url):
+        if 'test' in sys.argv:
+            return get_from_test_cache(url=url)
         return urlopen(
                 url=url,
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
