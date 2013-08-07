@@ -28,7 +28,6 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
-            setTimeout(cghub.base.activateTaskStatusChecking, 5000);
             cghub.base.$searchForm.on('submit', cghub.base.checkSearchField);
         },
         showMessage: function (title, content) {
@@ -89,48 +88,6 @@ jQuery(function ($) {
                     $this.css({height: 0});
                 }, 100);
             });
-        },
-        activateTaskStatusChecking:function () {
-            if (cghub.cart !== undefined) {
-                setTimeout(cghub.base.activateTaskStatusChecking, 10000);
-            } else {
-                setTimeout(cghub.base.activateTaskStatusChecking, 30000);
-            }
-            var tasks = $.cookie('active_tasks');
-            if(tasks) {
-                var task_id = tasks.split(',')[0];
-                $.ajax({
-                    url: cghub.vars.taskStatusUrl,
-                    dataType: "json",
-                    data: {'task_id': task_id},
-                    type: 'GET',
-                    success: function (data) {
-                        var status = data['status'];
-                        if(status=='success' || status=='failure') {
-                            tasks = tasks.split(',');
-                            if(tasks.length > 1) {
-                                tasks.shift();
-                                $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
-                            } else {
-                                $.removeCookie('active_tasks', { path: '/' });
-                                if (cghub.cart !== undefined) {
-                                    location.reload();
-                                };
-                            }
-                        };
-                        if(status=='failure') {
-                            if (cghub.cart !== undefined) {
-                                location.reload();
-                            } else {
-                                cghub.base.$messageModal.find('.modal-label').text('Error Adding to Cart');
-                                cghub.base.$messageModal.find('.modal-body').html(
-                                    'There was an error while adding to the cart. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>');
-                                cghub.base.$messageModal.modal();
-                            }
-                        }
-                    }
-                });
-            }
         },
         mockIePlaceholder:function() {
             $('input[placeholder]').placeholder();

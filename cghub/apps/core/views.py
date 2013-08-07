@@ -1,8 +1,6 @@
 import sys
 import logging
 
-from djcelery.models import TaskState
-from celery import states
 from urllib2 import URLError
 
 from django.conf import settings
@@ -16,13 +14,12 @@ from django.template import loader, Context
 
 from cghub.apps.cart.utils import metadata, load_missing_attributes
 from cghub.apps.cart.cache import is_cart_cache_exists
-from cghub.apps.cart.tasks import cache_file
 
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .utils import (
                 get_filters_dict, query_dict_to_str,
-                paginator_params, is_celery_alive, RequestDetail,
+                paginator_params, RequestDetail,
                 RequestIDs, RequestFull)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
@@ -224,7 +221,6 @@ class BatchSearchView(TemplateView):
                 return HttpResponseRedirect(reverse('batch_search_page'))
 
             if request.POST.get('add_to_cart'):
-                celery_alive = is_celery_alive()
 
                 if 'cart' in request.session:
                     cart = request.session['cart']
@@ -243,8 +239,10 @@ class BatchSearchView(TemplateView):
                         cart[analysis_id] = filtered_data
                         last_modified = result['last_modified']
                         if not is_cart_cache_exists(analysis_id, last_modified):
-                            cache_file(analysis_id, last_modified, celery_alive)
-
+                            try:
+                                save_to_cart_cache(analysis_id, last_modified)
+                            except AnalysisFileException as e:
+                                cart_logger.error(str(e))
                 request.session['cart'] = cart
 
                 return HttpResponseRedirect(reverse('cart_page'))
@@ -327,46 +325,6 @@ class MetadataView(View):
         return metadata(data={analysis_id: {
                 'last_modified': request.GET.get('last_modified'),
                 'state': request.GET.get('state')}})
-
-
-class CeleryTasksView(TemplateView):
-    template_name = 'core/celery_task_status.html'
-
-    def get_context_data(self):
-        from djcelery.humanize import naturaldate
-        from djcelery.admin import TASK_STATE_COLORS
-        # Showing last 50 task states
-        tasks = TaskState.objects.all()[:50].values('task_id', 'state', 'name', 'tstamp')
-
-        def prettify_task(task):
-            task['tstamp'] = naturaldate(task['tstamp'])
-            color = TASK_STATE_COLORS.get(task['state'], "black")
-            task['state'] = "<b><span style=\"color: %s;\">%s</span></b>" % (color, task['state'])
-            return task
-
-        return {"tasks": map(prettify_task, tasks)}
-
-
-class CeleryTaskStatusView(AjaxView):
-
-    def get_context_data(self, task_id):
-        try:
-            task = TaskState.objects.get(task_id=task_id)
-            if task.state == states.FAILURE:
-                return {'status': 'failure'}
-            if task.state == states.SUCCESS:
-                return {'status': 'success'}
-            return {'status': 'pending'}
-        except TaskState.DoesNotExist:
-            pass
-        return {'status': 'failure'}
-
-    def get(self, request, *args, **kwargs):
-        if not request.is_ajax():
-            raise Http404
-        key = request.GET.get('task_id')
-        context = self.get_context_data(key)
-        return self.render_to_response(context)
 
 
 def error_500(request):

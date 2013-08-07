@@ -38,20 +38,9 @@
             </h1>
         </div>
         <section>
-            {% if loading %}
-            <div class="alert">
-                <strong>Notice:</strong> Still obtaining data... download functionality is not available until complete. <a href="{% url cart_terminate %}" class="red">Cancel</a>.
-            </div>
-            {% else %}
-            {% if missed_files %}
-                <div class="alert alert-error">
-                    <strong>Warning:</strong> Fewer files were added to your cart than requested, missing {{ missed_files }}.{# Please go to the Browser page and add again.  This is a known issue that we are working to resolve. #}
-                </div>
-            {% endif %}
             <span id="results-summary">
                 Files in your cart: {{ stats.count }} ({{ stats.size|file_size }})
             </span>
-            {% endif %}
         </section>
 
         <form action="{% url cart_page %}action/" method="POST">
@@ -59,13 +48,13 @@
             {% if results %}
                 <div class="btn-toolbar">
                     <div class="cart-btn-group">
-                        <button class="btn cart-remove{% if loading %} disabled{% endif %}">Remove from cart</button>
-                        <button class="btn cart-clear{% if loading %} disabled{% endif %}">Clear cart</button>
+                        <button class="btn cart-remove">Remove from cart</button>
+                        <button class="btn cart-clear">Clear cart</button>
                     </div>
                     <div class="cart-btn-group">
-                        <button class="btn cart-download-manifest{% if loading %} disabled{% endif %}">Download manifest</button>
-                        <button class="btn cart-download-metadata{% if loading %} disabled{% endif %}">Download metadata</button>
-                        <button class="btn cart-download-summary{% if loading %} disabled{% endif %}">Download summary TSV</button>
+                        <button class="btn cart-download-manifest">Download manifest</button>
+                        <button class="btn cart-download-metadata">Download metadata</button>
+                        <button class="btn cart-download-summary">Download summary TSV</button>
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
@@ -82,13 +71,13 @@
                 {% pagination %}
                 <div class="btn-toolbar">
                     <div class="cart-btn-group">
-                        <button class="btn cart-remove{% if loading %} disabled{% endif %}">Remove from cart</button>
-                        <button class="btn cart-clear{% if loading %} disabled{% endif %}">Clear cart</button>
+                        <button class="btn cart-remove">Remove from cart</button>
+                        <button class="btn cart-clear">Clear cart</button>
                     </div>
                     <div class="cart-btn-group">
-                        <button class="btn cart-download-manifest{% if loading %} disabled{% endif %}">Download manifest</button>
-                        <button class="btn cart-download-metadata{% if loading %} disabled{% endif %}">Download metadata</button>
-                        <button class="btn cart-download-summary{% if loading %} disabled{% endif %}">Download summary TSV</button>
+                        <button class="btn cart-download-manifest">Download manifest</button>
+                        <button class="btn cart-download-metadata">Download metadata</button>
+                        <button class="btn cart-download-summary">Download summary TSV</button>
                     </div>
                 </div>
             {% else %}

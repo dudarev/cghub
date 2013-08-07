@@ -4,9 +4,6 @@ import shutil
 import datetime
 import shutil
 
-from celery import states
-from djcelery.models import TaskState
-
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
@@ -31,14 +28,10 @@ from cghub.apps.cart.cache import (
                     AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
-from cghub.apps.cart.tasks import (
-                    cache_results_task, cache_file,
-                    add_files_to_cart_by_query_task)
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import TEST_DATA_DIR, get_request, create_session
-from cghub.apps.core.utils import (
-                    generate_task_id, paginator_params, RequestDetail)
+from cghub.apps.core.utils import paginator_params, RequestDetail
 
 
 def add_files_to_cart_dict(ids, selected_files=None):
@@ -205,43 +198,6 @@ class CartClearTestCase(TestCase):
         self.assertContains(response, "Your cart is empty!")
 
 
-class CartTerminateTestCase(TestCase):
-
-    def test_terminate_view(self):
-        create_session(self)
-        task_id = 'abcd123456789'
-        self.session._session['cart'] = {
-            '7850f073-642a-40a8-b49d-e328f27cfd66': {
-                'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
-                'state': 'live', 'study': 'TCGA',
-                'last_modified': '2012-05-10T06:23:39Z'},
-            '796e11c8-b873-4c37-88cd-18dcd7f287ec': {
-                'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
-                'state': 'live', 'study': 'TCGA',
-                'last_modified': '2012-05-10T06:23:39Z'},
-            '226e11c8-b873-4c37-88cd-18dcd7f28733': {
-                'analysis_id': '226e11c8-b873-4c37-88cd-18dcd7f28733'},
-            '116e11c8-b873-4c37-88cd-18dcd7f28744': {
-                'analysis_id': '116e11c8-b873-4c37-88cd-18dcd7f28744'},
-        }
-        self.session._session['task_id'] = task_id
-        self.session.save()
-        now = timezone.now()
-        ts = TaskState(
-                    state=states.PENDING, task_id=task_id,
-                    tstamp=now)
-        ts.save()
-        response = self.client.get(reverse('cart_terminate'), follow=True)
-        self.assertRedirects(response, reverse('cart_page'))
-        # check that task_id removed from session
-        self.assertNotIn('task_id', self.client.session._session)
-        # check that task revoked
-        ts = TaskState.objects.get(task_id=task_id)
-        self.assertEqual(ts.state, states.REVOKED)
-        # check that files without attributes was removed
-        self.assertEqual(response.context['missed_files'], 2)
-
-
 class CartAddItemsTestCase(TestCase):
 
     def test_cart_add_files_with_q(self):
@@ -302,6 +258,7 @@ class CartAddItemsTestCase(TestCase):
         self.assertTrue(data['task_id'])
 
     def test_add_files_to_cart_by_query(self):
+        # TODO(nanvel): FIX IT
         query = {'all_metadata': 'TCGA-04-1337-01A-01W-0484-10'}
         # initialize session
         settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
@@ -431,12 +388,6 @@ class CartCacheTestCase(TestCase):
         else:
             raise False, 'AnalysisFileException doesn\'t raised'
 
-    def test_cache_results_task(self):
-        """
-        Check that exception not rised when passed not existed analysis_id/last_modified pair
-        """
-        cache_results_task(self.analysis_id, '1900-10-29T21:56:12Z')
-
     def test_get_analysis(self):
         # test get_analysis_path
         path = os.path.join(
@@ -533,52 +484,6 @@ class CartCacheTestCase(TestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertIn('attachment; filename=%s' % filename, response['Content-Disposition'])
-
-    def test_cache_file(self):
-        # asinc == False
-        # {CART_CACHE_DIR}/7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/ should be created
-        path = os.path.join(
-                            settings.CART_CACHE_DIR,
-                            self.analysis_id[:2],
-                            self.analysis_id[2:4],
-                            self.analysis_id)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        cache_file(
-                analysis_id=self.analysis_id, last_modified=self.last_modified,
-                asinc=False)
-        self.assertTrue(os.path.isdir(path))
-        shutil.rmtree(path)
-        # asinc = True
-        cache_file(
-                analysis_id=self.analysis_id, last_modified=self.last_modified,
-                asinc=True)
-        self.assertTrue(os.path.isdir(path))
-        shutil.rmtree(path)
-        # asinc = True, and task already exists
-        now = timezone.now()
-        task_id = generate_task_id(
-                analysis_id=self.analysis_id, last_modified=self.last_modified)
-        ts = TaskState(
-                    state=states.SUCCESS, task_id=task_id,
-                    tstamp=now)
-        ts.save()
-        cache_file(
-                analysis_id=self.analysis_id, last_modified=self.last_modified,
-                asinc=True)
-        self.assertFalse(os.path.isdir(path))
-        # if task was created more than 5 days ago
-        old_time = now - datetime.timedelta(days=7)
-        ts.tstamp = old_time
-        ts.save()
-        cache_file(
-                analysis_id=self.analysis_id, last_modified=self.last_modified,
-                asinc=True)
-        self.assertTrue(os.path.isdir(path))
-        # check that tstamp was updated
-        self.assertNotEqual(
-                    TaskState.objects.get(task_id=task_id).tstamp,
-                    old_time)
 
 
 class CartFormsTestCase(TestCase):

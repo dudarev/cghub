@@ -36,7 +36,7 @@ this filter.  Defaults to True in not specified.
 try:
     from collections import OrderedDict
 except ImportError:
-    from celery.utils.compat import OrderedDict
+    from django.utils.simplejson import OrderedDict
 
 
 DATE_FILTERS_HTML_IDS = OrderedDict([

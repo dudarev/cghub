@@ -6,8 +6,6 @@ import os
 import threading
 import socket
 
-from celery import states
-from djcelery.models import TaskState
 from cghub_python_api import Request
 from cghub_python_api.utils import urlopen
 
@@ -21,11 +19,11 @@ from cghub.apps.core.attributes import DATE_ATTRIBUTES, ATTRIBUTES
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
 
 
-def get_filters_dict(attributes):
+def get_filters_dict(filters):
     filters_dict = {}
     for attr in ALLOWED_ATTRIBUTES:
-        if attributes.get(attr):
-            filters_dict[attr] = attributes[attr]
+        if filters.get(attr):
+            filters_dict[attr] = filters[attr]
     return filters_dict
 
 
@@ -57,52 +55,6 @@ def paginator_params(request):
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
-
-
-def generate_task_id(**d):
-    """
-    Generate task id from dict
-    """
-    result = [str(v) for v in d.values()]
-    result.sort()
-    md5 = hashlib.md5(''.join(result))
-    return md5.hexdigest()
-
-
-def is_task_done(task_id):
-    """
-    Returns True if task state in (SUCCESS, FAILURE, IGNORED, REVOKED) or task does not exists
-    Also return  True if celery doesn't work properly
-    """
-    try:
-        task = TaskState.objects.get(task_id=task_id)
-        if task.state in (
-                    states.SUCCESS, states.FAILURE, states.IGNORED,
-                                                    states.REVOKED):
-            return True
-    except TaskState.DoesNotExist:
-        return True
-    return not is_celery_alive()
-
-
-def is_celery_alive():
-    """
-    Return 'True' if celery works properly
-    """
-    if 'test' in sys.argv:
-        return True
-    try:
-        from celery.task.control import inspect
-        insp = inspect()
-        d = insp.stats()
-        if not d:
-            return False
-        return True
-    except Exception:
-        subject = '[ucsc-cghub] ERROR: Message broker not working'
-        message = traceback.format_exc()
-        mail_admins(subject, message, fail_silently=True)
-        return False
 
 
 def decrease_start_date(query):

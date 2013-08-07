@@ -10,14 +10,6 @@ ADMINS = (
 
 CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
 
-# rabbitmq server
-BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
-
-# try to make celeryd more reliable
-CELERYD_MAX_TASKS_PER_CHILD = 5
-CELERYD_TASK_TIME_LIMIT = 600 # 10 minutes
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -101,5 +93,5 @@ LOGGING = {
         },
 }
 
-WSAPI_CGHUB_SERVER = 'https://cghub.ucsc.edu'
-#WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
+CGHUB_SERVER = 'https://cghub.ucsc.edu'
+#CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'

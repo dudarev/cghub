@@ -4,20 +4,15 @@ from utils import proj
 
 # Disable debug stack dump by default.
 DEBUG = False
-DEBUG = True
 
 ADMINS = (
   ('Mark Diekhans', 'markd@kermodei.com'),
 )
 
-CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser"
-CART_CACHE_DIR = CACHE_DIR + '/cart'
+CART_CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser/cart"
 
 # for testing against stage
-#WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
-
-# rabbitmq server
-BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
+#CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
 
 TIME_ZONE = 'America/Los_Angeles'
 

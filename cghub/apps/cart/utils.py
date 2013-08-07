@@ -14,9 +14,7 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import (
-                                generate_task_id, xml_add_spaces,
-                                RequestDetail)
+from cghub.apps.core.utils import xml_add_spaces, RequestDetail
 from cghub.apps.core.attributes import ATTRIBUTES
 
 from .cache import AnalysisFileException, get_analysis, get_analysis_xml

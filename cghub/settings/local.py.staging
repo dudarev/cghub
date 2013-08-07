@@ -1,3 +1,1 @@
-BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
-
 CART_CACHE_DIR = '/tmp/cart/'

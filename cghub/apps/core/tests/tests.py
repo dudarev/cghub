@@ -5,8 +5,6 @@ import datetime
 
 from urllib2 import URLError
 from mock import patch
-from djcelery.models import TaskState
-from celery import states
 from StringIO import StringIO
 
 from django.conf import settings
@@ -31,7 +29,6 @@ from ..templatetags.search_tags import (
                     period_from_query, only_date, get_sample_type_by_code)
 from ..utils import (
                     get_filters_dict, query_dict_to_str,
-                    generate_task_id, is_task_done,
                     decrease_start_date, xml_add_spaces, paginator_params,
                     makedirs_group_write, generate_tmp_file_name,
                     RequestFull, RequestDetail, RequestIDs)
@@ -91,7 +88,6 @@ class CoreTestCase(TestCase):
         # check ajax urls is available
         self.assertContains(response, reverse('help_hint'))
         self.assertContains(response, reverse('help_text'))
-        self.assertContains(response, reverse('celery_task_status'))
 
     def test_non_existent_search(self):
         response = self.client.get('/search/?q=non_existent_search_query')
@@ -202,21 +198,6 @@ class UtilsTestCase(TestCase):
                         'bad_param': 'bad'})
         self.assertEqual(res, {'study': 'TGGA', 'center_name': 'BCM'})
 
-    def test_generate_task_id(self):
-        test_data = [
-            {
-                'dict': {'some': 'dict', '1': 2},
-                'result': '971bf776baa021181f4cc5cf2d621967'},
-            {
-                'dict': {'another': 'dict', '1': 2},
-                'result': '971bf776baa021181f4cc5cf2d621967'},
-            {
-                'dict': {'another': 'dict', '1': 2, '123': 'Some text'},
-                'result': 'b351d6f2c44247961e7b641e4c5dcb65'},
-        ]
-        for data in test_data:
-            self.assertEqual(generate_task_id(**data['dict']), data['result'])
-
     def test_query_dict_to_str(self):
         TEST_DATA_SET = [
             {
@@ -239,21 +220,6 @@ class UtilsTestCase(TestCase):
 
         for data in TEST_DATA_SET:
             self.assertEqual(query_dict_to_str(data['dict']), data['str'])
-
-    def test_is_task_done(self):
-        task_id = 'some-id-0000'
-        # not existed task
-        self.assertTrue(is_task_done(task_id))
-        task_state = TaskState.objects.create(
-                                        state=states.STARTED,
-                                        task_id=task_id,
-                                        tstamp=timezone.now())
-        # waiting
-        self.assertFalse(is_task_done(task_id))
-        task_state.state = states.FAILURE
-        task_state.save()
-        # task is done
-        self.assertTrue(is_task_done(task_id))
 
     def test_decrease_start_date(self):
         TEST_DATA = [
@@ -557,16 +523,6 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
 
 
-class ManagementTestCase(TestCase):
-
-    def test_celery_status(self):
-        # is_celery_alive is True while testing
-        result = StringIO()
-        call_command('celerystatus', stdout=result)
-        result.seek(0)
-        self.assertIn('Result was not saved to TaskState table', result.read())
-
-
 class BatchSearchTestCase(TestCase):
 
     def test_batch_search_form(self):
@@ -733,35 +689,6 @@ class MetadataViewTestCase(TestCase):
         self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
-
-
-class TaskViewsTestCase(TestCase):
-
-    def test_celery_task_status(self):
-        task_id = 'someid'
-
-        def get_response():
-            response = self.client.get(
-                                reverse('celery_task_status'),
-                                {'task_id': task_id},
-                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            self.assertEqual(response.status_code, 200)
-            return json.loads(response.content)
-
-        response = self.client.get(reverse('celery_task_status'))
-        self.assertEqual(response.status_code, 404)
-        data = get_response()
-        self.assertEqual(data['status'], 'failure')
-        task_state = TaskState.objects.create(
-                                        state=states.SUCCESS,
-                                        task_id=task_id,
-                                        tstamp=timezone.now())
-        data = get_response()
-        self.assertEqual(data['status'], 'success')
-        task_state.state = states.FAILURE
-        task_state.save()
-        data = get_response()
-        self.assertEqual(data['status'], 'failure')
 
 
 class SettingsTestCase(TestCase):

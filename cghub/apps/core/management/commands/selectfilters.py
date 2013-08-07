@@ -3,7 +3,7 @@ import string
 try:
     from collections import OrderedDict
 except ImportError:
-    from celery.utils.compat import OrderedDict
+    from django.utils.simplejson import OrderedDict
 
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json

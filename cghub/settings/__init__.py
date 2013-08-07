@@ -13,7 +13,6 @@ from .ui import *
 from .help import *
 from .variables import *
 from .debug_toolbar_settings import *
-from .celery_settings import *
 from .logging_settings import *
 
 if 'test' in sys.argv:
