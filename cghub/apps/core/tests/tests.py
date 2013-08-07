@@ -5,14 +5,11 @@ import datetime
 
 from urllib2 import URLError
 from mock import patch
-from StringIO import StringIO
 
 from django.conf import settings
-from django.utils import simplejson as json
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.management import call_command
 from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 from django.template import Template, Context, RequestContext
@@ -20,18 +17,16 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
-from cghub.apps.cart.views import cart_add_files
-
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
-                    get_name_by_code,
-                    table_header, table_row, file_size, details_table,
-                    period_from_query, only_date, get_sample_type_by_code)
+                    get_name_by_code, table_header, table_row,
+                    file_size, details_table, period_from_query,
+                    only_date, get_sample_type_by_code)
 from ..utils import (
-                    get_filters_dict, query_dict_to_str,
-                    decrease_start_date, xml_add_spaces, paginator_params,
-                    makedirs_group_write, generate_tmp_file_name,
-                    RequestFull, RequestDetail, RequestIDs)
+                    get_filters_dict, query_dict_to_str, xml_add_spaces,
+                    paginator_params, generate_tmp_file_name,
+                    RequestFull, RequestDetail, RequestIDs,
+                    get_results_for_ids)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
@@ -221,32 +216,6 @@ class UtilsTestCase(TestCase):
         for data in TEST_DATA_SET:
             self.assertEqual(query_dict_to_str(data['dict']), data['str'])
 
-    def test_decrease_start_date(self):
-        TEST_DATA = [
-            {
-                'input': {'last_modified': '[NOW-60DAY TO NOW-56DAY]', 'state': '(live)'},
-                'output': {'last_modified': '[NOW-61DAY TO NOW-56DAY]', 'state': '(live)'}
-            }, {
-                'input': {'upload_date': '[NOW-2MONTH TO NOW-1MONTH]', 'state': '(live)'},
-                'output': {'upload_date': '[NOW-63DAY TO NOW-1MONTH]', 'state': '(live)'}
-            }, {
-                'input': {'upload_date': '[NOW-10DAY TO NOW-3DAY]', 'last_modified': '[NOW-1YEAR TO NOW-3DAY]'},
-                'output': {'upload_date': '[NOW-11DAY TO NOW-3DAY]', 'last_modified': '[NOW-367DAY TO NOW-3DAY]'}
-            }, {
-                'input': {'state': '(live)'},
-                'output': {'state': '(live)'}
-            }, {
-                'input': {'last_modified': '[]'},
-                'output': {'last_modified': '[]'}
-            }, {
-                'input': {'upload_date': '%5BNOW-16DAY%20TO%20NOW-15DAY%5D', 'state': '%28live%29'},
-                'output': {'upload_date': '[NOW-17DAY TO NOW-15DAY]', 'state': '%28live%29'}
-            }
-        ]
-
-        for data in TEST_DATA:
-            self.assertEqual(decrease_start_date(data['input']), data['output'])
-
     def test_xml_add_spaces(self):
         xml = """<ResultSet date="2013-11-06 09:24:56"><Hits>10</Hits><Result id="1"><analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id><state>live</state><reason/><last_modified>2013-06-09T07:27:48Z</last_modified><upload_date>2013-06-09T06:51:41Z</upload_date></Result></ResultSet>"""
         result = ''
@@ -271,6 +240,16 @@ class UtilsTestCase(TestCase):
         """
         name = generate_tmp_file_name()
         self.assertIn('.tmp', name)
+
+    def test_get_results_for_ids(self):
+        ids = [
+                '7850f073-642a-40a8-b49d-e328f27cfd66',
+                '796e11c8-b873-4c37-88cd-18dcd7f287ec']
+        results = get_results_for_ids(ids)
+        # first is unchanged
+        self.assertEqual(len(results), 2)
+        # attributes was loaded for second item
+        self.assertEqual(results[1]['disease_abbr'], 'COAD')
 
 
 class ContextProcessorsTestCase(TestCase):

@@ -19,23 +19,7 @@
                     <input class="data-table-checkbox" type="checkbox" name="selected_files"
                                                             id="cb-{{ r.analysis_id }}"
                                                             value="{{ r.analysis_id }}"
-                                                            data-legacy_sample_id="{{ r.legacy_sample_id }}"
-                                                            data-study="{{ r.study }}"
-                                                            data-analysis_id="{{ r.analysis_id }}"
-                                                            data-sample_accession="{{ r.sample_accession }}"
-                                                            data-files_size="{{ r.files_size }}"
-                                                            data-upload_date="{{ r.upload_date }}"
-                                                            data-last_modified ="{{ r.last_modified }}"
-                                                            data-disease_abbr="{{ r.disease_abbr }}"
-                                                            data-sample_type="{{ r.sample_type }}"
-                                                            data-analyte_code="{{ r.analyte_code }}"
-                                                            data-library_strategy="{{ r.library_strategy }}"
-                                                            data-center_name="{{ r.center_name }}"
-                                                            data-state="{{ r.state }}"
-                                                            data-refassem_short_name="{{ r.refassem_short_name }}"
-                                                            data-platform="{{ r.platform }}"
-                                                            data-checksum="{{ r.checksum }}"
-                                                            data-filename="{{ r.filename }}">
+                                                            data-analysis_id="{{ r.analysis_id }}">
                 </td>
                 {% table_row r %}
             </tr>

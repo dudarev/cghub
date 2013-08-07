@@ -6,21 +6,20 @@ from urllib2 import URLError
 from django.conf import settings
 from django.http import (
                         QueryDict, HttpResponseRedirect, HttpResponse,
-                        Http404, HttpResponseServerError)
+                        HttpResponseServerError)
 from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.apps.cart.utils import metadata, load_missing_attributes
-from cghub.apps.cart.cache import is_cart_cache_exists
+from cghub.apps.cart.utils import metadata
 
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .utils import (
                 get_filters_dict, query_dict_to_str,
                 paginator_params, RequestDetail,
-                RequestIDs, RequestFull)
+                RequestIDs, RequestFull, get_results_for_ids)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 
@@ -238,11 +237,6 @@ class BatchSearchView(TemplateView):
                             filtered_data[attr] = result[attr]
                         cart[analysis_id] = filtered_data
                         last_modified = result['last_modified']
-                        if not is_cart_cache_exists(analysis_id, last_modified):
-                            try:
-                                save_to_cart_cache(analysis_id, last_modified)
-                            except AnalysisFileException as e:
-                                cart_logger.error(str(e))
                 request.session['cart'] = cart
 
                 return HttpResponseRedirect(reverse('cart_page'))
@@ -257,8 +251,9 @@ class BatchSearchView(TemplateView):
                     offset = 0
                     limit = settings.DEFAULT_PAGINATOR_LIMIT
                 for i in ids[offset:(offset + limit)]:
-                    results.append({'analysis_id': i})
-                results = load_missing_attributes(results)
+                    results.append(i)
+
+                results = get_results_from_ids(results)
 
                 return self.render_to_response({
                         'form': form, 'ids': ids,
@@ -280,8 +275,9 @@ class BatchSearchView(TemplateView):
                 ids = sorted(ids)
                 results = []
                 for i in ids[:settings.DEFAULT_PAGINATOR_LIMIT]:
-                    results.append({'analysis_id': i})
-                results = load_missing_attributes(results)
+                    results.append(i)
+
+                results = get_results_for_ids(results)
 
                 return self.render_to_response({
                         'form': form, 'found': found, 'ids': ids,

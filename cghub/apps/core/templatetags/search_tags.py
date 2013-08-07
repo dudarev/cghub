@@ -12,6 +12,7 @@ from django.template.loader import select_template
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.attributes import COLUMN_NAMES, DATE_ATTRIBUTES
 
+
 register = template.Library()
 
 

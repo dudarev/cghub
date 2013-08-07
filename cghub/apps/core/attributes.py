@@ -33,6 +33,6 @@ COLUMN_NAMES = {
 }
 
 ATTRIBUTES = []
-for name in COLUMN_NAMES:
-    if COLUMN_NAMES[name] not in ATTRIBUTES:
-        ATTRIBUTES.append(COLUMN_NAMES[name])
+for name, attribute in COLUMN_NAMES.iteritems():
+    if attribute not in ATTRIBUTES:
+        ATTRIBUTES.append(attribute)

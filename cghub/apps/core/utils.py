@@ -1,6 +1,5 @@
 import sys
 import urllib2
-import traceback
 import hashlib
 import os
 import threading
@@ -9,11 +8,10 @@ import socket
 from cghub_python_api import Request
 from cghub_python_api.utils import urlopen
 
-from django.core.mail import mail_admins
 from django.conf import settings
 
 from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES, ATTRIBUTES
+from cghub.apps.core.attributes import ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
@@ -55,39 +53,6 @@ def paginator_params(request):
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
-
-
-def decrease_start_date(query):
-    """
-    Decrease start date by 1 day.
-    [NOW-1YEAR TO NOW] -> [NOW-367DAY TO NOW]
-    [NOW-2MONTH TO NOW-1MONTH] -> [NOW-63DAY TO NOW-1MONTH]
-    [NOW-10DAY TO NOW-3DAY] -> [NOW-11DAY TO NOW-3DAY]
-    Works for upload_date, last_modified.
-    """
-    targets = ('upload_date', 'last_modified',)
-    for target in targets:
-        value = query.get(target)
-        if not value:
-            continue
-        value = urllib2.unquote(value)
-        try:
-            first, second = value.split('TO')
-            period = first[5:-1]
-            days = None
-            if 'DAY' in period:
-                days = int(period.split('DAY')[0])
-            elif 'MONTH' in period:
-                days = int(period.split('MONTH')[0]) * 31
-            elif 'YEAR' in period:
-                days = int(period.split('YEAR')[0]) * 366
-            if not days:
-                continue
-            days += 1
-            query[target] = '[NOW-%dDAY TO%s' % (days, second)
-        except:
-            continue
-    return query
 
 
 # xml processing
@@ -248,3 +213,14 @@ class ResultFromFile(RequestFull):
     def get_xml_file(self, url):
         filename = self.query['filename']
         return open(filename, 'r')
+
+
+def get_results_for_ids(ids):
+    if not ids:
+        return []
+    query = {'analysis_id': ids}
+    api_request = RequestDetail(query=query)
+    results = []
+    for result in api_request.call():
+        results.append(result)
+    return results

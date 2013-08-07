@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 
 from django.utils import simplejson as json
@@ -8,21 +10,24 @@ class SelectedFilesForm(forms.Form):
     Checks that adding selected files to cart sends the right
     format to the form - format that can be loaded to json.
     """
-    attributes = forms.CharField()
+    selected_items = forms.CharField()
 
-    def clean_attributes(self):
-        attributes = self.cleaned_data.get('attributes')
+    def clean_selected_items(self):
+        selected_items = self.cleaned_data.get('selected_items')
         try:
-            attributes = json.loads(attributes)
+            selected_items = json.loads(selected_items)
         except (TypeError, ValueError):
-            raise forms.ValidationError('attributes value is not valid json')
-        if not isinstance(attributes, dict):
-            raise forms.ValidationError('attributes has not valid value')
-        if len(attributes):
-            for a in attributes:
-                if not isinstance(attributes[a], dict):
-                    raise forms.ValidationError('attributes has not valid value')
-        return attributes
+            raise forms.ValidationError('selected_items value is not valid json')
+        if not isinstance(selected_items, list):
+            raise forms.ValidationError('selected_items has not valid value')
+        if selected_items:
+            id_pattern = re.compile(
+                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
+                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
+            for a in selected_items:
+                if not id_pattern.match(str(a)):
+                    raise forms.ValidationError('selected_items has not valid value')
+        return selected_items
 
 
 class AllFilesForm(forms.Form):
