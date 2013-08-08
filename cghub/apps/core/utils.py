@@ -1,31 +1,27 @@
 import sys
 import urllib2
-import traceback
 import hashlib
 import os
 import threading
 import socket
 
-from celery import states
-from djcelery.models import TaskState
 from cghub_python_api import Request
 from cghub_python_api.utils import urlopen
 
-from django.core.mail import mail_admins
 from django.conf import settings
 
 from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES, ATTRIBUTES
+from cghub.apps.core.attributes import ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
 
 
-def get_filters_dict(attributes):
+def get_filters_dict(filters):
     filters_dict = {}
     for attr in ALLOWED_ATTRIBUTES:
-        if attributes.get(attr):
-            filters_dict[attr] = attributes[attr]
+        if filters.get(attr):
+            filters_dict[attr] = filters[attr]
     return filters_dict
 
 
@@ -57,85 +53,6 @@ def paginator_params(request):
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
-
-
-def generate_task_id(**d):
-    """
-    Generate task id from dict
-    """
-    result = [str(v) for v in d.values()]
-    result.sort()
-    md5 = hashlib.md5(''.join(result))
-    return md5.hexdigest()
-
-
-def is_task_done(task_id):
-    """
-    Returns True if task state in (SUCCESS, FAILURE, IGNORED, REVOKED) or task does not exists
-    Also return  True if celery doesn't work properly
-    """
-    try:
-        task = TaskState.objects.get(task_id=task_id)
-        if task.state in (
-                    states.SUCCESS, states.FAILURE, states.IGNORED,
-                                                    states.REVOKED):
-            return True
-    except TaskState.DoesNotExist:
-        return True
-    return not is_celery_alive()
-
-
-def is_celery_alive():
-    """
-    Return 'True' if celery works properly
-    """
-    if 'test' in sys.argv:
-        return True
-    try:
-        from celery.task.control import inspect
-        insp = inspect()
-        d = insp.stats()
-        if not d:
-            return False
-        return True
-    except Exception:
-        subject = '[ucsc-cghub] ERROR: Message broker not working'
-        message = traceback.format_exc()
-        mail_admins(subject, message, fail_silently=True)
-        return False
-
-
-def decrease_start_date(query):
-    """
-    Decrease start date by 1 day.
-    [NOW-1YEAR TO NOW] -> [NOW-367DAY TO NOW]
-    [NOW-2MONTH TO NOW-1MONTH] -> [NOW-63DAY TO NOW-1MONTH]
-    [NOW-10DAY TO NOW-3DAY] -> [NOW-11DAY TO NOW-3DAY]
-    Works for upload_date, last_modified.
-    """
-    targets = ('upload_date', 'last_modified',)
-    for target in targets:
-        value = query.get(target)
-        if not value:
-            continue
-        value = urllib2.unquote(value)
-        try:
-            first, second = value.split('TO')
-            period = first[5:-1]
-            days = None
-            if 'DAY' in period:
-                days = int(period.split('DAY')[0])
-            elif 'MONTH' in period:
-                days = int(period.split('MONTH')[0]) * 31
-            elif 'YEAR' in period:
-                days = int(period.split('YEAR')[0]) * 366
-            if not days:
-                continue
-            days += 1
-            query[target] = '[NOW-%dDAY TO%s' % (days, second)
-        except:
-            continue
-    return query
 
 
 # xml processing
@@ -208,6 +125,35 @@ def generate_tmp_file_name():
                     host=socket.gethostname())
 
 
+def get_from_test_cache(url, format='xml'):
+    """
+    Used while testing.
+    Trying to get response from cache, if it fails - get response from server and save it to cache.
+
+    :param url: url that passed to urlopen
+    :param format: 'xml' or 'json'
+
+    :return: file object
+    """
+    FORMAT_CHOICES = {
+        'xml': 'text/xml',
+        'json': 'application/json'
+    }
+    CACHE_DIR = settings.TEST_CACHE_DIR
+    if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+    md5 = hashlib.md5(url)
+    path = os.path.join(CACHE_DIR, '%s.%s.cache' % (md5.hexdigest(), format))
+    if os.path.exists(path):
+        return open(path, 'r')
+    headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
+    req = urllib2.Request(url, headers=headers)
+    content = urllib2.urlopen(req).read()
+    with open(path, 'w') as f:
+        f.write(content)
+    return open(path, 'r')
+
+
 class APIRequest(Request):
 
     def patch_input_data(self):
@@ -216,6 +162,8 @@ class APIRequest(Request):
             self.server_url = server_url
 
     def get_xml_file(self, url):
+        if 'test' in sys.argv:
+            return get_from_test_cache(url=url)
         return urlopen(
                 url=url,
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
@@ -265,3 +213,14 @@ class ResultFromFile(RequestFull):
     def get_xml_file(self, url):
         filename = self.query['filename']
         return open(filename, 'r')
+
+
+def get_results_for_ids(ids):
+    if not ids:
+        return []
+    query = {'analysis_id': ids}
+    api_request = RequestDetail(query=query)
+    results = []
+    for result in api_request.call():
+        results.append(result)
+    return results

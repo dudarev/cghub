@@ -1,13 +1,3 @@
-# use myuser, mypassword, and vhost and cghub
-# $ rabbitmqctl add_user myuser mypassword
-# $ rabbitmqctl add_vhost myvhost
-# $ rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
-
-# Example
-# BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
-
-# BROKER_URL = "amqp://user:password@host:port/vhost"
-
 # CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
 
 # # logging settings, example of using SysLogHandler

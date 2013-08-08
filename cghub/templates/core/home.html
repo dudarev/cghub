@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load static from staticfiles %}
 {% block extra_header_css %}
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/home.less" media="all">
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/home.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/home.css" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/home.css' %}" media="all">
     {% endif %}
 {% endblock %}
 {% block main_content %}
@@ -30,8 +31,8 @@
 {% endblock %}
 {% block extra_body_js %}
     {% if debug %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.js"></script>
+        <script type="text/javascript" src="{% static 'js/core/home.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/core/home.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/core/home.min.js' %}"></script>
     {% endif %}
 {% endblock %}

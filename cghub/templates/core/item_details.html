@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load static from staticfiles %}
 
 {% block title %}Details for {{ res.analysis_id }} - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}css/core/details.less" media="all">
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/details.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/core/details.css" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/details.css' %}" media="all">
     {% endif %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/libs/xmldisplay/XMLDisplay.css" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/libs/xmldisplay/XMLDisplay.css' %}" media="all">
 {% endblock %}
 
 {% block extra_content %}
@@ -21,10 +22,10 @@
 
 {% block extra_body_js %}
     {% if debug %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/details.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/libs/XMLDisplay.js"></script>
+        <script type="text/javascript" src="{% static 'js/details.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/libs/XMLDisplay.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/details.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/details.min.js' %}"></script>
     {% endif %}
     <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
 {% endblock %}

@@ -18,7 +18,5 @@ INSTALLED_APPS += [
     'debug_toolbar',
     'south',
     'django_coverage',
-    'djcelery',
-    "kombu.transport.django",
     ]
 

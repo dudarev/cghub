@@ -12,6 +12,7 @@ from django.template.loader import select_template
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.attributes import COLUMN_NAMES, DATE_ATTRIBUTES
 
+
 register = template.Library()
 
 
@@ -289,10 +290,10 @@ def get_result_attr(result, attr):
     try:
         if attr in DATE_ATTRIBUTES:
             return only_date(result[attr])
-        return result[attr]
+        return result[attr] or ' '
     except KeyError:
         pass
-    return ''
+    return ' '
 
 
 def field_values(result, humanize_files_size=True):

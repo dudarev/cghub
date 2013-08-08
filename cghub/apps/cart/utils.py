@@ -1,23 +1,17 @@
-import sys
 import csv
-import urllib2
 import datetime
 import logging
 
 from StringIO import StringIO
 
 from django.http import HttpResponse
-from django.core.servers import basehttp
 from django.conf import settings
 from django.utils import timezone
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import (
-                                generate_task_id, xml_add_spaces,
-                                RequestDetail)
-from cghub.apps.core.attributes import ATTRIBUTES
+from cghub.apps.core.utils import xml_add_spaces
 
 from .cache import AnalysisFileException, get_analysis, get_analysis_xml
 
@@ -29,23 +23,6 @@ def get_or_create_cart(request):
     """ return cart and creates it if it does not exist """
     request.session["cart"] = request.session.get('cart', {})
     return request.session["cart"]
-
-
-def add_file_to_cart(request, file_dict):
-    """ adds file file_dict to cart """
-    cart = get_or_create_cart(request)
-    analysis_id = file_dict.get('analysis_id')
-    if analysis_id not in cart:
-        cart[analysis_id] = file_dict
-    request.session.modified = True
-
-
-def remove_file_from_cart(request, analysis_id):
-    """ removes file with legacy_sample_id from cart """
-    cart = get_or_create_cart(request)
-    if analysis_id in cart:
-        del cart[analysis_id]
-    request.session.modified = True
 
 
 def get_cart_stats(request):
@@ -61,78 +38,10 @@ def get_cart_stats(request):
     return stats
 
 
-def add_ids_to_cart(request, results):
-    """ adds file file_dict to cart """
-    cart = get_or_create_cart(request)
-    for result in results:
-        analysis_id = result['analysis_id']
-        if analysis_id not in cart:
-            cart[analysis_id] = {'analysis_id': analysis_id}
-    request.session.modified = True
-
-
-def add_files_to_cart(request, results):
-    """
-    Fill cart by data contains in results.
-
-    :param request: Request objects
-    :param results: attributes dict
-    """
-    cart = get_or_create_cart(request)
-    for result in results:
-        current_dict = {}
-        for attribute in ATTRIBUTES:
-            current_dict[attribute] = result.get(attribute)
-        cart[current_dict['analysis_id']] = current_dict
-    request.session.modified = True
-
-
 def cart_clear(request):
     if 'cart' in request.session:
         request.session['cart'].clear()
     request.session.modified = True
-
-
-def cart_remove_files_without_attributes(request):
-    """
-    Remove files from cart where last_modified not specified.
-    Return number of removed files.
-    """
-    cart = get_or_create_cart(request)
-    to_remove = []
-    for analysis_id, f in cart.iteritems():
-        if 'last_modified' not in f:
-            to_remove.append(analysis_id)
-    for analysis_id in to_remove:
-        del cart[analysis_id]
-    if to_remove:
-        request.session.modified = True
-    return len(to_remove)
-
-
-def load_missing_attributes(files):
-    """
-    Check that not only analysis_id attribute filled.
-    If only analysis_id exists, upload missing attributes and modify data.
-
-    Runs only if task to fill attributes in progress.
-
-    :param files: list of files attributes
-    """
-    files_to_upload = []
-    for f in files:
-        if len(f) == 1:
-            files_to_upload.append(f['analysis_id'])
-    if files_to_upload:
-        query = {'analysis_id': files_to_upload}
-        api_request = RequestDetail(query=query)
-        for result in api_request.call():
-            for f in files:
-                if f['analysis_id'] == result['analysis_id']:
-                    for attr in ATTRIBUTES:
-                        f[attr] = result.get(attr)
-                    break
-    return files
 
 
 def analysis_xml_iterator(data, short=False, live_only=False):

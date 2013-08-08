@@ -182,7 +182,7 @@ jQuery(function ($) {
             cghub.search.$addFilesButton.addClass('disabled');
             cghub.search.$spinner.show();
             // collect all data attributes
-            var data = {};
+            var data = [];
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
 
             // show message if nothing selected
@@ -194,11 +194,10 @@ jQuery(function ($) {
             }
 
             selected_files.each(function (i, f) {
-                var file_data = $(f).data();
-                data[file_data.analysis_id] = file_data;
+                data.push($(f).data().analysis_id);
             });
             $.ajax({
-                data:$(this).serialize() + "&attributes=" + JSON.stringify(data),
+                data:$(this).serialize() + "&selected_items=" + JSON.stringify(data),
                 type:$(this).attr('method'),
                 dataType:'json',
                 url:$(this).attr('action'),

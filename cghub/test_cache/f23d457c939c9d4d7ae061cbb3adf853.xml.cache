@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-08-07 09:33:48">
+	<Query>state:(live) all_metadata:('\(00b27c0f-acf5-434c-8efa-25b1f3c4f506\)')</Query>
+	<Hits>1</Hits>
+	<Result id="1">
+		<analysis_id>00b27c0f-acf5-434c-8efa-25b1f3c4f506</analysis_id>
+		<state>live</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/00b27c0f-acf5-434c-8efa-25b1f3c4f506</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00b27c0f-acf5-434c-8efa-25b1f3c4f506</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00b27c0f-acf5-434c-8efa-25b1f3c4f506</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00b27c0f-acf5-434c-8efa-25b1f3c4f506</analysis_data_uri>
+	</Result>
+	<ResultSummary>
+		<downloadable_file_count>2</downloadable_file_count>
+		<downloadable_file_size units="GB">7.05</downloadable_file_size>
+		<state_count>
+			<live>1</live>
+		</state_count>
+	</ResultSummary>
+</ResultSet>

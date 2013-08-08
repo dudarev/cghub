@@ -3,7 +3,7 @@ import string
 try:
     from collections import OrderedDict
 except ImportError:
-    from celery.utils.compat import OrderedDict
+    from django.utils.simplejson import OrderedDict
 
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
@@ -23,14 +23,14 @@ def get_all_filters(stdout, key, start='', count_all=None):
         query = {key: '%s%s*' % (start, c)}
         stdout.write('Searching [%s]' % query)
         api_request = RequestDetail(query=query, limit=5, sort_by=key)
-        stdout.write('- Found %d\n' % result.hits)
         try:
             result = api_request.call().next()
         except StopIteration:
             pass
+        stdout.write('- Found %d\n' % api_request.hits)
         count += api_request.hits
         if api_request.hits:
-            filters.append(getattr(result, key))
+            filters.append(result.get(key))
             if count_all and count_all == count:
                 return filters
             api_request = RequestDetail(query=query, limit=5, sort_by='-%s' % key)
@@ -39,7 +39,7 @@ def get_all_filters(stdout, key, start='', count_all=None):
             except StopIteration:
                 result = None
             # if some other filters which starts from start+c exists
-            if result and getattr(result, key) not in filters:
+            if result and result.get(key) not in filters:
                 for f in get_all_filters(
                             stdout=stdout, key=key,
                             start='%s%s' % (start, c),
