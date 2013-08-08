@@ -364,8 +364,8 @@ class CartCacheTestCase(TestCase):
 
     def test_manifest(self):
         data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+            self.analysis_id: {'analysis_id': self.analysis_id},
+            self.analysis_id2: {'analysis_id': self.analysis_id2}}
         response = manifest(data)
         content = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
@@ -374,8 +374,8 @@ class CartCacheTestCase(TestCase):
 
     def test_metadata(self):
         data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+            self.analysis_id: {'analysis_id': self.analysis_id},
+            self.analysis_id2: {'analysis_id': self.analysis_id2}}
         response = metadata(data)
         content = response.content
         self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
@@ -384,8 +384,8 @@ class CartCacheTestCase(TestCase):
 
     def test_summary(self):
         data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
+            self.analysis_id: {'analysis_id': self.analysis_id},
+            self.analysis_id2: {'analysis_id': self.analysis_id2}}
         response = summary(data)
         content = response.content
         self.assertTrue(all(field.lower().replace(' ', '_') in content

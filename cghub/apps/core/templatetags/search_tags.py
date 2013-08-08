@@ -290,10 +290,10 @@ def get_result_attr(result, attr):
     try:
         if attr in DATE_ATTRIBUTES:
             return only_date(result[attr])
-        return result[attr]
+        return result[attr] or ' '
     except KeyError:
         pass
-    return ''
+    return ' '
 
 
 def field_values(result, humanize_files_size=True):

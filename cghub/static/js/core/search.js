@@ -197,7 +197,7 @@ jQuery(function ($) {
                 data.push($(f).data().analysis_id);
             });
             $.ajax({
-                data:$(this).serialize() + "&attributes=" + JSON.stringify(data),
+                data:$(this).serialize() + "&selected_items=" + JSON.stringify(data),
                 type:$(this).attr('method'),
                 dataType:'json',
                 url:$(this).attr('action'),

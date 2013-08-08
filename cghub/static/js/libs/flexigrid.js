@@ -1495,16 +1495,19 @@
                 }
             });
             // Hide already hidden columns
-            var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
-            // set hidden columns according to data-ds attribute if not done yet
-            if(hiddenColumns.length == 1) { // only ''
+            var hiddenColumns = ['']
+            if(sessionStorage.getItem('hiddenColumns') == null) {
+                // set hidden columns according to data-ds attribute if not done yet
                 hiddenColumns = [""];
                 $.each(columns, function(n) {
                     if($(this).attr('data-ds') == 'hidden') {
                         hiddenColumns.push((n+1).toString());
                     }
                 });
+            } else {
+                hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
             }
+
             for (var i = hiddenColumns.length - 1; i >= 0; i--) {
                 if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i], false)}
             }
