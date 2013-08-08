@@ -3,21 +3,107 @@ import shutil
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.utils import simplejson as json
-from django.utils import timezone
+from django.utils import timezone, simplejson as json
 from django.conf import settings
+from django.contrib.sessions.models import Session
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import create_session
 
 from ..utils import (
-                    manifest, metadata, summary,
+                    manifest, metadata, summary, Cart,
                     analysis_xml_iterator, summary_tsv_iterator)
 from ..forms import SelectedFilesForm, AllFilesForm
 from ..cache import (
                     AnalysisFileException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
+from ..models import Cart as CartModel, CartItem, Analysis
+from .factories import AnalysisFactory, CartItemFactory
+
+
+class CartModelsTestCase(TestCase):
+
+    def test_cart_creation(self):
+        # cart created on session creation
+        self.assertFalse(CartModel.objects.exists())
+        self.assertFalse(Session.objects.exists())
+        create_session(self)
+        session = Session.objects.get(
+                session_key=self.client.session.session_key)
+        cart = session.cart
+        self.assertTrue(cart)
+        # add some items to cart
+        analysis = Analysis.objects.create(
+                analysis_id='017a4d4e-9f4b-4904-824e-060fde3ca223',
+                last_modified='2013-05-16T20:43:40Z',
+                state='live',
+                files_size=4666849442)
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis)
+        analysis = Analysis.objects.create(
+                analysis_id='016b792f-e659-4143-b833-163141e21363',
+                last_modified='2013-05-16T20:43:40Z',
+                files_size=388596051,
+                state='live')
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis)
+        self.assertEqual(cart.items.count(), 2)
+        self.assertEqual(CartItem.objects.count(), 2)
+        self.assertTrue(cart.items.filter(
+                analysis__files_size=4666849442).exists())
+        # cart remove on sesion remove
+        session.delete()
+        self.assertFalse(Session.objects.filter(
+                session_key=self.client.session.session_key).exists())
+        self.assertFalse(CartModel.objects.filter(id=cart.id).exists())
+        self.assertEqual(CartItem.objects.count(), 0)
+
+
+class CartUtilsTestCase(TestCase):
+
+    def test_cart_class(self):
+        create_session(self)
+        session = Session.objects.get(
+                session_key=self.client.session.session_key)
+        cart = session.cart
+        my_cart = Cart(self.client.session)
+        self.assertEqual(cart.items.count(), 0)
+        # Analysises already created
+        analysis1 = AnalysisFactory.create()
+        analysis2 = AnalysisFactory.create()
+        analysis1_result = {
+                'analysis_id': analysis1.analysis_id,
+                'last_modified': analysis1.last_modified}
+        analysis2_result = {
+                'analysis_id': analysis2.analysis_id,
+                'last_modified': analysis2.last_modified}
+        my_cart.add(analysis1_result)
+        my_cart.add(analysis2_result)
+        self.assertEqual(cart.items.count(), 2)
+        # remove
+        my_cart.remove(analysis2.analysis_id)
+        self.assertEqual(cart.items.count(), 1)
+        # check update_stats
+        analysis3 = AnalysisFactory.create(state='somestate')
+        analysis3_result = {
+                'analysis_id': analysis3.analysis_id,
+                'last_modified': analysis3.last_modified}
+        my_cart.add(analysis3_result)
+        self.assertEqual(my_cart.size, 0)
+        my_cart.update_stats()
+        self.assertEqual(
+                my_cart.size,
+                analysis1.files_size + analysis3.files_size)
+        self.assertEqual(my_cart.all_count, 2)
+        self.assertEqual(my_cart.live_count, 1)
+        # Analysis id not exist
+        result = {
+                'analysis_id': '01810b1a-84e4-43d5-8a1e-42b132a1126f',
+                'last_modified': '2012-05-16T20:43:41Z'}
+        my_cart.add(result)
 
 
 class CartTestCase(TestCase):

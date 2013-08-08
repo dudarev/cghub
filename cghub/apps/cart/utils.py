@@ -9,14 +9,83 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.loader import render_to_string, get_template
 from django.template import Context
+from django.contrib.sessions.models import Session
+from django.db import IntegrityError
+from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import xml_add_spaces
 
 from .cache import AnalysisFileException, get_analysis, get_analysis_xml
+from .models import CartItem, Analysis
 
 
 cart_logger = logging.getLogger('cart')
+
+
+def update_analysis(analysis_id):
+    pass
+
+
+class Cart(object):
+
+    def __init__(self, session):
+        if session.session_key == None:
+            session.save()
+        session_object = Session.objects.get(session_key=session.session_key)
+        self.cart = session_object.cart
+
+    @property
+    def size(self):
+        return self.cart.size
+
+    @property
+    def all_count(self):
+        return self.cart.items.count()
+
+    @property
+    def live_count(self):
+        return self.cart.live_count
+
+    def remove(self, analysis_id):
+        try:
+            item = CartItem.objects.get(
+                        cart=self.cart, analysis__analysis_id=analysis_id)
+        except CartItem.DoesNotExist:
+            return
+        item.delete()
+
+    def add(self, result):
+        analysis_id = result['analysis_id']
+        try:
+            analysis = Analysis.objects.get(analysis_id=analysis_id)
+            if analysis.last_modified != result['last_modified']:
+                update_analysis(analysis_id)
+            item = CartItem(
+                    cart=self.cart,
+                    analysis=analysis)
+            item.save()
+        except IntegrityError:
+            return
+        except Analysis.DoesNotExist:
+            analysis = update_analysis(analysis_id)
+            item = CartItem(
+                    cart=self.cart,
+                    analysis=analysis)
+            item.save()
+
+    def clear(self):
+        pass
+
+    def update_stats(self):
+        """
+        Update cart.size and cart.live_count
+        """
+        items = self.cart.items
+        self.cart.size = items.aggregate(
+                size=Sum('analysis__files_size'))['size']
+        self.cart.live_count = items.filter(analysis__state='live').count()
+        self.cart.save()
 
 
 def get_or_create_cart(request):
