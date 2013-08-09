@@ -16,15 +16,11 @@ from django.db.models import Sum
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import xml_add_spaces
 
-from .cache import AnalysisFileException, get_analysis, get_analysis_xml
+from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis
 
 
 cart_logger = logging.getLogger('cart')
-
-
-def update_analysis(analysis_id):
-    pass
 
 
 class Cart(object):
@@ -68,7 +64,11 @@ class Cart(object):
         except IntegrityError:
             return
         except Analysis.DoesNotExist:
-            analysis = update_analysis(analysis_id)
+            analysis = Analysis.objects.create(
+                    analysis_id=analysis_id,
+                    last_modified=result['last_modified'],
+                    state=result['state'],
+                    files_size=result['files_size'])
             item = CartItem(
                     cart=self.cart,
                     analysis=analysis)
@@ -138,7 +138,7 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                             analysis_id=f,
                             last_modified=last_modified,
                             short=short)
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
@@ -172,7 +172,7 @@ def summary_tsv_iterator(data):
             result = get_analysis(
                             analysis_id=f,
                             last_modified=last_modified)
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
         fields = field_values(result, humanize_files_size=False)

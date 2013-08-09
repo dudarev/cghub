@@ -15,7 +15,7 @@ from ..utils import (
                     analysis_xml_iterator, summary_tsv_iterator)
 from ..forms import SelectedFilesForm, AllFilesForm
 from ..cache import (
-                    AnalysisFileException, get_cart_cache_file_path, 
+                    AnalysisException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from ..models import Cart as CartModel, CartItem, Analysis
@@ -102,7 +102,9 @@ class CartUtilsTestCase(TestCase):
         # Analysis id not exist
         result = {
                 'analysis_id': '01810b1a-84e4-43d5-8a1e-42b132a1126f',
-                'last_modified': '2012-05-16T20:43:41Z'}
+                'last_modified': '2012-05-16T20:43:41Z',
+                'state': 'live',
+                'files_size': 12345}
         my_cart.add(result)
 
 
@@ -310,6 +312,22 @@ class CartCacheTestCase(TestCase):
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
 
+    def test_create_cache_on_analysis_creation(self):
+        path = os.path.join(
+                            settings.CART_CACHE_DIR,
+                            self.analysis_id[:2],
+                            self.analysis_id[2:4],
+                            self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        Analysis.objects.create(
+                analysis_id=self.analysis_id,
+                last_modified=self.last_modified,
+                state='live',
+                files_size=12345)
+        self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
+
     def test_get_cache_file_path(self):
         self.assertEqual(
                 get_cart_cache_file_path(
@@ -317,15 +335,7 @@ class CartCacheTestCase(TestCase):
                         '2012-10-29T21:56:12Z'),
                 os.path.join(
                         settings.CART_CACHE_DIR,
-                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisFull.xml'))
-        self.assertEqual(
-                get_cart_cache_file_path(
-                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-                        '2012-10-29T21:56:12Z',
-                        short=True),
-                os.path.join(
-                        settings.CART_CACHE_DIR,
-                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisShort.xml'))
+                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysis.xml'))
 
     def test_save_to_cart_cache(self):
         path = os.path.join(
@@ -335,13 +345,11 @@ class CartCacheTestCase(TestCase):
                             self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
-        path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
-        path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
+        path_file = get_cart_cache_file_path(self.analysis_id, self.last_modified)
         # check is_cart_cache_exists
         self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
         result = save_to_cart_cache(self.analysis_id, self.last_modified)
-        self.assertTrue(os.path.exists(path_full))
-        self.assertTrue(os.path.exists(path_short))
+        self.assertTrue(os.path.exists(path_file))
         self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
         shutil.rmtree(path)
         # check exception raises when file does not exists
@@ -355,12 +363,12 @@ class CartCacheTestCase(TestCase):
             shutil.rmtree(path)
         try:
             save_to_cart_cache(bad_analysis_id, self.last_modified)
-        except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid '
+        except AnalysisException as e:
+            self.assertEqual(unicode(e), 'Analysis for analysis_id=badanalysisid '
             'that was last modified 2013-05-16T20:50:58Z. '
-            'File with specified analysis_id does not exists')
+            'Analysis with specified analysis_id does not exists')
         else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            raise False, 'AnalysisException doesn\'t raised'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check case when file was updated
@@ -371,21 +379,21 @@ class CartCacheTestCase(TestCase):
                         self.analysis_id)
         try:
             save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
-        except AnalysisFileException:
+        except AnalysisException:
             assert False, 'Most recent file was not downloaded'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check access denied to files outside cache dir
         try:
             save_to_cart_cache(self.analysis_id, '../../same_outside_dir')
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             self.assertEqual(
                 unicode(e),
-                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
+                'Analysis for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
                 'that was last modified ../../same_outside_dir. '
                 'Bad analysis_id or last_modified')
         else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            raise False, 'AnalysisException doesn\'t raised'
 
     def test_get_analysis(self):
         # test get_analysis_path
@@ -408,19 +416,24 @@ class CartCacheTestCase(TestCase):
             get_cart_cache_file_path(self.analysis_id, self.last_modified))
         # test get_analysis
         # with cache
-        analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
+        analysis = get_analysis(self.analysis_id, self.last_modified)
         self.assertIn('analysis_xml', analysis['xml'])
-        # short version
-        analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
-        self.assertNotIn('analysis_xml', analysis['xml'])
 
     def test_get_analysis_xml(self):
-        xml, size = get_analysis_xml(
+        xml = get_analysis_xml(
             analysis_id=self.analysis_id,
             last_modified=self.last_modified)
         self.assertNotIn('Result', xml)
         self.assertIn('analysis_id', xml)
-        self.assertEqual(size, 172861573)
+        self.assertIn('analysis_xml', xml)
+        # short
+        xml = get_analysis_xml(
+            analysis_id=self.analysis_id,
+            last_modified=self.last_modified, short=True)
+        self.assertNotIn('Result', xml)
+        self.assertIn('analysis_id', xml)
+        self.assertNotIn('analysis_xml', xml)
+        self.assertNotIn('experiment_xml', xml)
 
     def test_analysis_xml_iterator(self):
         data = {
