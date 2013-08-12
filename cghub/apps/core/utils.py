@@ -4,6 +4,7 @@ import hashlib
 import os
 import threading
 import socket
+import logging
 
 from cghub_python_api import Request
 from cghub_python_api.utils import urlopen
@@ -15,9 +16,13 @@ from cghub.apps.core.attributes import ATTRIBUTES
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
+api_logger = logging.getLogger('cart')
 
 
 def get_filters_dict(filters):
+    """
+    Removes illegal filters from dict.
+    """
     filters_dict = {}
     for attr in ALLOWED_ATTRIBUTES:
         if filters.get(attr):
@@ -26,6 +31,13 @@ def get_filters_dict(filters):
 
 
 def query_dict_to_str(query):
+    """
+    Transform query dict to string.
+    Example:
+    query_dict_to_str({'analysis_id': ['123', '345']})
+    ->
+    'analysis_id=(123 OR 345)'
+    """
     parts = []
     for key, value in query.iteritems():
         if isinstance(value, list) or isinstance(value, tuple):
@@ -47,15 +59,13 @@ def paginator_params(request):
     limit = request.GET.get('limit')
     if limit and limit.isdigit():
         limit = int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
-    elif request.COOKIES.has_key(settings.PAGINATOR_LIMIT_COOKIE):
+    elif settings.PAGINATOR_LIMIT_COOKIE in request.COOKIES:
         limit = str(request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE])
         limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
     else:
         limit = settings.DEFAULT_PAGINATOR_LIMIT
     return offset, limit
 
-
-# xml processing
 
 def xml_add_spaces(xml, space=0, tab=2):
     """
@@ -164,6 +174,7 @@ class APIRequest(Request):
     def get_xml_file(self, url):
         if 'test' in sys.argv:
             return get_from_test_cache(url=url)
+        api_logger.error(urllib2.unquote(url))
         return urlopen(
                 url=url,
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
@@ -182,7 +193,11 @@ class APIRequest(Request):
         new_result['checksum'] = result['files.file.0.checksum'].text
         return new_result
 
+
 class RequestIDs(APIRequest):
+    """
+    Used analysisID uri.
+    """
 
     def patch_input_data(self):
         super(RequestIDs, self).patch_input_data()
@@ -190,6 +205,9 @@ class RequestIDs(APIRequest):
 
 
 class RequestDetail(APIRequest):
+    """
+    Used analysisDetail uri.
+    """
 
     def patch_input_data(self):
         super(RequestDetail, self).patch_input_data()
@@ -197,6 +215,10 @@ class RequestDetail(APIRequest):
 
 
 class RequestFull(APIRequest):
+    """
+    Used analysisFull uri.
+    Raw xml added to results.
+    """
 
     def patch_input_data(self):
         super(RequestFull, self).patch_input_data()
@@ -210,6 +232,10 @@ class RequestFull(APIRequest):
 
 
 class ResultFromFile(RequestFull):
+    """
+    Allows to create cghub_python_apy.api.Request
+    from analysis xml stored in local file
+    """
 
     def get_xml_file(self, url):
         filename = self.query['filename']
@@ -217,10 +243,12 @@ class ResultFromFile(RequestFull):
 
 
 def get_results_for_ids(ids):
+    """
+    Obtain all necessary attributes for specified analysis_ids
+    """
     if not ids:
         return []
-    query = {'analysis_id': ids}
-    api_request = RequestDetail(query=query)
+    api_request = RequestDetail(query={'analysis_id': ids})
     results = []
     for result in api_request.call():
         results.append(result)

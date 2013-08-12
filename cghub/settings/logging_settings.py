@@ -51,7 +51,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'wsapi.request': {
+        'api.request': {
             # use to disable this logger
             # 'handlers': ['null'],
             'handlers': ['syslog'],

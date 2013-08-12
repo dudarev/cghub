@@ -45,6 +45,7 @@ def create_session(self):
     self.session = store
     self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
 
+
 def get_request(url=reverse('home_page')):
     """
     Returns request object with session
@@ -131,7 +132,8 @@ class CoreTestCase(TestCase):
 
     def test_save_filters_state(self):
         # TODO: Extend this test (only filters should be persistent, not query)
-        response = self.client.get('%s?q=%s' % (reverse('search_page'), self.query))
+        response = self.client.get(
+                '%s?q=%s' % (reverse('search_page'), self.query))
         self.assertEqual(
                 self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
                 'q=%s' % self.query)
@@ -141,7 +143,7 @@ class CoreTestCase(TestCase):
 
     def test_save_limit_in_cookies(self):
         DEFAULT_FILTERS = {
-                'study': ('phs000178','*Other_Sequencing_Multiisolate'),
+                'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
                 'state': ('live',),
                 'upload_date': '[NOW-7DAY+TO+NOW]'}
         with self.settings(DEFAULT_FILTERS = DEFAULT_FILTERS):
@@ -429,8 +431,10 @@ class TemplateTagsTestCase(TestCase):
             self.assertTrue(RESULT['study'] not in res)
         # test value_resolvers
         right_value = 'Right value'
+
         def value_resolver(value):
             return right_value
+
         with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
             res = table_row(RESULT)
             self.assertIn(right_value, res)
@@ -449,8 +453,10 @@ class TemplateTagsTestCase(TestCase):
                 self.assertTrue(res.find(field) != -1)
         # test value_resolvers
         right_value = 'Right value'
+
         def value_resolver(value):
             return right_value
+
         with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
             res = table_row(RESULT)
             self.assertIn(right_value, res)
@@ -461,7 +467,7 @@ class TemplateTagsTestCase(TestCase):
             {
                 'query': '[NOW-2DAY TO NOW]',
                 'result': '2013/02/25 - 2013/02/27'},
-            { # test with quoted
+            {  # test with quoted
                 'query': '[NOW-2DAY%20TO%20NOW]',
                 'result': '2013/02/25 - 2013/02/27'},
             {

@@ -6,9 +6,12 @@ Testing
 Unit and UI tests are saved in corresponding directories: ``cghub/apps/cart/test``, ``cghub/apps/core/test``, ``cghub/apps/help``.
 
 Unit tests
-------------
+----------
 
 One may run only unittests by using ``make test`` command. Tests that run only unit tests are specified in ``Makefile.def.default``.
+
+We cache requests to cghub server when running tests. Test cache stored in cghub/test_cache.
+See more in ``cghub/apps/core/utils.py:APIRequest.get_xml_file``.
 
 UI Selenium tests
 ------------------

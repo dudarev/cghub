@@ -24,6 +24,9 @@ cart_logger = logging.getLogger('cart')
 
 
 class Cart(object):
+    """
+    Class allows to manage user cart.
+    """
 
     def __init__(self, session):
         if session.session_key == None:
@@ -34,6 +37,9 @@ class Cart(object):
 
     @property
     def size(self):
+        """
+        Returns size of all items in cart.
+        """
         return self.cart.size
 
     @property
@@ -42,6 +48,9 @@ class Cart(object):
 
     @property
     def live_count(self):
+        """
+        Returns count of cart items with state == 'live'
+        """
         return self.cart.live_count
 
     def remove(self, analysis_id):
@@ -142,7 +151,7 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
                     'xml': formatted_xml.strip()}))
     yield render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': counter,
-                    'size': str(round(downloadable_size/1073741824.*100)/100)})
+                    'size': str(round(downloadable_size / 1073741824. * 100) / 100)})
 
 
 def summary_tsv_iterator(cart):
@@ -225,7 +234,7 @@ def item_metadata(analysis_id, last_modified):
             'xml': formatted_xml.strip()}))
     content += render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': 1,
-                    'size': str(round(files_size/1073741824.*100)/100)})
+                    'size': str(round(files_size / 1073741824. * 100) / 100)})
     response = HttpResponse(content, content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response

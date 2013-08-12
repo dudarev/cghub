@@ -7,8 +7,6 @@ Development
 Setting up and running the app
 -------------------------------
 
-Make sure RabbitMQ server is installed (see section about RabbitMQ below).
-
 .. code-block:: bash
 
     # pay attention to comments

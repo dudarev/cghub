@@ -15,7 +15,7 @@ from ..utils import (
                     analysis_xml_iterator, summary_tsv_iterator)
 from ..forms import SelectedItemsForm, AllItemsForm
 from ..cache import (
-                    AnalysisException, get_cart_cache_file_path, 
+                    AnalysisException, get_cart_cache_file_path,
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from ..models import Cart as CartModel, CartItem, Analysis
@@ -130,7 +130,7 @@ class CartUtilsTestCase(TestCase):
         self.assertIn(cart_item2.analysis.analysis_id, page[1]['analysis_id'])
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
-        
+
 
 class CartTestCase(TestCase):
     RANDOM_IDS = [
@@ -209,7 +209,7 @@ class CartTestCase(TestCase):
         response = self.client.post(
                     url,
                     {'selected_files': rm_selected_files},
-                    **{'HTTP_REFERER':'http://somepage.com/%s' % params,
+                    **{'HTTP_REFERER': 'http://somepage.com/%s' % params,
                     'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'})
         self.assertRedirects(response, reverse('cart_page') + params)
 
@@ -290,7 +290,8 @@ class CartAddItemsTestCase(TestCase):
                     'q': '00b27c0f-acf5-434c-8efa-25b1f3c4f506'
                 })}
         url = reverse('cart_add_remove_files', args=('add',))
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(
+                url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
@@ -310,7 +311,8 @@ class CartAddItemsTestCase(TestCase):
                         'study': '(*Other_Sequencing_Multiisolate)'
                     })}
         url = reverse('cart_add_remove_files', args=('add',))
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(
+                url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
@@ -349,13 +351,15 @@ class CartCacheTestCase(TestCase):
                             self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
-        self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        self.assertFalse(is_cart_cache_exists(
+                self.analysis_id, self.last_modified))
         Analysis.objects.create(
                 analysis_id=self.analysis_id,
                 last_modified=self.last_modified,
                 state='live',
                 files_size=12345)
-        self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        self.assertTrue(is_cart_cache_exists(
+                self.analysis_id, self.last_modified))
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -568,12 +572,12 @@ class CartFormsTestCase(TestCase):
                         '796e11c8-b873-4c37-88cd-18dcd7f287ec',
                     ]),
             'is_valid': False,
-            },{
+            }, {
             'selected_items': 123,
             'is_valid': False,
             }, {
             'selected_items': json.dumps({'study': 'TCGA', 'size': 10}),
-            'is_valid': False }]
+            'is_valid': False}]
 
         for data in test_data_set:
             form = SelectedItemsForm(data)

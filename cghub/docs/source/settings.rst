@@ -2,28 +2,22 @@ Settings
 =================
 
 
-WSAPI
-----------
+API
+---
 
-It is possible to set some settings for wsapi app.
+It is possible to set some settings for cghub_python_api.
 
-``settings/wsapi.py``:
+``settings/api.py``:
 
 .. code-block:: python
 
-    WSAPI_CGHUB_SERVER = 'https://stage.cghub.ucsc.edu/'
-    WSAPI_CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
-    WSAPI_CGHUB_ANALYSIS_DETAIL_URI = '/cghub/metadata/analysisDetail'
-    WSAPI_CGHUB_ANALYSIS_FULL_URI = '/cghub/metadata/analysisFull'
-    WSAPI_HTTP_ERROR_ATTEMPTS = 5
-    WSAPI_HTTP_ERROR_SLEEP_AFTER = 1
-    WSAPI_TESTING_CACHE_DIR = os.path.join(os.path.dirname(__file__), '../test_cache')
-
-Use TESTING_MODE wsapi setting to enable caching results while testing.
+    CGHUB_SERVER = 'https://192.35.223.223'
+    API_HTTP_ERROR_ATTEMPTS = 5
+    API_HTTP_ERROR_SLEEP_AFTER = 1
 
 
 Variables
-----------
+---------
 
 Some of cghub browser site settings specified in cghub/settings/variables.py file.
 Most useful:
@@ -40,63 +34,8 @@ Most useful:
     # time, after which tooltip will be shown, in ms
     TOOLTIP_HOVER_TIME = 250
 
-
-Celery
-----------
-
-To run periodic tasks (for now only related to :ref:`caching <caching>`) we use Celery.
-Its settings are in ``settings/celery_settings.py``.
-
-In ``local.py`` define BROKER_URL
-
-:file:`local.py`:
-
-.. code-block:: python
-
-	# $ rabbitmqctl add_user myuser mypassword
-	# $ rabbitmqctl add_vhost myvhost
-	# $ rabbitmqctl set_permissions -p myvhost myuser ".*" ".*" ".*"
-	# Example
-	# BROKER_URL = "amqp://cghub:cghub@localhost:5672/cghub"
-
-	# BROKER_URL = "amqp://user:password@host:port/vhost"
-
-:file:`celery_settings.py`:
-
-.. code-block:: python
-
-	import sys
-	import djcelery
-
-	from .cache import TIME_CHECK_CART_CACHE_INTERVAL, TIME_CHECK_API_CACHE_INTERVAL
-
-	djcelery.setup_loader()
-
-	CELERY_IMPORTS = (
-	    "cghub.apps.cart.tasks",
-	    )
-
-	CELERYBEAT_SCHEDULE = {
-	    #"clear-cart-cache": {
-	    #    "task": "cghub.apps.cart.tasks.cache_clear_task",
-	    #    "schedule": TIME_CHECK_CART_CACHE_INTERVAL,
-	    #    },
-	    }
-
-	CELERY_RESULT_BACKEND = "amqp"
-	CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-
-	if 'test' in sys.argv:
-	    BROKER_URL = "django://"
-
-	CELERYD_CONCURRENCY = 1
-
-Celery configured to send logs to syslog by default. See :ref:`logging section <logging>`.
-
-.. _caching:
-
 Caching
----------
+-------
 
 When items are added to the cart, XML for each result saves to cart cache.
 
@@ -110,7 +49,7 @@ Path to cart cache specified in settings:
 
 
 Paging
--------------
+------
 
 Search results are paged when requested from the server. Paging is done by WSI API.
 Default number of results per page may be set in ``settings/ui.py``:
@@ -220,7 +159,7 @@ Filters can be found in :file:`cghub/apps/core/filters_storage_full.py` or copie
 .. _logging:
 
 Logging
---------------
+-------
 
 :file:`cghub/setting/local.py.default` contains the example of a SysLogHadler usage. Default configuration located in :file:`cghub/setting/logging_settings.py`.
 
@@ -300,5 +239,3 @@ Usage example:
 For more information see the `complete SysLogHandler reference`_ .
 
 .. _`complete SysLogHandler reference`: http://docs.python.org/2/library/logging.handlers.html#sysloghandler
-
-Celery configured to send logs to syslog with address == SYSLOG_ADDRESS, see ``cghub/apps/core/__init__.py``.
