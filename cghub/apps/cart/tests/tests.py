@@ -15,7 +15,7 @@ from ..utils import (
                     analysis_xml_iterator, summary_tsv_iterator)
 from ..forms import SelectedItemsForm, AllItemsForm
 from ..cache import (
-                    AnalysisException, get_cart_cache_file_path, 
+                    AnalysisException, get_cart_cache_file_path,
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
 from ..models import Cart as CartModel, CartItem, Analysis
@@ -130,7 +130,7 @@ class CartUtilsTestCase(TestCase):
         self.assertIn(cart_item2.analysis.analysis_id, page[1]['analysis_id'])
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
-        
+
 
 class CartTestCase(TestCase):
     RANDOM_IDS = [
@@ -209,7 +209,7 @@ class CartTestCase(TestCase):
         response = self.client.post(
                     url,
                     {'selected_files': rm_selected_files},
-                    **{'HTTP_REFERER':'http://somepage.com/%s' % params,
+                    **{'HTTP_REFERER': 'http://somepage.com/%s' % params,
                     'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'})
         self.assertRedirects(response, reverse('cart_page') + params)
 
@@ -290,7 +290,8 @@ class CartAddItemsTestCase(TestCase):
                     'q': '00b27c0f-acf5-434c-8efa-25b1f3c4f506'
                 })}
         url = reverse('cart_add_remove_files', args=('add',))
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(
+                url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
@@ -310,7 +311,8 @@ class CartAddItemsTestCase(TestCase):
                         'study': '(*Other_Sequencing_Multiisolate)'
                     })}
         url = reverse('cart_add_remove_files', args=('add',))
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(
+                url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
@@ -329,8 +331,18 @@ class CartCacheTestCase(TestCase):
     last_modified = '2013-05-16T20:50:58Z'
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
+    DATA_SET = {
+            analysis_id: {
+                    'analysis_id': analysis_id,
+                    'last_modified': last_modified,
+                    'state': 'live',
+                    'files_size': 12345},
+            analysis_id2: {
+                    'analysis_id': analysis_id2,
+                    'last_modified': last_modified2,
+                    'state': 'live',
+                    'files_size': 12345}}
 
-    '''
     def test_create_cache_on_analysis_creation(self):
         path = os.path.join(
                             settings.CART_CACHE_DIR,
@@ -339,13 +351,15 @@ class CartCacheTestCase(TestCase):
                             self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
-        self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        self.assertFalse(is_cart_cache_exists(
+                self.analysis_id, self.last_modified))
         Analysis.objects.create(
                 analysis_id=self.analysis_id,
                 last_modified=self.last_modified,
                 state='live',
                 files_size=12345)
-        self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        self.assertTrue(is_cart_cache_exists(
+                self.analysis_id, self.last_modified))
 
     def test_get_cache_file_path(self):
         self.assertEqual(
@@ -439,14 +453,15 @@ class CartCacheTestCase(TestCase):
         self.assertIn('analysis_xml', analysis['xml'])
 
     def test_get_analysis_xml(self):
-        xml = get_analysis_xml(
+        xml, files_size = get_analysis_xml(
             analysis_id=self.analysis_id,
             last_modified=self.last_modified)
         self.assertNotIn('Result', xml)
         self.assertIn('analysis_id', xml)
         self.assertIn('analysis_xml', xml)
+        self.assertTrue(files_size)
         # short
-        xml = get_analysis_xml(
+        xml, files_size = get_analysis_xml(
             analysis_id=self.analysis_id,
             last_modified=self.last_modified, short=True)
         self.assertNotIn('Result', xml)
@@ -454,23 +469,24 @@ class CartCacheTestCase(TestCase):
         self.assertNotIn('analysis_xml', xml)
         self.assertNotIn('experiment_xml', xml)
 
-    def test_analysis_xml_iterator(self):
-        data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
-        iterator = analysis_xml_iterator(data)
-        result = ''
-        for i in iterator:
-            result += i
-        self.assertIn('ResultSet', result)
-        self.assertIn('Result id="1"', result)
-        self.assertIn('Result id="2"', result)
+    def test_iterators(self):
+        create_session(self)
+        cart = Cart(session=self.client.session)
+        analysis = AnalysisFactory.create(
+                analysis_id=self.analysis_id,
+                last_modified=self.last_modified)
+        CartItemFactory.create(
+                cart=cart.cart,
+                analysis=analysis)
+        analysis = AnalysisFactory.create(
+                analysis_id=self.analysis_id2,
+                last_modified=self.last_modified2)
+        CartItemFactory.create(
+                cart=cart.cart,
+                analysis=analysis)
 
-    def test_summary_tsv_iterator(self):
-        data = {
-            self.analysis_id: {'last_modified': self.last_modified, 'state': 'live'},
-            self.analysis_id2: {'last_modified': self.last_modified2, 'state': 'live'}}
-        iterator = summary_tsv_iterator(data)
+        # summary tsv iterator
+        iterator = summary_tsv_iterator(cart)
         result = ''
         for i in iterator:
             result += i
@@ -480,31 +496,33 @@ class CartCacheTestCase(TestCase):
         self.assertIn(self.analysis_id, result)
         self.assertIn(self.analysis_id2, result)
 
-    def test_manifest(self):
-        data = {
-            self.analysis_id: {'analysis_id': self.analysis_id},
-            self.analysis_id2: {'analysis_id': self.analysis_id2}}
-        response = manifest(data)
-        content = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
+        # analysis_xml iterator
+        iterator = analysis_xml_iterator(cart)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('ResultSet', result)
+        self.assertIn('Result id="1"', result)
+        self.assertIn('Result id="2"', result)
 
-    def test_metadata(self):
-        data = {
-            self.analysis_id: {'analysis_id': self.analysis_id},
-            self.analysis_id2: {'analysis_id': self.analysis_id2}}
-        response = metadata(data)
-        content = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
-        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
+    def test_metadata_views(self):
+        create_session(self)
+        cart = Cart(session=self.client.session)
+        analysis = AnalysisFactory.create(
+                analysis_id=self.analysis_id,
+                last_modified=self.last_modified)
+        CartItemFactory.create(
+                cart=cart.cart,
+                analysis=analysis)
+        analysis = AnalysisFactory.create(
+                analysis_id=self.analysis_id2,
+                last_modified=self.last_modified2)
+        CartItemFactory.create(
+                cart=cart.cart,
+                analysis=analysis)
 
-    def test_summary(self):
-        data = {
-            self.analysis_id: {'analysis_id': self.analysis_id},
-            self.analysis_id2: {'analysis_id': self.analysis_id2}}
-        response = summary(data)
+        # test summary
+        response = summary(cart)
         content = response.content
         self.assertTrue(all(field.lower().replace(' ', '_') in content
                             for field in settings.TABLE_COLUMNS))
@@ -512,10 +530,24 @@ class CartCacheTestCase(TestCase):
         self.assertTrue(self.analysis_id2 in content)
         self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
 
+        # test metadata view
+        response = metadata(cart)
+        content = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
+
+        # test manifest
+        response = manifest(cart)
+        content = response.content
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
+        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
+
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertIn('attachment; filename=%s' % filename, response['Content-Disposition'])
-    '''
+
 
 class CartFormsTestCase(TestCase):
 
@@ -540,12 +572,12 @@ class CartFormsTestCase(TestCase):
                         '796e11c8-b873-4c37-88cd-18dcd7f287ec',
                     ]),
             'is_valid': False,
-            },{
+            }, {
             'selected_items': 123,
             'is_valid': False,
             }, {
             'selected_items': json.dumps({'study': 'TCGA', 'size': 10}),
-            'is_valid': False }]
+            'is_valid': False}]
 
         for data in test_data_set:
             form = SelectedItemsForm(data)

@@ -27,10 +27,7 @@ and ``celeryd`` process is started.
 
     cp ${rev_path}/cghub/settings/local.py.staging ${rev_path}/cghub/settings/local.py
 
-    # start celeryd process
-    cd ${rev_path} && make celeryd &
-
-It is a good idea to keep database file (in case of sqlite) outside of the code directory if 
+It is a good idea to keep database file (in case of sqlite) outside of the code directory.
 
 .. code-block:: python
 

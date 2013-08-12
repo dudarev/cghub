@@ -149,7 +149,7 @@ class Request(object):
                     doc.expandNode(node)
                     # convert to python object
                     # http://docs.python.org/2/library/xml.etree.elementtree.html
-                    result_xml = node.toxml()
+                    result_xml = node.toxml().encode('utf-8')
                     tree = ElementTree.fromstring(result_xml)
                     result = Result(tree)
                     yield self.patch_result(result, result_xml)

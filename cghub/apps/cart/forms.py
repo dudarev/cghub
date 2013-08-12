@@ -4,10 +4,7 @@ from django.utils import simplejson as json
 
 
 class SelectedItemsForm(forms.Form):
-    """
-    Checks that adding selected files to cart sends the right
-    format to the form - format that can be loaded to json.
-    """
+
     selected_items = forms.CharField()
 
     def clean_selected_items(self):
@@ -26,10 +23,7 @@ class SelectedItemsForm(forms.Form):
 
 
 class AllItemsForm(forms.Form):
-    """
-    Checks that adding all files to cart sends the right
-    format to the form - format that can be loaded to json.
-    """
+
     filters = forms.CharField()
 
     def clean_filters(self):

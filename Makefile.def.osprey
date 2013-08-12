@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
-PROJECT_NAME= cghub
-PROJECT_API= wsapi
+PROJECT_NAME=cghub
+PROJECT_API=cghub_python_api
 BIND_TO=0.0.0.0
 RUNSERVER_PORT=8000
 MAILSERVER_PORT=1025
@@ -18,8 +18,9 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			core.SettingsTestCase core.ErrorViewsTestCase \
 			core.BatchSearchTestCase cart.CartTestCase \
-			cart.CartAddItemsTestCase cart.CartClearTestCase \
-			cart.CartCacheTestCase cart.CartFormsTestCase \
+			cart.CartAddItemsTestCase cart.CartCacheTestCase \
+			cart.CartFormsTestCase cart.CartModelsTestCase \
+			cart.CartUtilsTestCase \
 			help
 
 TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
@@ -35,10 +36,6 @@ MANAGE= $(PYTHON) manage.py
 localRoot=/a/markd/cghub/projs/dataBrowser
 PIDS_DIR=${localRoot}/var/run/celery
 LOGS_DIR=${localRoot}/var/log/celery
-
-CELERYD_PID=$(PIDS_DIR)/celeryd.pid
-CELERYCAM_PID=$(PIDS_DIR)/celerycam.pid
-CELERYBEAT_PID=$(PIDS_DIR)/celerybeat.pid
 
 # CGHubs specific defs
 CACHE_DIR=${localRoot}/var/cache/cghub-data-browser

@@ -27,9 +27,9 @@ class AnalysisException(Exception):
 
     def __str__(self):
         return 'Analysis for analysis_id={0} that was last modified {1}. {2}'.format(
-                                self.analysis_id,
-                                self.last_modified,
-                                self.message) 
+                self.analysis_id,
+                self.last_modified,
+                self.message)
 
 
 def get_cart_cache_file_path(analysis_id, last_modified):
@@ -50,6 +50,9 @@ def get_cart_cache_file_path(analysis_id, last_modified):
 
 
 def is_cart_cache_exists(analysis_id, last_modified):
+    """
+    Returns path to cart cache file with specified analysis_id and last_modified
+    """
     return os.path.exists(get_cart_cache_file_path(analysis_id, last_modified))
 
 
@@ -135,6 +138,12 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
     start = result.find(RESULT_START) + len(RESULT_START)
     stop = result.find(RESULT_STOP)
     result = result[start:stop]
+    start = result.find(FSIZE_START)
+    files_size = 0
+    # get only first file size
+    if start != -1:
+        stop = result.find(FSIZE_STOP, start + 1)
+        files_size = int(result[start + len(FSIZE_START):stop])
     if short:
         attributes_to_remove = (
                 'sample_accession', 'legacy_sample_id',
@@ -149,4 +158,4 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
             if start != -1 and stop != -1:
                 stop += len(stop_str)
                 result = '%s%s' % (result[:start], result[stop:])
-    return result
+    return result, files_size

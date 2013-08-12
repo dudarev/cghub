@@ -145,8 +145,8 @@ class CartClearView(View):
 
 class CartDownloadFilesView(View):
     def post(self, request, action):
-        cart = request.session.get('cart')
-        if cart and action:
+        cart = Cart(request.session)
+        if cart.all_count and action:
             download = getattr(cart_utils, action)
             return download(cart)
         return HttpResponseRedirect(reverse('cart_page'))

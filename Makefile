@@ -34,9 +34,6 @@ testcoverage:
 test:
 	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
 
-test_web:
-	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_APP)
-
 test_ui:
 	TESTING=1 $(MANAGE) test --verbosity 2 $(TEST_OPTIONS) $(TEST_UI)
 

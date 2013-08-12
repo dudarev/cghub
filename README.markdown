@@ -1,24 +1,18 @@
-There are two projects here 
-
-`cghub` - web interface to CGHub data written with Django
-`wsapi` - Python API to this data
-
-API is used by the `cghub` the Django app.
+The `cghub` app - web interface to CGHub data written with Django.
+It uses cghub-python-api.
+cghub-python-api can be downloaded from
+https://github.com/42cc/cghub-python-api
 
 ## Makefile targets
 
 ### Testing
 
-- `make test` - test both projects
-- `make test_api` - only API
-- `make test_web` - test Django app
+- `make test` - test Django app
 - `make test_ui` - test UI with Selenium, this is not ran as part of `make test`!
 
 ### Running
 
 - `make run` - run Django app
-- `make celeryd` - launch Celery daemon to control caches cleaning
-- `make celeryd_stop` - stop Celery daemon
 
 ### Compiling statics
 
@@ -27,14 +21,12 @@ API is used by the `cghub` the Django app.
 
 ## Documentation
 
-Documentation for each project in Sphinx format may be found in
+Documentation for the project in Sphinx format may be found in
 
-`cghub/docs` and
-`wsapi/docs`
+`cghub/docs`
 
-In each case it can be built with `make html` command from those directories. 
+It can be built with `make html` command from those directories. 
 One more target was added to Makefile:
 `make serve` so that the documentation is rebuilt and served at 
 
-<http://localhost:8002> and
-<http://localhost:8001> correspondingly.
+<http://localhost:8001>.

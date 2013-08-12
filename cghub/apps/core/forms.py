@@ -5,6 +5,7 @@ from django.conf import settings
 
 
 class BatchSearchForm(forms.Form):
+
     text = forms.CharField(
                     required=False, widget=forms.Textarea,
                     label='Space separated ids')
@@ -71,6 +72,7 @@ class BatchSearchForm(forms.Form):
 
 
 class AnalysisIDsForm(forms.Form):
+
     ids = forms.CharField(
                     widget=forms.Textarea,
                     label='Space separated list of analysis ids')

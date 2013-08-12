@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
-PROJECT_NAME= cghub
-PROJECT_API= wsapi
+PROJECT_NAME=cghub
+PROJECT_API=cghub_python_api
 BIND_TO=0.0.0.0
 RUNSERVER_PORT=8000
 MAILSERVER_PORT=1025
@@ -15,8 +15,9 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			core.SettingsTestCase core.ErrorViewsTestCase \
 			core.BatchSearchTestCase cart.CartTestCase \
-			cart.CartAddItemsTestCase cart.CartClearTestCase \
-			cart.CartCacheTestCase cart.CartFormsTestCase \
+			cart.CartAddItemsTestCase cart.CartCacheTestCase \
+			cart.CartFormsTestCase cart.CartModelsTestCase \
+			cart.CartUtilsTestCase \
 			help
 
 TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
@@ -31,7 +32,3 @@ MANAGE= $(PYTHON) manage.py
 
 PIDS_DIR=pids
 LOGS_DIR=logs
-
-CELERYD_PID=$(CURDIR)/$(PIDS_DIR)/celeryd.pid
-CELERYCAM_PID=$(CURDIR)/$(PIDS_DIR)/celerycam.pid
-CELERYBEAT_PID=$(CURDIR)/$(PIDS_DIR)/celerybeat.pid
