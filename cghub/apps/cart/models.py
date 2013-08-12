@@ -34,6 +34,7 @@ class CartItem(models.Model):
 
     class Meta:
         unique_together = ('cart', 'analysis')
+        ordering = ('analysis',)
 
 
 def create_cart(sender, instance, created, **kwargs):

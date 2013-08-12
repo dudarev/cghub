@@ -14,7 +14,7 @@ from django.db import IntegrityError
 from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import xml_add_spaces
+from cghub.apps.core.utils import xml_add_spaces, RequestDetail
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis
@@ -29,6 +29,7 @@ class Cart(object):
         if session.session_key == None:
             session.save()
         session_object = Session.objects.get(session_key=session.session_key)
+        self.session = session
         self.cart = session_object.cart
 
     @property
@@ -50,6 +51,17 @@ class Cart(object):
         except CartItem.DoesNotExist:
             return
         item.delete()
+
+    def page(self, offset=0, limit=10):
+        items = self.cart.items.all()[offset * limit:(offset + 1) * limit]
+        if not items.exists():
+            return []
+        results = []
+        api_request = RequestDetail(query={
+                'analysis_id': [i.analysis.analysis_id for i in items]})
+        for result in api_request.call():
+            results.append(result)
+        return results
 
     def add(self, result):
         analysis_id = result['analysis_id']
@@ -75,7 +87,8 @@ class Cart(object):
             item.save()
 
     def clear(self):
-        pass
+        self.cart.items.all().delete()
+        self.update_stats()
 
     def update_stats(self):
         """
@@ -83,34 +96,10 @@ class Cart(object):
         """
         items = self.cart.items
         self.cart.size = items.aggregate(
-                size=Sum('analysis__files_size'))['size']
+                size=Sum('analysis__files_size'))['size'] or 0
         self.cart.live_count = items.filter(analysis__state='live').count()
         self.cart.save()
-
-
-def get_or_create_cart(request):
-    """ return cart and creates it if it does not exist """
-    request.session["cart"] = request.session.get('cart', {})
-    return request.session["cart"]
-
-
-def get_cart_stats(request):
-    cart = get_or_create_cart(request)
-    stats = {'count': len(cart), 'size': 0}
-    for analysis_id, f in cart.iteritems():
-        if 'files_size' in f:
-            try:
-                size = int(f['files_size'])
-            except TypeError, ValueError:
-                size = 0
-            stats['size'] += size
-    return stats
-
-
-def cart_clear(request):
-    if 'cart' in request.session:
-        request.session['cart'].clear()
-    request.session.modified = True
+        self.session['cart_count'] = self.cart.live_count
 
 
 def analysis_xml_iterator(data, short=False, live_only=False):

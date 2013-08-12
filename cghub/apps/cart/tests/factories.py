@@ -21,6 +21,12 @@ class AnalysisFactory(object):
         }, {
             'analysis_id': '016a7ba7-a154-4702-9c6d-f2de4c01a3c0',
             'last_modified': '2013-05-16T20:43:40Z'
+        }, {
+            'analysis_id': '01349f1a-362a-42b3-881a-53c33ac19c97',
+            'last_modified': '2013-07-03T23:32:01Z'
+        }, {
+            'analysis_id': '01344cac-79d7-48ed-9179-7af7470f9afa',
+            'last_modified': '2013-07-03T23:31:02Z'
         }
         
     ]
@@ -41,7 +47,7 @@ class AnalysisFactory(object):
 class CartItemFactory(object):
 
     @classmethod
-    def create(cart, analysis=None):
+    def create(self, cart, analysis=None):
         if not analysis:
             analysis = AnalysisFactory.create()
         return CartItem.objects.create(cart=cart, analysis=analysis)
@@ -50,7 +56,7 @@ class CartItemFactory(object):
 class CartFactory(object):
 
     @classmethod
-    def create(session, items_count=1):
+    def create(self, session, items_count=1):
         cart = CartModel.objects.create(session=session)
         for i in range(items_count):
             CartItemFactory.create(cart=cart)

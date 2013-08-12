@@ -1,11 +1,9 @@
-import re
-
 from django import forms
 
 from django.utils import simplejson as json
 
 
-class SelectedFilesForm(forms.Form):
+class SelectedItemsForm(forms.Form):
     """
     Checks that adding selected files to cart sends the right
     format to the form - format that can be loaded to json.
@@ -21,16 +19,13 @@ class SelectedFilesForm(forms.Form):
         if not isinstance(selected_items, list):
             raise forms.ValidationError('selected_items has not valid value')
         if selected_items:
-            id_pattern = re.compile(
-                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
-                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
             for a in selected_items:
-                if not id_pattern.match(str(a)):
+                if not isinstance(a, dict):
                     raise forms.ValidationError('selected_items has not valid value')
         return selected_items
 
 
-class AllFilesForm(forms.Form):
+class AllItemsForm(forms.Form):
     """
     Checks that adding all files to cart sends the right
     format to the form - format that can be loaded to json.
