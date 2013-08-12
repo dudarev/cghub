@@ -32,23 +32,16 @@ from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
 
 
-TEST_DATA_DIR = 'cghub/test_data/'
-
-
 def create_session(self):
-    # initialize session
-    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    """
+    Initialize session
+    """
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.db'
     engine = import_module(settings.SESSION_ENGINE)
     store = engine.SessionStore()
     store.save()
     self.session = store
     self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-    # create session
-    s = Session(
-                expire_date=timezone.now() + datetime.timedelta(days=7),
-                session_key=store.session_key)
-    s.save()
-
 
 def get_request(url=reverse('home_page')):
     """
@@ -654,6 +647,7 @@ class MetadataViewTestCase(TestCase):
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
     last_modified = '2013-05-16T20:50:58Z'
 
+    '''
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
         if os.path.isdir(path):
@@ -668,7 +662,7 @@ class MetadataViewTestCase(TestCase):
         self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
-
+    '''
 
 class SettingsTestCase(TestCase):
 

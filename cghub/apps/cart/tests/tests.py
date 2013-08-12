@@ -3,28 +3,153 @@ import shutil
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.utils import simplejson as json
-from django.utils import timezone
+from django.utils import timezone, simplejson as json
 from django.conf import settings
+from django.contrib.sessions.models import Session
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import create_session
 
 from ..utils import (
-                    manifest, metadata, summary,
+                    manifest, metadata, summary, Cart,
                     analysis_xml_iterator, summary_tsv_iterator)
-from ..forms import SelectedFilesForm, AllFilesForm
+from ..forms import SelectedItemsForm, AllItemsForm
 from ..cache import (
-                    AnalysisFileException, get_cart_cache_file_path, 
+                    AnalysisException, get_cart_cache_file_path, 
                     save_to_cart_cache, get_analysis_path, get_analysis,
                     get_analysis_xml, is_cart_cache_exists)
+from ..models import Cart as CartModel, CartItem, Analysis
+from .factories import AnalysisFactory, CartItemFactory
 
+
+class CartModelsTestCase(TestCase):
+
+    def test_cart_creation(self):
+        # cart created on session creation
+        self.assertFalse(CartModel.objects.exists())
+        self.assertFalse(Session.objects.exists())
+        create_session(self)
+        session = Session.objects.get(
+                session_key=self.client.session.session_key)
+        cart = session.cart
+        self.assertTrue(cart)
+        # add some items to cart
+        analysis = Analysis.objects.create(
+                analysis_id='017a4d4e-9f4b-4904-824e-060fde3ca223',
+                last_modified='2013-05-16T20:43:40Z',
+                state='live',
+                files_size=4666849442)
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis)
+        analysis = Analysis.objects.create(
+                analysis_id='016b792f-e659-4143-b833-163141e21363',
+                last_modified='2013-05-16T20:43:40Z',
+                files_size=388596051,
+                state='live')
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis)
+        self.assertEqual(cart.items.count(), 2)
+        self.assertEqual(CartItem.objects.count(), 2)
+        self.assertTrue(cart.items.filter(
+                analysis__files_size=4666849442).exists())
+        # cart remove on sesion remove
+        session.delete()
+        self.assertFalse(Session.objects.filter(
+                session_key=self.client.session.session_key).exists())
+        self.assertFalse(CartModel.objects.filter(id=cart.id).exists())
+        self.assertEqual(CartItem.objects.count(), 0)
+
+
+class CartUtilsTestCase(TestCase):
+
+    def test_cart_class(self):
+        create_session(self)
+        session = Session.objects.get(
+                session_key=self.client.session.session_key)
+        cart = session.cart
+        my_cart = Cart(self.client.session)
+        self.assertEqual(cart.items.count(), 0)
+        # Analysises already created
+        analysis1 = AnalysisFactory.create()
+        analysis2 = AnalysisFactory.create()
+        analysis1_result = {
+                'analysis_id': analysis1.analysis_id,
+                'last_modified': analysis1.last_modified}
+        analysis2_result = {
+                'analysis_id': analysis2.analysis_id,
+                'last_modified': analysis2.last_modified}
+        my_cart.add(analysis1_result)
+        my_cart.add(analysis2_result)
+        self.assertEqual(cart.items.count(), 2)
+        # remove
+        my_cart.remove(analysis2.analysis_id)
+        self.assertEqual(cart.items.count(), 1)
+        # check update_stats
+        analysis3 = AnalysisFactory.create(state='somestate')
+        analysis3_result = {
+                'analysis_id': analysis3.analysis_id,
+                'last_modified': analysis3.last_modified}
+        my_cart.add(analysis3_result)
+        self.assertEqual(my_cart.size, 0)
+        my_cart.update_stats()
+        self.assertEqual(
+                my_cart.size,
+                analysis1.files_size + analysis3.files_size)
+        self.assertEqual(my_cart.all_count, 2)
+        self.assertEqual(my_cart.live_count, 1)
+        # Analysis id not exist
+        result = {
+                'analysis_id': '01810b1a-84e4-43d5-8a1e-42b132a1126f',
+                'last_modified': '2012-05-16T20:43:41Z',
+                'state': 'live',
+                'files_size': 12345}
+        my_cart.add(result)
+
+    def test_clear_cart(self):
+        create_session(self)
+        cart = Cart(session=self.client.session)
+        CartItemFactory.create(cart=cart.cart)
+        CartItemFactory.create(cart=cart.cart)
+        cart.update_stats()
+        self.assertEqual(cart.live_count, 2)
+        self.assertEqual(cart.all_count, 2)
+        cart.clear()
+        self.assertEqual(cart.all_count, 0)
+        self.assertEqual(cart.live_count, 0)
+
+    def test_cart_page(self):
+        create_session(self)
+        cart = Cart(session=self.client.session)
+        cart_item1 = CartItemFactory.create(cart=cart.cart)
+        cart_item2 = CartItemFactory.create(cart=cart.cart)
+        page = cart.page()
+        self.assertEqual(len(page), 2)
+        self.assertIn(cart_item1.analysis.analysis_id, page[0]['analysis_id'])
+        self.assertIn(cart_item2.analysis.analysis_id, page[1]['analysis_id'])
+        self.assertIn('platform', page[0])
+        self.assertIn('refassem_short_name', page[0])
+        
 
 class CartTestCase(TestCase):
     RANDOM_IDS = [
-                '017a4d4e-9f4b-4904-824e-060fde3ca223',
-                '016b792f-e659-4143-b833-163141e21363',
-                '01810b1a-84e4-43d5-8a1e-42b132a1126f']
+            {
+                'analysis_id': '017a4d4e-9f4b-4904-824e-060fde3ca223',
+                'state': 'live',
+                'last_modified': '2013-05-16T20:43:40Z',
+                'files_size': 12345
+            }, {
+                'analysis_id': '016b792f-e659-4143-b833-163141e21363',
+                'state': 'live',
+                'last_modified': '2013-05-16T20:43:40Z',
+                'files_size': 12345
+            }, {
+                'analysis_id': '01810b1a-84e4-43d5-8a1e-42b132a1126f',
+                'state': 'live',
+                'last_modified': '2013-05-16T20:43:40Z',
+                'files_size': 12345
+            }]
 
     def setUp(self):
         self.cart_page_url = reverse('cart_page')
@@ -48,7 +173,7 @@ class CartTestCase(TestCase):
 
         # make sure we have files we've posted
         for f in self.RANDOM_IDS:
-            self.assertEqual(f in response.content, True)
+            self.assertIn(f['analysis_id'], response.content)
 
     def test_cart_remove_files(self):
         # add files
@@ -57,7 +182,9 @@ class CartTestCase(TestCase):
                         url, {'selected_items': json.dumps(self.RANDOM_IDS)},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # remove files
-        rm_selected_files = [self.RANDOM_IDS[0], self.RANDOM_IDS[1]]
+        rm_selected_files = [
+                self.RANDOM_IDS[0]['analysis_id'],
+                self.RANDOM_IDS[1]['analysis_id']]
         url = reverse('cart_add_remove_files', args=['remove'])
         self.client.post(
                         url, {'selected_files': rm_selected_files},
@@ -126,26 +253,6 @@ class CartTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class CartClearTestCase(TestCase):
-    IDS_IN_CART = [
-                    '017a4d4e-9f4b-4904-824e-060fde3ca223',
-                    '016b792f-e659-4143-b833-163141e21363',
-                    '01810b1a-84e4-43d5-8a1e-42b132a1126f']
-
-    def setUp(self):
-        url = reverse('cart_add_remove_files', args=['add'])
-        self.client.post(
-                        url, {'selected_items': json.dumps(self.IDS_IN_CART)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-    def test_cart_clear(self):
-        url = reverse('cart_clear')
-        response = self.client.post(url, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Files in your cart: 0 (0 Bytes)")
-        self.assertContains(response, "Your cart is empty!")
-
-
 class CartAddItemsTestCase(TestCase):
 
     def test_cart_add_files_with_q(self):
@@ -163,13 +270,11 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
-        self.assertTrue(self.client.session.session_key)
-        self.assertIn(
-                '00b27c0f-acf5-434c-8efa-25b1f3c4f506',
-                self.client.session['cart'])
-        self.assertEqual(
-                len(self.client.session['cart']['00b27c0f-acf5-434c-8efa-25b1f3c4f506']),
-                1)
+        cart_model = CartModel.objects.get(
+                session__session_key=self.client.session.session_key)
+        self.assertTrue(cart_model.items.filter(
+                analysis__analysis_id='00b27c0f-acf5-434c-8efa-25b1f3c4f506')
+                .exists())
         browser_text_search.useAllMetadataIndex = oldUseAllMetadataIndex
 
     def test_cart_add_files_with_q_without_metadata_index(self):
@@ -189,10 +294,11 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
-        self.assertTrue(self.client.session.session_key)
-        self.assertIn(
-                '00b27c0f-acf5-434c-8efa-25b1f3c4f506',
-                self.client.session['cart'])
+        cart_model = CartModel.objects.get(
+                session__session_key=self.client.session.session_key)
+        self.assertTrue(cart_model.items.filter(
+                analysis__analysis_id='00b27c0f-acf5-434c-8efa-25b1f3c4f506')
+                .exists())
         browser_text_search.useAllMetadataIndex = oldUseAllMetadataIndex
 
     def test_cart_add_files_without_q(self):
@@ -208,8 +314,8 @@ class CartAddItemsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['action'], 'redirect')
-        self.assertTrue(self.client.session.session_key)
-        self.assertTrue(isinstance(self.client.session['cart'], dict))
+        self.assertTrue(CartModel.objects.filter(
+                session__session_key=self.client.session.session_key).exists())
 
 
 class CartCacheTestCase(TestCase):
@@ -224,6 +330,23 @@ class CartCacheTestCase(TestCase):
     analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
     last_modified2 = '2013-05-16T20:51:58Z'
 
+    '''
+    def test_create_cache_on_analysis_creation(self):
+        path = os.path.join(
+                            settings.CART_CACHE_DIR,
+                            self.analysis_id[:2],
+                            self.analysis_id[2:4],
+                            self.analysis_id)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
+        Analysis.objects.create(
+                analysis_id=self.analysis_id,
+                last_modified=self.last_modified,
+                state='live',
+                files_size=12345)
+        self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
+
     def test_get_cache_file_path(self):
         self.assertEqual(
                 get_cart_cache_file_path(
@@ -231,15 +354,7 @@ class CartCacheTestCase(TestCase):
                         '2012-10-29T21:56:12Z'),
                 os.path.join(
                         settings.CART_CACHE_DIR,
-                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisFull.xml'))
-        self.assertEqual(
-                get_cart_cache_file_path(
-                        '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
-                        '2012-10-29T21:56:12Z',
-                        short=True),
-                os.path.join(
-                        settings.CART_CACHE_DIR,
-                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysisShort.xml'))
+                        '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysis.xml'))
 
     def test_save_to_cart_cache(self):
         path = os.path.join(
@@ -249,13 +364,11 @@ class CartCacheTestCase(TestCase):
                             self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
-        path_full = get_cart_cache_file_path(self.analysis_id, self.last_modified)
-        path_short = get_cart_cache_file_path(self.analysis_id, self.last_modified, short=True)
+        path_file = get_cart_cache_file_path(self.analysis_id, self.last_modified)
         # check is_cart_cache_exists
         self.assertFalse(is_cart_cache_exists(self.analysis_id, self.last_modified))
         result = save_to_cart_cache(self.analysis_id, self.last_modified)
-        self.assertTrue(os.path.exists(path_full))
-        self.assertTrue(os.path.exists(path_short))
+        self.assertTrue(os.path.exists(path_file))
         self.assertTrue(is_cart_cache_exists(self.analysis_id, self.last_modified))
         shutil.rmtree(path)
         # check exception raises when file does not exists
@@ -269,12 +382,12 @@ class CartCacheTestCase(TestCase):
             shutil.rmtree(path)
         try:
             save_to_cart_cache(bad_analysis_id, self.last_modified)
-        except AnalysisFileException as e:
-            self.assertEqual(unicode(e), 'File for analysis_id=badanalysisid '
+        except AnalysisException as e:
+            self.assertEqual(unicode(e), 'Analysis for analysis_id=badanalysisid '
             'that was last modified 2013-05-16T20:50:58Z. '
-            'File with specified analysis_id does not exists')
+            'Analysis with specified analysis_id does not exists')
         else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            raise False, 'AnalysisException doesn\'t raised'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check case when file was updated
@@ -285,21 +398,21 @@ class CartCacheTestCase(TestCase):
                         self.analysis_id)
         try:
             save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
-        except AnalysisFileException:
+        except AnalysisException:
             assert False, 'Most recent file was not downloaded'
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check access denied to files outside cache dir
         try:
             save_to_cart_cache(self.analysis_id, '../../same_outside_dir')
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             self.assertEqual(
                 unicode(e),
-                'File for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
+                'Analysis for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
                 'that was last modified ../../same_outside_dir. '
                 'Bad analysis_id or last_modified')
         else:
-            raise False, 'AnalysisFileException doesn\'t raised'
+            raise False, 'AnalysisException doesn\'t raised'
 
     def test_get_analysis(self):
         # test get_analysis_path
@@ -322,19 +435,24 @@ class CartCacheTestCase(TestCase):
             get_cart_cache_file_path(self.analysis_id, self.last_modified))
         # test get_analysis
         # with cache
-        analysis = get_analysis(self.analysis_id, self.last_modified, short=False)
+        analysis = get_analysis(self.analysis_id, self.last_modified)
         self.assertIn('analysis_xml', analysis['xml'])
-        # short version
-        analysis = get_analysis(self.analysis_id, self.last_modified, short=True)
-        self.assertNotIn('analysis_xml', analysis['xml'])
 
     def test_get_analysis_xml(self):
-        xml, size = get_analysis_xml(
+        xml = get_analysis_xml(
             analysis_id=self.analysis_id,
             last_modified=self.last_modified)
         self.assertNotIn('Result', xml)
         self.assertIn('analysis_id', xml)
-        self.assertEqual(size, 172861573)
+        self.assertIn('analysis_xml', xml)
+        # short
+        xml = get_analysis_xml(
+            analysis_id=self.analysis_id,
+            last_modified=self.last_modified, short=True)
+        self.assertNotIn('Result', xml)
+        self.assertIn('analysis_id', xml)
+        self.assertNotIn('analysis_xml', xml)
+        self.assertNotIn('experiment_xml', xml)
 
     def test_analysis_xml_iterator(self):
         data = {
@@ -397,21 +515,30 @@ class CartCacheTestCase(TestCase):
     def _check_content_type_and_disposition(self, response, type, filename):
         self.assertEqual(response['Content-Type'], type)
         self.assertIn('attachment; filename=%s' % filename, response['Content-Disposition'])
-
+    '''
 
 class CartFormsTestCase(TestCase):
 
-    def test_selected_files_form(self):
+    def test_selected_items_form(self):
 
         test_data_set = [{
             'selected_items': json.dumps([
-                    '7850f073-642a-40a8-b49d-e328f27cfd66',
-                    '796e11c8-b873-4c37-88cd-18dcd7f287ec']),
+                    {
+                        'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                        'state': 'live'
+                    }, {
+                        'analysis_id': '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                        'state': 'live'
+                    }]),
             'is_valid': True,
             }, {
             'selected_items': json.dumps([
-                    '7850f073-642a-40a8-b49d-e328f27cfd66',
-                    '796e11c8b8734c3788cd18dcd7f287ec']),
+                    {
+                        'analysis_id': '7850f073-642a-40a8-b49d-e328f27cfd66',
+                        'state': 'live'
+                    },
+                        '796e11c8-b873-4c37-88cd-18dcd7f287ec',
+                    ]),
             'is_valid': False,
             },{
             'selected_items': 123,
@@ -421,16 +548,16 @@ class CartFormsTestCase(TestCase):
             'is_valid': False }]
 
         for data in test_data_set:
-            form = SelectedFilesForm(data)
+            form = SelectedItemsForm(data)
             self.assertEqual(form.is_valid(), data['is_valid'])
 
-        form = SelectedFilesForm(test_data_set[0])
+        form = SelectedItemsForm(test_data_set[0])
         form.is_valid()
         self.assertEqual(
-            form.cleaned_data['selected_items'][0],
+            form.cleaned_data['selected_items'][0]['analysis_id'],
             '7850f073-642a-40a8-b49d-e328f27cfd66')
 
-    def test_all_files_form(self):
+    def test_all_items_form(self):
 
         test_data_set = [{
             'filters': json.dumps({'center': '(1,2)', 'state': '(live)'}),
@@ -441,10 +568,10 @@ class CartFormsTestCase(TestCase):
         }]
 
         for data in test_data_set:
-            form = AllFilesForm(data)
+            form = AllItemsForm(data)
             self.assertEqual(form.is_valid(), data['is_valid'])
 
-        form = AllFilesForm(test_data_set[0])
+        form = AllItemsForm(test_data_set[0])
         form.is_valid()
         self.assertEqual(
             form.cleaned_data['filters'],

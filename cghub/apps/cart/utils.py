@@ -9,39 +9,97 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.loader import render_to_string, get_template
 from django.template import Context
+from django.contrib.sessions.models import Session
+from django.db import IntegrityError
+from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import xml_add_spaces
+from cghub.apps.core.utils import xml_add_spaces, RequestDetail
 
-from .cache import AnalysisFileException, get_analysis, get_analysis_xml
+from .cache import AnalysisException, get_analysis, get_analysis_xml
+from .models import CartItem, Analysis
 
 
 cart_logger = logging.getLogger('cart')
 
 
-def get_or_create_cart(request):
-    """ return cart and creates it if it does not exist """
-    request.session["cart"] = request.session.get('cart', {})
-    return request.session["cart"]
+class Cart(object):
 
+    def __init__(self, session):
+        if session.session_key == None:
+            session.save()
+        session_object = Session.objects.get(session_key=session.session_key)
+        self.session = session
+        self.cart = session_object.cart
 
-def get_cart_stats(request):
-    cart = get_or_create_cart(request)
-    stats = {'count': len(cart), 'size': 0}
-    for analysis_id, f in cart.iteritems():
-        if 'files_size' in f:
-            try:
-                size = int(f['files_size'])
-            except TypeError, ValueError:
-                size = 0
-            stats['size'] += size
-    return stats
+    @property
+    def size(self):
+        return self.cart.size
 
+    @property
+    def all_count(self):
+        return self.cart.items.count()
 
-def cart_clear(request):
-    if 'cart' in request.session:
-        request.session['cart'].clear()
-    request.session.modified = True
+    @property
+    def live_count(self):
+        return self.cart.live_count
+
+    def remove(self, analysis_id):
+        try:
+            item = CartItem.objects.get(
+                        cart=self.cart, analysis__analysis_id=analysis_id)
+        except CartItem.DoesNotExist:
+            return
+        item.delete()
+
+    def page(self, offset=0, limit=10):
+        items = self.cart.items.all()[offset * limit:(offset + 1) * limit]
+        if not items.exists():
+            return []
+        results = []
+        api_request = RequestDetail(query={
+                'analysis_id': [i.analysis.analysis_id for i in items]})
+        for result in api_request.call():
+            results.append(result)
+        return results
+
+    def add(self, result):
+        analysis_id = result['analysis_id']
+        try:
+            analysis = Analysis.objects.get(analysis_id=analysis_id)
+            if analysis.last_modified != result['last_modified']:
+                update_analysis(analysis_id)
+            item = CartItem(
+                    cart=self.cart,
+                    analysis=analysis)
+            item.save()
+        except IntegrityError:
+            return
+        except Analysis.DoesNotExist:
+            analysis = Analysis.objects.create(
+                    analysis_id=analysis_id,
+                    last_modified=result['last_modified'],
+                    state=result['state'],
+                    files_size=result['files_size'])
+            item = CartItem(
+                    cart=self.cart,
+                    analysis=analysis)
+            item.save()
+
+    def clear(self):
+        self.cart.items.all().delete()
+        self.update_stats()
+
+    def update_stats(self):
+        """
+        Update cart.size and cart.live_count
+        """
+        items = self.cart.items
+        self.cart.size = items.aggregate(
+                size=Sum('analysis__files_size'))['size'] or 0
+        self.cart.live_count = items.filter(analysis__state='live').count()
+        self.cart.save()
+        self.session['cart_count'] = self.cart.live_count
 
 
 def analysis_xml_iterator(data, short=False, live_only=False):
@@ -69,7 +127,7 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                             analysis_id=f,
                             last_modified=last_modified,
                             short=short)
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
@@ -103,7 +161,7 @@ def summary_tsv_iterator(data):
             result = get_analysis(
                             analysis_id=f,
                             last_modified=last_modified)
-        except AnalysisFileException as e:
+        except AnalysisException as e:
             cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
         fields = field_values(result, humanize_files_size=False)

@@ -194,7 +194,7 @@ jQuery(function ($) {
             }
 
             selected_files.each(function (i, f) {
-                data.push($(f).data().analysis_id);
+                data.push($(f).data());
             });
             $.ajax({
                 data:$(this).serialize() + "&selected_items=" + JSON.stringify(data),
