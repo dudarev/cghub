@@ -102,7 +102,7 @@ class Cart(object):
         self.session['cart_count'] = self.cart.live_count
 
 
-def analysis_xml_iterator(data, short=False, live_only=False):
+def analysis_xml_iterator(cart, short=False, live_only=False):
     """
     Return xml for files with specified ids.
     If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
@@ -111,27 +111,29 @@ def analysis_xml_iterator(data, short=False, live_only=False):
     :param short: if True - file will be contains only most necessary attributes
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
+    if live_only:
+        items = cart.cart.items.filter(analysis__state='live')
+    else:
+        items = cart.cart.items.all()
     yield render_to_string('xml/analysis_xml_header.xml', {
                         'date': datetime.datetime.strftime(
                                     timezone.now(), '%Y-%d-%m %H:%M:%S'),
-                        'len': len(data)})
+                        'len': items.count()})
     counter = 0
     downloadable_size = 0
     result_template = get_template('xml/analysis_xml_result.xml')
-    for f in data:
-        if live_only and data[f].get('state') != 'live':
-            continue
-        last_modified = data[f].get('last_modified')
+    for item in items:
+        analysis = item.analysis
         try:
             xml, files_size = get_analysis_xml(
-                            analysis_id=f,
-                            last_modified=last_modified,
+                            analysis_id=analysis.analysis_id,
+                            last_modified=analysis.last_modified,
                             short=short)
         except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
             continue
         counter += 1
-        downloadable_size += files_size
+        downloadable_size += analysis.files_size
         formatted_xml = ''
         for s in xml_add_spaces(xml, space=4, tab=2):
             formatted_xml += s
@@ -143,7 +145,7 @@ def analysis_xml_iterator(data, short=False, live_only=False):
                     'size': str(round(downloadable_size/1073741824.*100)/100)})
 
 
-def summary_tsv_iterator(data):
+def summary_tsv_iterator(cart):
     """
     Returns Summary tsv file content.
     Data to generate file takes from cart cache. If data not exists in cache,
@@ -155,12 +157,13 @@ def summary_tsv_iterator(data):
     stringio = StringIO()
     csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab', lineterminator='\n')
     csvwriter.writerow([field.lower().replace(' ', '_') for field in COLUMNS])
-    for f in data:
-        last_modified = data[f].get('last_modified')
+    items = cart.cart.items.all()
+    for item in items:
+        analysis = item.analysis
         try:
             result = get_analysis(
-                            analysis_id=f,
-                            last_modified=last_modified)
+                            analysis_id=analysis.analysis_id,
+                            last_modified=analysis.last_modified)
         except AnalysisException as e:
             cart_logger.error('Error while composing summary tsv. %s' % str(e))
             continue
@@ -177,21 +180,52 @@ def summary_tsv_iterator(data):
         yield line
 
 
-def manifest(data):
+def manifest(cart):
     response = HttpResponse(
-            analysis_xml_iterator(data, short=True, live_only=True),
+            analysis_xml_iterator(cart, short=True, live_only=True),
             content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
-def metadata(data):
-    response = HttpResponse(analysis_xml_iterator(data), content_type='text/xml')
+def metadata(cart):
+    response = HttpResponse(analysis_xml_iterator(cart), content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
-def summary(data):
-    response = HttpResponse(summary_tsv_iterator(data), content_type='text/tsv')
+def summary(cart):
+    response = HttpResponse(summary_tsv_iterator(cart), content_type='text/tsv')
     response['Content-Disposition'] = 'attachment; filename=summary.tsv'
+    return response
+
+
+def item_metadata(analysis_id, last_modified):
+    content = render_to_string('xml/analysis_xml_header.xml', {
+                        'date': datetime.datetime.strftime(
+                                    timezone.now(), '%Y-%d-%m %H:%M:%S'),
+                        'len': 1})
+    result_template = get_template('xml/analysis_xml_result.xml')
+    try:
+        xml, files_size = get_analysis_xml(
+                analysis_id=analysis_id,
+                last_modified=last_modified,
+                short=False)
+    except AnalysisException as e:
+        cart_logger.error('Error while composing metadata xml. %s' % str(e))
+        content += render_to_string('xml/analysis_xml_summary.xml', {
+                'counter': 0,
+                'size': 0})
+        return content
+    formatted_xml = ''
+    for s in xml_add_spaces(xml, space=4, tab=2):
+            formatted_xml += s
+    content += result_template.render(Context({
+            'counter': 1,
+            'xml': formatted_xml.strip()}))
+    content += render_to_string('xml/analysis_xml_summary.xml', {
+                    'counter': 1,
+                    'size': str(round(files_size/1073741824.*100)/100)})
+    response = HttpResponse(content, content_type='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response

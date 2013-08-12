@@ -204,7 +204,8 @@ class RequestFull(APIRequest):
 
     def patch_result(self, result, result_xml):
         new_result = super(RequestFull, self).patch_result(result, result_xml)
-        new_result['xml'] = result_xml
+        new_result['xml'] = (result_xml.replace('\t', '')
+                .replace('\n', '').encode('utf-8'))
         return new_result
 
 

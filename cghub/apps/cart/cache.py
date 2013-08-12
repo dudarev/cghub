@@ -135,6 +135,12 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
     start = result.find(RESULT_START) + len(RESULT_START)
     stop = result.find(RESULT_STOP)
     result = result[start:stop]
+    start = result.find(FSIZE_START)
+    files_size = 0
+    # get only first file size
+    if start != -1:
+        stop = result.find(FSIZE_STOP, start + 1)
+        files_size = int(result[start+len(FSIZE_START):stop])
     if short:
         attributes_to_remove = (
                 'sample_accession', 'legacy_sample_id',
@@ -149,4 +155,4 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
             if start != -1 and stop != -1:
                 stop += len(stop_str)
                 result = '%s%s' % (result[:start], result[stop:])
-    return result
+    return result, files_size

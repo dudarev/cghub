@@ -89,7 +89,7 @@ COLUMN_STYLES = {
         'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Experiment Type': {
-        'width': 95, 'align': 'left', 'default_state': 'hidden',
+        'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
     'Filename': {
         'width': 300, 'align': 'left', 'default_state': 'hidden',
@@ -113,7 +113,7 @@ COLUMN_STYLES = {
         'width': 120, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Type': {
-        'width': 75, 'align': 'left', 'default_state': 'visible',
+        'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Sample Type Name': {
         'width': 150, 'align': 'left', 'default_state': 'hidden',

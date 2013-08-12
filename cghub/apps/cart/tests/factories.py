@@ -36,12 +36,15 @@ class AnalysisFactory(object):
                 self, analysis_id=None, last_modified=None,
                 state='live', files_size=None):
         self.counter += 1
-        analysis_id = analysis_id or self.IDS[self.counter - 1]['analysis_id']
-        last_modified = last_modified or self.IDS[self.counter - 1]['last_modified']
+        analysis_id = analysis_id or self.IDS[self.counter % 6]['analysis_id']
+        last_modified = last_modified or self.IDS[self.counter % 6]['last_modified']
         files_size = files_size or (466684944 + self.counter)
-        return Analysis.objects.create(
+        analysis, created = Analysis.objects.get_or_create(
                 analysis_id=analysis_id, last_modified=last_modified,
-                state=state, files_size=files_size)
+                defaults = {
+                        'state': state,
+                        'files_size': files_size})
+        return analysis
 
 
 class CartItemFactory(object):

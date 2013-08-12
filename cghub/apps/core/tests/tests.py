@@ -17,6 +17,8 @@ from django.http import HttpRequest, QueryDict
 from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
 
+from cghub.apps.cart.utils import Cart
+
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
                     get_name_by_code, table_header, table_row,
@@ -553,7 +555,8 @@ class BatchSearchTestCase(TestCase):
         data = {'ids': ids, 'add_to_cart': 'true'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))
-        self.assertEqual(len(self.client.session['cart']), 2)
+        cart = Cart(session=self.client.session)
+        self.assertEqual(cart.all_count, 2)
         # redirect to batch_search_page if all items were deleted
         data = {'ids': ''}
         response = self.client.post(reverse('batch_search_page'), data)
@@ -647,7 +650,6 @@ class MetadataViewTestCase(TestCase):
     analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
     last_modified = '2013-05-16T20:50:58Z'
 
-    '''
     def test_metadata(self):
         path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
         if os.path.isdir(path):
@@ -655,14 +657,14 @@ class MetadataViewTestCase(TestCase):
         response = self.client.get(
                     reverse('metadata',
                     args=[self.analysis_id]),
-                    {'last_modified': self.last_modified, 'state': 'live'})
+                    {'last_modified': self.last_modified})
         content = response.content
         self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
         self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
-    '''
+
 
 class SettingsTestCase(TestCase):
 

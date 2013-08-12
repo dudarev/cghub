@@ -54,7 +54,7 @@
             <a class="brand" href="https://cghub.ucsc.edu/" tabindex="25"><span class="js-common-tooltip" data-key="cghub-home-page-link">Cancer Genomics Hub</span></a>
             <ul class="nav">
                 <li><a href="{% url home_page %}" tabindex="26"><span class="js-common-tooltip" data-key="browser-link">Browser</span></a></li>
-                <li><a href="{% url cart_page %}" tabindex="27"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart_count }})</span></a></li>
+                <li><a href="{% url cart_page %}" tabindex="27"><span class="js-common-tooltip" data-key="cart-link">Cart ({{ request.session.cart_count|default:0 }})</span></a></li>
                 <li><a href="{% url help_page %}?from={{ request.path }}" tabindex="28"><span class="js-common-tooltip" data-key="help-link">Help</span></a></li>
                 <li><a href="{% url accessibility_page %}" tabindex="29"><span class="js-common-tooltip" data-key="accessibility-link">Accessibility</span></a></li>
             </ul>

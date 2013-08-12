@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView, View
 from django.template import loader, Context
 
-from cghub.apps.cart.utils import metadata
+from cghub.apps.cart.utils import item_metadata, Cart
 
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
@@ -221,23 +221,14 @@ class BatchSearchView(TemplateView):
 
             if request.POST.get('add_to_cart'):
 
-                if 'cart' in request.session:
-                    cart = request.session['cart']
-                else:
-                    cart = {}
-
+                cart = Cart(request.session)
                 part = 0
                 for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
                     query = {'analysis_id': ids[part : part + settings.MAX_ITEMS_IN_QUERY]}
                     api_request = RequestDetail(query=query)
                     for result in api_request.call():
-                        analysis_id = result['analysis_id']
-                        filtered_data = {}
-                        for attr in ATTRIBUTES:
-                            filtered_data[attr] = result[attr]
-                        cart[analysis_id] = filtered_data
-                        last_modified = result['last_modified']
-                request.session['cart'] = cart
+                        cart.add(result)
+                cart.update_stats()
 
                 return HttpResponseRedirect(reverse('cart_page'))
             else:
@@ -318,9 +309,9 @@ class ItemDetailsView(TemplateView):
 
 class MetadataView(View):
     def get(self, request, analysis_id):
-        return metadata(data={analysis_id: {
-                'last_modified': request.GET.get('last_modified'),
-                'state': request.GET.get('state')}})
+        return item_metadata(
+                analysis_id=analysis_id,
+                last_modified=request.GET.get('last_modified'))
 
 
 def error_500(request):
