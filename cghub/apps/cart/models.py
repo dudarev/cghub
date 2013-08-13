@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.sessions.models import Session
 from django.db.models.signals import post_save, post_delete
 
-from .cache import save_to_cart_cache
-
 
 class Cart(models.Model):
     session = models.OneToOneField(Session, related_name='cart')
@@ -48,10 +46,3 @@ def remove_cart(sender, instance, **kwargs):
     instance.cart.delete()
 
 post_delete.connect(remove_cart, sender=Session)
-
-def update_cart_cache(sender, instance, created, **kwargs):
-    save_to_cart_cache(
-                    analysis_id=instance.analysis_id,
-                    last_modified=instance.last_modified)
-
-post_save.connect(update_cart_cache, sender=Analysis)

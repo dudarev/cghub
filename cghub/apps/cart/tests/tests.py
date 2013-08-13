@@ -124,12 +124,19 @@ class CartUtilsTestCase(TestCase):
         cart = Cart(session=self.client.session)
         cart_item1 = CartItemFactory.create(cart=cart.cart)
         cart_item2 = CartItemFactory.create(cart=cart.cart)
+        analysis = cart_item1.analysis
+        analysis.last_modified = '2000-01-01T01:01:01Z'
+        analysis.save()
         page = cart.page()
         self.assertEqual(len(page), 2)
-        self.assertIn(cart_item1.analysis.analysis_id, page[0]['analysis_id'])
-        self.assertIn(cart_item2.analysis.analysis_id, page[1]['analysis_id'])
+        self.assertIn(
+                cart_item1.analysis.analysis_id, page[0]['analysis_id'])
+        self.assertIn(
+                cart_item2.analysis.analysis_id, page[1]['analysis_id'])
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
+        # check is last_modified is the same as in Analysis
+        self.assertEqual(analysis.last_modified, page[0]['last_modified'])
 
 
 class CartTestCase(TestCase):
@@ -342,24 +349,6 @@ class CartCacheTestCase(TestCase):
                     'last_modified': last_modified2,
                     'state': 'live',
                     'files_size': 12345}}
-
-    def test_create_cache_on_analysis_creation(self):
-        path = os.path.join(
-                            settings.CART_CACHE_DIR,
-                            self.analysis_id[:2],
-                            self.analysis_id[2:4],
-                            self.analysis_id)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        self.assertFalse(is_cart_cache_exists(
-                self.analysis_id, self.last_modified))
-        Analysis.objects.create(
-                analysis_id=self.analysis_id,
-                last_modified=self.last_modified,
-                state='live',
-                files_size=12345)
-        self.assertTrue(is_cart_cache_exists(
-                self.analysis_id, self.last_modified))
 
     def test_get_cache_file_path(self):
         self.assertEqual(
