@@ -118,7 +118,16 @@ To get cghub_python_api.api.Result object for specified analysis_id and last_mod
 
 .. autofunction:: cghub.apps.cart.cache.get_analysis
 
-If file will be not  cached, application will try to download it. In case when file with specified analysis_id for specified last_modified will be not found, AnalysisFileException exception will be raised .
+If file will be not  cached, application will try to download it. In case when file with specified analysis_id for specified last_modified will be not found, AnalysisFileException exception will be raised.
+
+``update_cart_cache`` management command can be used to download all non existent or outdated cache.
+It works next way:
+    - make request to analysisDetail uri
+    - check that all Analysis objects exists and recent
+    - if some analysis is outdated, it will be updated
+    - if analysis does not exists, it will be added
+    - cache existance will be checked for every Analysis object
+    - if cache does not exists, it will be downloaded
 
 Adding files to cart
 ====================
