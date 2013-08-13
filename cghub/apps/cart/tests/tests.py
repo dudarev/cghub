@@ -1,8 +1,12 @@
 import os
 import shutil
 
+from mock import patch
+from StringIO import StringIO
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.core.management import call_command
 from django.utils import timezone, simplejson as json
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -597,3 +601,44 @@ class CartFormsTestCase(TestCase):
         self.assertEqual(
             form.cleaned_data['filters'],
             {'center': '(1,2)', 'state': '(live)'})
+
+
+class CartCommandsTestCase(TestCase):
+
+    """
+    detail_2items.xml contains:
+    015fd6a5-a77e-4bd1-9430-b44d1c043b54 2013-05-16T20:43:40Z
+    015090b8-86f3-4e60-a1ec-89b16d0be113 2013-05-16T20:43:40Z
+    """
+    analysis_id = '015fd6a5-a77e-4bd1-9430-b44d1c043b54'
+    last_modified = '2013-05-16T20:43:40Z'
+
+    def get_xml_file(self, url):
+        path = os.path.join(
+                os.path.dirname(__file__),
+                'test_data/detail_2items.xml')
+        return open(path, 'r')
+
+    @patch('cghub.apps.core.utils.RequestDetail.get_xml_file', get_xml_file)
+    def test_update_cache(self):
+        # remove existed cache
+        path = get_cart_cache_file_path(
+                analysis_id=self.analysis_id,
+                last_modified=self.last_modified)
+        if os.path.exists(path):
+            os.remove(path)
+        # remove analysis
+        try:
+            analysis = Analysis.objects.get(analysis_id=self.analysis_id)
+            analysis.delete()
+        except Analysis.DoesNotExist:
+            pass
+        result = StringIO()
+        call_command('update_cart_cache', stdout=result)
+        result.seek(0)
+        result = result.read()
+        self.assertIn('Done!', result)
+        self.assertIn('Downloading cache for', result)
+        self.assertIn('was created', result)
+        self.assertIn(self.analysis_id, result)
+        self.assertTrue(os.path.exists(path))

@@ -289,9 +289,12 @@ class ItemDetailsView(TemplateView):
             result = api_request.call().next()
             xml = result['xml']
             xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
+            xml = repr(xml.replace(' id="1"', ''))
+            if xml[0] == 'u':
+                xml = xml[1:]
             return {
                 'res': result,
-                'raw_xml': repr(xml.replace(' id="1"', '')),
+                'raw_xml': xml,
                 'analysis_id': kwargs['analysis_id']}
         except StopIteration:
             pass

@@ -72,7 +72,8 @@ class Cart(object):
         for i in items:
             analysis = i.analysis
             cart_data[analysis.analysis_id] = {
-                    'last_modified': analysis.last_modified, 'state': analysis.state}
+                    'last_modified': analysis.last_modified,
+                    'state': analysis.state}
         for result in api_request.call():
             # replace last_modified and state to that specified in Analysis
             analysis_id = result['analysis_id']
@@ -173,8 +174,11 @@ def summary_tsv_iterator(cart):
     """
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
-    csvwriter = csv.writer(stringio, quoting=csv.QUOTE_MINIMAL, dialect='excel-tab', lineterminator='\n')
-    csvwriter.writerow([field.lower().replace(' ', '_') for field in COLUMNS])
+    csvwriter = csv.writer(
+            stringio, quoting=csv.QUOTE_MINIMAL,
+            dialect='excel-tab', lineterminator='\n')
+    csvwriter.writerow(
+            [field.lower().replace(' ', '_') for field in COLUMNS])
     items = cart.cart.items.all()
     for item in items:
         analysis = item.analysis
@@ -183,7 +187,8 @@ def summary_tsv_iterator(cart):
                             analysis_id=analysis.analysis_id,
                             last_modified=analysis.last_modified)
         except AnalysisException as e:
-            cart_logger.error('Error while composing summary tsv. %s' % str(e))
+            cart_logger.error(
+                    'Error while composing summary tsv. %s' % str(e))
             continue
         fields = field_values(result, humanize_files_size=False)
         row = []
@@ -207,13 +212,15 @@ def manifest(cart):
 
 
 def metadata(cart):
-    response = HttpResponse(analysis_xml_iterator(cart), content_type='text/xml')
+    response = HttpResponse(
+            analysis_xml_iterator(cart), content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
 def summary(cart):
-    response = HttpResponse(summary_tsv_iterator(cart), content_type='text/tsv')
+    response = HttpResponse(
+            summary_tsv_iterator(cart), content_type='text/tsv')
     response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
@@ -230,7 +237,8 @@ def item_metadata(analysis_id, last_modified):
                 last_modified=last_modified,
                 short=False)
     except AnalysisException as e:
-        cart_logger.error('Error while composing metadata xml. %s' % str(e))
+        cart_logger.error(
+                'Error while composing metadata xml. %s' % str(e))
         content += render_to_string('xml/analysis_xml_summary.xml', {
                 'counter': 0,
                 'size': 0})
