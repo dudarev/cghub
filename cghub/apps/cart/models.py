@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete
 
 class Cart(models.Model):
     session = models.OneToOneField(Session, related_name='cart')
-    size = models.PositiveIntegerField(default=0)
+    size = models.BigIntegerField(default=0)
     live_count = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
@@ -16,7 +16,7 @@ class Analysis(models.Model):
     analysis_id = models.CharField(max_length=36, db_index=True, unique=True)
     state = models.CharField(max_length=20)
     last_modified = models.CharField(max_length=20)
-    files_size = models.PositiveIntegerField()
+    files_size = models.BigIntegerField()
 
     def __unicode__(self):
         return self.analysis_id
