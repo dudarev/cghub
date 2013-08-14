@@ -101,9 +101,9 @@ Caching
 
 There are next types of cache files:
     - cart cache
-        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculates using next pattern: ``{CART_CACHE_DIR}/{analysis_id[:2]}/{analysis_id[2:4]}/{analysis_id}/{last_modified}/analysis.xml``
+        - cached files for one analysis id, used when collecting metadata, manifest of summary file. Adds when adding files to cart if not exists yet. Can be saved few versions of files for different last_modified. Path to these files calculates using next pattern: ``{FULL_METADATA_CACHE_DIR}/{analysis_id[:2]}/{analysis_id[2:4]}/{analysis_id}/{last_modified}/analysis.xml``
 
-Folder where cart cache should be stored specified in settings (CART_CACHE_DIR).
+Folder where cart cache should be stored specified in settings (FULL_METADATA_CACHE_DIR).
 
 Cart cache
 ----------
@@ -120,7 +120,7 @@ To get cghub_python_api.api.Result object for specified analysis_id and last_mod
 
 If file will be not  cached, application will try to download it. In case when file with specified analysis_id for specified last_modified will be not found, AnalysisFileException exception will be raised.
 
-``update_cart_cache`` management command can be used to download all non existent or outdated cache.
+``update_full_metadata_cache`` management command can be used to download all non existent or outdated cache.
 It works next way:
     - make request to analysisDetail uri
     - check that all Analysis objects exists and recent

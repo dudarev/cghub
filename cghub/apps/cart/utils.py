@@ -62,23 +62,13 @@ class Cart(object):
         item.delete()
 
     def page(self, offset=0, limit=10):
-        items = self.cart.items.all()[offset * limit:(offset + 1) * limit]
+        items = self.cart.items.all()[offset:offset + limit]
         if not items.exists():
             return []
         results = []
         api_request = RequestDetail(query={
                 'analysis_id': [i.analysis.analysis_id for i in items]})
-        cart_data = {}
-        for i in items:
-            analysis = i.analysis
-            cart_data[analysis.analysis_id] = {
-                    'last_modified': analysis.last_modified,
-                    'state': analysis.state}
         for result in api_request.call():
-            # replace last_modified and state to that specified in Analysis
-            analysis_id = result['analysis_id']
-            result['last_modified'] = cart_data[analysis_id]['last_modified']
-            result['state'] = cart_data[analysis_id]['state']
             results.append(result)
         return results
 

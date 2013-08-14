@@ -8,7 +8,7 @@ ADMINS = (
   ('Mark Diekhans', 'markd@soe.ucsc.edu'),
 )
 
-CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
+FULL_METADATA_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/full_metadata_cache'
 
 DATABASES = {
     'default': {

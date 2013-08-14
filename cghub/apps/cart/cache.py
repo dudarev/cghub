@@ -41,7 +41,7 @@ def get_cart_cache_file_path(analysis_id, last_modified):
     c9/d9/c9d9d785-9fb0-11e2-99fa-001b218b57f8/...
     """
     return os.path.join(
-            settings.CART_CACHE_DIR,
+            settings.FULL_METADATA_CACHE_DIR,
             analysis_id[:2],
             analysis_id[2:4],
             analysis_id,
@@ -71,7 +71,7 @@ def save_to_cart_cache(analysis_id, last_modified):
                 analysis_id, last_modified, message='Bad analysis_id or last_modified')
     if is_cart_cache_exists(analysis_id, last_modified):
         return
-    dir_path = settings.CART_CACHE_DIR
+    dir_path = settings.FULL_METADATA_CACHE_DIR
     if not os.path.isdir(dir_path):
         makedirs_group_write(dir_path)
     folders = (

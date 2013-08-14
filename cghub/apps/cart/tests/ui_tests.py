@@ -42,7 +42,8 @@ class AddToCartTestCase(LiveServerTestCase):
             driver.get('%s/search/?q=%s' % (self.live_server_url, self.query))
             driver.find_element_by_class_name('add-all-to-cart-btn').click()
             time.sleep(1)
-            self.assertTrue(driver.find_element_by_id('manyItemsModal').is_displayed())
+            self.assertTrue(driver.find_element_by_id(
+                    'manyItemsModal').is_displayed())
 
     def test_add_nothing_to_cart(self):
         """
@@ -71,7 +72,7 @@ class CartUITestCase(LiveServerTestCase):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", settings.CART_CACHE_DIR)
+        fp.set_preference("browser.download.dir", settings.FULL_METADATA_CACHE_DIR)
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
@@ -170,9 +171,15 @@ class CartUITestCase(LiveServerTestCase):
 
             # check files downloading
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'manifest.xml'))
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'summary.tsv'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'manifest.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'metadata.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'summary.tsv'))
             except OSError:
                 pass
 
@@ -181,7 +188,9 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'manifest.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'manifest.xml'))
             except OSError:
                 assert False, "File manifest.xml wasn't downloaded"
 
@@ -190,7 +199,9 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 
@@ -199,7 +210,9 @@ class CartUITestCase(LiveServerTestCase):
             btn.click()
             driver.implicitly_wait(5)
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'summary.tsv'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'summary.tsv'))
             except OSError:
                 assert False, "File summary.tsv wasn't downloaded"
 

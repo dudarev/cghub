@@ -45,7 +45,7 @@ Path to cart cache specified in settings:
 
     # cache.py
 
-    CART_CACHE_DIR = '/tmp/cart/'
+    FULL_METADATA_CACHE_DIR = '/tmp/full_metadata_cache/'
 
 
 Paging

@@ -9,7 +9,7 @@ ADMINS = (
   ('Mark Diekhans', 'markd@kermodei.com'),
 )
 
-CART_CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser/cart"
+FULL_METADATA_CACHE_DIR = "/a/markd/cghub/projs/dataBrowser/var/cache/cghub-data-browser/full_metadata_cache"
 
 # for testing against stage
 #CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'

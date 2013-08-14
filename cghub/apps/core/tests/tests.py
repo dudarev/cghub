@@ -657,7 +657,8 @@ class MetadataViewTestCase(TestCase):
     last_modified = '2013-05-16T20:50:58Z'
 
     def test_metadata(self):
-        path = os.path.join(settings.CART_CACHE_DIR, self.analysis_id)
+        path = os.path.join(
+                settings.FULL_METADATA_CACHE_DIR, self.analysis_id)
         if os.path.isdir(path):
             shutil.rmtree(path)
         response = self.client.get(
@@ -667,7 +668,9 @@ class MetadataViewTestCase(TestCase):
         content = response.content
         self.assertTrue(self.analysis_id in content)
         self.assertEqual(response['Content-Type'], 'text/xml')
-        self.assertIn('attachment; filename=metadata.xml', response['Content-Disposition'])
+        self.assertIn(
+                'attachment; filename=metadata.xml',
+                response['Content-Disposition'])
         if os.path.isdir(path):
             shutil.rmtree(path)
 
