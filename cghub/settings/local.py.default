@@ -1,4 +1,4 @@
-# CART_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/cart'
+# FULL_METADATA_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/full_metadata_cache'
 
 # # logging settings, example of using SysLogHandler
 # from logging.handlers import SysLogHandler

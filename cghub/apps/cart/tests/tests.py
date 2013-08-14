@@ -139,8 +139,8 @@ class CartUtilsTestCase(TestCase):
                 cart_item2.analysis.analysis_id, page[1]['analysis_id'])
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
-        # check is last_modified is the same as in Analysis
-        self.assertEqual(analysis.last_modified, page[0]['last_modified'])
+        # check is last_modified is the same as in Result
+        self.assertNotEqual(analysis.last_modified, page[0]['last_modified'])
 
 
 class CartTestCase(TestCase):
@@ -360,12 +360,12 @@ class CartCacheTestCase(TestCase):
                         '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1',
                         '2012-10-29T21:56:12Z'),
                 os.path.join(
-                        settings.CART_CACHE_DIR,
+                        settings.FULL_METADATA_CACHE_DIR,
                         '7b/9c/7b9cd36a-8cbb-4e25-9c08-d62099c15ba1/2012-10-29T21:56:12Z/analysis.xml'))
 
     def test_save_to_cart_cache(self):
         path = os.path.join(
-                            settings.CART_CACHE_DIR,
+                            settings.FULL_METADATA_CACHE_DIR,
                             self.analysis_id[:2],
                             self.analysis_id[2:4],
                             self.analysis_id)
@@ -381,7 +381,7 @@ class CartCacheTestCase(TestCase):
         # check exception raises when file does not exists
         bad_analysis_id = 'badanalysisid'
         path = os.path.join(
-                    settings.CART_CACHE_DIR,
+                    settings.FULL_METADATA_CACHE_DIR,
                     bad_analysis_id[:2],
                     bad_analysis_id[2:4],
                     bad_analysis_id)
@@ -399,7 +399,7 @@ class CartCacheTestCase(TestCase):
             shutil.rmtree(path)
         # check case when file was updated
         path = os.path.join(
-                        settings.CART_CACHE_DIR,
+                        settings.FULL_METADATA_CACHE_DIR,
                         self.analysis_id[:2],
                         self.analysis_id[2:4],
                         self.analysis_id)
@@ -424,7 +424,7 @@ class CartCacheTestCase(TestCase):
     def test_get_analysis(self):
         # test get_analysis_path
         path = os.path.join(
-                            settings.CART_CACHE_DIR,
+                            settings.FULL_METADATA_CACHE_DIR,
                             self.analysis_id[:2],
                             self.analysis_id[2:4],
                             self.analysis_id)
@@ -620,7 +620,7 @@ class CartCommandsTestCase(TestCase):
         return open(path, 'r')
 
     @patch('cghub.apps.core.utils.RequestDetail.get_xml_file', get_xml_file)
-    def test_update_cache(self):
+    def test_update_full_metadata_cache(self):
         # remove existed cache
         path = get_cart_cache_file_path(
                 analysis_id=self.analysis_id,
@@ -634,7 +634,7 @@ class CartCommandsTestCase(TestCase):
         except Analysis.DoesNotExist:
             pass
         result = StringIO()
-        call_command('update_cart_cache', stdout=result)
+        call_command('update_full_metadata_cache', stdout=result)
         result.seek(0)
         result = result.read()
         self.assertIn('Done!', result)

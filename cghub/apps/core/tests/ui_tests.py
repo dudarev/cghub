@@ -176,7 +176,8 @@ class CoreUITestCase(LiveServerTestCase):
         """
         def check_good_query(key='123'):
             driver = self.selenium
-            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field = driver.find_element_by_css_selector(
+                    '.navbar-search .search-query')
             search_field.clear()
             search_field.send_keys(key)
             search_field.submit()
@@ -192,7 +193,8 @@ class CoreUITestCase(LiveServerTestCase):
             # check popup invisible
             popup = driver.find_element_by_id('messageModal')
             assert not popup.is_displayed()
-            search_field = driver.find_element_by_css_selector('.navbar-search .search-query')
+            search_field = driver.find_element_by_css_selector(
+                    '.navbar-search .search-query')
             search_field.clear()
             search_field.send_keys(key)
             search_field.submit()
@@ -627,9 +629,12 @@ class DetailsTestCase(LiveServerTestCase):
     def setUpClass(self):
         fp = webdriver.FirefoxProfile()
         fp.set_preference("browser.download.folderList", 2)
-        fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.download.dir", settings.CART_CACHE_DIR)
-        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
+        fp.set_preference(
+                "browser.download.manager.showWhenStarting", False)
+        fp.set_preference(
+                "browser.download.dir", settings.FULL_METADATA_CACHE_DIR)
+        fp.set_preference(
+                "browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
         super(DetailsTestCase, self).setUpClass()
@@ -719,7 +724,8 @@ class DetailsTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             # Click on 'Metadata XML' in details popup
-            td = driver.find_element_by_xpath("//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
+            td = driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             td.click()
             time.sleep(3)
             driver.find_element_by_css_selector('.raw-xml-link').click()
@@ -751,10 +757,13 @@ class DetailsTestCase(LiveServerTestCase):
             driver.get(self.live_server_url)
             # remove saved metadata file if exists
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'metadata.xml'))
             except OSError:
                 pass
-            td = driver.find_element_by_xpath("//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
+            td = driver.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             analysis_id = driver.find_element_by_xpath(
                     "//div[@class='bDiv']/fieldset/table/tbody/tr[1]").get_attribute('data-analysis_id')
             # open row context menu and click 'Show details in new window'
@@ -775,7 +784,9 @@ class DetailsTestCase(LiveServerTestCase):
             time.sleep(3)
             # check that metadata file was downloaded
             try:
-                os.remove(os.path.join(settings.CART_CACHE_DIR, 'metadata.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
 
@@ -1018,19 +1029,22 @@ class ColumnSelectTestCase(LiveServerTestCase):
         select.click()
 
         # check all
-        driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
+        driver.find_element_by_xpath(
+                "//label[@for='ddcl-id-columns-selector-i0']").click()
         time.sleep(2)
 
         # uncheck one by one
         r = range(column_count)
         for i in r:
-            driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i%d']" % (i + 1)).click()
+            driver.find_element_by_xpath(
+                    "//label[@for='ddcl-id-columns-selector-i%d']" % (i + 1)).click()
             # check that all previous columns are hidden
             for j in r[:(i + 1)]:
                 driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
-                assert not driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+                assert not driver.find_element_by_xpath(
+                        "//th[@axis='col%d']" % (j + 1)).is_displayed()
             # check that all next columns are visible
             for j in r[(i + 1):]:
                 driver.execute_script("$('.bDiv')"
@@ -1041,20 +1055,23 @@ class ColumnSelectTestCase(LiveServerTestCase):
             if i < column_count - 1:
                 full_width = driver.find_element_by_class_name('hDiv').value_of_css_property('width')[:-2]
                 full_width = int(full_width.split('.')[0])
-                all_columns_width = driver.find_element_by_xpath("//th[@axis='col0']").size.get('width', 0)
+                all_columns_width = driver.find_element_by_xpath(
+                        "//th[@axis='col0']").size.get('width', 0)
                 for x in range(1, column_count + 1):
                     col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
                     if col.is_displayed():
                         all_columns_width += col.size.get('width', 0)
                 self.assertTrue(full_width - all_columns_width < 3)
         # select (Toggle all) option
-        driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
+        driver.find_element_by_xpath(
+                "//label[@for='ddcl-id-columns-selector-i0']").click()
         r2 = range(column_count)
         for x in r2:
             driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % x)
-            assert driver.find_element_by_xpath("//th[@axis='col%d']" % (x + 1)).is_displayed()
+            assert driver.find_element_by_xpath(
+                    "//th[@axis='col%d']" % (x + 1)).is_displayed()
         # close DDCL
         select.click()
 
@@ -1093,7 +1110,8 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         /span[@class='ui-dropdownchecklist-text']")
             # select (Toggle all) option
             select.click()
-            driver.find_element_by_xpath("//label[@for='ddcl-id-columns-selector-i0']").click()
+            driver.find_element_by_xpath(
+                    "//label[@for='ddcl-id-columns-selector-i0']").click()
             time.sleep(2)
             select.click()
             # count visible columns
@@ -1675,7 +1693,9 @@ class HelpHintsTestCase(LiveServerTestCase):
             time.sleep(3)
             popup = driver.find_element_by_id('messageModal')
             assert popup.is_displayed()
-            popup_title = self.selenium.find_element_by_css_selector('#common-message-label').text
-            popup_content = self.selenium.find_element_by_css_selector('#messageModal .modal-body').text
+            popup_title = self.selenium.find_element_by_css_selector(
+                    '#common-message-label').text
+            popup_content = self.selenium.find_element_by_css_selector(
+                    '#messageModal .modal-body').text
             self.assertEqual(popup_title, title)
             self.assertEqual(popup_content, content)
