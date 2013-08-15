@@ -6,7 +6,7 @@ import threading
 import socket
 import logging
 
-from cghub_python_api import Request
+from cghub_python_api import WSAPIRequest as Request
 from cghub_python_api.utils import urlopen
 
 from django.conf import settings
@@ -185,12 +185,12 @@ class APIRequest(Request):
         for attr in ATTRIBUTES:
             if result[attr].exist:
                 new_result[attr] = result[attr].text
-        new_result['filename'] = result['files.file.0.filename'].text
+        new_result['filename'] = result['filename.0'].text
         try:
-            new_result['files_size'] = int(result['files.file.0.filesize'].text)
+            new_result['files_size'] = int(result['filesize.0'].text)
         except TypeError:
             new_result['files_size'] = 0
-        new_result['checksum'] = result['files.file.0.checksum'].text
+        new_result['checksum'] = result['checksum.0'].text
         return new_result
 
 
