@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-08-16 18:03:51">
+	<Query>*:*</Query>
+	<Hits>47768</Hits>
+	<Result id="1">
+		<analysis_id>000e4737-522d-4b60-a226-dcfa01978bb2</analysis_id>
+		<state>suppressed</state>
+		<reason>replacement filename=C345.TCGA-A3-3319-11A-01D-0966-08.10.bam [@RG -1, @PG -2, -2488962 reads, -189161112 bases]</reason>
+		<last_modified>2013-05-16T20:43:36Z</last_modified>
+		<upload_date>2011-06-01T07:00:00Z</upload_date>
+		<published_date>2011-06-06T07:00:00Z</published_date>
+		<center_name>BI</center_name>
+		<study>phs000178</study>
+		<aliquot_id>3cf11e36-4249-4b4d-9def-42e9ec38e274</aliquot_id>
+		<files>
+			<file>
+				<filename>C345.TCGA-A3-3319-11A-01D-0966-08.6.bam</filename>
+				<filesize>25558084467</filesize>
+				<checksum type="MD5">e149c1d0748d8e78b5df50cb449a2654</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-A3-3319-11A-01D-0966-08</legacy_sample_id>
+		<disease_abbr>KIRC</disease_abbr>
+		<tss_id>A3</tss_id>
+		<participant_id>22b6724c-a59f-4796-8166-992253e8caf1</participant_id>
+		<sample_id>509b945b-997e-41ab-9b8b-67a0d3170749</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>11</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_data_uri>
+	</Result>
+	<Result id="2">
+		<analysis_id>004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_id>
+		<state>suppressed</state>
+		<reason>replacement filename=C345.TCGA-B2-4099-10A-01D-1458-08.10.bam [@RG -1, @PG -2, -2298678 reads, -174699528 bases]</reason>
+		<last_modified>2013-05-16T20:43:37Z</last_modified>
+		<upload_date>2011-06-16T07:00:00Z</upload_date>
+		<published_date>2011-06-17T07:00:00Z</published_date>
+		<center_name>BI</center_name>
+		<study>phs000178</study>
+		<aliquot_id>54cf60f2-947e-4eb0-b5a7-1e644ca10dba</aliquot_id>
+		<files>
+			<file>
+				<filename>C345.TCGA-B2-4099-10A-01D-1458-08.6.bam</filename>
+				<filesize>24087798339</filesize>
+				<checksum type="MD5">21b3691285b688e107ae3331cdeeb283</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-B2-4099-10A-01D-1458-08</legacy_sample_id>
+		<disease_abbr>KIRC</disease_abbr>
+		<tss_id>B2</tss_id>
+		<participant_id>1adb05d4-e1ca-4ede-81c7-ff24a243abae</participant_id>
+		<sample_id>a4f480ba-830b-40d9-a4cb-b6b8df66eaa4</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>10</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_data_uri>
+	</Result>
+	<Result id="3">
+		<analysis_id>00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_id>
+		<state>suppressed</state>
+		<reason>replacement filename=C489.TCGA-BQ-5888-01A-11D-1589-08.7.bam [duplicate based on @SQ, @RG, @PG comparison]</reason>
+		<last_modified>2013-05-16T20:43:37Z</last_modified>
+		<upload_date>2011-06-10T07:00:00Z</upload_date>
+		<published_date>2011-06-10T07:00:00Z</published_date>
+		<center_name>BI</center_name>
+		<study>phs000178</study>
+		<aliquot_id>31e068e4-adc9-4148-b785-8deb4ef1637a</aliquot_id>
+		<files>
+			<file>
+				<filename>C489.TCGA-BQ-5888-01A-11D-1589-08.5.bam</filename>
+				<filesize>15435944228</filesize>
+				<checksum type="MD5">3d4e4b9a5f8c2f02a238b5a5bb0ed5d8</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-BQ-5888-01A-11D-1589-08</legacy_sample_id>
+		<disease_abbr>KIRP</disease_abbr>
+		<tss_id>BQ</tss_id>
+		<participant_id>52495119-a052-4749-bed4-d4c81a6c3fb2</participant_id>
+		<sample_id>2a7bd965-192d-401f-a9fb-3e4f00cd1562</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_data_uri>
+	</Result>
+	<Result id="4">
+		<analysis_id>00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_id>
+		<state>suppressed</state>
+		<reason>Blacklisted 18 @RGs</reason>
+		<last_modified>2013-05-16T20:43:37Z</last_modified>
+		<upload_date>2012-07-16T02:28:39Z</upload_date>
+		<published_date>2012-07-16T02:49:41Z</published_date>
+		<center_name>BI</center_name>
+		<study>phs000178</study>
+		<aliquot_id>ef8ffb5b-2304-45e0-be3d-fc6b6a30b5c5</aliquot_id>
+		<files>
+			<file>
+				<filename>C828.TCGA-EE-A29T-06A-11D-A197-08.1.bam</filename>
+				<filesize>10290386173</filesize>
+				<checksum type="MD5">851d8fd95511eb183d34099ed514664e</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-EE-A29T-06A-11D-A197-08</legacy_sample_id>
+		<disease_abbr>SKCM</disease_abbr>
+		<tss_id>EE</tss_id>
+		<participant_id>9b99ffee-fe9f-4be5-a00a-ef86627282a4</participant_id>
+		<sample_id>06072b6c-841f-493a-9db0-6b555e692b2c</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>06</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_data_uri>
+	</Result>
+	<Result id="5">
+		<analysis_id>003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_id>
+		<state>suppressed</state>
+		<reason>This data is being replaced with a newer version of the UNC RNA-Seq pipeline</reason>
+		<last_modified>2013-05-16T20:43:37Z</last_modified>
+		<upload_date>2012-05-04T00:15:29Z</upload_date>
+		<published_date>2012-05-04T00:44:40Z</published_date>
+		<center_name>UNC-LCCC</center_name>
+		<study>phs000178</study>
+		<aliquot_id>730eebdc-c67d-4864-8535-6b623cf967a3</aliquot_id>
+		<files>
+			<file>
+				<filename>UNCID_1037354.730eebdc-c67d-4864-8535-6b623cf967a3.sorted_genome_alignments.bam</filename>
+				<filesize>5252451083</filesize>
+				<checksum type="MD5">65e18d3b34e6010a7a7fd3a5f809ab31</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-CN-5363-01A-01R-1436-07</legacy_sample_id>
+		<disease_abbr>HNSC</disease_abbr>
+		<tss_id>CN</tss_id>
+		<participant_id>291b069c-9dde-4e1e-8430-85146bc94338</participant_id>
+		<sample_id>5e4e1e21-8016-4e27-8f72-2411714203e8</sample_id>
+		<analyte_code>R</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>RNA-Seq</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_data_uri>
+	</Result>
+	<Result id="6">
+		<analysis_id>0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_id>
+		<state>suppressed</state>
+		<reason>This data is being replaced with a newer version of the UNC RNA-Seq pipeline</reason>
+		<last_modified>2013-05-16T20:43:38Z</last_modified>
+		<upload_date>2012-05-05T16:00:26Z</upload_date>
+		<published_date>2012-05-05T16:25:46Z</published_date>
+		<center_name>UNC-LCCC</center_name>
+		<study>phs000178</study>
+		<aliquot_id>44acbc11-ba7f-42a5-ab07-9f0993494aa9</aliquot_id>
+		<files>
+			<file>
+				<filename>UNCID_1052041.44acbc11-ba7f-42a5-ab07-9f0993494aa9.sorted_genome_alignments.bam</filename>
+				<filesize>7883160688</filesize>
+				<checksum type="MD5">f128007a5eb4c3d4b97b701b8b11392a</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-CV-7101-01A-11R-2016-07</legacy_sample_id>
+		<disease_abbr>HNSC</disease_abbr>
+		<tss_id>CV</tss_id>
+		<participant_id>241d9310-9137-42dd-b28d-0dc50c44cb43</participant_id>
+		<sample_id>397b08f6-f560-418b-a6e6-2d953187bd5d</sample_id>
+		<analyte_code>R</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>RNA-Seq</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_data_uri>
+	</Result>
+	<Result id="7">
+		<analysis_id>00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_id>
+		<state>submitted</state>
+		<reason></reason>
+		<last_modified>2013-05-16T20:43:39Z</last_modified>
+		<upload_date>2012-05-25T20:08:36Z</upload_date>
+		<published_date></published_date>
+		<center_name>WUGSC</center_name>
+		<study>phs000178</study>
+		<aliquot_id>546b982f-60d9-43df-9761-09369afbee2d</aliquot_id>
+		<files>
+			<file>
+				<filename>29d8acadae6e2c6643400b1090ef29f2.bam</filename>
+				<filesize>0</filesize>
+				<checksum type="MD5">29d8acadae6e2c6643400b1090ef29f2</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-A1-A0SM-01A-11D-A19H-09</legacy_sample_id>
+		<disease_abbr>BRCA</disease_abbr>
+		<tss_id>A1</tss_id>
+		<participant_id>784de7ac-8424-42eb-83d4-a1bebaa42b97</participant_id>
+		<sample_id>289f5433-4834-401f-9361-efc8e883e630</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WGS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>GRCh37-lite</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_data_uri>
+	</Result>
+	<Result id="8">
+		<analysis_id>011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_id>
+		<state>suppressed</state>
+		<reason>replacement filename=C345.TCGA-CZ-5982-11A-01D-1669-08.6.bam [duplicate based on @SQ, @RG, @PG comparison]</reason>
+		<last_modified>2013-05-16T20:43:39Z</last_modified>
+		<upload_date>2011-07-30T07:00:00Z</upload_date>
+		<published_date>2011-07-31T07:00:00Z</published_date>
+		<center_name>BI</center_name>
+		<study>phs000178</study>
+		<aliquot_id>27bc1b1e-8214-4a64-95e7-9f94a435ed49</aliquot_id>
+		<files>
+			<file>
+				<filename>C345.TCGA-CZ-5982-11A-01D-1669-08.3.bam</filename>
+				<filesize>14217410525</filesize>
+				<checksum type="MD5">bfc6ba3c590edcdf2859c0cae76fb2ff</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-CZ-5982-11A-01D-1669-08</legacy_sample_id>
+		<disease_abbr>KIRC</disease_abbr>
+		<tss_id>CZ</tss_id>
+		<participant_id>a43401ae-14cd-4f57-946b-9a9c073f2a47</participant_id>
+		<sample_id>0f342ca4-4e82-4b11-9ef5-df76bf88e4f1</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>11</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_data_uri>
+	</Result>
+	<Result id="9">
+		<analysis_id>00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_id>
+		<state>suppressed</state>
+		<reason>bad header</reason>
+		<last_modified>2013-05-16T20:43:39Z</last_modified>
+		<upload_date>2012-08-02T05:51:16Z</upload_date>
+		<published_date></published_date>
+		<center_name>UCSC</center_name>
+		<study>TCGA_MUT_BENCHMARK_4</study>
+		<aliquot_id>2e66eb54-239b-470d-b1b0-c5ba07fb1902</aliquot_id>
+		<files>
+			<file>
+				<filename>HCC1143.mix1.n5t95.bam</filename>
+				<filesize>136858539510</filesize>
+				<checksum type="MD5">b8a64105ac06fb15ddd5b8d5f8e7da9f</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id></legacy_sample_id>
+		<disease_abbr></disease_abbr>
+		<tss_id></tss_id>
+		<participant_id></participant_id>
+		<sample_id></sample_id>
+		<analyte_code></analyte_code>
+		<sample_type></sample_type>
+		<library_strategy>WGS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>GRCh37_BI_Variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_data_uri>
+	</Result>
+	<Result id="10">
+		<analysis_id>0106077d-0d5f-4196-8633-fae03203210a</analysis_id>
+		<state>suppressed</state>
+		<reason>problem with copy number in certain regions</reason>
+		<last_modified>2013-05-16T20:43:39Z</last_modified>
+		<upload_date>2012-09-28T21:57:33Z</upload_date>
+		<published_date></published_date>
+		<center_name>UCSC</center_name>
+		<study>TCGA_MUT_BENCHMARK_4</study>
+		<aliquot_id>b5abdca6-f2f3-4bbf-82ed-6ff73420a8bc</aliquot_id>
+		<files>
+			<file>
+				<filename>HCC1954.spiked1.n25t65s10.bam</filename>
+				<filesize>123425340706</filesize>
+				<checksum type="MD5">d8b177a486938797049d0044fa907d7f</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id></legacy_sample_id>
+		<disease_abbr></disease_abbr>
+		<tss_id></tss_id>
+		<participant_id></participant_id>
+		<sample_id></sample_id>
+		<analyte_code></analyte_code>
+		<sample_type></sample_type>
+		<library_strategy>WGS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>GRCh37_BI_Variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/0106077d-0d5f-4196-8633-fae03203210a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/0106077d-0d5f-4196-8633-fae03203210a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/0106077d-0d5f-4196-8633-fae03203210a</analysis_data_uri>
+	</Result>
+	<ResultSummary>
+		<downloadable_file_count>0</downloadable_file_count>
+		<downloadable_file_size units="KB">0</downloadable_file_size>
+		<state_count>
+			<suppressed>9</suppressed>
+			<submitted>1</submitted>
+		</state_count>
+	</ResultSummary>
+</ResultSet>

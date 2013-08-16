@@ -14,7 +14,10 @@ It is possible to set some settings for cghub_python_api.
     CGHUB_SERVER = 'https://192.35.223.223'
     API_HTTP_ERROR_ATTEMPTS = 5
     API_HTTP_ERROR_SLEEP_AFTER = 1
+    API_TYPE = 'WSAPI'
 
+Can be used SOLR or WSAPI. To switch between them, only need to specify API_TYPE and CGHUB_SERVER.
+FULL_METADATA_CACHE_DIR also should be changed because of format of xml is different for SOLR and WSAPI.
 
 Variables
 ---------

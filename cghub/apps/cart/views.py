@@ -9,7 +9,8 @@ from django.utils import simplejson as json
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.utils import (
                     get_filters_dict, paginator_params,
-                    RequestDetail, get_results_for_ids)
+                    get_results_for_ids)
+from cghub.apps.core.requests import RequestMinimal
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedItemsForm, AllItemsForm
@@ -60,7 +61,7 @@ def cart_add_all_files(request):
 
             cart = Cart(request.session)
             for query in queries:
-                api_request = RequestDetail(query=query)
+                api_request = RequestMinimal(query=query)
                 for result in api_request.call():
                     cart.add(result)
                 cart.update_stats()
