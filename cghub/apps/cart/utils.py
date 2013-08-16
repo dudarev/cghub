@@ -14,7 +14,8 @@ from django.db import IntegrityError
 from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import xml_add_spaces, RequestDetail
+from cghub.apps.core.utils import xml_add_spaces
+from cghub.apps.core.requests import RequestDetail
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis

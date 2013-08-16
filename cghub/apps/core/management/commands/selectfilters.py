@@ -10,7 +10,7 @@ from django.utils import simplejson as json
 
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
-from cghub.apps.core.utils import RequestDetail, RequestIDs
+from cghub.apps.core.requests import RequestDetail, RequestID
 
 
 CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 continue
 
             # get all results count
-            api_request = RequestIDs(query={key: '*'}, limit=5)
+            api_request = RequestID(query={key: '*'}, limit=5)
             try:
                 result = api_request.call().next()
             except StopIteration:
@@ -82,7 +82,7 @@ class Command(BaseCommand):
 
             for filter in ALL_FILTERS[key]['filters']:
                 self.stdout.write('- Filter %s ... ' % filter)
-                api_request = RequestIDs(query={key: filter}, limit=5)
+                api_request = RequestID(query={key: filter}, limit=5)
                 try:
                     result = api_request.call().next()
                 except StopIteration:

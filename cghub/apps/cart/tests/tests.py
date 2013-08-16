@@ -335,13 +335,13 @@ class CartCacheTestCase(TestCase):
 
     """
     Cached files will be used
-    7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 - 2013-05-16T20:50:58Z
-    8cab937e-115f-4d0e-aa5f-9982768398c2 - 2013-04-27T01:47:09Z
+    04578995-3609-4f09-bc12-7100a04ebc92 - 2013-06-03T20:58:55Z
+    549571a3-98a7-4601-adb1-6951d770cc0e - 2013-06-03T20:59:49Z
     """
-    analysis_id = '7b9cd36a-8cbb-4e25-9c08-d62099c15ba1'
-    last_modified = '2013-05-16T20:50:58Z'
-    analysis_id2 = '8cab937e-115f-4d0e-aa5f-9982768398c2'
-    last_modified2 = '2013-05-16T20:51:58Z'
+    analysis_id = '04578995-3609-4f09-bc12-7100a04ebc92'
+    last_modified = '2013-06-03T20:58:55Z'
+    analysis_id2 = '549571a3-98a7-4601-adb1-6951d770cc0e'
+    last_modified2 = '2013-06-03T20:59:49Z'
     DATA_SET = {
             analysis_id: {
                     'analysis_id': analysis_id,
@@ -391,8 +391,8 @@ class CartCacheTestCase(TestCase):
             save_to_cart_cache(bad_analysis_id, self.last_modified)
         except AnalysisException as e:
             self.assertEqual(unicode(e), 'Analysis for analysis_id=badanalysisid '
-            'that was last modified 2013-05-16T20:50:58Z. '
-            'Analysis with specified analysis_id does not exists')
+            'that was last modified %s. '
+            'Analysis with specified analysis_id does not exists' % self.last_modified)
         else:
             raise False, 'AnalysisException doesn\'t raised'
         if os.path.isdir(path):
@@ -415,9 +415,9 @@ class CartCacheTestCase(TestCase):
         except AnalysisException as e:
             self.assertEqual(
                 unicode(e),
-                'Analysis for analysis_id=7b9cd36a-8cbb-4e25-9c08-d62099c15ba1 '
+                'Analysis for analysis_id=%s '
                 'that was last modified ../../same_outside_dir. '
-                'Bad analysis_id or last_modified')
+                'Bad analysis_id or last_modified' % self.analysis_id)
         else:
             raise False, 'AnalysisException doesn\'t raised'
 
@@ -458,6 +458,7 @@ class CartCacheTestCase(TestCase):
             analysis_id=self.analysis_id,
             last_modified=self.last_modified, short=True)
         self.assertNotIn('Result', xml)
+        self.assertNotIn('<doc>', xml)
         self.assertIn('analysis_id', xml)
         self.assertNotIn('analysis_xml', xml)
         self.assertNotIn('experiment_xml', xml)
@@ -526,15 +527,23 @@ class CartCacheTestCase(TestCase):
         # test metadata view
         response = metadata(cart)
         content = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self.assertTrue(
+                ('<analysis_id>%s</analysis_id>' % self.analysis_id in content) or
+                ('<str name="analysis_id">%s</str>' % self.analysis_id in content))
+        self.assertTrue(
+                ('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content) or
+                ('<str name="analysis_id">%s</str>' % self.analysis_id2 in content))
         self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
 
         # test manifest
         response = manifest(cart)
         content = response.content
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id in content)
-        self.assertTrue('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content)
+        self.assertTrue(
+                ('<analysis_id>%s</analysis_id>' % self.analysis_id in content) or
+                ('<str name="analysis_id">%s</str>' % self.analysis_id in content))
+        self.assertTrue(
+                ('<analysis_id>%s</analysis_id>' % self.analysis_id2 in content) or
+                ('<str name="analysis_id">%s</str>' % self.analysis_id2 in content))
         self._check_content_type_and_disposition(response, type='text/xml', filename='manifest.xml')
 
     def _check_content_type_and_disposition(self, response, type, filename):
@@ -616,10 +625,10 @@ class CartCommandsTestCase(TestCase):
     def get_xml_file(self, url):
         path = os.path.join(
                 os.path.dirname(__file__),
-                'test_data/detail_2items.xml')
+                'test_data/minimal_2items_%s.xml' % settings.API_TYPE.lower())
         return open(path, 'r')
 
-    @patch('cghub.apps.core.utils.RequestDetail.get_xml_file', get_xml_file)
+    @patch('cghub.apps.core.requests.RequestMinimal.get_xml_file', get_xml_file)
     def test_update_full_metadata_cache(self):
         # remove existed cache
         path = get_cart_cache_file_path(

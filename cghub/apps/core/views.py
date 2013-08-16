@@ -18,8 +18,8 @@ from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .utils import (
                 get_filters_dict, query_dict_to_str,
-                paginator_params, RequestDetail,
-                RequestIDs, RequestFull, get_results_for_ids)
+                paginator_params, get_results_for_ids)
+from .requests import RequestDetail, RequestID, RequestFull
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 
@@ -169,7 +169,7 @@ class BatchSearchView(TemplateView):
         ids = []
         if submitted_ids:
             query = {'analysis_id': submitted_ids}
-            api_request = RequestIDs(query=query)
+            api_request = RequestID(query=query)
             ids = []
             for result in api_request.call():
                 ids.append(result['analysis_id'])
@@ -177,7 +177,7 @@ class BatchSearchView(TemplateView):
             if api_request.hits != len(submitted_ids):
                 # search them by sample_id
                 query = {'sample_id': submitted_ids}
-                api_request = RequestIDs(query=query)
+                api_request = RequestID(query=query)
                 for result in api_request.call():
                     analysis_id = result['analysis_id']
                     if analysis_id not in ids:
@@ -185,7 +185,7 @@ class BatchSearchView(TemplateView):
                 found['sample_id'] = api_request.hits
                 # search by participant_id and aliquot_id
                 query = {'participant_id':  submitted_ids}
-                api_request = RequestIDs(query=query)
+                api_request = RequestID(query=query)
                 for result in api_request.call():
                     analysis_id = result['analysis_id']
                     if analysis_id not in ids:
@@ -193,7 +193,7 @@ class BatchSearchView(TemplateView):
                 found['participant_id'] = api_request.hits
                 # search by aliquot_id
                 query = {'aliquot_id': submitted_ids}
-                api_request = RequestIDs(query=query)
+                api_request = RequestID(query=query)
                 for result in api_request.call():
                     analysis_id = result['analysis_id']
                     if analysis_id not in ids:
@@ -202,7 +202,7 @@ class BatchSearchView(TemplateView):
 
         if submitted_legacy_sample_ids:
             query = {'legacy_sample_id': submitted_legacy_sample_ids}
-            api_request = RequestIDs(query=query)
+            api_request = RequestID(query=query)
             for result in api_request.call():
                 analysis_id = result['analysis_id']
                 if analysis_id not in ids:
@@ -288,8 +288,12 @@ class ItemDetailsView(TemplateView):
         try:
             result = api_request.call().next()
             xml = result['xml']
-            xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
-            xml = repr(xml.replace(' id="1"', ''))
+            if '<Result id="1">' in xml:
+                xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
+                xml = xml.replace(' id="1"', '')
+            else:
+                xml = xml[xml.find('<doc>'): xml.find('</doc>') + 6]
+            xml = repr(xml)
             if xml[0] == 'u':
                 xml = xml[1:]
             return {

@@ -17,3 +17,5 @@ DATABASES = {
 SOUTH_TESTS_MIGRATE = True
 
 TEST_CACHE_DIR = os.path.join(os.path.dirname(__file__), '../test_cache')
+
+# API_TYPE = 'WSAPI'

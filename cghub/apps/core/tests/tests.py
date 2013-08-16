@@ -27,8 +27,8 @@ from ..templatetags.search_tags import (
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
                     paginator_params, generate_tmp_file_name,
-                    RequestFull, RequestDetail, RequestIDs,
                     get_results_for_ids)
+from ..requests import RequestFull, RequestDetail, RequestID
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
@@ -583,7 +583,7 @@ class SearchViewPaginationTestCase(TestCase):
     query = "6d54"
 
     def setUp(self):
-        api_request = RequestIDs(query={'all_metadata': self.query})
+        api_request = RequestID(query={'all_metadata': self.query})
         self.results = []
         for result in api_request.call():
             self.results.append(result)

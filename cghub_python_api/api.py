@@ -89,7 +89,7 @@ class BaseRequest(object):
 
     def __init__(self,
             query, offset=0, limit=None, sort_by=None,
-            server_url=None, uri=None):
+            server_url=None, uri=None, fields=None):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
@@ -97,6 +97,7 @@ class BaseRequest(object):
         :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
         :param server_url: server url where API works
         :param uri: uri that will be used to access data on API server
+        :param fields: list of fields will be returned in result (used only in SOLRRequest)
         """
         self.query = query
         self.server_url = server_url
@@ -104,6 +105,7 @@ class BaseRequest(object):
         self.offset = offset
         self.limit = limit
         self.sort_by = sort_by
+        self.fields = fields
 
     def get_xml_file(self, url):
         """
@@ -155,7 +157,7 @@ class WSAPIRequest(BaseRequest):
 
     def __init__(self,
                 query, offset=0, limit=None, sort_by=None,
-                server_url=CGHUB_SERVER, uri=CGHUB_ANALYSIS_DETAIL_URI):
+                server_url=CGHUB_SERVER, uri=CGHUB_ANALYSIS_DETAIL_URI, fields=None):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
@@ -163,6 +165,7 @@ class WSAPIRequest(BaseRequest):
         :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
         :param server_url: server url where WSAPI works
         :param uri: uri that will be used to access data on WSAPI server
+        :param fields: list of fields will be returned in result (used only in SOLRRequest)
         """
         self.query = query
         self.server_url = server_url
@@ -247,14 +250,14 @@ class SOLRRequest(BaseRequest):
 
     def __init__(self,
                 query, offset=0, limit=None, sort_by=None,
-                server_url=CGHUB_SERVER, uri=CGHUB_SEARCH_URI):
+                server_url=CGHUB_SERVER, uri=CGHUB_SEARCH_URI, fields=None):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
         :param limit: how many records output should have
         :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
         :param server_url: server url where WSAPI works
-        :param uri: uri that will be used to access data on WSAPI server
+        :param uri: uri that will be used to access data on WSAP
         """
         self.query = query
         self.server_url = server_url
@@ -262,6 +265,7 @@ class SOLRRequest(BaseRequest):
         self.offset = offset
         self.limit = limit
         self.sort_by = sort_by
+        self.fields = fields
 
     def call(self):
         """
@@ -306,7 +310,10 @@ class SOLRRequest(BaseRequest):
                             .replace('+', ' ').replace('\-', '-'))
             divider = urllib2.quote(':')
             parts.append(divider.join([key, value_str]))
-        parts = ['q=%s' % '+'.join(parts)]
+        if len(parts):
+            parts = ['q=%s' % '+'.join(parts)]
+        else:
+            parts = ['q=*%s*' % urllib2.quote(':')]
         if self.offset:
             parts.append('='.join(['start', str(self.offset)]))
         if self.limit:
@@ -315,9 +322,14 @@ class SOLRRequest(BaseRequest):
             if self.sort_by[0] == '-':
                 parts.append('='.join([
                         'sort',
-                        '%sdesc' % urllib2.quote(self.sort_by[1:] + '+')]))
+                        '%s+desc' % urllib2.quote(self.sort_by[1:])]))
             else:
                 parts.append('='.join([
-                        'sort_by',
-                        '%sasc' % urllib2.quote(self.sort_by + '+')]))
+                        'sort',
+                        '%s+asc' % urllib2.quote(self.sort_by)]))
+        if self.fields:
+            parts.append('='.join([
+                        'fl',
+                        ','.join(
+                            [urllib2.quote(f) for f in self.fields])]))
         return '&'.join(parts)

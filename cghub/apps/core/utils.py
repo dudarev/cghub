@@ -1,22 +1,14 @@
-import sys
-import urllib2
-import hashlib
 import os
 import threading
 import socket
-import logging
-
-from cghub_python_api import WSAPIRequest as Request
-from cghub_python_api.utils import urlopen
 
 from django.conf import settings
 
-from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import ATTRIBUTES
+from .filters_storage import ALL_FILTERS
+from .requests import RequestDetail
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
-api_logger = logging.getLogger('cart')
 
 
 def get_filters_dict(filters):
@@ -133,113 +125,6 @@ def generate_tmp_file_name():
     return '{pid}-{thread}-{host}.tmp'.format(
                     pid=os.getpid(), thread=threading.current_thread().name,
                     host=socket.gethostname())
-
-
-def get_from_test_cache(url, format='xml'):
-    """
-    Used while testing.
-    Trying to get response from cache, if it fails - get response from server and save it to cache.
-
-    :param url: url that passed to urlopen
-    :param format: 'xml' or 'json'
-
-    :return: file object
-    """
-    FORMAT_CHOICES = {
-        'xml': 'text/xml',
-        'json': 'application/json'
-    }
-    CACHE_DIR = settings.TEST_CACHE_DIR
-    if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
-    md5 = hashlib.md5(url)
-    path = os.path.join(CACHE_DIR, '%s.%s.cache' % (md5.hexdigest(), format))
-    if os.path.exists(path):
-        return open(path, 'r')
-    headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
-    req = urllib2.Request(url, headers=headers)
-    content = urllib2.urlopen(req).read()
-    with open(path, 'w') as f:
-        f.write(content)
-    return open(path, 'r')
-
-
-class APIRequest(Request):
-
-    def patch_input_data(self):
-        server_url = getattr(settings, 'CGHUB_SERVER')
-        if server_url:
-            self.server_url = server_url
-
-    def get_xml_file(self, url):
-        if 'test' in sys.argv:
-            return get_from_test_cache(url=url)
-        api_logger.error(urllib2.unquote(url))
-        return urlopen(
-                url=url,
-                max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
-                sleep_time=getattr(settings, 'API_HTTP_ERROR_SLEEP_AFTER', 1))
-
-    def patch_result(self, result, result_xml):
-        new_result = {}
-        for attr in ATTRIBUTES:
-            if result[attr].exist:
-                new_result[attr] = result[attr].text
-        new_result['filename'] = result['filename.0'].text
-        try:
-            new_result['files_size'] = int(result['filesize.0'].text)
-        except TypeError:
-            new_result['files_size'] = 0
-        new_result['checksum'] = result['checksum.0'].text
-        return new_result
-
-
-class RequestIDs(APIRequest):
-    """
-    Used analysisID uri.
-    """
-
-    def patch_input_data(self):
-        super(RequestIDs, self).patch_input_data()
-        self.uri = self.CGHUB_ANALYSIS_ID_URI
-
-
-class RequestDetail(APIRequest):
-    """
-    Used analysisDetail uri.
-    """
-
-    def patch_input_data(self):
-        super(RequestDetail, self).patch_input_data()
-        self.uri = self.CGHUB_ANALYSIS_DETAIL_URI
-
-
-class RequestFull(APIRequest):
-    """
-    Used analysisFull uri.
-    Raw xml added to results.
-    """
-
-    def patch_input_data(self):
-        super(RequestFull, self).patch_input_data()
-        self.uri = self.CGHUB_ANALYSIS_FULL_URI
-
-    def patch_result(self, result, result_xml):
-        new_result = super(RequestFull, self).patch_result(result, result_xml)
-        new_result['xml'] = (
-                result_xml.replace('\t', '').replace('\n', ''))
-        return new_result
-
-
-class ResultFromFile(RequestFull):
-    """
-    Allows to create cghub_python_apy.api.Request
-    from analysis xml stored in local file
-    """
-
-    def get_xml_file(self, url):
-        filename = self.query['filename']
-        return open(filename, 'r')
 
 
 def get_results_for_ids(ids):
