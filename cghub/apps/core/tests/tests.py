@@ -5,6 +5,7 @@ import datetime
 
 from urllib2 import URLError
 from mock import patch
+from cghub_python_api import SOLRRequest
 
 from django.conf import settings
 from django.utils import timezone
@@ -28,7 +29,9 @@ from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
                     paginator_params, generate_tmp_file_name,
                     get_results_for_ids)
-from ..requests import RequestFull, RequestDetail, RequestID
+from ..requests import (
+                    RequestFull, RequestDetail, RequestID,
+                    ResultFromSOLRFile, build_wsapi_xml)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
@@ -175,6 +178,39 @@ class CoreTestCase(TestCase):
         self.assertTrue(result['files_size'] + 1)
         self.assertTrue(isinstance(result['checksum'], str))
         self.assertTrue(isinstance(result['filename'], str))
+
+
+class RequestsTestCase(TestCase):
+
+    def clean_xml(self, xml):
+        xml = xml.replace('\t', '').replace('\n', '')
+        while xml.find('  ') != -1:
+            xml = xml.replace('  ', ' ')
+        xml = xml.replace('> <', '><')
+        xml = u'%s%s' % (xml[0:72], xml[91:])
+        # remove urls
+        start = xml.find('<analysis_detail_uri>')
+        stop = xml.find('</analysis_data_uri>')
+        if start != -1 and stop != -1:
+            xml = u'%s%s' % (xml[:start], xml[stop:])
+        return xml
+
+    def test_build_wsapi_xml(self):
+        path_wsapi = os.path.join(
+                os.path.dirname(__file__),
+                'test_data/full_metadata_xml_wsapi.xml')
+        path_solr = os.path.join(
+                os.path.dirname(__file__),
+                'test_data/full_metadata_xml_solr.xml')
+        api_request = ResultFromSOLRFile(query={'filename': path_solr})
+        result_solr = api_request.call().next()
+        xml_solr =  build_wsapi_xml(result_solr)
+        with open(path_wsapi, 'r') as f:
+            xml_wsapi = f.read()
+        self.assertIn(settings.CGHUB_SERVER, xml_solr)
+        xml_solr = self.clean_xml(xml_solr)
+        xml_wsapi = self.clean_xml(xml_wsapi)
+        self.assertEqual(xml_solr, xml_wsapi)
 
 
 class UtilsTestCase(TestCase):

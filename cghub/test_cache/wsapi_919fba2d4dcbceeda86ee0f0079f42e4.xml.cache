@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ResultSet date="2013-08-16 18:04:02">
+<ResultSet date="2013-08-19 17:32:23">
 	<Query>upload_date:[NOW-7DAY TO NOW] study:(phs000178 OR *Other_Sequencing_Multiisolate) state:(live)</Query>
 	<Hits>0</Hits>
 	<ResultSummary>

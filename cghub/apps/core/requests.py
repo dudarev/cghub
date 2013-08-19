@@ -3,12 +3,16 @@ import urllib2
 import hashlib
 import os
 import logging
+import datetime
 
 from cghub_python_api import WSAPIRequest, SOLRRequest
 from cghub_python_api.utils import urlopen
 
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils import timezone
 
+from .templatetags.search_tags import file_size as file_size_to_str
 from .attributes import ATTRIBUTES
 
 
@@ -51,17 +55,58 @@ def get_from_test_cache(url, format='xml'):
     return open(path, 'r')
 
 
+def build_wsapi_xml(result):
+    """
+    Makes solr xml response the same as wsapi response.
+    <str name="analysis_id"> -> <analysis_id>, etc.
+    """
+    files_count = 0
+    files_size = 0
+    files = []
+    for i in range(10):
+        if result['filename.%s' % i].text == None:
+            break
+        files.append({
+            'filename': result['filename.%s' % i].text,
+            'filesize': result['filesize.%s' % i].text,
+            'checksum': result['checksum.%s' % i].text,
+            'checksum_method': result['checksum_method.%s' % i].text,
+            })
+        files_count += 1
+        files_size += int(result['filesize.%s' % i].text)
+    size_str = file_size_to_str(files_size)
+    try:
+        files_size, files_units = size_str.split(' ')
+        files_size = files_size.replace(',', '.')
+    except ValueError:
+        files_size = '0'
+        files_units = 'KB'
+    xml = render_to_string('xml/wsapi_response.xml', {
+            'timestamp': datetime.datetime.strftime(
+                    timezone.now(), '%Y-%m-%d %H:%M:%S'),
+            'result': result,
+            'files': files,
+            'files_count': files_count,
+            'files_size': files_size,
+            'files_units': files_units,
+            'server_url': settings.CGHUB_SERVER})
+    return xml
+
+
 class RequestBase(REQUEST_CLASS):
 
     def patch_input_data(self):
-        server_url = getattr(settings, 'CGHUB_SERVER')
+        server_url = getattr(settings, 'CGHUB_SERVER', None)
         if server_url:
             self.server_url = server_url
+        if settings.API_TYPE == 'SOLR':
+            # set SOLR uri if specified
+            self.uri = getattr(settings, 'CGHUB_SERVER_SOLR_URI', self.uri)
 
     def get_xml_file(self, url):
         if 'test' in sys.argv:
             return get_from_test_cache(url=url)
-        api_logger.error(urllib2.unquote(url))
+        api_logger.debug(urllib2.unquote(url))
         return urlopen(
                 url=url,
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
@@ -149,16 +194,44 @@ class RequestFull(RequestBase):
         self.fields = None
 
     def patch_result(self, result, result_xml):
+        if settings.API_TYPE == 'WSAPI':
+            xml = result_xml
+        elif settings.API_TYPE == 'SOLR':
+            # create the same xml as WSAPI returns
+            xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
-        new_result['xml'] = (
-                result_xml.replace('\t', '').replace('\n', ''))
+        new_result['xml'] = xml
         return new_result
 
 
-class ResultFromFile(RequestFull):
+class ResultFromWSAPIFile(WSAPIRequest):
     """
     Allows to create cghub_python_apy.api.Request
     from analysis xml stored in local file
+    """
+
+    def get_xml_file(self, url):
+        filename = self.query['filename']
+        return open(filename, 'r')
+
+    def patch_result(self, result, result_xml):
+        new_result = {}
+        for attr in ATTRIBUTES:
+            if result[attr].exist:
+                new_result[attr] = result[attr].text
+        new_result['filename'] = result['filename.0'].text
+        try:
+            new_result['files_size'] = int(result['filesize.0'].text)
+        except TypeError:
+            new_result['files_size'] = 0
+        new_result['checksum'] = result['checksum.0'].text
+        new_result['xml'] = result_xml
+        return new_result
+
+
+class ResultFromSOLRFile(SOLRRequest):
+    """
+    Used by RequestsTestCase.test_build_wsapi_xml
     """
 
     def get_xml_file(self, url):
