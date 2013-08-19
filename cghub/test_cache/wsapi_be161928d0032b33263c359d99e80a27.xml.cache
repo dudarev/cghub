@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-08-19 17:32:45">
+	<Query>*:*</Query>
+	<Hits>47768</Hits>
+	<Result id="1">
+		<analysis_id>000e4737-522d-4b60-a226-dcfa01978bb2</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/000e4737-522d-4b60-a226-dcfa01978bb2</analysis_data_uri>
+	</Result>
+	<Result id="2">
+		<analysis_id>004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/004c9801-c103-4a01-8ca1-cd5dbf82fcf0</analysis_data_uri>
+	</Result>
+	<Result id="3">
+		<analysis_id>00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00394c8a-1a28-4766-902e-5cc1f2445e01</analysis_data_uri>
+	</Result>
+	<Result id="4">
+		<analysis_id>00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00455b2b-c72f-4311-9b5b-7070fc00c366</analysis_data_uri>
+	</Result>
+	<Result id="5">
+		<analysis_id>003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/003c6e42-fc70-44d6-86ac-7f6cd97548e2</analysis_data_uri>
+	</Result>
+	<Result id="6">
+		<analysis_id>0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/0099940f-20af-414e-8ebd-ba4bb6d9de8a</analysis_data_uri>
+	</Result>
+	<Result id="7">
+		<analysis_id>00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_id>
+		<state>submitted</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00d8e31d-d739-4212-9a3c-17fa81d5f57d</analysis_data_uri>
+	</Result>
+	<Result id="8">
+		<analysis_id>011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/011e1d21-ec0d-427c-a6f0-2047d1deed5a</analysis_data_uri>
+	</Result>
+	<Result id="9">
+		<analysis_id>00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/00eccd7c-24c5-44f4-b631-9ea93424ebe4</analysis_data_uri>
+	</Result>
+	<Result id="10">
+		<analysis_id>0106077d-0d5f-4196-8633-fae03203210a</analysis_id>
+		<state>suppressed</state>
+		<analysis_detail_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisDetail/0106077d-0d5f-4196-8633-fae03203210a</analysis_detail_uri>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/0106077d-0d5f-4196-8633-fae03203210a</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/0106077d-0d5f-4196-8633-fae03203210a</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/0106077d-0d5f-4196-8633-fae03203210a</analysis_data_uri>
+	</Result>
+	<ResultSummary>
+		<downloadable_file_count>0</downloadable_file_count>
+		<downloadable_file_size units="KB">0</downloadable_file_size>
+		<state_count>
+			<suppressed>9</suppressed>
+			<submitted>1</submitted>
+		</state_count>
+	</ResultSummary>
+</ResultSet>

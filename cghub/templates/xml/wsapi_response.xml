@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResultSet date="{{ timestamp }}">
+    <Query>analysis_id:{{ result.analysis_id.text }}</Query>
+    <Hits>1</Hits>
+    <Result id="1">
+        <analysis_id>{{ result.analysis_id.text }}</analysis_id>
+        <state>{{ result.state.text }}</state>
+        {% if result.reasone.text %}
+        <reason>{{ result.reason.text }}</reason>
+        {% else %}
+        <reason/>
+        {% endif %}
+        <last_modified>{{ result.last_modified.text }}</last_modified>
+        <upload_date>{{ result.upload_date.text }}</upload_date>
+        <published_date>{{ result.published_date.text }}</published_date>
+        <center_name>{{ result.center_name.text|default:'' }}</center_name>
+        <study>{{ result.study.text|default:'' }}</study>
+        <aliquot_id>{{ result.aliquot_id.text }}</aliquot_id>
+        <files>
+            {% for file in files %}
+            <file>
+                <filename>{{ file.filename }}</filename>
+                <filesize>{{ file.filesize }}</filesize>
+                <checksum type="{{ file.checksum_method }}">{{ file.checksum }}</checksum>
+            </file>
+            {% endfor %}
+        </files>
+        <sample_accession>{{ result.sample_accession.text|default:'' }}</sample_accession>
+        <legacy_sample_id>{{ result.legacy_sample_id.text|default:'' }}</legacy_sample_id>
+        <disease_abbr>{{ result.disease_abbr.text|default:'' }}</disease_abbr>
+        <tss_id>{{ result.tss_id.text|default:'' }}</tss_id>
+        <participant_id>{{ result.participant_id.text|default:'' }}</participant_id>
+        <sample_id>{{ result.sample_id.text|default:'' }}</sample_id>
+        <analyte_code>{{ result.analyte_code.text|default:'' }}</analyte_code>
+        <sample_type>{{ result.sample_type.text|default:'' }}</sample_type>
+        <library_strategy>{{ result.library_strategy.text|default:'' }}</library_strategy>
+        <platform>{{ result.platform.text|default:'' }}</platform>
+        <refassem_short_name>{{ result.refassem_short_name.text|default:'' }}</refassem_short_name>
+        <analysis_xml>{{ result.analysis_xml.text|safe }}</analysis_xml>
+        <experiment_xml>{{ result.experiment_xml.text|safe }}</experiment_xml>
+        <run_xml>{{ result.run_xml.text|safe }}</run_xml>
+        <analysis_detail_uri>https://{{ server_url }}/cghub/metadata/analysisDetail/{{ result.analysis_id.text }}</analysis_detail_uri>
+        <analysis_submission_uri>https://{{ server_url }}/cghub/metadata/analysisSubmission/{{ result.analysis_id.text }}</analysis_submission_uri>
+        <analysis_data_uri>https://{{ server_url }}/cghub/data/analysis/download/{{ result.analysis_id.text }}</analysis_data_uri>
+    </Result>
+    <ResultSummary>
+        <downloadable_file_count>{{ files_count }}</downloadable_file_count>
+        <downloadable_file_size units="{{ files_units }}">{{ files_size }}</downloadable_file_size>
+        <state_count>
+            <live>1</live>
+        </state_count>
+    </ResultSummary>
+</ResultSet>

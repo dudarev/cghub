@@ -14,7 +14,6 @@ from django.db import IntegrityError
 from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.utils import xml_add_spaces
 from cghub.apps.core.requests import RequestDetail
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
@@ -144,12 +143,9 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
             continue
         counter += 1
         downloadable_size += analysis.files_size
-        formatted_xml = ''
-        for s in xml_add_spaces(xml, space=4, tab=2):
-            formatted_xml += s
         yield result_template.render(Context({
                     'counter': counter,
-                    'xml': formatted_xml.strip()}))
+                    'xml': xml.strip()}))
     yield render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': counter,
                     'size': str(round(downloadable_size / 1073741824. * 100) / 100)})
@@ -184,8 +180,8 @@ def summary_tsv_iterator(cart):
         fields = field_values(result, humanize_files_size=False)
         row = []
         for field_name in COLUMNS:
-            value = fields.get(field_name, None)
-            row.append(value or '')
+            value = fields.get(field_name, '')
+            row.append(value)
         csvwriter.writerow(row)
         stringio.seek(0)
         line = stringio.read()
@@ -234,12 +230,9 @@ def item_metadata(analysis_id, last_modified):
                 'counter': 0,
                 'size': 0})
         return content
-    formatted_xml = ''
-    for s in xml_add_spaces(xml, space=4, tab=2):
-            formatted_xml += s
     content += result_template.render(Context({
             'counter': 1,
-            'xml': formatted_xml.strip()}))
+            'xml': xml.strip()}))
     content += render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': 1,
                     'size': str(round(files_size / 1073741824. * 100) / 100)})

@@ -156,7 +156,7 @@ class WSAPIRequest(BaseRequest):
     CGHUB_ANALYSIS_FULL_URI = '/cghub/metadata/analysisFull'
 
     def __init__(self,
-                query, offset=0, limit=None, sort_by=None,
+                query, offset=0, limit=10, sort_by=None,
                 server_url=CGHUB_SERVER, uri=CGHUB_ANALYSIS_DETAIL_URI, fields=None):
         """
         :param query: a dict with query to send to the server
@@ -249,7 +249,7 @@ class SOLRRequest(BaseRequest):
     CGHUB_SEARCH_URI = '/solr/select/'
 
     def __init__(self,
-                query, offset=0, limit=None, sort_by=None,
+                query, offset=0, limit=10, sort_by=None,
                 server_url=CGHUB_SERVER, uri=CGHUB_SEARCH_URI, fields=None):
         """
         :param query: a dict with query to send to the server

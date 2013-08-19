@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from cghub.apps.core.requests import RequestMinimal
+from cghub.apps.core.requests import RequestMinimal, RequestID
 
 from ...models import Analysis
 from ...cache import is_cart_cache_exists, save_to_cart_cache
@@ -12,7 +12,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Searching for outdated analysises ...\n')
 
-        api_request = RequestMinimal(query={})
+        # get number of results to fetch
+        api_request = RequestID(query={}, limit=10)
+        api_request.call().next()
+        num_results = api_request.hits
+
+        api_request = RequestMinimal(query={}, limit=num_results)
         for result in api_request.call():
             analysis, created = Analysis.objects.get_or_create(
                     analysis_id=result['analysis_id'],

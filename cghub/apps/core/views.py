@@ -288,11 +288,8 @@ class ItemDetailsView(TemplateView):
         try:
             result = api_request.call().next()
             xml = result['xml']
-            if '<Result id="1">' in xml:
-                xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
-                xml = xml.replace(' id="1"', '')
-            else:
-                xml = xml[xml.find('<doc>'): xml.find('</doc>') + 6]
+            xml = xml[xml.find('<Result id="1">'): xml.find('</Result>') + 9]
+            xml = xml.replace(' id="1"', '')
             xml = repr(xml)
             if xml[0] == 'u':
                 xml = xml[1:]

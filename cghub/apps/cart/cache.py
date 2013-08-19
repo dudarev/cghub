@@ -5,18 +5,15 @@ from urllib2 import URLError
 from django.conf import settings
 
 from cghub.apps.core.utils import (
-                        makedirs_group_write, generate_tmp_file_name)
-from cghub.apps.core.requests import RequestFull, ResultFromFile
+                        makedirs_group_write, generate_tmp_file_name,
+                        xml_add_spaces)
+from cghub.apps.core.requests import RequestFull, ResultFromWSAPIFile
 
 
 RESULT_START = '<Result id="1">'
 RESULT_STOP = '</Result>'
-RESULT_START_SOLR = '<doc>'
-RESULT_STOP_SOLR = '</doc>'
 FSIZE_START = '<filesize>'
 FSIZE_STOP = '</filesize>'
-FSIZE_START_SOLR = '<long{name}>'
-FSIZE_STOP_SOLR = '</long>'
 
 
 class AnalysisException(Exception):
@@ -100,8 +97,15 @@ def save_to_cart_cache(analysis_id, last_modified):
     # load most recent version
     # example tmp file name: 14985-MainThread-my-pc.tmp
     tmp_path = os.path.join(dir_path, generate_tmp_file_name())
+    xml = result['xml'].replace('\t', '').replace('\n', '')
+    while xml.find('  ') != -1:
+        xml = xml.replace('  ', ' ')
+    xml = xml.replace('> <', '><')
+    formatted_xml = ''
+    for s in xml_add_spaces(xml, space=0, tab=2):
+        formatted_xml += s
     with open(tmp_path, 'w') as f:
-        f.write(result['xml'])
+        f.write(formatted_xml.strip())
         f.close()
     # manage in a atomic manner
     os.rename(tmp_path, file_path)
@@ -125,11 +129,11 @@ def get_analysis(analysis_id, last_modified):
     path = get_cart_cache_file_path(analysis_id, last_modified)
     if not os.path.exists(path):
         save_to_cart_cache(analysis_id, last_modified)
-    api_request = ResultFromFile(query={'filename': path})
+    api_request = ResultFromWSAPIFile(query={'filename': path})
     return api_request.call().next()
 
 
-def get_analysis_xml_wsapi(analysis_id, last_modified, short=False):
+def get_analysis_xml(analysis_id, last_modified, short=False):
     """
     Returns part of xml file (Result content) stored in cache
     """
@@ -162,52 +166,8 @@ def get_analysis_xml_wsapi(analysis_id, last_modified, short=False):
             stop = result.find(stop_str, start)
             if start != -1 and stop != -1:
                 stop += len(stop_str)
+                # remove empty line
+                while start != 0 and result[start - 1] != '>':
+                    start -= 1
                 result = '%s%s' % (result[:start], result[stop:])
     return result, files_size
-
-
-def get_analysis_xml_solr(analysis_id, last_modified, short=False):
-    """
-    Returns part of xml file (Result content) stored in cache
-    """
-    path = get_cart_cache_file_path(analysis_id, last_modified)
-    if not os.path.exists(path):
-        # if file not exists - most recent file will be downloaded
-        save_to_cart_cache(analysis_id, last_modified)
-    with open(path, 'r') as f:
-        result = f.read()
-    start = result.find(RESULT_START_SOLR) + len(RESULT_START_SOLR)
-    stop = result.find(RESULT_STOP_SOLR)
-    result = result[start:stop]
-    fsize_start = FSIZE_START_SOLR.format(name='')
-    start = result.find(fsize_start)
-    if start == -1:
-        fsize_start = FSIZE_START_SOLR.format(name=' name="filesize"')
-        start = result.find(fsize_start)
-    files_size = 0
-    # get only first file size
-    if start != -1:
-        stop = result.find(FSIZE_STOP_SOLR, start + 1)
-        files_size = int(result[start + len(fsize_start):stop])
-    if short:
-        attributes_to_remove = (
-                'analysis_xml', 'experiment_xml', 'run_xml',
-                'sample_accession', 'legacy_sample_id',
-                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
-                'analyte_code', 'sample_type', 'library_strategy',
-                'platform')
-        for attribute in attributes_to_remove:
-            start_str = '<str name="%s">' % attribute
-            stop_str = '</str>'
-            start = result.find(start_str)
-            stop = result.find(stop_str, start)
-            if start != -1 and stop != -1:
-                stop += len(stop_str)
-                result = '%s%s' % (result[:start], result[stop:])
-    return result, files_size
-
-
-if settings.API_TYPE == 'WSAPI':
-    get_analysis_xml = get_analysis_xml_wsapi
-elif settings.API_TYPE == 'SOLR':
-    get_analysis_xml = get_analysis_xml_solr
