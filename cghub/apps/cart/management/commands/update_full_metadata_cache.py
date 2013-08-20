@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from cghub.apps.core.requests import RequestMinimal, RequestID
 
@@ -63,7 +64,10 @@ class Command(BaseCommand):
         self.done_count = 0
         self.error_count = 0
 
-        PROCESSES = int(multiprocessing.cpu_count() / 2) or 1
+        PROCESSES = getattr(settings, 'MULTIPROCESSING_CORES', None)
+        if not PROCESSES:
+            PROCESSES = int(multiprocessing.cpu_count() / 2) or 1
+
         self.pool = multiprocessing.Pool(PROCESSES)
         self.tasks = []
 
