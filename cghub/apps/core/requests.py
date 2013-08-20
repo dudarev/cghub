@@ -4,6 +4,7 @@ import hashlib
 import os
 import logging
 import datetime
+import codecs
 
 from cghub_python_api import WSAPIRequest, SOLRRequest
 from cghub_python_api.utils import urlopen
@@ -46,13 +47,13 @@ def get_from_test_cache(url, format='xml'):
     path = os.path.join(CACHE_DIR, '%s_%s.%s.cache' % (
             settings.API_TYPE.lower(), md5.hexdigest(), format))
     if os.path.exists(path):
-        return open(path, 'r')
+        return codecs.open(path, 'r', encoding='utf-8')
     headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
     req = urllib2.Request(url, headers=headers)
     content = urllib2.urlopen(req).read()
-    with open(path, 'w') as f:
+    with codecs.open(path, 'w', encoding='utf-8') as f:
         f.write(content)
-    return open(path, 'r')
+    return codecs.open(path, 'r', encoding='utf-8')
 
 
 def build_wsapi_xml(result):
@@ -200,7 +201,7 @@ class RequestFull(RequestBase):
             # create the same xml as WSAPI returns
             xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
-        new_result['xml'] = xml
+        new_result['xml'] = unicode(xml)
         return new_result
 
 
@@ -212,7 +213,7 @@ class ResultFromWSAPIFile(WSAPIRequest):
 
     def get_xml_file(self, url):
         filename = self.query['filename']
-        return open(filename, 'r')
+        return codecs.open(filename, 'r', encoding='utf-8')
 
     def patch_result(self, result, result_xml):
         new_result = {}
@@ -225,7 +226,7 @@ class ResultFromWSAPIFile(WSAPIRequest):
         except TypeError:
             new_result['files_size'] = 0
         new_result['checksum'] = result['checksum.0'].text
-        new_result['xml'] = result_xml
+        new_result['xml'] = unicode(result_xml)
         return new_result
 
 
@@ -236,4 +237,4 @@ class ResultFromSOLRFile(SOLRRequest):
 
     def get_xml_file(self, url):
         filename = self.query['filename']
-        return open(filename, 'r')
+        return codecs.open(filename, 'r', encoding='utf-8')
