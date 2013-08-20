@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Searching for outdated analysises ...\n')
 
-        api_request = RequestMinimal(query={})
+        api_request = RequestMinimal(query={}, limit=100)
         for result in api_request.call():
             analysis, created = Analysis.objects.get_or_create(
                     analysis_id=result['analysis_id'],

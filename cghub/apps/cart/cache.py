@@ -1,4 +1,5 @@
 import os.path
+import codecs
 
 from urllib2 import URLError
 
@@ -101,10 +102,10 @@ def save_to_cart_cache(analysis_id, last_modified):
     while xml.find('  ') != -1:
         xml = xml.replace('  ', ' ')
     xml = xml.replace('> <', '><')
-    formatted_xml = ''
+    formatted_xml = u''
     for s in xml_add_spaces(xml, space=0, tab=2):
         formatted_xml += s
-    with open(tmp_path, 'w') as f:
+    with codecs.open(tmp_path, 'w', encoding='utf-8') as f:
         f.write(formatted_xml.strip())
         f.close()
     # manage in a atomic manner
@@ -141,7 +142,7 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
     if not os.path.exists(path):
         # if file not exists - most recent file will be downloaded
         save_to_cart_cache(analysis_id, last_modified)
-    with open(path, 'r') as f:
+    with codecs.open(path, 'r', encoding='utf-8') as f:
         result = f.read()
     start = result.find(RESULT_START) + len(RESULT_START)
     stop = result.find(RESULT_STOP)
@@ -169,5 +170,5 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
                 # remove empty line
                 while start != 0 and result[start - 1] != '>':
                     start -= 1
-                result = '%s%s' % (result[:start], result[stop:])
+                result = u'%s%s' % (result[:start], result[stop:])
     return result, files_size

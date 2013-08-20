@@ -2,6 +2,7 @@ import os.path
 import sys
 import shutil
 import datetime
+import codecs
 
 from urllib2 import URLError
 from mock import patch
@@ -205,7 +206,7 @@ class RequestsTestCase(TestCase):
         api_request = ResultFromSOLRFile(query={'filename': path_solr})
         result_solr = api_request.call().next()
         xml_solr =  build_wsapi_xml(result_solr)
-        with open(path_wsapi, 'r') as f:
+        with codecs.open(path_wsapi, 'r', encoding='utf-8') as f:
             xml_wsapi = f.read()
         self.assertIn(settings.CGHUB_SERVER, xml_solr)
         xml_solr = self.clean_xml(xml_solr)

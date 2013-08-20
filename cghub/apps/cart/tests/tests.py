@@ -1,5 +1,6 @@
 import os
 import shutil
+import codecs
 
 from mock import patch
 from StringIO import StringIO
@@ -626,7 +627,7 @@ class CartCommandsTestCase(TestCase):
         path = os.path.join(
                 os.path.dirname(__file__),
                 'test_data/minimal_2items_%s.xml' % settings.API_TYPE.lower())
-        return open(path, 'r')
+        return codecs.open(path, 'r', encoding='utf-8')
 
     @patch('cghub.apps.core.requests.RequestMinimal.get_xml_file', get_xml_file)
     def test_update_full_metadata_cache(self):
