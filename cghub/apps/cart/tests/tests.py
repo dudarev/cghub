@@ -648,7 +648,7 @@ class CartCommandsTestCase(TestCase):
         result.seek(0)
         result = result.read()
         self.assertIn('Done!', result)
-        self.assertIn('Downloading cache for', result)
+        self.assertIn(': Done', result)
         self.assertIn('was created', result)
         self.assertIn(self.analysis_id, result)
         self.assertTrue(os.path.exists(path))
