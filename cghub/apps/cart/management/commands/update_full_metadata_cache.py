@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 
 from django.core.management.base import BaseCommand
 
@@ -11,8 +12,31 @@ from ...cache import is_cart_cache_exists, save_to_cart_cache
 cart_logger = logging.getLogger('cart')
 
 
+
+def update_cache(analysis_id, last_modified):
+    try:
+        save_to_cart_cache(
+                analysis_id=analysis_id,
+                last_modified=last_modified)
+    except Exception as e:
+        return u'- %s: Error: %s\n' % (analysis_id, unicode(e))
+    return u'- %s: Done\n' % analysis_id
+
+
 class Command(BaseCommand):
     help = 'Updates cghub browser cart xml cache.'
+
+    def process_tasks(self):
+        results = [self.pool.apply_async(update_cache, t) for t in self.tasks]
+        for result in results:
+            output = result.get()
+            self.stdout.write(output)
+            if output and output.find('Error') == -1:
+                self.done_count += 1
+            else:
+                self.error_count += 1
+                cart_logger.error(output)
+        self.tasks = []
 
     def handle(self, *args, **options):
         self.stdout.write('Searching for outdated analysises ...\n')
@@ -36,26 +60,27 @@ class Command(BaseCommand):
                 self.stdout.write('- %s was updated\n' % analysis.analysis_id)
 
         self.stdout.write('Downloading not existent cache ...\n')
-        counter = 0
-        errors = 0
+        self.done_count = 0
+        self.error_count = 0
+
+        PROCESSES = int(multiprocessing.cpu_count() / 2) or 1
+        self.pool = multiprocessing.Pool(PROCESSES)
+        self.tasks = []
+
         for analysis in Analysis.objects.all():
-            try:
-                if not is_cart_cache_exists(
-                        analysis_id=analysis.analysis_id,
-                        last_modified=analysis.last_modified):
-                    self.stdout.write('- Downloading cache for %s\n' % analysis.analysis_id)
-                    save_to_cart_cache(
-                            analysis_id=analysis.analysis_id,
-                            last_modified=analysis.last_modified)
-                    counter += 1
-            except UnicodeEncodeError as e:
-                errors += 1
-                self.stdout.write(u'- %s error: %s\n' % (
+            if not is_cart_cache_exists(
+                    analysis_id=analysis.analysis_id,
+                    last_modified=analysis.last_modified):
+                self.tasks.append((
                         analysis.analysis_id,
-                        unicode(e)))
-                cart_logger.error(u'%s error: %s' % (
-                        analysis.analysis_id,
-                        unicode(e)))
-        self.stdout.write('---\nDone! %d cache files were updated.\n' % counter)
-        if errors:
-            self.stdout.write('%d errors occurred. You can find them in the logs.\n' % errors)
+                        analysis.last_modified))
+                if len(self.tasks) >= PROCESSES * 5:
+                    self.process_tasks()
+        if len(self.tasks):
+            self.process_tasks()
+
+        self.stdout.write(
+                '---\nDone! %d cache files were updated.\n' % self.done_count)
+        if self.error_count:
+            self.stdout.write(
+                    '%d errors occurred. You can find them in the logs.\n' % self.error_count)
