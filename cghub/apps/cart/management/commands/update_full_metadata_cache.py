@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Searching for outdated analysises ...\n')
 
-        api_request = RequestMinimal(query={}, limit=100)
+        api_request = RequestMinimal(query={})
         for result in api_request.call():
             analysis, created = Analysis.objects.get_or_create(
                     analysis_id=result['analysis_id'],
@@ -37,6 +37,7 @@ class Command(BaseCommand):
 
         self.stdout.write('Downloading not existent cache ...\n')
         counter = 0
+        errors = 0
         for analysis in Analysis.objects.all():
             try:
                 if not is_cart_cache_exists(
@@ -48,6 +49,7 @@ class Command(BaseCommand):
                             last_modified=analysis.last_modified)
                     counter += 1
             except UnicodeEncodeError as e:
+                errors += 1
                 self.stdout.write(u'- %s error: %s\n' % (
                         analysis.analysis_id,
                         unicode(e)))
@@ -55,3 +57,5 @@ class Command(BaseCommand):
                         analysis.analysis_id,
                         unicode(e)))
         self.stdout.write('---\nDone! %d cache files were updated.\n' % counter)
+        if errors:
+            self.stdout.write('%d errors occurred. You can find them in the logs.\n' % errors)
