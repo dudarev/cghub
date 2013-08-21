@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+{% load core_tags %}<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResultSet date="{{ timestamp }}">
     <Query>analysis_id:{{ result.analysis_id.text }}</Query>
     <Hits>1</Hits>
@@ -36,9 +36,9 @@
         <library_strategy>{{ result.library_strategy.text|default:'' }}</library_strategy>
         <platform>{{ result.platform.text|default:'' }}</platform>
         <refassem_short_name>{{ result.refassem_short_name.text|default:'' }}</refassem_short_name>
-        <analysis_xml>{{ result.analysis_xml.text|safe }}</analysis_xml>
-        <experiment_xml>{{ result.experiment_xml.text|safe }}</experiment_xml>
-        <run_xml>{{ result.run_xml.text|safe }}</run_xml>
+        <analysis_xml>{{ result.analysis_xml.text|without_header|safe }}</analysis_xml>
+        <experiment_xml>{{ result.experiment_xml.text|without_header|safe }}</experiment_xml>
+        <run_xml>{{ result.run_xml.text|without_header|safe }}</run_xml>
         <analysis_detail_uri>https://{{ server_url }}/cghub/metadata/analysisDetail/{{ result.analysis_id.text }}</analysis_detail_uri>
         <analysis_submission_uri>https://{{ server_url }}/cghub/metadata/analysisSubmission/{{ result.analysis_id.text }}</analysis_submission_uri>
         <analysis_data_uri>https://{{ server_url }}/cghub/data/analysis/download/{{ result.analysis_id.text }}</analysis_data_uri>
