@@ -1,7 +1,7 @@
 import logging
 import multiprocessing
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
 from cghub.apps.core.requests import RequestMinimal, RequestID
@@ -84,7 +84,7 @@ class Command(BaseCommand):
             self.process_tasks()
 
         self.stdout.write(
-                '---\nDone! %d cache files were updated.\n' % self.done_count)
+                '---\n%d cache files were updated.\n' % self.done_count)
         if self.error_count:
-            self.stdout.write(
+            raise CommandError(
                     '%d errors occurred. You can find them in the logs.\n' % self.error_count)
