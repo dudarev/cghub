@@ -644,10 +644,13 @@ class CartCommandsTestCase(TestCase):
         except Analysis.DoesNotExist:
             pass
         result = StringIO()
-        call_command('update_full_metadata_cache', stdout=result)
+        try:
+            call_command('update_full_metadata_cache', stdout=result)
+        except SystemExit:
+            pass
         result.seek(0)
         result = result.read()
-        self.assertIn('Done!', result)
+        self.assertIn('cache files were updated', result)
         self.assertIn(': Done', result)
         self.assertIn('was created', result)
         self.assertIn(self.analysis_id, result)
