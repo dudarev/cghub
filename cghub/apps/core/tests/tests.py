@@ -26,6 +26,7 @@ from ..templatetags.search_tags import (
                     get_name_by_code, table_header, table_row,
                     file_size, details_table, period_from_query,
                     only_date, get_sample_type_by_code)
+from ..templatetags.core_tags import without_header
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
                     paginator_params, generate_tmp_file_name,
@@ -538,6 +539,20 @@ class TemplateTagsTestCase(TestCase):
         """
         self.assertEqual(get_sample_type_by_code('07', 'shortcut'), 'TAM')
         self.assertEqual(get_sample_type_by_code(7, 'shortcut'), 'TAM')
+
+    def test_without_header(self):
+        """
+        Removes header like this:
+        <?xml version="1.0" encoding="ASCII" standalone="yes"?>
+        """
+        xml = '<?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
+        self.assertEqual(without_header(xml), '<analysis>123</analysis>')
+        xml = ' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
+        self.assertEqual(
+                without_header(xml),
+                ' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>')
+        xml = '<analysis>123</analysis>'
+        self.assertEqual(without_header(xml), '<analysis>123</analysis>')
 
 
 class BatchSearchTestCase(TestCase):

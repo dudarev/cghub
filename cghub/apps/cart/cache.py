@@ -103,7 +103,7 @@ def save_to_cart_cache(analysis_id, last_modified):
         xml = xml.replace('  ', ' ')
     xml = xml.replace('> <', '><')
     formatted_xml = u''
-    for s in xml_add_spaces(xml, space=0, tab=2):
+    for s in xml_add_spaces(xml, space=-2, tab=2):
         formatted_xml += s
     with codecs.open(tmp_path, 'w', encoding='utf-8') as f:
         f.write(formatted_xml.strip())
