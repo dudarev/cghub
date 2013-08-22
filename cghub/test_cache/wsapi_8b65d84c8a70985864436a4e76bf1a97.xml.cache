@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ResultSet date="2013-08-22 07:46:56">
-	<Query>participant_id:(0005d2d0-aede-4f5c-89fa-aed12abfadd6 OR 00007994-abeb-4b16-a6ad-7230300a29e9 OR aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)</Query>
+<ResultSet date="2013-08-22 07:47:20">
+	<Query>upload_date:([NOW-1DAY TO NOW]) study:((*Other_Sequencing_Multiisolate)) state:((live))</Query>
 	<Hits>0</Hits>
 	<ResultSummary>
 		<downloadable_file_count>0</downloadable_file_count>

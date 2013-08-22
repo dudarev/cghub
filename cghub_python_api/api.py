@@ -212,11 +212,11 @@ class WSAPIRequest(BaseRequest):
                 value_str = ' OR '.join([
                         urllib2.unquote(v) for v in value])
                 value_str = urllib2.quote(('(%s)' % value_str)
-                            .replace('+', ' ').replace('\-', '-'))
+                        .replace('\-', '-'))
             else:
-                value_str = urllib2.quote(
+                value_str = urllib2.quote('(%s)' %
                         urllib2.unquote(str(value))
-                            .replace('+', ' ').replace('\-', '-'))
+                                .replace('\-', '-'))
             parts.append('='.join([key, value_str]))
         if self.offset:
             parts.append('='.join(['start', str(self.offset)]))
@@ -303,11 +303,11 @@ class SOLRRequest(BaseRequest):
                 value_str = ' OR '.join([
                         urllib2.unquote(v) for v in value])
                 value_str = urllib2.quote(('(%s)' % value_str)
-                            .replace('+', ' ').replace('\-', '-'))
+                        .replace('\-', '-'))
             else:
-                value_str = urllib2.quote(
+                value_str = urllib2.quote('(%s)' %
                         urllib2.unquote(str(value))
-                            .replace('+', ' ').replace('\-', '-'))
+                                .replace('\-', '-'))
             divider = urllib2.quote(':')
             parts.append(divider.join([key, value_str]))
         if len(parts):
