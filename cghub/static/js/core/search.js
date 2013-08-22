@@ -250,16 +250,6 @@ jQuery(function ($) {
                 dataType:'json',
                 url:$form.attr('action'),
                 success:function (data) {
-                    if('task_id' in data) {
-                        var tasks = $.cookie('active_tasks');
-                        if(tasks) {
-                            tasks = tasks.split(',');
-                            tasks.push(data['task_id']);
-                            $.cookie('active_tasks', tasks.join(','), { path: '/', expires: 7 });
-                        } else {
-                            $.cookie('active_tasks', data['task_id'], { path: '/', expires: 7 });
-                        }
-                    }
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
                     }
