@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ResultSet date="2013-08-22 12:20:47">
+	<Query>analysis_id:(7850f073-642a-40a8-b49d-e328f27cfd66 OR 796e11c8-b873-4c37-88cd-18dcd7f287ec)</Query>
+	<Hits>2</Hits>
+	<Result id="1">
+		<analysis_id>7850f073-642a-40a8-b49d-e328f27cfd66</analysis_id>
+		<state>live</state>
+		<reason></reason>
+		<last_modified>2013-05-16T20:50:46Z</last_modified>
+		<upload_date>2013-01-18T17:58:02Z</upload_date>
+		<published_date>2013-01-19T09:56:02Z</published_date>
+		<center_name>HMS-RK</center_name>
+		<study>phs000178</study>
+		<aliquot_id>ca45aa53-32c8-4412-b867-e242ed5b101c</aliquot_id>
+		<files>
+			<file>
+				<filename>TCGA-BR-4292-01A-01D-1128_121204_SN590_0204_BC1H5VACXX_s_1_rg.sorted.bam</filename>
+				<filesize>28241866589</filesize>
+				<checksum type="MD5">5e3df9f5d32baf8a816fc76ea68baf9e</checksum>
+			</file>
+			<file>
+				<filename>TCGA-BR-4292-01A-01D-1128_121204_SN590_0204_BC1H5VACXX_s_1_rg.sorted.bam.bai</filename>
+				<filesize>8698544</filesize>
+				<checksum type="md5">645bdfe7648b61b9e022cb9186a40cc2</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-BR-4292-01A-01D-1128-02</legacy_sample_id>
+		<disease_abbr>STAD</disease_abbr>
+		<tss_id>BR</tss_id>
+		<participant_id>703d3e86-32f4-44ae-bd88-c02378fc2269</participant_id>
+		<sample_id>2e0e0776-6ad0-4118-b27e-c65d6076a3d4</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WGS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>HG19_Broad_variant</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/7850f073-642a-40a8-b49d-e328f27cfd66</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/7850f073-642a-40a8-b49d-e328f27cfd66</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/7850f073-642a-40a8-b49d-e328f27cfd66</analysis_data_uri>
+	</Result>
+	<Result id="2">
+		<analysis_id>796e11c8-b873-4c37-88cd-18dcd7f287ec</analysis_id>
+		<state>live</state>
+		<reason></reason>
+		<last_modified>2013-05-16T20:50:50Z</last_modified>
+		<upload_date>2013-01-17T19:56:41Z</upload_date>
+		<published_date>2013-01-19T09:32:02Z</published_date>
+		<center_name>BCM</center_name>
+		<study>phs000178</study>
+		<aliquot_id>f8c80a91-33e4-4c91-af77-767995ab090c</aliquot_id>
+		<files>
+			<file>
+				<filename>TCGA-D5-6930-01A-11D-1924-10_hg19_Illumina.bam</filename>
+				<filesize>20452537184</filesize>
+				<checksum type="MD5">b3221bfadcb6618814cab5be6135a740</checksum>
+			</file>
+			<file>
+				<filename>TCGA-D5-6930-01A-11D-1924-10_hg19_Illumina.bam.bai</filename>
+				<filesize>8273544</filesize>
+				<checksum type="md5">fc44d1f19e4a171460157a17440ebd6b</checksum>
+			</file>
+		</files>
+		<sample_accession></sample_accession>
+		<legacy_sample_id>TCGA-D5-6930-01A-11D-1924-10</legacy_sample_id>
+		<disease_abbr>COAD</disease_abbr>
+		<tss_id>D5</tss_id>
+		<participant_id>286cbae3-8324-43b7-9b20-0f40dda1588e</participant_id>
+		<sample_id>82e7493d-1346-4598-91c9-a5582b337c21</sample_id>
+		<analyte_code>D</analyte_code>
+		<sample_type>01</sample_type>
+		<library_strategy>WXS</library_strategy>
+		<platform>ILLUMINA</platform>
+		<refassem_short_name>GRCh37-lite</refassem_short_name>
+		<analysis_submission_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisSubmission/796e11c8-b873-4c37-88cd-18dcd7f287ec</analysis_submission_uri>
+		<analysis_full_uri>https://test2.cghub.ucsc.edu/cghub/metadata/analysisFull/796e11c8-b873-4c37-88cd-18dcd7f287ec</analysis_full_uri>
+		<analysis_data_uri>https://test2.cghub.ucsc.edu/cghub/data/analysis/download/796e11c8-b873-4c37-88cd-18dcd7f287ec</analysis_data_uri>
+	</Result>
+	<ResultSummary>
+		<downloadable_file_count>4</downloadable_file_count>
+		<downloadable_file_size units="GB">45.37</downloadable_file_size>
+		<state_count>
+			<live>2</live>
+		</state_count>
+	</ResultSummary>
+</ResultSet>
