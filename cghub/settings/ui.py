@@ -196,6 +196,7 @@ study_id_to_name = {
     "phs000468": "TARGET (OS)",
     "phs000469": "TARGET (PPTP)",
     "phs000471": "TARGET (WT)",
+    "CGTEST": "CGTEST",
 }
 
 # tissue source site and disease study

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<response>
-<lst name="responseHeader"><int name="status">0</int><int name="QTime">3</int><lst name="params"><str name="q">upload_date:([NOW-7DAY TO NOW]) study:((phs000178 OR *Other_Sequencing_Multiisolate)) state:((live))</str><str name="rows">10</str><str name="fl">analysis_id,refassem_short_name,legacy_sample_id,center_name,checksum,disease_abbr,analyte_code,filename,filesize,library_strategy,last_modified,platform,sample_accession,sample_type,state,study,upload_date</str></lst></lst><result name="response" numFound="0" start="0"/>
-</response>

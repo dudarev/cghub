@@ -242,6 +242,7 @@ class NavigationLinksTestCase(LiveServerTestCase):
         6. Clcik on 'Search' link
         7. Check url
         """
+        # TODO: add Accessibility and Batch search pages
         driver = self.selenium
         with self.settings(**TEST_SETTINGS):
             # search page
