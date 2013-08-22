@@ -4,7 +4,7 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/home.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/core/home.css' %}" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/home.css' %}?v=1" media="all">
     {% endif %}
 {% endblock %}
 {% block main_content %}

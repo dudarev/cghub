@@ -2,7 +2,7 @@
 {% load static from staticfiles %}
 {% block title %}Server error - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=1" media="all">
 {% endblock %}
 {% block main_content %}
 <div class="span6 offset1">

@@ -19,8 +19,8 @@ jQuery(function ($) {
             cghub.base.activateSkipNavigation();
         },
         cacheElements:function () {
-            cghub.base.$navbarAnchors = $('div.navbar ul.nav li a');
-            cghub.base.$navbarListItem = $('div.navbar ul li');
+            cghub.base.$navbarAnchors = $('header.navbar ul.nav li a');
+            cghub.base.$navbarListItem = $('header.navbar ul li');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$searchForm = $('form.navbar-search');
@@ -40,7 +40,7 @@ jQuery(function ($) {
         },
         resetActiveLink:function (idx, a_el) {
             var pageLink = $(a_el);
-            if (a_el.href !== (window.location.origin + window.location.pathname)) {
+            if (a_el.href.split('?')[0] !== (window.location.origin + window.location.pathname)) {
                 pageLink.closest('li').removeClass('active');
             } else {
                 pageLink.closest('li').addClass('active');
