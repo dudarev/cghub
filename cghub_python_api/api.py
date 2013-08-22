@@ -6,6 +6,9 @@ from xml.etree import ElementTree
 from .utils import urlopen
 
 
+DATE_ATTRIBUTES = ('last_modified', 'upload_date', 'published_date',)
+
+
 class NonExistent(object):
     """
     Object returns None for not existent attributes
@@ -132,6 +135,12 @@ class BaseRequest(object):
         """
         raise NotImplementedError()
 
+    def escape_query_value(self, key, value):
+        val = urllib2.unquote(str(value)).replace('\-', '-')
+        if key not in DATE_ATTRIBUTES:
+            val = val.replace(' ', '+').replace('+OR+', ' OR ')
+        return urllib2.quote(val)
+
     def build_query(self):
         """
         Builds query to access to cghub server.
@@ -209,14 +218,11 @@ class WSAPIRequest(BaseRequest):
         parts = []
         for key, value in self.query.iteritems():
             if isinstance(value, list) or isinstance(value, tuple):
-                value_str = ' OR '.join([
-                        urllib2.unquote(v) for v in value])
-                value_str = urllib2.quote(('(%s)' % value_str)
-                        .replace('\-', '-'))
+                value_str = '+OR+'.join([
+                        self.escape_query_value(key, v) for v in value])
+                value_str = '(%s)' % value_str
             else:
-                value_str = urllib2.quote('(%s)' %
-                        urllib2.unquote(str(value))
-                                .replace('\-', '-'))
+                value_str = self.escape_query_value(key, value)
             parts.append('='.join([key, value_str]))
         if self.offset:
             parts.append('='.join(['start', str(self.offset)]))
@@ -300,16 +306,12 @@ class SOLRRequest(BaseRequest):
         parts = []
         for key, value in self.query.iteritems():
             if isinstance(value, list) or isinstance(value, tuple):
-                value_str = ' OR '.join([
-                        urllib2.unquote(v) for v in value])
-                value_str = urllib2.quote(('(%s)' % value_str)
-                        .replace('\-', '-'))
+                value_str = '+OR+'.join([
+                        self.escape_query_value(key, v) for v in value])
+                value_str = '(%s)' % value_str
             else:
-                value_str = urllib2.quote('(%s)' %
-                        urllib2.unquote(str(value))
-                                .replace('\-', '-'))
-            divider = urllib2.quote(':')
-            parts.append(divider.join([key, value_str]))
+                value_str = self.escape_query_value(key, value)
+            parts.append(urllib2.quote(':').join([key, value_str]))
         if len(parts):
             parts = ['q=%s' % '+'.join(parts)]
         else:

@@ -81,8 +81,9 @@ class HomeView(TemplateView):
             self.query = {}
             for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
                 parts = i.split('=')
-                if len(parts) == 2 and parts[0] in ATTRIBUTES:
+                if len(parts) == 2:
                     self.query[parts[0]] = parts[1]
+            self.query = get_filters_dict(self.query)
         else:
             self.query = settings.DEFAULT_FILTERS
         # populating GET with query for proper work of applied_filters templatetag
