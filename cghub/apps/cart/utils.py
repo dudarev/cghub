@@ -15,6 +15,7 @@ from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetail
+from cghub.apps.core.utils import CSVUnicodeWriter
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis
@@ -161,7 +162,7 @@ def summary_tsv_iterator(cart):
     """
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
-    csvwriter = csv.writer(
+    csvwriter = CSVUnicodeWriter(
             stringio, quoting=csv.QUOTE_MINIMAL,
             dialect='excel-tab', lineterminator='\n')
     csvwriter.writerow(
@@ -169,19 +170,20 @@ def summary_tsv_iterator(cart):
     items = cart.cart.items.all()
     for item in items:
         analysis = item.analysis
-        try:
-            result = get_analysis(
+        # try:
+        result = get_analysis(
                             analysis_id=analysis.analysis_id,
                             last_modified=analysis.last_modified)
-        except AnalysisException as e:
-            cart_logger.error(
-                    'Error while composing summary tsv. %s' % str(e))
-            continue
+        #except Exception as e:
+        #    cart_logger.error(
+        #            u'Error while composing summary tsv. analysis_id: %s. Error: %s' % (
+        #                    analysis.analysis_id, unicode(e)))
+        #    continue
         fields = field_values(result, humanize_files_size=False)
         row = []
         for field_name in COLUMNS:
             value = fields.get(field_name, '')
-            row.append(value)
+            row.append(unicode(value))
         csvwriter.writerow(row)
         stringio.seek(0)
         line = stringio.read()

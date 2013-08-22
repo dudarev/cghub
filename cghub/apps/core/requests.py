@@ -201,7 +201,10 @@ class RequestFull(RequestBase):
             # create the same xml as WSAPI returns
             xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
-        new_result['xml'] = unicode(xml)
+        if settings.API_TYPE == 'WSAPI':
+            new_result['xml'] = xml.decode('utf-8')
+        else:
+            new_result['xml'] = xml
         return new_result
 
 
@@ -213,7 +216,7 @@ class ResultFromWSAPIFile(WSAPIRequest):
 
     def get_xml_file(self, url):
         filename = self.query['filename']
-        return codecs.open(filename, 'r', encoding='utf-8')
+        return codecs.open(filename, 'r')
 
     def patch_result(self, result, result_xml):
         new_result = {}
@@ -226,7 +229,10 @@ class ResultFromWSAPIFile(WSAPIRequest):
         except TypeError:
             new_result['files_size'] = 0
         new_result['checksum'] = result['checksum.0'].text
-        new_result['xml'] = unicode(result_xml)
+        if settings.API_TYPE == 'WSAPI':
+            new_result['xml'] = result_xml.decode('utf-8')
+        else:
+            new_result['xml'] = result_xml
         return new_result
 
 
@@ -237,4 +243,4 @@ class ResultFromSOLRFile(SOLRRequest):
 
     def get_xml_file(self, url):
         filename = self.query['filename']
-        return codecs.open(filename, 'r', encoding='utf-8')
+        return codecs.open(filename, 'r')
