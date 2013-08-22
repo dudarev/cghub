@@ -81,7 +81,7 @@ class HomeView(TemplateView):
             self.query = {}
             for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
                 parts = i.split('=')
-                if len(parts) == 2 and parts[0] != 'q':
+                if len(parts) == 2 and parts[0] in ATTRIBUTES:
                     self.query[parts[0]] = parts[1]
         else:
             self.query = settings.DEFAULT_FILTERS
