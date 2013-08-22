@@ -109,7 +109,8 @@ class Cart(object):
                 size=Sum('analysis__files_size'))['size'] or 0
         self.cart.live_count = items.filter(analysis__state='live').count()
         self.cart.save()
-        self.session['cart_count'] = self.cart.live_count
+        self.session['cart_count'] = self.cart.items.count()
+        self.session.modified = True
 
 
 def analysis_xml_iterator(cart, short=False, live_only=False):
