@@ -10,8 +10,8 @@
 .hidden{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;}
 #main-nav{tab-index:-1;}
 .navbar .brand{padding-top:10px;padding-bottom:8px;}
-.navbar ul a{font-size:14px;}
-.navbar ul.batch-search-link a{color:#ddd;font-size:13px;position:relative;top:2px;}
+.navbar li a{font-size:14px;}
+.navbar li.active a{font-weight:normal!important;}
 .base-container{padding-top:50px;width:100%;min-width:1280px;}
 .base-sidebar{padding-left:10px;}.base-sidebar .dp-container{z-index:1310;position:absolute;top:0;left:235px;padding:9px 9px 19px 19px;}.base-sidebar .dp-container .dp-date{display:inline-block;margin:10px 10px 10px 0;vertical-align:top;}
 .base-sidebar .dp-container .text-error{color:#ff0000;margin-left:10px;}
