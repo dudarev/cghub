@@ -40,11 +40,12 @@ SEARCH-23	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results
 BATCH SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
 BATCH SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		
 BATCH SEARCH-3	Enter TCGA-A1-A0SM-01A-11D-A099-09 into textarea.	Found 1 result by legacy_sample_id		
-BATCH SEARCH-4	On batch search result page summary is shown.			
-BATCH SEARCH-5	On batch search result page select few items and press 'Remove selected items'.	Removed items are not visible table		
-BATCH SEARCH-6	On batch search result page press 'Add n items to cart'.	Redirect to cart page, items present in cart		
-BATCH SEARCH-7	Pagination works properly on batch search result page.	Page changed on click on pages links		
-BATCH SEARCH-8	Details popup shows on click on results table row on batch search result page.	Details popup shows details for item that was clicked on		
+BATCH SEARCH-4	Enter TCGA-A1-A0SM-01A-11D-A099-09, select file and press 'Reset'.	All fields in form should become empty		
+BATCH SEARCH-5	On batch search result page summary is shown.			
+BATCH SEARCH-6	On batch search result page select few items and press 'Remove selected items'.	Removed items are not visible table		
+BATCH SEARCH-7	On batch search result page press 'Add n items to cart'.	Redirect to cart page, items present in cart		
+BATCH SEARCH-8	Pagination works properly on batch search result page.	Page changed on click on pages links		
+BATCH SEARCH-9	Details popup shows on click on results table row on batch search result page.	Details popup shows details for item that was clicked on		
 CART-1	Items from search results may be added to cart by selecting checkboxes	When button is clicked, selected items will be added to cart. User will be redirected to the cart page. 
 CART-2	Select all' checkbox selects all items	Checkbox in header of the table can check or uncheck all other checkboxes in the table.
 CART-3	Cart statistics on cart page	There is information on cart page: number of files in cart and total size of them. 
