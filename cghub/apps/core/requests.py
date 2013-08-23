@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from .templatetags.search_tags import file_size as file_size_to_str
-from .attributes import ATTRIBUTES
+from .attributes import ATTRIBUTES, SORT_BY_ATTRIBUTES
 
 
 if settings.API_TYPE == 'WSAPI':
@@ -103,6 +103,10 @@ class RequestBase(REQUEST_CLASS):
         if settings.API_TYPE == 'SOLR':
             # set SOLR uri if specified
             self.uri = getattr(settings, 'CGHUB_SERVER_SOLR_URI', self.uri)
+        # filter sort_by
+        if self.sort_by and self.sort_by not in SORT_BY_ATTRIBUTES:
+            self.sort_by = None
+            
 
     def get_xml_file(self, url):
         if 'test' in sys.argv:

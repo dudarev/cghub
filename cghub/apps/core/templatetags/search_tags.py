@@ -6,11 +6,13 @@ from django.utils.http import urlencode
 from django.utils.html import escape
 from django.utils import timezone
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.template import Context
 from django.template.loader import select_template
 
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
-from cghub.apps.core.attributes import COLUMN_NAMES, DATE_ATTRIBUTES
+from cghub.apps.core.attributes import (
+                COLUMN_NAMES, DATE_ATTRIBUTES, SORT_BY_ATTRIBUTES)
 
 
 register = template.Library()
@@ -232,6 +234,12 @@ def sort_link(request, attribute, link_anchor):
     Specifies sort `direction`: '-' (DESC) or '' (ASC)
 
     """
+    if attribute not in SORT_BY_ATTRIBUTES:
+        return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+    # do not allow to sort in cart
+    if (reverse('cart_page') == request.path or
+            reverse('batch_search_page') == request.path):
+        return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
     data = {}
     for k in request.GET:
         if k not in ('offset',):

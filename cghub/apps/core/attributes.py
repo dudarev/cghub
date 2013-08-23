@@ -36,3 +36,20 @@ ATTRIBUTES = []
 for name, attribute in COLUMN_NAMES.iteritems():
     if attribute not in ATTRIBUTES:
         ATTRIBUTES.append(attribute)
+
+SORT_BY_ATTRIBUTES = (
+    'analysis_id',
+    'analyte_code',
+    'center_name',
+    'disease_abbr',
+    'last_modified',
+    'legacy_sample_id',
+    'library_strategy',
+    'platform',
+    'refassem_short_name',
+    'sample_accession',
+    'sample_type',
+    'state',
+    'study',
+    'upload_date',
+)
