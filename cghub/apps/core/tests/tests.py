@@ -310,7 +310,7 @@ class TemplateTagsTestCase(TestCase):
 
     def test_sort_link_tag(self):
         test_request = HttpRequest()
-        test_request.path = '/any_path/'
+        test_request.path = reverse('search_page')
         out = Template(
             "{% load search_tags %}"
             "{% sort_link request 'last_modified' 'Date Uploaded' %}"
@@ -320,7 +320,7 @@ class TemplateTagsTestCase(TestCase):
 
         self.assertEqual(
             out,
-            '<a class="sort-link" href="/any_path/?sort_by=last_modified" '
+            '<a class="sort-link" href="/search/?sort_by=last_modified" '
             'title="click to sort by Date Uploaded">Date Uploaded</a>')
 
         test_request.path = ''
@@ -365,6 +365,17 @@ class TemplateTagsTestCase(TestCase):
             '<a class="sort-link" href="/search/?sort_by=-last_modified" '
             'title="click to sort by Date Uploaded">Date Uploaded'
             '<span class="down-triangle"></span></a>')
+        # test sorting disabled on cart page
+        test_request.path = reverse('cart_page')
+        out = Template(
+            "{% load search_tags %}"
+            "{% sort_link request 'last_modified' 'Date Uploaded' %}"
+        ).render(Context({
+            'request': test_request
+        }))
+        self.assertEqual(
+            out,
+            '<a href="#" onclick="return false;">Date Uploaded</a>')
 
     def test_applied_filters_tag(self):
         request = HttpRequest()
