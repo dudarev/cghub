@@ -96,7 +96,8 @@ module.exports = function (grunt) {
                 dest:jsStaticFolder + 'core/search.min.js'
             },
             core_batch_search:{
-                src:[jsStaticFolder + 'core/batch_search.js'],
+                src:[jsStaticFolder + 'core/batch_search.js',
+                    jsStaticFolder + 'table.js'],
                 dest:jsStaticFolder + 'core/batch_search.min.js'
             },
             flexigrid:{
