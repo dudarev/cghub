@@ -14,7 +14,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from .templatetags.search_tags import file_size as file_size_to_str
-from .attributes import ATTRIBUTES, SORT_BY_ATTRIBUTES
+from .attributes import (
+        ATTRIBUTES, SORT_BY_ATTRIBUTES, ADDITIONAL_ATTRIBUTES)
 
 
 if settings.API_TYPE == 'WSAPI':
@@ -205,6 +206,10 @@ class RequestFull(RequestBase):
             # create the same xml as WSAPI returns
             xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
+        # additional attributes
+        for attr in ADDITIONAL_ATTRIBUTES:
+            if result[attr].exist:
+                new_result[attr] = result[attr].text
         if settings.API_TYPE == 'WSAPI':
             new_result['xml'] = xml.decode('utf-8')
         else:
@@ -225,6 +230,10 @@ class ResultFromWSAPIFile(WSAPIRequest):
     def patch_result(self, result, result_xml):
         new_result = {}
         for attr in ATTRIBUTES:
+            if result[attr].exist:
+                new_result[attr] = result[attr].text
+        # additional attributes
+        for attr in ADDITIONAL_ATTRIBUTES:
             if result[attr].exist:
                 new_result[attr] = result[attr].text
         new_result['filename'] = result['filename.0'].text
