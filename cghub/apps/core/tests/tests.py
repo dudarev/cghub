@@ -545,14 +545,15 @@ class TemplateTagsTestCase(TestCase):
         Removes header like this:
         <?xml version="1.0" encoding="ASCII" standalone="yes"?>
         """
-        xml = '<?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
-        self.assertEqual(without_header(xml), '<analysis>123</analysis>')
-        xml = ' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
+        xml = u'<?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
+        self.assertEqual(without_header(xml), u'<analysis>123</analysis>')
+        xml = u' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>'
         self.assertEqual(
                 without_header(xml),
-                ' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>')
-        xml = '<analysis>123</analysis>'
-        self.assertEqual(without_header(xml), '<analysis>123</analysis>')
+                u' <?xml version="1.0" encoding="ASCII" standalone="yes"?><analysis>123</analysis>')
+        xml = u'<analysis>123</analysis>'
+        self.assertEqual(without_header(xml), u'<analysis>123</analysis>')
+        self.assertEqual(without_header(None), u'')
 
 
 class BatchSearchTestCase(TestCase):
