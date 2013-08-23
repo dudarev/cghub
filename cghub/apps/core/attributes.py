@@ -53,3 +53,11 @@ SORT_BY_ATTRIBUTES = (
     'study',
     'upload_date',
 )
+
+# present only in RequestFull
+ADDITIONAL_ATTRIBUTES = (
+    'aliquot_id',
+    'participant_id',
+    'sample_id',
+    'tss_id',
+)

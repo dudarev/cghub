@@ -37,6 +37,7 @@ from ..requests import (
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
+from ..attributes import ADDITIONAL_ATTRIBUTES
 
 
 def create_session(self):
@@ -134,6 +135,9 @@ class CoreTestCase(TestCase):
         self.assertTrue(response.context['raw_xml'])
         # check all entries are present
         self.assertIn('run_xml', response.context['raw_xml'])
+        # check additional attributes are present
+        for attr in ADDITIONAL_ATTRIBUTES:
+            self.assertTrue(len(response.context['res'][attr]))
 
     def test_save_filters_state(self):
         # TODO: Extend this test (only filters should be persistent, not query)
