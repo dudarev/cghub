@@ -105,9 +105,13 @@ class RequestBase(REQUEST_CLASS):
             # set SOLR uri if specified
             self.uri = getattr(settings, 'CGHUB_SERVER_SOLR_URI', self.uri)
         # filter sort_by
-        if self.sort_by and self.sort_by not in SORT_BY_ATTRIBUTES:
-            self.sort_by = None
-            
+        if self.sort_by:
+            if self.sort_by.find('-') == 0:
+                if self.sort_by[1:] not in SORT_BY_ATTRIBUTES:
+                    self.sort_by = None
+            else:
+                if self.sort_by not in SORT_BY_ATTRIBUTES:
+                    self.sort_by = None
 
     def get_xml_file(self, url):
         if 'test' in sys.argv:
