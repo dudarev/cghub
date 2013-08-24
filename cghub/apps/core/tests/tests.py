@@ -621,11 +621,15 @@ class BatchSearchTestCase(TestCase):
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Found by analysis_id: 2')
-        # ok, adding files to cart
+        # some items were deleted
         ids = response.content
         ids = ids[ids.find('<textarea'):ids.find('</textarea>')]
         ids = ids[ids.find('>') + 1:]
         create_session(self)
+        data = {'ids': ids}
+        response = self.client.post(reverse('batch_search_page'), data)
+        self.assertEqual(response.status_code, 200)
+        # ok, adding files to cart
         data = {'ids': ids, 'add_to_cart': 'true'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertRedirects(response, reverse('cart_page'))

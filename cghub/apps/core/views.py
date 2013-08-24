@@ -245,7 +245,7 @@ class BatchSearchView(TemplateView):
                 for i in ids[offset:(offset + limit)]:
                     results.append(i)
 
-                results = get_results_from_ids(results)
+                results = get_results_for_ids(results)
 
                 return self.render_to_response({
                         'form': form, 'ids': ids,
