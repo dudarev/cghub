@@ -17,6 +17,7 @@ jQuery(function ($) {
             cghub.batch_search.$removeBtn = $('.ids-remove');
             cghub.batch_search.$addToCartBtn = $('.ids-add-to-cart');
             cghub.batch_search.$addToCartInput = $('input[name=add_to_cart]');
+            cghub.batch_search.$ResetBtn = $('button[type=reset]');
             cghub.batch_search.$idsStorage = $('.js-ids-storage');
             cghub.batch_search.$paginationLinks = $('.pagination li a');
             cghub.batch_search.$form = $('form');
@@ -27,6 +28,7 @@ jQuery(function ($) {
             cghub.batch_search.$paginationLinks.on('click', cghub.batch_search.goToPage);
             cghub.batch_search.$items_per_page_links.on('click', cghub.batch_search.goToPage);
             cghub.batch_search.$addToCartBtn.on('click', cghub.batch_search.addToCart);
+            cghub.batch_search.$ResetBtn.on('click', cghub.batch_search.clearForm);
         },
         initFlexigrid:function () {
             cghub.batch_search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
@@ -40,6 +42,13 @@ jQuery(function ($) {
             $('.sort-link').attr('title', '').attr('href', '#').on('click', function() {
                 return false;
             });
+        },
+        clearForm:function () {
+            if (cghub.batch_search.$form.length) {
+                cghub.batch_search.$form.find('input[type=file]').val('');
+                cghub.batch_search.$form.find('textarea').val('');
+            }
+            return false;
         },
         removeIDs:function () {
             var selected_files = $('input[type="checkbox"][name="selected_files"]:checked'),
