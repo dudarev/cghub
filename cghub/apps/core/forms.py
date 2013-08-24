@@ -27,7 +27,7 @@ class BatchSearchForm(forms.Form):
         id_pattern = re.compile(
                     '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
                     '[0-9abcdef]{4}-[0-9abcdef]{12}$')
-        legacy_sample_id_pattern = re.compile('^[A-Z]{2,8}-.{10,30}$')
+        legacy_sample_id_pattern = re.compile('^[a-z]{2,8}-.{10,30}$')
         for i in text.split():
             id = i.strip()
             if not id:
@@ -44,13 +44,15 @@ class BatchSearchForm(forms.Form):
                     raw_ids.append(id)
 
         for id in raw_ids:
-            if id_pattern.match(id):
-                if id not in ids:
-                    ids.append(id)
+            # only legacy sample id has all letters uppercased
+            lower_id = id.lower()
+            if id_pattern.match(lower_id):
+                if lower_id not in ids:
+                    ids.append(lower_id)
                 continue
-            elif legacy_sample_id_pattern.match(id):
-                if id not in legacy_sample_ids:
-                    legacy_sample_ids.append(id)
+            elif legacy_sample_id_pattern.match(lower_id):
+                if lower_id.upper() not in legacy_sample_ids:
+                    legacy_sample_ids.append(lower_id.upper())
                 continue
             elif id not in unvalidated_ids:
                 unvalidated_ids.append(id)
