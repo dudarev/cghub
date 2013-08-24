@@ -102,9 +102,8 @@ jQuery(function ($) {
                     $select.find('option[value="(Toggle all)"]').attr('selected', 'selected');
                 }
             });
-            if('q' in filters) {
-                $('input.search-query').val(filters['q']);
-            }
+            // clear search query according to Bug #1829
+            $('input.search-query').val('');
         },
         initFlexigrid: function() {
             cghub.search.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
