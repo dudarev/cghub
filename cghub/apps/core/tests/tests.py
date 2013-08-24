@@ -580,18 +580,21 @@ class BatchSearchTestCase(TestCase):
             '000f332c-7fd9-4515-bf5f-9b77db43a3fd',
             '00007994-abeb-4b16-a6ad-7230300a29e9',
             'TCGA-04-1337-01A-01W-0484-10',
+            # different cases
+            'TcGA-04-1337-01e-01w-0455-12',
+            '11107994-AbEb-4D16-a6ad-7230300a29A9',
         ]
         f = SimpleUploadedFile(name='ids.csv', content=' '.join(ids))
         form = BatchSearchForm({'text': ' '.join(ids)})
         self.assertTrue(form.is_valid())
         form = BatchSearchForm({}, {'upload': f})
         self.assertTrue(form.is_valid())
-        self.assertEqual(len(form.cleaned_data['ids']), 3)
-        self.assertEqual(len(form.cleaned_data['legacy_sample_ids']), 1)
+        self.assertEqual(len(form.cleaned_data['ids']), 4)
+        self.assertEqual(len(form.cleaned_data['legacy_sample_ids']), 2)
         for id in ids:
             self.assertTrue(
-                    (id in form.cleaned_data['ids']) or
-                    (id in form.cleaned_data['legacy_sample_ids']))
+                    (id.lower() in form.cleaned_data['ids']) or
+                    (id.upper() in form.cleaned_data['legacy_sample_ids']))
         self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 0)
         form = BatchSearchForm({})
         self.assertFalse(form.is_valid())
