@@ -271,6 +271,8 @@ class BatchSearchView(TemplateView):
 
                 results = get_results_for_ids(results)
 
+                if not results:
+                    form.errors['__all__'] = form.error_class(["No results found."])
                 return self.render_to_response({
                         'form': form, 'found': found, 'ids': ids,
                         'submitted': submitted, 'results': results,

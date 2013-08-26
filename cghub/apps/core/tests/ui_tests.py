@@ -1298,24 +1298,28 @@ class ResetFiltersTestCase(LiveServerTestCase):
             self.assertEqual(default_filters, self.get_selected_filters())
 
 
-class BatchSearchTestCase(LiveServerTestCase):
+class BatchSearchUITestCase(LiveServerTestCase):
+
+    ids = (
+            '04578995-3609-4f09-bc12-7100a04ebc92',
+            '549571a3-98a7-4601-adb1-6951d770cc0e')
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(BatchSearchTestCase, self).setUpClass()
+        super(BatchSearchUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(BatchSearchTestCase, self).tearDownClass()
+        super(BatchSearchUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
 
-    def test_no_results(self):
+    def test_reset_form(self):
         """
         1. Go to batch search page
         2. Enter something into textarea and filefield
@@ -1341,6 +1345,41 @@ class BatchSearchTestCase(LiveServerTestCase):
         self.assertFalse(textarea.get_attribute('value'))
         self.assertFalse(fileinput.get_attribute('value'))
 
+    def test_batch_search_form_error(self):
+        """
+        1. Go to batch search page
+        2. Enter some bed id
+        3. Click on 'Search' button
+        4. Check that error message exists
+        5. Enter not existent id
+        6. Click on 'Search' button
+        7. Check that error message exists
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys('bad id')
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(1)
+        error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
+        self.assertIn('No valid ids was found', error)
+        # enter not existent id
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys(
+                Keys.BACK_SPACE * 10 + '11111111-1111-1111-1111-111111111111');
+        time.sleep(1)
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(1)
+        error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
+        self.assertIn('No results found', error)
+        
+
     def test_batch_search_results_edit(self):
         """
         1. Go to batch search page
@@ -1359,9 +1398,7 @@ class BatchSearchTestCase(LiveServerTestCase):
         time.sleep(1)
         textarea = self.selenium.find_element_by_xpath(
                 '//textarea[@id="id_text"]')
-        textarea.send_keys(
-                '04578995-3609-4f09-bc12-7100a04ebc92\n'
-                '549571a3-98a7-4601-adb1-6951d770cc0e')
+        textarea.send_keys('\n'.join(self.ids))
         self.selenium.find_element_by_xpath(
                 '//button[@type="submit"]').click()
         time.sleep(2)
@@ -1394,6 +1431,31 @@ class BatchSearchTestCase(LiveServerTestCase):
         self.assertIn('cart', self.selenium.current_url)
         summary = self.selenium.find_element_by_id('results-summary').text
         self.assertIn('Files in your cart: 1', summary)
+
+    def test_details_popup(self):
+        """
+        1. Go to batch search page
+        2. Submit 2 analysis_ids
+        3. Click on 'Search'
+        4. Click on first table row
+        5. Check popup is visible
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys('\n'.join(self.ids))
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(2)
+        # click on table row
+        self.selenium.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[1]/td[2]').click()
+        time.sleep(1)
+        popup = self.selenium.find_element_by_id('itemDetailsModal')
+        self.assertTrue(popup.is_displayed())
 
 
 class SkipNavTestCase(LiveServerTestCase):
