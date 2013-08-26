@@ -2,7 +2,7 @@ import time
 import os
 import math
 
-from urllib import unquote
+from urllib2 import unquote
 from datetime import datetime, date, timedelta
 
 from selenium import webdriver
@@ -32,6 +32,8 @@ TEST_SETTINGS = dict(
         'Center',
         'Center Name',
         'Assembly',
+        'Filename',
+        'Checksum',
         'Files Size',
         'Uploaded',
         'Modified',
@@ -74,11 +76,17 @@ TEST_SETTINGS = dict(
         'Center Name': {
             'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
+        'Checksum': {
+            'width': 250, 'align': 'left', 'default_state': 'hidden',
+        },
         'Disease': {
             'width': 65, 'align': 'left', 'default_state': 'visible',
         },
         'Experiment Type': {
             'width': 95, 'align': 'left', 'default_state': 'hidden',
+        },
+        'Filename': {
+            'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
         'Files Size': {
             'width': 75, 'align': 'right', 'default_state': 'visible',
@@ -169,10 +177,11 @@ class CoreUITestCase(LiveServerTestCase):
         5. Close popup
         6. Enter query, submit
         7. Check for 'search' and 'q' in url
-        8. Go to cart page
-        9. Repeat 2-7
-        10. Go to help page
-        11. Repeat 2-7
+        8. Check that search box is empty
+        9. Go to cart page
+        10. Repeat 2-7
+        11. Go to help page
+        12. Repeat 2-7
         """
         def check_good_query(key='123'):
             driver = self.selenium
@@ -184,6 +193,10 @@ class CoreUITestCase(LiveServerTestCase):
             time.sleep(3)
             assert 'search' in driver.current_url
             assert 'q=%s' % key in driver.current_url
+            # check searchbox is empty
+            search_field = driver.find_element_by_css_selector(
+                    '.navbar-search .search-query')
+            self.assertEqual(search_field.get_attribute('value'), '')
 
         def check_bad_query(key='bad*'):
             """
@@ -1826,6 +1839,20 @@ class HelpHintsTestCase(LiveServerTestCase):
             # filter options
             study_filter_option = driver.find_elements_by_css_selector(
                             ".sidebar .ui-dropdownchecklist-item")[1]
+            self.check_tooltip(study_filter_option)
+
+    def test_help_hints_in_applied_filters(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for Study in applied filters
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            study_filter_option = driver.find_element_by_xpath(
+                            '//div[@class="applied-filters"]/ul/li[1]/span[1]')
             self.check_tooltip(study_filter_option)
 
     def test_help_hints_common(self):
