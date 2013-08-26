@@ -643,15 +643,20 @@ class CartCommandsTestCase(TestCase):
             analysis.delete()
         except Analysis.DoesNotExist:
             pass
-        result = StringIO()
+        stdout = StringIO()
+        stderr = StringIO()
         try:
-            call_command('update_full_metadata_cache', stdout=result)
+            call_command(
+                    'update_full_metadata_cache',
+                    stdout=stdout, stderr=stderr)
         except SystemExit:
             pass
-        result.seek(0)
-        result = result.read()
-        self.assertIn('cache files were updated', result)
-        self.assertIn(': Done', result)
-        self.assertIn('was created', result)
-        self.assertIn(self.analysis_id, result)
+        stdout.seek(0)
+        stdout = stdout.read()
+        stderr.seek(0)
+        stderr = stderr.read()
+        self.assertIn('cache files were updated', stdout)
+        self.assertIn(': Done', stderr)
+        self.assertIn('was created', stderr)
+        self.assertIn(self.analysis_id, stderr)
         self.assertTrue(os.path.exists(path))

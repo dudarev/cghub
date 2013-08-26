@@ -25,13 +25,13 @@ def update_cache(analysis_id, last_modified):
 
 
 class Command(BaseCommand):
-    help = 'Updates cghub browser cart xml cache.'
+    help = 'Updates full-metadata cache.'
 
     def process_tasks(self):
         results = [self.pool.apply_async(update_cache, t) for t in self.tasks]
         for result in results:
             output = result.get()
-            self.stdout.write(output)
+            self.stderr.write(output)
             if output and output.find('Error') == -1:
                 self.done_count += 1
             else:
@@ -52,13 +52,13 @@ class Command(BaseCommand):
                         'files_size': result['files_size']
                     })
             if created:
-                self.stdout.write('- %s was created\n' % analysis.analysis_id)
+                self.stderr.write('- %s was created\n' % analysis.analysis_id)
             elif analysis.last_modified != result['last_modified']:
                 analysis.last_modified = result['last_modified']
                 analysis.state = result['state']
                 analysis.files_size = result['files_size']
                 analysis.save()
-                self.stdout.write('- %s was updated\n' % analysis.analysis_id)
+                self.stderr.write('- %s was updated\n' % analysis.analysis_id)
 
         self.stdout.write('Downloading not existent cache ...\n')
         self.done_count = 0
