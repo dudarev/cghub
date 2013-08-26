@@ -24,13 +24,15 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			cart.CartCommandsTestCase \
 			help
 
-TEST_UI=core.CoreUITestCase core.NavigationLinksTestCase core.SidebarTestCase \
-			core.CustomPeriodTestCase core.DetailsTestCase \
-			core.SearchTestCase core.ColumnSelectTestCase \
-			core.ResetFiltersTestCase core.HelpHintsTestCase \
-			core.SkipNavTestCase core.TabbingTestCase \
-			core.TableNavigationTestCase \
-			cart.AddToCartTestCase cart.CartUITestCase
+TEST_UI=core.CoreUITestCase core.NavigationLinksUITestCase \
+			core.SidebarUITestCase core.CustomPeriodUITestCase \
+			core.DetailsUITestCase core.SearchUITestCase \
+			core.ColumnSelectUITestCase core.ResetFiltersUITestCase \
+			core.BatchSearchUITestCase core.SkipNavUITestCase \
+			core.TabbingUITestCase core.TableNavigationUITestCase \
+			core.HelpHintsUITestCase \
+			cart.AddToCartUITestCase cart.CartUITestCase \
+			cart.SortWithinCartUITestCase
 
 MANAGE= $(PYTHON) manage.py
 

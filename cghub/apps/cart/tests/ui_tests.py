@@ -1,17 +1,16 @@
-import time
 import os
+import time
 
-from django.test import LiveServerTestCase
 from django.conf import settings
+from django.test import LiveServerTestCase
 
 from selenium import webdriver
-from selenium.webdriver.firefox.webdriver import WebDriver
 
 from cghub.apps.core.tests.ui_tests import TEST_SETTINGS, back_to_bytes
 from cghub.apps.core.attributes import COLUMN_NAMES
 
 
-class AddToCartTestCase(LiveServerTestCase):
+class AddToCartUITestCase(LiveServerTestCase):
 
     query = "6d50"
 
@@ -19,12 +18,12 @@ class AddToCartTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(AddToCartTestCase, self).setUpClass()
+        super(AddToCartUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         self.selenium.quit()
-        super(AddToCartTestCase, self).tearDownClass()
+        super(AddToCartUITestCase, self).tearDownClass()
 
     def test_add_all_to_cart(self):
         """
@@ -250,19 +249,19 @@ class CartUITestCase(LiveServerTestCase):
             assert message.text == 'Your cart is empty!'
 
 
-class SortWithinCartTestCase(LiveServerTestCase):
+class SortWithinCartUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
-        self.selenium = WebDriver()
+        self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(SortWithinCartTestCase, self).setUpClass()
+        super(SortWithinCartUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SortWithinCartTestCase, self).tearDownClass()
+        super(SortWithinCartUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()

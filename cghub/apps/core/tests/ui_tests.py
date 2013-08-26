@@ -1,22 +1,23 @@
-import time
-import os
 import math
+import os
+import time
 
-from urllib import unquote
 from datetime import datetime, date, timedelta
+from urllib2 import unquote
 
 from selenium import webdriver
-from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.webdriver import WebDriver
 
-from django.test import LiveServerTestCase
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.test import LiveServerTestCase
 
-from cghub.settings.utils import root
-from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 from cghub.apps.help.models import HelpText
+
+from ..filters_storage import ALL_FILTERS
+from ..attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 
 
 TEST_SETTINGS = dict(
@@ -73,11 +74,17 @@ TEST_SETTINGS = dict(
         'Center Name': {
             'width': 100, 'align': 'left', 'default_state': 'hidden',
         },
+        'Checksum': {
+            'width': 250, 'align': 'left', 'default_state': 'hidden',
+        },
         'Disease': {
             'width': 65, 'align': 'left', 'default_state': 'visible',
         },
         'Experiment Type': {
             'width': 95, 'align': 'left', 'default_state': 'hidden',
+        },
+        'Filename': {
+            'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
         'Files Size': {
             'width': 75, 'align': 'right', 'default_state': 'visible',
@@ -104,7 +111,6 @@ TEST_SETTINGS = dict(
     DEFAULT_FILTERS={
         'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
         'state': ('live',),
-        'upload_date': '[NOW-7DAY+TO+NOW]',
     },
 )
 
@@ -169,10 +175,11 @@ class CoreUITestCase(LiveServerTestCase):
         5. Close popup
         6. Enter query, submit
         7. Check for 'search' and 'q' in url
-        8. Go to cart page
-        9. Repeat 2-7
-        10. Go to help page
-        11. Repeat 2-7
+        8. Check that search box is empty
+        9. Go to cart page
+        10. Repeat 2-7
+        11. Go to help page
+        12. Repeat 2-7
         """
         def check_good_query(key='123'):
             driver = self.selenium
@@ -184,6 +191,10 @@ class CoreUITestCase(LiveServerTestCase):
             time.sleep(3)
             assert 'search' in driver.current_url
             assert 'q=%s' % key in driver.current_url
+            # check searchbox is empty
+            search_field = driver.find_element_by_css_selector(
+                    '.navbar-search .search-query')
+            self.assertEqual(search_field.get_attribute('value'), '')
 
         def check_bad_query(key='bad*'):
             """
@@ -206,26 +217,26 @@ class CoreUITestCase(LiveServerTestCase):
 
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
-            for page in ('search', 'cart', 'help'):
-                driver.get('%s/%s' % (self.live_server_url, page))
+            for page in ('search', 'cart', 'search/batch', 'help', 'accessibility'):
+                driver.get('%s/%s/' % (self.live_server_url, page))
                 assert 'q=' not in driver.current_url
                 check_bad_query()
                 check_good_query()
 
 
-class NavigationLinksTestCase(LiveServerTestCase):
+class NavigationLinksUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(NavigationLinksTestCase, self).setUpClass()
+        super(NavigationLinksUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(NavigationLinksTestCase, self).tearDownClass()
+        super(NavigationLinksUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -235,52 +246,61 @@ class NavigationLinksTestCase(LiveServerTestCase):
         1. Go to search page (default query)
         2. Click on 'Cart' link
         3. Check url
-        4. Click on 'Help' link
+        4. Click on 'Batch search' link
         5. Check url
-        6. Click on 'Accessibility' link
+        6. Click on 'Help' link
         7. Check url
-        6. Clcik on 'Search' link
-        7. Check url
+        8. Click on 'Accessibility' link
+        9. Check url
+        10. Clcik on 'Browser' link
+        11. Check url
         """
-        # TODO: add Accessibility and Batch search pages
         driver = self.selenium
         with self.settings(**TEST_SETTINGS):
             # search page
             driver.get(self.live_server_url)
             assert '/cart/' not in driver.current_url
+            assert '/search/batch/' not in driver.current_url
             assert '/help/' not in driver.current_url
+            assert '/accessibility/' not in driver.current_url
             # go to cart page
-            driver.find_element_by_partial_link_text("Cart").click()
+            driver.find_element_by_partial_link_text('Cart').click()
             time.sleep(3)
             assert '/cart/' in driver.current_url
+            # got to batch search
+            driver.find_element_by_partial_link_text('Batch search').click()
+            time.sleep(3)
+            assert '/search/batch/' in driver.current_url
             # go to help page
-            driver.find_element_by_partial_link_text("Help").click()
+            driver.find_element_by_partial_link_text('Help').click()
             time.sleep(3)
             assert '/help/' in driver.current_url
             # got to accessibility page
-            driver.find_element_by_partial_link_text("Accessibility").click()
+            driver.find_element_by_partial_link_text('Accessibility').click()
             time.sleep(3)
             assert '/accessibility/' in driver.current_url
             # got back to search page
-            driver.find_element_by_partial_link_text("Browser").click()
+            driver.find_element_by_partial_link_text('Browser').click()
             time.sleep(3)
             assert '/cart/' not in driver.current_url
+            assert '/search/batch/' not in driver.current_url
             assert '/help/' not in driver.current_url
+            assert '/accessibility/' not in driver.current_url
 
 
-class SidebarTestCase(LiveServerTestCase):
+class SidebarUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SidebarTestCase, self).setUpClass()
+        super(SidebarUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SidebarTestCase, self).tearDownClass()
+        super(SidebarUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -464,7 +484,7 @@ class SidebarTestCase(LiveServerTestCase):
                 self.assertIn(option, applied_filters)
 
 
-class CustomPeriodTestCase(LiveServerTestCase):
+class CustomPeriodUITestCase(LiveServerTestCase):
 
     year = date.today().year
     TEST_DATES = (
@@ -503,13 +523,13 @@ class CustomPeriodTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(CustomPeriodTestCase, self).setUpClass()
+        super(CustomPeriodUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(CustomPeriodTestCase, self).tearDownClass()
+        super(CustomPeriodUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -624,7 +644,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
             self.check_custom_date('last_modified', dates['res_start'], dates['res_end'])
 
 
-class DetailsTestCase(LiveServerTestCase):
+class DetailsUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
@@ -638,13 +658,13 @@ class DetailsTestCase(LiveServerTestCase):
                 "browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
-        super(DetailsTestCase, self).setUpClass()
+        super(DetailsUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(DetailsTestCase, self).tearDownClass()
+        super(DetailsUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -792,26 +812,26 @@ class DetailsTestCase(LiveServerTestCase):
                 assert False, "File metadata.xml wasn't downloaded"
 
 
-class SearchTestCase(LiveServerTestCase):
+class SearchUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SearchTestCase, self).setUpClass()
+        super(SearchUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SearchTestCase, self).tearDownClass()
+        super(SearchUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
 
     def test_no_results(self):
         """
-        Enter bad query, submit, check that not results was found.
+        Enter bad query, submit, check that no results was found.
         1. Go to search page
         2. Enter query ('some text')
         3. Submit form
@@ -827,6 +847,80 @@ class SearchTestCase(LiveServerTestCase):
             result = self.selenium.find_element_by_xpath(
                 "//div[contains(@class,'base-container')]/div/h4")
             assert result.text == "No results found."
+
+    def test_filters_state_is_persistent(self):
+        """
+        1. Go to search page (used default query)
+        2. Check that selected 'All' for center filter
+        3. Check that first center name not exists in url
+        4. Select first center
+        5. Apply filters
+        6. Check that first center name exists in url
+        7. Check that first center selected
+        8. Go to cart page
+        9. Go to search page
+        10. Check that first center selected
+        11. Check that first center name not exists in url
+        """
+        self.selenium.get(self.live_server_url)
+        time.sleep(3)
+        filter_name = 'center_name'
+        filter_object = ALL_FILTERS[filter_name]
+        options = filter_object['filters']
+        self.assertTrue(len(options) > 1)
+        self.assertNotIn(filter_name, TEST_SETTINGS['DEFAULT_FILTERS'])
+        # select first center
+        scroll_page_to_filter(self.selenium, filter_name)
+        self.selenium.find_element_by_css_selector(
+                "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
+        # unselect all
+        self.selenium.find_element_by_id(
+                "ddcl-id-{0}-i{1}".format(filter_name, 0)).click()
+        option_name = self.selenium.find_element_by_xpath(
+                "//label[@for='ddcl-id-{0}-i{1}']".format(filter_name, 1)).text
+        option_attribute = None
+        for key, value in options.iteritems():
+            if value == option_name:
+                option_attribute = key
+                break
+        self.assertTrue(option_attribute)
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertNotIn(option_attribute, url)
+        # check selected options
+        self.assertNotIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
+        # select first filter
+        self.selenium.find_element_by_id(
+                "ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
+        # and close filter DDCL
+        self.selenium.find_element_by_css_selector(
+                "#ddcl-id-{0} > span:last-child > span".format(filter_name)).click()
+        # check selected options
+        self.assertIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
+        # submit form
+        self.selenium.find_element_by_id("id_apply_filters").click()
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertIn(option_attribute, url)
+        # Go to cart page and back
+        self.selenium.get(self.live_server_url + reverse('cart_page'))
+        time.sleep(1)
+        self.selenium.get(self.live_server_url)
+        time.sleep(2)
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertNotIn(option_attribute, url)
+        # check selected options
+        self.assertIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
 
     def test_search_result(self):
         """
@@ -988,19 +1082,19 @@ class SearchTestCase(LiveServerTestCase):
                         self.assertLessEqual(first, second)
 
 
-class ColumnSelectTestCase(LiveServerTestCase):
+class ColumnSelectUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ColumnSelectTestCase, self).setUpClass()
+        super(ColumnSelectUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(ColumnSelectTestCase, self).tearDownClass()
+        super(ColumnSelectUITestCase, self).tearDownClass()
 
     def check_select_columns(self, location):
         """
@@ -1010,11 +1104,10 @@ class ColumnSelectTestCase(LiveServerTestCase):
         3. Also check that last column takes all free space
         4. Click on '(Toggle all)'
         5. Check that all columns visible
+        6. Reset to defaults
 
         :param location: 'search' or 'cart'
         """
-        # TODO(nanvel): Add test for default columns
-
         driver = self.selenium
         # get columns count
         column_count = len(driver.find_elements_by_xpath(
@@ -1073,6 +1166,8 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         ".position().left)" % x)
             assert driver.find_element_by_xpath(
                     "//th[@axis='col%d']" % (x + 1)).is_displayed()
+        # reset to defaults
+        driver.find_element_by_class_name("js-default-columns").click()
         # close DDCL
         select.click()
 
@@ -1088,8 +1183,6 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             self.check_select_columns('search')
-            driver.find_element_by_css_selector('input.js-select-all').click()
-            driver.find_element_by_css_selector('button.add-to-cart-btn').click()
             time.sleep(5)
             self.check_select_columns('cart')
 
@@ -1144,24 +1237,22 @@ class ColumnSelectTestCase(LiveServerTestCase):
             self.assertEqual(visible, default_count)
 
 
-class ResetFiltersTestCase(LiveServerTestCase):
+class ResetFiltersUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ResetFiltersTestCase, self).setUpClass()
+        super(ResetFiltersUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(ResetFiltersTestCase, self).tearDownClass()
+        super(ResetFiltersUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
-
-    # TODO(nanvel): check saving last query here
 
     def get_selected_filters(self):
         """
@@ -1216,19 +1307,179 @@ class ResetFiltersTestCase(LiveServerTestCase):
             self.assertEqual(default_filters, self.get_selected_filters())
 
 
-class SkipNavTestCase(LiveServerTestCase):
+class BatchSearchUITestCase(LiveServerTestCase):
+
+    ids = (
+            '04578995-3609-4f09-bc12-7100a04ebc92',
+            '549571a3-98a7-4601-adb1-6951d770cc0e')
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SkipNavTestCase, self).setUpClass()
+        super(BatchSearchUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SkipNavTestCase, self).tearDownClass()
+        super(BatchSearchUITestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
+    def test_reset_form(self):
+        """
+        1. Go to batch search page
+        2. Enter something into textarea and filefield
+        3. Click on reset button
+        4. Check that fields are empty
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        fileinput = self.selenium.find_element_by_xpath(
+                '//input[@id="id_upload"]')
+        textarea.send_keys('some text')
+        fileinput.send_keys('/some/file.txt')
+        time.sleep(1)
+        self.assertTrue(textarea.get_attribute('value'))
+        self.assertTrue(fileinput.get_attribute('value'))
+        self.selenium.find_element_by_xpath(
+                '//button[@type="reset"]').click()
+        time.sleep(1)
+        self.assertFalse(textarea.get_attribute('value'))
+        self.assertFalse(fileinput.get_attribute('value'))
+
+    def test_batch_search_form_error(self):
+        """
+        1. Go to batch search page
+        2. Enter some bed id
+        3. Click on 'Search' button
+        4. Check that error message exists
+        5. Enter not existent id
+        6. Click on 'Search' button
+        7. Check that error message exists
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys('bad id')
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(1)
+        error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
+        self.assertIn('No valid ids was found', error)
+        # enter not existent id
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys(
+                Keys.BACK_SPACE * 10 + '11111111-1111-1111-1111-111111111111');
+        time.sleep(1)
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(1)
+        error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
+        self.assertIn('No results found', error)
+        
+
+    def test_batch_search_results_edit(self):
+        """
+        1. Go to batch search page
+        2. Enter 2 analysis ids
+        3. Click on 'Search' button
+        4. Try to find items in table
+        5. Select first item, click on 'Remove' button
+        6. Check that only one item is available
+        7. Click on 'Add 1 items to cart'
+        8. Check that 'cart' in url
+        9. Check cart items count
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys('\n'.join(self.ids))
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(2)
+        summary = self.selenium.find_element_by_id(
+                'batch-search-summary').text
+        self.assertIn('Submitted ids: 2', summary)
+        self.assertIn('Found by analysis_id: 2', summary)
+        # check rows count
+        self.assertEqual(
+                len(self.selenium.find_elements_by_xpath(
+                        '//div[@class="bDiv"]/fieldset/table/tbody/tr')),
+                2)
+        checkbox = self.selenium.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[1]/td[1]/div/input')
+        checkbox.click()
+        time.sleep(1)
+        # remove
+        self.selenium.find_element_by_xpath(
+                '//div[@class="cart-btn-group"]/button[1]').click()
+        time.sleep(2)
+        # check rows count
+        self.assertEqual(
+                len(self.selenium.find_elements_by_xpath(
+                        '//div[@class="bDiv"]/fieldset/table/tbody/tr')),
+                1)
+        # add item to cart
+        self.selenium.find_element_by_xpath(
+                '//div[@class="cart-btn-group"]/button[2]').click()
+        time.sleep(2)
+        self.assertIn('cart', self.selenium.current_url)
+        summary = self.selenium.find_element_by_id('results-summary').text
+        self.assertIn('Files in your cart: 1', summary)
+
+    def test_details_popup(self):
+        """
+        1. Go to batch search page
+        2. Submit 2 analysis_ids
+        3. Click on 'Search'
+        4. Click on first table row
+        5. Check popup is visible
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys('\n'.join(self.ids))
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(2)
+        # click on table row
+        self.selenium.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[1]/td[2]').click()
+        time.sleep(1)
+        popup = self.selenium.find_element_by_id('itemDetailsModal')
+        self.assertTrue(popup.is_displayed())
+
+
+class SkipNavUITestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(SkipNavUITestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(SkipNavUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -1258,7 +1509,7 @@ class SkipNavTestCase(LiveServerTestCase):
             self.assertEqual(links.size['height'], 0)
 
 
-class TabbingTestCase(LiveServerTestCase):
+class TabbingUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1318,6 +1569,26 @@ class TabbingTestCase(LiveServerTestCase):
             )
             self.check_tabbing(elements)
 
+    def test_tabbing_on_batch_search_page(self):
+        """
+        1. Go to search page (default query)
+        2. Check tabbing
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url + reverse('batch_search_page'))
+            time.sleep(3)
+            elements = (
+                '//ul[@id="accessibility-links"]/li[1]/a', # skip to batch form
+                '//ul[@class="nav"]/li[4]/a', # Accessibility page link
+                '//input[@id="id-search-field"]', # search box
+                '//textarea[@id="id_text"]', # textarea
+                '//input[@id="id_upload"]', # file select
+                '//button[@type="submit"]', # submit button
+                '//button[@type="reset"]', # reset button
+            )
+            self.check_tabbing(elements)
+
     def test_tabbing_on_cart_page(self):
         """
         1. Go to search page (default query)
@@ -1371,7 +1642,7 @@ class TabbingTestCase(LiveServerTestCase):
             self.check_tabbing(elements)
 
 
-class TableNavigationTestCase(LiveServerTestCase):
+class TableNavigationUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1430,7 +1701,8 @@ class TableNavigationTestCase(LiveServerTestCase):
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert popup.is_displayed()
             # close popup
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+            driver.find_element_by_xpath(
+                    "//button[@data-dismiss='modal']").click()
             time.sleep(1)
             # try to open details page using ctrl + enter
             # CONTROL + ENTER doesn't work in selenium, no idea why
@@ -1455,7 +1727,8 @@ class TableNavigationTestCase(LiveServerTestCase):
             time.sleep(1)
             last_column = TEST_SETTINGS['TABLE_COLUMNS'][-1]
             column_attr = COLUMN_NAMES[last_column]
-            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            th = driver.find_element_by_xpath(
+                    "//th[@id='id-col-%s']" % column_attr)
             self.assertFalse(th.is_displayed())
             for i in TEST_SETTINGS['TABLE_COLUMNS']:
                 self.ac.key_down(Keys.ALT)
@@ -1463,7 +1736,8 @@ class TableNavigationTestCase(LiveServerTestCase):
                 self.ac.key_up(Keys.ARROW_RIGHT)
             self.ac.perform()
             time.sleep(5)
-            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            th = driver.find_element_by_xpath(
+                    "//th[@id='id-col-%s']" % column_attr)
             self.assertTrue(th.is_displayed())
 
 
@@ -1480,7 +1754,7 @@ HELP_TEST_SETTINGS['HELP_HINTS'] = {
 }
 
 
-class HelpHintsTestCase(LiveServerTestCase):
+class HelpHintsUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1511,7 +1785,8 @@ class HelpHintsTestCase(LiveServerTestCase):
         tooltip = self.selenium.find_element_by_css_selector('.js-tooltip')
         assert tooltip.is_displayed()
         # hide tooltip
-        search_field = self.selenium.find_element_by_css_selector('.navbar-search .search-query')
+        search_field = self.selenium.find_element_by_css_selector(
+                '.navbar-search .search-query')
         search_field.click()
         time.sleep(1)
 
@@ -1562,6 +1837,20 @@ class HelpHintsTestCase(LiveServerTestCase):
             # filter options
             study_filter_option = driver.find_elements_by_css_selector(
                             ".sidebar .ui-dropdownchecklist-item")[1]
+            self.check_tooltip(study_filter_option)
+
+    def test_help_hints_in_applied_filters(self):
+        """
+        Check that tooltip appears.
+        1. Go to search page (default query)
+        2. Check tooltip for Study in applied filters
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url)
+
+            study_filter_option = driver.find_element_by_xpath(
+                            '//div[@class="applied-filters"]/ul/li[1]/span[1]')
             self.check_tooltip(study_filter_option)
 
     def test_help_hints_common(self):
