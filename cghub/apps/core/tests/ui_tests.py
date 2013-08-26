@@ -1339,8 +1339,6 @@ class SkipNavTestCase(LiveServerTestCase):
             time.sleep(1)
             self.assertEqual(links.size['height'], 0)
 
-    # TODO: check skip navigation on other pages
-
 
 class TabbingTestCase(LiveServerTestCase):
 
@@ -1399,6 +1397,26 @@ class TabbingTestCase(LiveServerTestCase):
                 '//form[@id="id_add_files_form"]/div[1]/div[1]/button[1]', # add to cart button
                 '//div[@class="items-per-page-label"]/a[1]', # items per page link
                 '//div[@class="pagination-centered"]/ul/li[1]/a', #pagination
+            )
+            self.check_tabbing(elements)
+
+    def test_tabbing_on_batch_search_page(self):
+        """
+        1. Go to search page (default query)
+        2. Check tabbing
+        """
+        with self.settings(**HELP_TEST_SETTINGS):
+            driver = self.selenium
+            driver.get(self.live_server_url + reverse('batch_search_page'))
+            time.sleep(3)
+            elements = (
+                '//ul[@id="accessibility-links"]/li[1]/a', # skip to batch form
+                '//ul[@class="nav"]/li[4]/a', # Accessibility page link
+                '//input[@id="id-search-field"]', # search box
+                '//textarea[@id="id_text"]', # textarea
+                '//input[@id="id_upload"]', # file select
+                '//button[@type="submit"]', # submit button
+                '//button[@type="reset"]', # reset button
             )
             self.check_tabbing(elements)
 
