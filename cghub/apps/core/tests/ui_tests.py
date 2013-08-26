@@ -820,7 +820,7 @@ class SearchTestCase(LiveServerTestCase):
 
     def test_no_results(self):
         """
-        Enter bad query, submit, check that not results was found.
+        Enter bad query, submit, check that no results was found.
         1. Go to search page
         2. Enter query ('some text')
         3. Submit form
@@ -1296,6 +1296,104 @@ class ResetFiltersTestCase(LiveServerTestCase):
             # try to reset filters
             driver.find_element_by_id("id_reset_filters").click()
             self.assertEqual(default_filters, self.get_selected_filters())
+
+
+class BatchSearchTestCase(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.selenium = WebDriver()
+        self.selenium.implicitly_wait(5)
+        super(BatchSearchTestCase, self).setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        time.sleep(1)
+        self.selenium.quit()
+        super(BatchSearchTestCase, self).tearDownClass()
+
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
+    def test_no_results(self):
+        """
+        1. Go to batch search page
+        2. Enter something into textarea and filefield
+        3. Click on reset button
+        4. Check that fields are empty
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        fileinput = self.selenium.find_element_by_xpath(
+                '//input[@id="id_upload"]')
+        textarea.send_keys('some text')
+        fileinput.send_keys('/some/file.txt')
+        time.sleep(1)
+        self.assertTrue(textarea.get_attribute('value'))
+        self.assertTrue(fileinput.get_attribute('value'))
+        self.selenium.find_element_by_xpath(
+                '//button[@type="reset"]').click()
+        time.sleep(1)
+        self.assertFalse(textarea.get_attribute('value'))
+        self.assertFalse(fileinput.get_attribute('value'))
+
+    def test_batch_search_results_edit(self):
+        """
+        1. Go to batch search page
+        2. Enter 2 analysis ids
+        3. Click on 'Search' button
+        4. Try to find items in table
+        5. Select first item, click on 'Remove' button
+        6. Check that only one item is available
+        7. Click on 'Add 1 items to cart'
+        8. Check that 'cart' in url
+        9. Check cart items count
+        """
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('batch_search_page')))
+        time.sleep(1)
+        textarea = self.selenium.find_element_by_xpath(
+                '//textarea[@id="id_text"]')
+        textarea.send_keys(
+                '04578995-3609-4f09-bc12-7100a04ebc92\n'
+                '549571a3-98a7-4601-adb1-6951d770cc0e')
+        self.selenium.find_element_by_xpath(
+                '//button[@type="submit"]').click()
+        time.sleep(2)
+        summary = self.selenium.find_element_by_id(
+                'batch-search-summary').text
+        self.assertIn('Submitted ids: 2', summary)
+        self.assertIn('Found by analysis_id: 2', summary)
+        # check rows count
+        self.assertEqual(
+                len(self.selenium.find_elements_by_xpath(
+                        '//div[@class="bDiv"]/fieldset/table/tbody/tr')),
+                2)
+        checkbox = self.selenium.find_element_by_xpath(
+                '//div[@class="bDiv"]/fieldset/table/tbody/tr[1]/td[1]/div/input')
+        checkbox.click()
+        time.sleep(1)
+        # remove
+        self.selenium.find_element_by_xpath(
+                '//div[@class="cart-btn-group"]/button[1]').click()
+        time.sleep(2)
+        # check rows count
+        self.assertEqual(
+                len(self.selenium.find_elements_by_xpath(
+                        '//div[@class="bDiv"]/fieldset/table/tbody/tr')),
+                1)
+        # add item to cart
+        self.selenium.find_element_by_xpath(
+                '//div[@class="cart-btn-group"]/button[2]').click()
+        time.sleep(2)
+        self.assertIn('cart', self.selenium.current_url)
+        summary = self.selenium.find_element_by_id('results-summary').text
+        self.assertIn('Files in your cart: 1', summary)
 
 
 class SkipNavTestCase(LiveServerTestCase):
