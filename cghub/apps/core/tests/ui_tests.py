@@ -12,6 +12,7 @@ from selenium.webdriver.common.keys import Keys
 
 from django.test import LiveServerTestCase
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from cghub.settings.utils import root
 from cghub.apps.core.filters_storage import ALL_FILTERS
@@ -104,7 +105,6 @@ TEST_SETTINGS = dict(
     DEFAULT_FILTERS={
         'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
         'state': ('live',),
-        'upload_date': '[NOW-7DAY+TO+NOW]',
     },
 )
 
@@ -206,8 +206,8 @@ class CoreUITestCase(LiveServerTestCase):
 
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
-            for page in ('search', 'cart', 'help'):
-                driver.get('%s/%s' % (self.live_server_url, page))
+            for page in ('search', 'cart', 'search/batch', 'help', 'accessibility'):
+                driver.get('%s/%s/' % (self.live_server_url, page))
                 assert 'q=' not in driver.current_url
                 check_bad_query()
                 check_good_query()
@@ -235,37 +235,46 @@ class NavigationLinksTestCase(LiveServerTestCase):
         1. Go to search page (default query)
         2. Click on 'Cart' link
         3. Check url
-        4. Click on 'Help' link
+        4. Click on 'Batch search' link
         5. Check url
-        6. Click on 'Accessibility' link
+        6. Click on 'Help' link
         7. Check url
-        6. Clcik on 'Search' link
-        7. Check url
+        8. Click on 'Accessibility' link
+        9. Check url
+        10. Clcik on 'Browser' link
+        11. Check url
         """
-        # TODO: add Accessibility and Batch search pages
         driver = self.selenium
         with self.settings(**TEST_SETTINGS):
             # search page
             driver.get(self.live_server_url)
             assert '/cart/' not in driver.current_url
+            assert '/search/batch/' not in driver.current_url
             assert '/help/' not in driver.current_url
+            assert '/accessibility/' not in driver.current_url
             # go to cart page
-            driver.find_element_by_partial_link_text("Cart").click()
+            driver.find_element_by_partial_link_text('Cart').click()
             time.sleep(3)
             assert '/cart/' in driver.current_url
+            # got to batch search
+            driver.find_element_by_partial_link_text('Batch search').click()
+            time.sleep(3)
+            assert '/search/batch/' in driver.current_url
             # go to help page
-            driver.find_element_by_partial_link_text("Help").click()
+            driver.find_element_by_partial_link_text('Help').click()
             time.sleep(3)
             assert '/help/' in driver.current_url
             # got to accessibility page
-            driver.find_element_by_partial_link_text("Accessibility").click()
+            driver.find_element_by_partial_link_text('Accessibility').click()
             time.sleep(3)
             assert '/accessibility/' in driver.current_url
             # got back to search page
-            driver.find_element_by_partial_link_text("Browser").click()
+            driver.find_element_by_partial_link_text('Browser').click()
             time.sleep(3)
             assert '/cart/' not in driver.current_url
+            assert '/search/batch/' not in driver.current_url
             assert '/help/' not in driver.current_url
+            assert '/accessibility/' not in driver.current_url
 
 
 class SidebarTestCase(LiveServerTestCase):
@@ -828,6 +837,80 @@ class SearchTestCase(LiveServerTestCase):
                 "//div[contains(@class,'base-container')]/div/h4")
             assert result.text == "No results found."
 
+    def test_filters_state_is_persistent(self):
+        """
+        1. Go to search page (used default query)
+        2. Check that selected 'All' for center filter
+        3. Check that first center name not exists in url
+        4. Select first center
+        5. Apply filters
+        6. Check that first center name exists in url
+        7. Check that first center selected
+        8. Go to cart page
+        9. Go to search page
+        10. Check that first center selected
+        11. Check that first center name not exists in url
+        """
+        self.selenium.get(self.live_server_url)
+        time.sleep(3)
+        filter_name = 'center_name'
+        filter_object = ALL_FILTERS[filter_name]
+        options = filter_object['filters']
+        self.assertTrue(len(options) > 1)
+        self.assertNotIn(filter_name, TEST_SETTINGS['DEFAULT_FILTERS'])
+        # select first center
+        scroll_page_to_filter(self.selenium, filter_name)
+        self.selenium.find_element_by_css_selector(
+                "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
+        # unselect all
+        self.selenium.find_element_by_id(
+                "ddcl-id-{0}-i{1}".format(filter_name, 0)).click()
+        option_name = self.selenium.find_element_by_xpath(
+                "//label[@for='ddcl-id-{0}-i{1}']".format(filter_name, 1)).text
+        option_attribute = None
+        for key, value in options.iteritems():
+            if value == option_name:
+                option_attribute = key
+                break
+        self.assertTrue(option_attribute)
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertNotIn(option_attribute, url)
+        # check selected options
+        self.assertNotIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
+        # select first filter
+        self.selenium.find_element_by_id(
+                "ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
+        # and close filter DDCL
+        self.selenium.find_element_by_css_selector(
+                "#ddcl-id-{0} > span:last-child > span".format(filter_name)).click()
+        # check selected options
+        self.assertIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
+        # submit form
+        self.selenium.find_element_by_id("id_apply_filters").click()
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertIn(option_attribute, url)
+        # Go to cart page and back
+        self.selenium.get(self.live_server_url + reverse('cart_page'))
+        time.sleep(1)
+        self.selenium.get(self.live_server_url)
+        time.sleep(2)
+        # check url
+        url = unquote(self.selenium.current_url)
+        self.assertNotIn(option_attribute, url)
+        # check selected options
+        self.assertIn(
+                option_name,
+                self.selenium.find_element_by_id(
+                        "id-{0}-ui-selector".format(filter_name)).text)
+
     def test_search_result(self):
         """
         Check results exists if right query entered.
@@ -1010,11 +1093,10 @@ class ColumnSelectTestCase(LiveServerTestCase):
         3. Also check that last column takes all free space
         4. Click on '(Toggle all)'
         5. Check that all columns visible
+        6. Reset to defaults
 
         :param location: 'search' or 'cart'
         """
-        # TODO(nanvel): Add test for default columns
-
         driver = self.selenium
         # get columns count
         column_count = len(driver.find_elements_by_xpath(
@@ -1073,6 +1155,8 @@ class ColumnSelectTestCase(LiveServerTestCase):
                         ".position().left)" % x)
             assert driver.find_element_by_xpath(
                     "//th[@axis='col%d']" % (x + 1)).is_displayed()
+        # reset to defaults
+        driver.find_element_by_class_name("js-default-columns").click()
         # close DDCL
         select.click()
 
@@ -1160,8 +1244,6 @@ class ResetFiltersTestCase(LiveServerTestCase):
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
-
-    # TODO(nanvel): check saving last query here
 
     def get_selected_filters(self):
         """
@@ -1256,6 +1338,8 @@ class SkipNavTestCase(LiveServerTestCase):
                 "//ul[@id='accessibility-links']/li[1]/a").click()
             time.sleep(1)
             self.assertEqual(links.size['height'], 0)
+
+    # TODO: check skip navigation on other pages
 
 
 class TabbingTestCase(LiveServerTestCase):
@@ -1369,6 +1453,8 @@ class TabbingTestCase(LiveServerTestCase):
                 '//div[@id="XMLHolder"]', # raw xml view
             )
             self.check_tabbing(elements)
+
+    # TODO: add test for batch search
 
 
 class TableNavigationTestCase(LiveServerTestCase):
