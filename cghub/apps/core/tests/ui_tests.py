@@ -1,23 +1,23 @@
-import time
-import os
 import math
+import os
+import time
 
-from urllib2 import unquote
 from datetime import datetime, date, timedelta
+from urllib2 import unquote
 
 from selenium import webdriver
-from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.webdriver import WebDriver
 
-from django.test import LiveServerTestCase
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.test import LiveServerTestCase
 
-from cghub.settings.utils import root
-from cghub.apps.core.filters_storage import ALL_FILTERS
-from cghub.apps.core.attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 from cghub.apps.help.models import HelpText
+
+from ..filters_storage import ALL_FILTERS
+from ..attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 
 
 TEST_SETTINGS = dict(
@@ -32,8 +32,6 @@ TEST_SETTINGS = dict(
         'Center',
         'Center Name',
         'Assembly',
-        'Filename',
-        'Checksum',
         'Files Size',
         'Uploaded',
         'Modified',
@@ -226,19 +224,19 @@ class CoreUITestCase(LiveServerTestCase):
                 check_good_query()
 
 
-class NavigationLinksTestCase(LiveServerTestCase):
+class NavigationLinksUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(5)
-        super(NavigationLinksTestCase, self).setUpClass()
+        super(NavigationLinksUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(NavigationLinksTestCase, self).tearDownClass()
+        super(NavigationLinksUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -290,19 +288,19 @@ class NavigationLinksTestCase(LiveServerTestCase):
             assert '/accessibility/' not in driver.current_url
 
 
-class SidebarTestCase(LiveServerTestCase):
+class SidebarUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SidebarTestCase, self).setUpClass()
+        super(SidebarUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SidebarTestCase, self).tearDownClass()
+        super(SidebarUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -486,7 +484,7 @@ class SidebarTestCase(LiveServerTestCase):
                 self.assertIn(option, applied_filters)
 
 
-class CustomPeriodTestCase(LiveServerTestCase):
+class CustomPeriodUITestCase(LiveServerTestCase):
 
     year = date.today().year
     TEST_DATES = (
@@ -525,13 +523,13 @@ class CustomPeriodTestCase(LiveServerTestCase):
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(CustomPeriodTestCase, self).setUpClass()
+        super(CustomPeriodUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(CustomPeriodTestCase, self).tearDownClass()
+        super(CustomPeriodUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -646,7 +644,7 @@ class CustomPeriodTestCase(LiveServerTestCase):
             self.check_custom_date('last_modified', dates['res_start'], dates['res_end'])
 
 
-class DetailsTestCase(LiveServerTestCase):
+class DetailsUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
@@ -660,13 +658,13 @@ class DetailsTestCase(LiveServerTestCase):
                 "browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
-        super(DetailsTestCase, self).setUpClass()
+        super(DetailsUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(DetailsTestCase, self).tearDownClass()
+        super(DetailsUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -814,19 +812,19 @@ class DetailsTestCase(LiveServerTestCase):
                 assert False, "File metadata.xml wasn't downloaded"
 
 
-class SearchTestCase(LiveServerTestCase):
+class SearchUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SearchTestCase, self).setUpClass()
+        super(SearchUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SearchTestCase, self).tearDownClass()
+        super(SearchUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -1084,19 +1082,19 @@ class SearchTestCase(LiveServerTestCase):
                         self.assertLessEqual(first, second)
 
 
-class ColumnSelectTestCase(LiveServerTestCase):
+class ColumnSelectUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ColumnSelectTestCase, self).setUpClass()
+        super(ColumnSelectUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(ColumnSelectTestCase, self).tearDownClass()
+        super(ColumnSelectUITestCase, self).tearDownClass()
 
     def check_select_columns(self, location):
         """
@@ -1185,8 +1183,6 @@ class ColumnSelectTestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             self.check_select_columns('search')
-            driver.find_element_by_css_selector('input.js-select-all').click()
-            driver.find_element_by_css_selector('button.add-to-cart-btn').click()
             time.sleep(5)
             self.check_select_columns('cart')
 
@@ -1241,19 +1237,19 @@ class ColumnSelectTestCase(LiveServerTestCase):
             self.assertEqual(visible, default_count)
 
 
-class ResetFiltersTestCase(LiveServerTestCase):
+class ResetFiltersUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(ResetFiltersTestCase, self).setUpClass()
+        super(ResetFiltersUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(ResetFiltersTestCase, self).tearDownClass()
+        super(ResetFiltersUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -1471,19 +1467,19 @@ class BatchSearchUITestCase(LiveServerTestCase):
         self.assertTrue(popup.is_displayed())
 
 
-class SkipNavTestCase(LiveServerTestCase):
+class SkipNavUITestCase(LiveServerTestCase):
 
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
         self.selenium.implicitly_wait(5)
-        super(SkipNavTestCase, self).setUpClass()
+        super(SkipNavUITestCase, self).setUpClass()
 
     @classmethod
     def tearDownClass(self):
         time.sleep(1)
         self.selenium.quit()
-        super(SkipNavTestCase, self).tearDownClass()
+        super(SkipNavUITestCase, self).tearDownClass()
 
     def tearDown(self):
         self.selenium.delete_all_cookies()
@@ -1513,7 +1509,7 @@ class SkipNavTestCase(LiveServerTestCase):
             self.assertEqual(links.size['height'], 0)
 
 
-class TabbingTestCase(LiveServerTestCase):
+class TabbingUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1645,10 +1641,8 @@ class TabbingTestCase(LiveServerTestCase):
             )
             self.check_tabbing(elements)
 
-    # TODO: add test for batch search
 
-
-class TableNavigationTestCase(LiveServerTestCase):
+class TableNavigationUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1707,7 +1701,8 @@ class TableNavigationTestCase(LiveServerTestCase):
             popup = driver.find_element_by_css_selector('#itemDetailsModal')
             assert popup.is_displayed()
             # close popup
-            driver.find_element_by_xpath("//button[@data-dismiss='modal']").click()
+            driver.find_element_by_xpath(
+                    "//button[@data-dismiss='modal']").click()
             time.sleep(1)
             # try to open details page using ctrl + enter
             # CONTROL + ENTER doesn't work in selenium, no idea why
@@ -1732,7 +1727,8 @@ class TableNavigationTestCase(LiveServerTestCase):
             time.sleep(1)
             last_column = TEST_SETTINGS['TABLE_COLUMNS'][-1]
             column_attr = COLUMN_NAMES[last_column]
-            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            th = driver.find_element_by_xpath(
+                    "//th[@id='id-col-%s']" % column_attr)
             self.assertFalse(th.is_displayed())
             for i in TEST_SETTINGS['TABLE_COLUMNS']:
                 self.ac.key_down(Keys.ALT)
@@ -1740,7 +1736,8 @@ class TableNavigationTestCase(LiveServerTestCase):
                 self.ac.key_up(Keys.ARROW_RIGHT)
             self.ac.perform()
             time.sleep(5)
-            th = driver.find_element_by_xpath("//th[@id='id-col-%s']" % column_attr)
+            th = driver.find_element_by_xpath(
+                    "//th[@id='id-col-%s']" % column_attr)
             self.assertTrue(th.is_displayed())
 
 
@@ -1757,7 +1754,7 @@ HELP_TEST_SETTINGS['HELP_HINTS'] = {
 }
 
 
-class HelpHintsTestCase(LiveServerTestCase):
+class HelpHintsUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
@@ -1788,7 +1785,8 @@ class HelpHintsTestCase(LiveServerTestCase):
         tooltip = self.selenium.find_element_by_css_selector('.js-tooltip')
         assert tooltip.is_displayed()
         # hide tooltip
-        search_field = self.selenium.find_element_by_css_selector('.navbar-search .search-query')
+        search_field = self.selenium.find_element_by_css_selector(
+                '.navbar-search .search-query')
         search_field.click()
         time.sleep(1)
 

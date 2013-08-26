@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
-<lst name="responseHeader"><int name="status">0</int><int name="QTime">1</int><lst name="params"><str name="q">analysis_id:00b27c0f-acf5-434c-8efa-25b1f3c4f506</str><str name="rows">1000000</str><str name="fl">analysis_id,last_modified,state,filesize</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="analysis_id">00b27c0f-acf5-434c-8efa-25b1f3c4f506</str><arr name="filesize"><long>7564907383</long><long>6073128</long></arr><date name="last_modified">2013-07-03T22:05:01Z</date><str name="state">live</str></doc></result>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">4</int><lst name="params"><str name="q">analysis_id:00b27c0f-acf5-434c-8efa-25b1f3c4f506</str><str name="rows">1000000</str><str name="fl">analysis_id,last_modified,state,filesize</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="analysis_id">00b27c0f-acf5-434c-8efa-25b1f3c4f506</str><arr name="filesize"><long>7564907383</long><long>6073128</long></arr><date name="last_modified">2013-07-03T22:05:01Z</date><str name="state">live</str></doc></result>
 </response>
