@@ -329,9 +329,13 @@ jQuery(function ($) {
         },
         applyFilters:function () {
             var filters = cghub.search.getFiltersValues();
-            var href = URI(location.href);
+            var href = URI(cghub.search.$applyFiltersButton.data('search-url'));
             if(!filters['is_error']) {
-                window.location.href = href.search(filters['filters']);
+                if($.isEmptyObject(filters['filters'])) {
+                    window.location.href = href;
+                } else {
+                    window.location.href = href.search(filters['filters']);
+                }
             }
             $(this).blur();
         },

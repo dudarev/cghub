@@ -4,6 +4,6 @@
     {% render_filters %}
     <div class="search-btn-group">
         <button class="btn js-common-tooltip" id="id_reset_filters" type="reset" data-key="filters-reset-button" data-url="{% url home_page %}" tabindex="48">Reset filters</button>
-        <button class="btn js-common-tooltip" id="id_apply_filters" type="submit" data-key="filters-apply-button" tabindex="49">Apply filters</button>
+        <button class="btn js-common-tooltip" id="id_apply_filters" type="submit" data-key="filters-apply-button" tabindex="49" data-search-url="{% url search_page %}">Apply filters</button>
     </div>
 </div>

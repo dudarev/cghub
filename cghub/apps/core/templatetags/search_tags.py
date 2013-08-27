@@ -206,7 +206,8 @@ def applied_filters(request):
                     if option not in filters:
                         break
                 else:
-                    filters_str += ', <span>%s </span>' % (ALL_FILTERS[f]['filters'][value])
+                    filters_str += ', <span>%s </span>' % (
+                            ALL_FILTERS[f]['filters'].get(value))
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -215,10 +216,12 @@ def applied_filters(request):
         for value in filters:
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
-            if ALL_FILTERS[f]['filters'][value] == value or f == 'state':
-                filters_str += ', <span>%s </span>' % (ALL_FILTERS[f]['filters'][value])
+            if ALL_FILTERS[f]['filters'].get(value) == value or f == 'state':
+                filters_str += ', <span>%s </span>' % (
+                        ALL_FILTERS[f]['filters'].get(value))
             else:
-                filters_str += ', <span>%s (%s)</span>' % (ALL_FILTERS[f]['filters'][value], value)
+                filters_str += ', <span>%s (%s)</span>' % (
+                        ALL_FILTERS[f]['filters'].get(value), value)
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])

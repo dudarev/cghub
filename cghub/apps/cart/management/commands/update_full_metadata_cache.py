@@ -41,6 +41,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Searching for outdated analysises ...\n')
+        self.stderr.write('Searching for outdated analysises ...\n')
 
         api_request = RequestMinimal(query={})
         for result in api_request.call():
@@ -61,6 +62,7 @@ class Command(BaseCommand):
                 self.stderr.write('- %s was updated\n' % analysis.analysis_id)
 
         self.stdout.write('Downloading not existent cache ...\n')
+        self.stderr.write('Downloading not existent cache ...\n')
         self.done_count = 0
         self.error_count = 0
 
@@ -84,6 +86,8 @@ class Command(BaseCommand):
             self.process_tasks()
 
         self.stdout.write(
+                '---\n%d cache files were updated.\n' % self.done_count)
+        self.stderr.write(
                 '---\n%d cache files were updated.\n' % self.done_count)
         if self.error_count:
             raise CommandError(
