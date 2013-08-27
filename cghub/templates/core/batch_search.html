@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static from staticfiles %}
-
+{% block description %}{{ block.super }}{% endblock %}
 {% block title %}Batch search - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     {% if debug %}

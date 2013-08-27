@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static from staticfiles %}
+{% block description %}{{ block.super }}{% endblock %}
 {% block title %}Server error - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=1" media="all">
