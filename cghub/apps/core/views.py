@@ -129,21 +129,17 @@ class SearchView(TemplateView):
 
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        # set default query if no query specified
-        if not get_filters_dict(request.GET) and not 'q' in request.GET:
-            return HttpResponseRedirect(
-                    reverse('search_page') + '?' + query_dict_to_str(
-                                            settings.DEFAULT_FILTERS))
-        return super(SearchView, self).dispatch(request, *args, **kwargs)
-
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         response = self.render_to_response(context)
         # save current query to cookie
-        if request.GET and response.status_code == 200:
+        if response.status_code == 200:
+            if request.GET:
+                query = request.GET.urlencode(safe='()[]*')
+            else:
+                query = ''
             response.set_cookie(settings.LAST_QUERY_COOKIE,
-                    request.GET.urlencode(safe='()[]*'),
+                    query,
                     max_age=settings.COOKIE_MAX_AGE,
                     path=reverse('home_page'))
             response.set_cookie(settings.PAGINATOR_LIMIT_COOKIE,

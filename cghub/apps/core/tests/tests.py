@@ -9,15 +9,15 @@ from mock import patch
 from cghub_python_api import SOLRRequest
 
 from django.conf import settings
-from django.utils import timezone
-from django.core.urlresolvers import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test.testcases import TestCase
-from django.test.client import RequestFactory
-from django.template import Template, Context, RequestContext
-from django.http import HttpRequest, QueryDict
-from django.utils.importlib import import_module
 from django.contrib.sessions.models import Session
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.urlresolvers import reverse
+from django.utils import timezone
+from django.utils.importlib import import_module
+from django.template import Template, Context, RequestContext
+from django.test.client import RequestFactory
+from django.test.testcases import TestCase
+from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
@@ -86,14 +86,36 @@ class CoreTestCase(TestCase):
         self.assertContains(response, reverse('help_hint'))
         self.assertContains(response, reverse('help_text'))
 
+    def test_index_redirect_to_search_if_get_specified(self):
+        response = self.client.get('/', {'state': '(live)'})
+        self.assertRedirects(response, '%s?%s' % (
+                reverse('search_page'),
+                'state=%28live%29'))
+
+    def test_bad_filter(self):
+        response = self.client.get(reverse('search_page'), {
+                'state': 'notexistent'})
+        self.assertEqual(response.status_code, 200)
+
     def test_non_existent_search(self):
-        response = self.client.get('/search/?q=non_existent_search_query')
+        response = self.client.get(reverse('search_page'), {
+                'q': 'non_existent_search_query'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('No results found' in response.content)
 
     def test_existent_search(self):
-        response = self.client.get('/search/?q=%s' % self.query)
+        response = self.client.get(reverse('search_page'), {
+                'q': '%s' % self.query})
         self.assertEqual(response.status_code, 200)
+
+    def test_search_all(self):
+        response = self.client.get(reverse('search_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No applied filters')
+        # test empty last_query is saved
+        response = self.client.get(reverse('home_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No applied filters')
 
     def test_item_details_view(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'

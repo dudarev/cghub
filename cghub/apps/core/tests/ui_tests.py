@@ -862,65 +862,153 @@ class SearchUITestCase(LiveServerTestCase):
         10. Check that first center selected
         11. Check that first center name not exists in url
         """
-        self.selenium.get(self.live_server_url)
-        time.sleep(3)
-        filter_name = 'center_name'
-        filter_object = ALL_FILTERS[filter_name]
-        options = filter_object['filters']
-        self.assertTrue(len(options) > 1)
-        self.assertNotIn(filter_name, TEST_SETTINGS['DEFAULT_FILTERS'])
-        # select first center
-        scroll_page_to_filter(self.selenium, filter_name)
-        self.selenium.find_element_by_css_selector(
-                "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
-        # unselect all
-        self.selenium.find_element_by_id(
-                "ddcl-id-{0}-i{1}".format(filter_name, 0)).click()
-        option_name = self.selenium.find_element_by_xpath(
-                "//label[@for='ddcl-id-{0}-i{1}']".format(filter_name, 1)).text
-        option_attribute = None
-        for key, value in options.iteritems():
-            if value == option_name:
-                option_attribute = key
-                break
-        self.assertTrue(option_attribute)
-        # check url
-        url = unquote(self.selenium.current_url)
-        self.assertNotIn(option_attribute, url)
-        # check selected options
-        self.assertNotIn(
-                option_name,
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            filter_name = 'center_name'
+            filter_object = ALL_FILTERS[filter_name]
+            options = filter_object['filters']
+            self.assertTrue(len(options) > 1)
+            self.assertNotIn(filter_name, TEST_SETTINGS['DEFAULT_FILTERS'])
+            # select first center
+            scroll_page_to_filter(self.selenium, filter_name)
+            self.selenium.find_element_by_css_selector(
+                    "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
+            # unselect all
+            self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 0)).click()
+            option_name = self.selenium.find_element_by_xpath(
+                    "//label[@for='ddcl-id-{0}-i{1}']".format(filter_name, 1)).text
+            option_attribute = None
+            for key, value in options.iteritems():
+                if value == option_name:
+                    option_attribute = key
+                    break
+            self.assertTrue(option_attribute)
+            # check url
+            url = unquote(self.selenium.current_url)
+            self.assertNotIn(option_attribute, url)
+            # check selected options
+            self.assertNotIn(
+                    option_name,
+                    self.selenium.find_element_by_id(
+                            "id-{0}-ui-selector".format(filter_name)).text)
+            # select first filter
+            self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
+            # and close filter DDCL
+            self.selenium.find_element_by_css_selector(
+                    "#ddcl-id-{0} > span:last-child > span".format(filter_name)).click()
+            # check selected options
+            self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_id(
+                            "id-{0}-ui-selector".format(filter_name)).text)
+            # submit form
+            self.selenium.find_element_by_id("id_apply_filters").click()
+            # check url
+            url = unquote(self.selenium.current_url)
+            self.assertIn(option_attribute, url)
+            # Go to cart page and back
+            self.selenium.get(self.live_server_url + reverse('cart_page'))
+            time.sleep(1)
+            self.selenium.get(self.live_server_url)
+            time.sleep(2)
+            # check url
+            url = unquote(self.selenium.current_url)
+            self.assertNotIn(option_attribute, url)
+            # check selected options
+            self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_id(
+                            "id-{0}-ui-selector".format(filter_name)).text)
+
+    def test_save_last_query(self):
+        """
+        1. Go to home page (query by default)
+        2. Unselect default filters
+        3. Apply filters
+        4. Go to home page
+        5. Check that no filters applied
+        6. Select one filter option
+        7. Apply filters
+        8. Go to home page
+        9. Check that filter is applied
+        """
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            url = unquote(self.selenium.current_url)
+            self.assertFalse(url.endswith(reverse('search_page')))
+            self.assertNotIn(
+                    'No applied filters',
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
+            # unselect default filters
+            for f in TEST_SETTINGS['DEFAULT_FILTERS']:
+                scroll_page_to_filter(self.selenium, f)
+                self.selenium.find_element_by_css_selector(
+                        "#ddcl-id-{0} > span:first-child > span".format(f)).click()
+                # select all
                 self.selenium.find_element_by_id(
-                        "id-{0}-ui-selector".format(filter_name)).text)
-        # select first filter
-        self.selenium.find_element_by_id(
-                "ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
-        # and close filter DDCL
-        self.selenium.find_element_by_css_selector(
-                "#ddcl-id-{0} > span:last-child > span".format(filter_name)).click()
-        # check selected options
-        self.assertIn(
-                option_name,
-                self.selenium.find_element_by_id(
-                        "id-{0}-ui-selector".format(filter_name)).text)
-        # submit form
-        self.selenium.find_element_by_id("id_apply_filters").click()
-        # check url
-        url = unquote(self.selenium.current_url)
-        self.assertIn(option_attribute, url)
-        # Go to cart page and back
-        self.selenium.get(self.live_server_url + reverse('cart_page'))
-        time.sleep(1)
-        self.selenium.get(self.live_server_url)
-        time.sleep(2)
-        # check url
-        url = unquote(self.selenium.current_url)
-        self.assertNotIn(option_attribute, url)
-        # check selected options
-        self.assertIn(
-                option_name,
-                self.selenium.find_element_by_id(
-                        "id-{0}-ui-selector".format(filter_name)).text)
+                        "ddcl-id-{0}-i{1}".format(f, 0)).click()
+                # close filter DDCL
+                self.selenium.find_element_by_css_selector(
+                        "#ddcl-id-{0} > span:last-child > span".format(f)).click()
+            # submit form
+            self.selenium.find_element_by_id("id_apply_filters").click()
+            time.sleep(2)
+            url = unquote(self.selenium.current_url)
+            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(
+                    'No applied filters',
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
+            # go to home page, check that filters are the same
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(
+                    'No applied filters',
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
+            # select one option in center_name filter
+            filter_name = 'center_name'
+            filter_object = ALL_FILTERS[filter_name]
+            options = filter_object['filters']
+            self.assertTrue(len(options) > 1)
+            # select first option
+            scroll_page_to_filter(self.selenium, filter_name)
+            self.selenium.find_element_by_css_selector(
+                    "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
+            # unselect all
+            self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 0)).click()
+            option_name = self.selenium.find_element_by_xpath(
+                    "//label[@for='ddcl-id-{0}-i{1}']".format(filter_name, 1)).text
+            self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
+            # and close filter DDCL
+            self.selenium.find_element_by_css_selector(
+                    "#ddcl-id-{0} > span:last-child > span".format(filter_name)).click()
+            self.assertNotIn(
+                    option_name,
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
+            # submit form
+            self.selenium.find_element_by_id("id_apply_filters").click()
+            time.sleep(2)
+            self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
+            # go to home page
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_xpath(
+                            '//div[@class="applied-filters"]').text)
 
     def test_search_result(self):
         """
