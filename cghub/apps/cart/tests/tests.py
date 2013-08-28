@@ -111,6 +111,20 @@ class CartUtilsTestCase(TestCase):
                 'state': 'live',
                 'files_size': 12345}
         my_cart.add(result)
+        # Analysis was modified
+        result = {
+                'analysis_id': analysis1.analysis_id,
+                'last_modified': '3000-01-01T11:11:11Z',
+                'state': 'bad',
+                'files_size': 54321}
+        self.assertNotEqual(analysis1.last_modified, result['last_modified'])
+        self.assertNotEqual(analysis1.state, result['state'])
+        self.assertNotEqual(analysis1.files_size, result['files_size'])
+        my_cart.add(result)
+        analysis1 = Analysis.objects.get(analysis_id=analysis1.analysis_id)
+        self.assertEqual(analysis1.last_modified, result['last_modified'])
+        self.assertEqual(analysis1.state, result['state'])
+        self.assertEqual(analysis1.files_size, result['files_size'])
 
     def test_clear_cart(self):
         create_session(self)
