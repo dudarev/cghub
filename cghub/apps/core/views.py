@@ -284,6 +284,7 @@ class ItemDetailsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         api_request = RequestFull(query={'analysis_id': kwargs['analysis_id']})
+        is_ajax = bool(self.request.GET.get('ajax') or self.request.is_ajax())
         try:
             result = api_request.call().next()
             xml = result['xml']
@@ -295,6 +296,7 @@ class ItemDetailsView(TemplateView):
             return {
                 'res': result,
                 'raw_xml': xml,
+                'is_ajax': is_ajax,
                 'analysis_id': kwargs['analysis_id']}
         except StopIteration:
             pass

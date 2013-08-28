@@ -1,7 +1,7 @@
 {% load search_tags %}
 
 {% if res %}
-    {% if request.is_ajax %}
+    {% if is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
         <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% else %}
@@ -11,7 +11,7 @@
         <caption class="hidden">returned file details</caption>
         {% details_table res %}
     </table>
-    {% if request.is_ajax %}
+    {% if is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
         <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
     {% else %}

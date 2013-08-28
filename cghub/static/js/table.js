@@ -45,7 +45,8 @@ jQuery(function ($) {
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
-                        modal.find('.modal-body').load($tr.attr('data-details-url'), function(response, status, xhr){
+                        // ajax is hack for for IE10
+                        modal.find('.modal-body').load($tr.attr('data-details-url')+'?ajax=1', function(response, status, xhr){
                             if (status == "error") {
                                 modal.find('.modal-body').html('There was an error loading data. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>');
                             } else {
