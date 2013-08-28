@@ -142,6 +142,7 @@ class CoreTestCase(TestCase):
         response = self.client.get(
                         reverse('item_details',
                         kwargs={'analysis_id': analysis_id}),
+                        {'ajax': 1},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, result['center_name'])
