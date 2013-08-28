@@ -44,8 +44,13 @@ jQuery(function ($) {
             });
         },
         clearForm:function () {
+            var $fileinput = cghub.batch_search.$form.find('input[type=file]');
             if (cghub.batch_search.$form.length) {
-                cghub.batch_search.$form.find('input[type=file]').val('');
+                if ($.browser.msie) {
+                    $fileinput.replaceWith($fileinput.clone());
+                } else {
+                    $fileinput.val('');
+                }
                 cghub.batch_search.$form.find('textarea').val('');
             }
             return false;
