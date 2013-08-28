@@ -78,7 +78,11 @@ class Cart(object):
         try:
             analysis = Analysis.objects.get(analysis_id=analysis_id)
             if analysis.last_modified != result['last_modified']:
-                update_analysis(analysis_id)
+                # update analysis
+                analysis.state = result['state']
+                analysis.files_size = result['files_size']
+                analysis.last_modified = result['last_modified']
+                analysis.save()
             item = CartItem(
                     cart=self.cart,
                     analysis=analysis)
