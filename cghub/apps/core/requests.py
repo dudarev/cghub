@@ -13,9 +13,10 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from .templatetags.search_tags import file_size as file_size_to_str
 from .attributes import (
         ATTRIBUTES, SORT_BY_ATTRIBUTES, ADDITIONAL_ATTRIBUTES)
+from .templatetags.search_tags import file_size as file_size_to_str
+from .utils import makedirs_group_write
 
 
 if settings.API_TYPE == 'WSAPI':
@@ -43,7 +44,7 @@ def get_from_test_cache(url, format='xml'):
     }
     CACHE_DIR = settings.TEST_CACHE_DIR
     if not os.path.exists(CACHE_DIR) or not os.path.isdir(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
+        makedirs_group_write(CACHE_DIR)
     md5 = hashlib.md5(url)
     path = os.path.join(CACHE_DIR, '%s_%s.%s.cache' % (
             settings.API_TYPE.lower(), md5.hexdigest(), format))
@@ -261,3 +262,16 @@ class ResultFromSOLRFile(SOLRRequest):
     def get_xml_file(self, url):
         filename = self.query['filename']
         return codecs.open(filename, 'r')
+
+
+def get_results_for_ids(ids):
+    """
+    Obtain all necessary attributes for specified analysis_ids
+    """
+    if not ids:
+        return []
+    api_request = RequestDetail(query={'analysis_id': ids})
+    results = []
+    for result in api_request.call():
+        results.append(result)
+    return results

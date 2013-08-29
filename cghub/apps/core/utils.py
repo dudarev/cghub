@@ -4,11 +4,11 @@ import socket
 import csv
 import cStringIO
 import codecs
+import errno
 
 from django.conf import settings
 
 from .filters_storage import ALL_FILTERS
-from .requests import RequestDetail
 
 
 ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
@@ -115,7 +115,11 @@ def makedirs_group_write(path):
     "create a directory, including missing parents, ensuring it has group write permissions"
     old_mask = os.umask(0002)
     try:
-        os.makedirs(path)
+        try: 
+            os.makedirs(path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
     finally:
         os.umask(old_mask)
 
@@ -128,19 +132,6 @@ def generate_tmp_file_name():
     return '{pid}-{thread}-{host}.tmp'.format(
                     pid=os.getpid(), thread=threading.current_thread().name,
                     host=socket.gethostname())
-
-
-def get_results_for_ids(ids):
-    """
-    Obtain all necessary attributes for specified analysis_ids
-    """
-    if not ids:
-        return []
-    api_request = RequestDetail(query={'analysis_id': ids})
-    results = []
-    for result in api_request.call():
-        results.append(result)
-    return results
 
 
 class CSVUnicodeWriter:

@@ -29,11 +29,11 @@ from ..templatetags.search_tags import (
 from ..templatetags.core_tags import without_header
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
-                    paginator_params, generate_tmp_file_name,
-                    get_results_for_ids)
+                    paginator_params, generate_tmp_file_name)
 from ..requests import (
                     RequestFull, RequestDetail, RequestID,
-                    ResultFromSOLRFile, build_wsapi_xml)
+                    ResultFromSOLRFile, build_wsapi_xml,
+                    get_results_for_ids)
 from ..views import error_500
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
