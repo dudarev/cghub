@@ -638,7 +638,7 @@ class BatchSearchTestCase(TestCase):
         data = {'text': 'badtext'}
         response = self.client.post(reverse('batch_search_page'), data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No valid ids was found')
+        self.assertContains(response, 'No valid ids were found')
         # submit not existed analysis_id
         data = {
             'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '

@@ -73,8 +73,11 @@ ALL_FILTERS = OrderedDict([
         "title": "By Disease",
         "filters": OrderedDict([
             ("ACC",  "Adrenocortical carcinoma"),
+            {"ALL",  "Acute Lymphoblastic Leukemia"},
+            {"AML",  "Acute Myeloid Leukemia"},
             ("BLCA", "Bladder Urothelial Carcinoma"),
             ("BRCA", "Breast invasive carcinoma"),
+            {"CCSK", "Clear Cell Sarcoma of the Kidney"},
             ("CESC", "Cervical squamous cell carcinoma and endocervical adenocarcinoma"),
             ("CNTL", "Controls"),
             ("COAD", "Colon adenocarcinoma"),
@@ -95,6 +98,8 @@ ALL_FILTERS = OrderedDict([
             ("MESO", "Mesothelioma"),
             ("MISC", "Miscellaneous"),
             ("MM",   "Multiple Myeloma Plasma cell leukemia"),
+            {"NBL",  "Neuroblastoma"},
+            {"OS",   "Osteosarcoma"},
             ("OV",   "Ovarian serous cystadenocarcinoma"),
             ("PAAD", "Pancreatic adenocarcinoma"),
             ("PCPG", "Pheochromocytoma and Paraganglioma"),
@@ -107,6 +112,7 @@ ALL_FILTERS = OrderedDict([
             ("UCEC", "Uterine Corpus Endometrioid Carcinoma"),
             ("UCS",  "Uterine Carcinosarcoma"),
             ("UVM",  "Uveal Melanoma"),
+            {"WT",   "Wilms Tumor"},
         ]),
     }),
     ("sample_type", {

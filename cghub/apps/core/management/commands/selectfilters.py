@@ -48,7 +48,6 @@ def get_all_filters(stdout, key, start='', count_all=None):
                         filters.append(f)
     return filters
 
-
 class Command(BaseCommand):
     help = 'Check what filters are used.'
 

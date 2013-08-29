@@ -53,7 +53,7 @@ CART-3	Cart statistics on cart page	There is information on cart page: number of
 CART-4	Number of files in the cart is shown in Cart navigation link	For instance, the cart link in the navigator bar next to browser and help (top left) has the total number of itmes in the cart "Cart (1386)"
 CART-5	Items may be removed from the cart	When checkboxes are checked and 'Remove from cart' button is clicked, the corresponding items will be removed from the cart. 
 CART-6	All items may be removed from cart by click on 'Clear cart' button	When user clicks 'Clear cart' button, cart is being cleared, no matter if checkboxes are selected or not. 
-CART-7	Select all checkbox works the same way, on the cart page, as in "browser search results area (main results area/home page)	see CART-2 
+CART-7	Select all checkbox works the same way, on the cart page, as in browser search results area (main results area/home page)	see CART-2 
 CART-8	Headers may sort cart content	When clicking cart table headers, table content  is sorted correspondingly See SEARCH-7 
 CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart should be downloaded in XML format.  
 CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button is clicked, metadata for all items in the cart should be downloaded in XML format. 

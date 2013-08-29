@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static from staticfiles %}
+{% block title %}Batch search - {{ block.super }}{% endblock %}
+{% block extra_header_css %}
+    {% if debug %}
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/help.less' %}" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/help.css' %}?v=1" media="all">
+    {% endif %}
+{% endblock %}
+{% block main_content %}
+    <div class="span6 help-content">
+        <h1>Batch search</h1>
+        <p>The Batch search facility takes a list of identifiers and searches CGHub for all matching datasets.</p>
+
+        <p>The following types of identifiers may be used:</p>
+        <ul>
+          <li><b>Sample barcode</b> - This is a terse, human-readable identifier 
+            See the TCGA Wiki for a descriptions the TCGA barcode fields: https://wiki.nci.nih.gov/display/TCGA/TCGA+Barcode
+          <li><b>analysis id</b> - UUID of dataset at CGHub.  This is a stable id
+            that uniquely identifies one primary data file, that is a BAM or a
+            FASTQ.
+          <li><b>aliquot id</b> - UUID of the aliquot that was sequenced. A single
+            aliquot maybe have multiple CGHub multiple datasets.
+          <li><b>sample id</b> - UUID of the sample that was sequenced. A single
+            sample maybe have multiple CGHub multiple datasets.
+          <li><b>participant id</b> - UUID of the individual from which the sample
+            was obtained. A given patient maybe have multiple CGHub multiple
+            datasets.
+        </ul>
+
+        <p>Batch search identifiers may be entered by two methods:</p>
+        <ol>
+          <li>In the text input box, one per line
+          <li>Uploading a text file that contains one identifier per line
+          </ol>
+
+        <p>After submitting, the found datasets and unknown ids are displayed.
+        The list of found datasets may have entries removed and then the
+        remainder added to the cart.</p>
+    </div>
+{% endblock %}
+

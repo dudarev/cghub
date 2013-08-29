@@ -1463,7 +1463,7 @@ class BatchSearchUITestCase(LiveServerTestCase):
                 '//button[@type="submit"]').click()
         time.sleep(1)
         error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
-        self.assertIn('No valid ids was found', error)
+        self.assertIn('No valid ids were found', error)
         # enter not existent id
         textarea = self.selenium.find_element_by_xpath(
                 '//textarea[@id="id_text"]')

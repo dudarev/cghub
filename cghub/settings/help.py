@@ -10,7 +10,7 @@ keys have to be like this:
 
 
 HELP_HINTS = {
-    ## 
+    ##
     # Filters headers and buttons
     ##
     'common:filters-bar': 'Filter by metadata attributes',
@@ -44,7 +44,7 @@ HELP_HINTS = {
     'Sample Type': 'Type of the biological sample that was sequenced',
     'Sample Type Name': 'Description of the biological sample that was sequenced',
     'State': 'Current state of the data at CGHub',
-    'Barcode': 'Aliquot barcode. <a href="https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data">Click here for a detailed description of TCGA barcode</a>.',
+    'Barcode': 'Aliquot barcode. <a href="https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data">More information on TCGA barcodes</a>.',
     'Sample Accession': 'NCBI sample accession when available',
     'Files Size': 'Size of the data set (GB for gigabytes, MB for megabytes)',
     'Platform': 'Sequencing platform abbreviation',
@@ -61,13 +61,14 @@ HELP_HINTS = {
     'Study:CCLE': 'Cancer Cell Line Encyclopedia',
     'Study:TARGET': 'Therapeutically Applicable Research to Generate Effective Treatments',
     'Study:TARGET (ALL I)':  'TARGET: Acute Lymphoblastic Leukemia (ALL) Phase I Pilot',
-    'Study:TARGET (ALL II)': 'TARGET: Acute Lymphoblastic Leukemia (ALL) Phase II',     
-    'Study:TARGET (AML)':    'TARGET: Acute Myeloid Leukemia (AML)',                    
+    'Study:TARGET (ALL II)': 'TARGET: Acute Lymphoblastic Leukemia (ALL) Phase II',
+    'Study:TARGET (AML)':    'TARGET: Acute Myeloid Leukemia (AML)',
     'Study:TARGET (CCSK)':   'TARGET: Kidney - Clear Cell Sarcoma of the Kidney (CCSK)',
-    'Study:TARGET (NBL)':    'TARGET: Neuroblastoma (NBL)',                             
-    'Study:TARGET (OS)':     'TARGET: Osteosarcoma (OS)',                               
-    'Study:TARGET (PPTP)':   'TARGET: PPTP Cell Lines',                                 
-    'Study:TARGET (WT)':     'TARGET: Kidney - Wilms Tumor (WT)',                       
+    'Study:TARGET (NBL)':    'TARGET: Neuroblastoma (NBL)',
+    'Study:TARGET (OS)':     'TARGET: Osteosarcoma (OS)',
+    'Study:TARGET (PPTP)':   'TARGET: PPTP Cell Lines',
+    'Study:TARGET (WT)':     'TARGET: Kidney - Wilms Tumor (WT)',
+    'Study:CGCI':            'CGCI',
     'Study:TCGA Benchmark': 'TCGA Mutation Calling Benchmark 4 (artificial data)',
 
     ##
@@ -151,19 +152,19 @@ HELP_HINTS = {
     'Assembly:NCBI36/HG18 based': 'All assembly variants based on NCBI36/HG18',
     'Assembly:GRCh37/HG19 based': 'All assembly variants based on GRCh37/HG19',
 
-    'Assembly:NCBI-human-build36': 'NCBI human reference assembly build 36. <a href="../help/assemblies#NCBI-human-build36">Click here for more detailed information</a>.',
-    'Assembly:NCBI36_BCCAGSC_variant': 'A variant of the full NCBI36 human genome assembly used by the British Columbia Cancer Agency Genome Sciences Centre (BCCAGSC). <a href="../help/assemblies#NCBI36_BCCAGSC_variant">Click here for more detailed information</a>.',
-    'Assembly:NCBI36_BCM_variant': 'A variant of the full NCBI36 human genome assembly used by Baylor College of Medicine Human Genome Sequencing Center. <a href="../help/assemblies#NCBI36_BCM_variant">Click here for more detailed information</a>.',
-    'Assembly:NCBI36_WUGSC_variant': 'A variant of the full NCBI36 human genome assembly used by Washington University Genome Sequencing Center (WUGSC). <a href="../help/assemblies#NCBI36_WUGSC_variant">Click here for more detailed information</a>.',
-    'Assembly:HG18': 'UCSC variant of NCBI human reference assembly build 36. <a href="../help/assemblies#HG18">Click here for more detailed information</a>.',
-    'Assembly:HG18_Broad_variant': 'A variant of the NCBI36 human genome assembly used by the Broad Institute. <a href="../help/assemblies#HG18_Broad_variant">Click here for more detailed information</a>.',
+    'Assembly:NCBI-human-build36': 'NCBI human reference assembly build 36. <a href="../help/assemblies#NCBI-human-build36">More information on assemblies</a>.',
+    'Assembly:NCBI36_BCCAGSC_variant': 'A variant of the full NCBI36 human genome assembly used by the British Columbia Cancer Agency Genome Sciences Centre (BCCAGSC). <a href="../help/assemblies#NCBI36_BCCAGSC_variant">More information</a>.',
+    'Assembly:NCBI36_BCM_variant': 'A variant of the full NCBI36 human genome assembly used by Baylor College of Medicine Human Genome Sequencing Center. <a href="../help/assemblies#NCBI36_BCM_variant">More information</a>.',
+    'Assembly:NCBI36_WUGSC_variant': 'A variant of the full NCBI36 human genome assembly used by Washington University Genome Sequencing Center (WUGSC). <a href="../help/assemblies#NCBI36_WUGSC_variant">More information</a>.',
+    'Assembly:HG18': 'UCSC variant of NCBI human reference assembly build 36. <a href="../help/assemblies#HG18">More information</a>.',
+    'Assembly:HG18_Broad_variant': 'A variant of the NCBI36 human genome assembly used by the Broad Institute. <a href="../help/assemblies#HG18_Broad_variant">More information</a>.',
 
-    'Assembly:GRCh37': 'GRCh37 human genome assembly. <a href="../help/assemblies#GRCh37">Click here for more detailed information</a>.',
-    'Assembly:GRCh37-lite-+-HPV_Redux-build': 'A variant of the GRCh37-lite human genome assembly used by the Broad Institute that includes the HPV viral genome. <a href="../help/assemblies#GRCh37-lite_HPV_Redux-build">Click here for more detailed information</a>.',
-    'Assembly:GRCh37-lite': 'A subset of the full GRCh37 human genome assembly plus the human mitochondrial genome reference sequence. <a href="../help/assemblies#GRCh37-lite">Click here for more detailed information</a>.',
-    'Assembly:GRCh37_BI_Variant': 'A variant of the GRCh37-lite human genome assembly used by the Broad Institute. <a href="../help/assemblies#GRCh37_BI_Variant">Click here for more detailed information</a>.',
-    'Assembly:HG19': 'UCSC variant of GRCh37 human genome assembly. <a href="../help/assemblies#HG19">Click here for more detailed information</a>.',
-    'Assembly:HG19_Broad_variant': 'A variant of the GRCh37 human genome assembly used by the Broad Institute. <a href="../help/assemblies#HG19_Broad_variant">Click here for more detailed information</a>.',
+    'Assembly:GRCh37': 'GRCh37 human genome assembly. <a href="../help/assemblies#GRCh37">More information</a>.',
+    'Assembly:GRCh37-lite-+-HPV_Redux-build': 'A variant of the GRCh37-lite human genome assembly used by the Broad Institute that includes the HPV viral genome. <a href="../help/assemblies#GRCh37-lite_HPV_Redux-build">More information</a>.',
+    'Assembly:GRCh37-lite': 'A subset of the full GRCh37 human genome assembly plus the human mitochondrial genome reference sequence. <a href="../help/assemblies#GRCh37-lite">More information</a>.',
+    'Assembly:GRCh37_BI_Variant': 'A variant of the GRCh37-lite human genome assembly used by the Broad Institute. <a href="../help/assemblies#GRCh37_BI_Variant">More information</a>.',
+    'Assembly:HG19': 'UCSC variant of GRCh37 human genome assembly. <a href="../help/assemblies#HG19">More information</a>.',
+    'Assembly:HG19_Broad_variant': 'A variant of the GRCh37 human genome assembly used by the Broad Institute. <a href="../help/assemblies#HG19_Broad_variant">More information</a>.',
 
     ##
     # State
@@ -212,9 +213,9 @@ HELP_HINTS = {
     'common:browser-link': 'Main browser page',
     'common:cart-link': 'Management page for items you have selected',
     'common:help-link': 'Information on how to use the data browser',
-    'common:search-box': 'Text search of metadata. <a href="../help/overview#text-search">Click here for more detailed Information</a>.',
+    'common:search-box': 'Text search of metadata. <a href="../help/overview#text-search">More Information</a>.',
     'common:cghub-home-page-link': 'CGHub home page',
-    
+
     ##
     # Cart
     ##

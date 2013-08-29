@@ -63,7 +63,7 @@ class BatchSearchForm(forms.Form):
                 'submitted at once limited by %d' % settings.MAX_ITEMS_IN_QUERY)
 
         if not ids and not legacy_sample_ids:
-            raise forms.ValidationError('No valid ids was found')
+            raise forms.ValidationError('No valid ids were found')
 
         data['raw_ids'] = raw_ids
         data['ids'] = ids
