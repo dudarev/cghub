@@ -1,5 +1,5 @@
 # cghub stage/production config file
-import os, pwd
+import os, pwd, socket
 
 # Disable debug stack dump by default.  Also causes memory leaks if enabled
 DEBUG = False
@@ -8,7 +8,38 @@ ADMINS = (
   ('Mark Diekhans', 'markd@soe.ucsc.edu'),
 )
 
+isStaging = (socket.gethostname() == "app04")
+
+##
+# Configuration for WSAPI.
+# A different cache is currently requesired due to difference format of metadata.
+##
+API_TYPE="SOLR"
+#API_TYPE="WSAPI"
+
+if API_TYPE == "SOLR":
+    if isStaging:
+        CGHUB_SERVER = 'http://192.35.223.223:8080'
+        #CGHUB_SERVER = 'http://stage.cghub.ucsc.edu:8080'
+    else:
+        CGHUB_SERVER = 'http://app01:8080'
+else:
+    if isStaging:
+        #CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
+        CGHUB_SERVER = 'https://192.35.223.223'
+    else:
+        CGHUB_SERVER = 'https://cghub.ucsc.edu'
+
 FULL_METADATA_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/full_metadata_cache'
+
+
+# number of processes to use for  update_full_metadata_cache
+MULTIPROCESSING_CORES = 12
+
+# if user will try to add to cart more than specified number of files,
+# confirmation popup will be shown
+MANY_FILES = 2500
+
 
 DATABASES = {
     'default': {
@@ -57,7 +88,7 @@ LOGGING = {
         },
         'console':{  # writes Apache log, doens't truncate stacks
             #'level':'DEBUG',
-            'level':'CRITICAL',
+            'level':'ERROR',
             'class':'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -92,6 +123,3 @@ LOGGING = {
             },
         },
 }
-
-CGHUB_SERVER = 'https://cghub.ucsc.edu'
-#CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'

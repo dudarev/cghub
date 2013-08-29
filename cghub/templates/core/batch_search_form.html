@@ -5,9 +5,9 @@
             {{ form.non_field_errors }}
         </div>
     {% endif %}
-    <label for="id_text">List of ids:</label>
+    <label for="id_text">Enter one or more white-space or line seperated sample barcodes, or analysis, aliquot, sample, or participant UUIDs:</label>
     {{ form.text }}
-    <label for="id_upload">Or select file:</label>
+    <label for="id_upload">Or select file of identifiers:</label>
     {{ form.upload }}
 
     <div class="batch-submit">

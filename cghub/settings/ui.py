@@ -911,9 +911,9 @@ def study_resolver(val):
     return study
 
 def tss_resolver(tss_id):
-    if tss_id in ("", None):
-        return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
     tss_id = str(tss_id)  # FIXME: this should never be an int
+    if (tss_id == None) or (len(tss_id.strip()) == 0):
+        return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
     tss_desc = tss_id_to_description.get(tss_id)
     if tss_desc == None:
         return "[" + tss_id + "]"

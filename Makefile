@@ -49,6 +49,9 @@ else
 	$(MANAGE) $(CMD)
 endif
 
+update_full_metadata_cache:
+	$(MANAGE) update_full_metadata_cache
+
 only_migrate:
 ifndef APP_NAME
 	@echo Please, specify -e APP_NAME=appname argument
@@ -78,17 +81,6 @@ else
 	@echo Done
 endif
 
-#celerydLogOpt = --loglevel=INFO
-celerydLogOpt = --loglevel=DEBUG
-celeryd: celeryd_stop
-	$(MANAGE) celeryd_detach -E -Q celery ${celerydLogOpt} --pidfile=$(CELERYD_PID)
-	$(MANAGE) celerybeat --detach ${celerydLogOpt} --pidfile=$(CELERYBEAT_PID)
-	$(MANAGE) celerycam --detach ${celerydLogOpt} --pidfile=$(CELERYCAM_PID)
-
-
-celeryd_stop:
-	ps -ax | awk '/python.* celery/&& !/awk/{system("kill " $$1)}'
-
 less:
 	grunt-less --config cghub/grunt.js less
 
@@ -97,10 +89,6 @@ minjs:
 
 selectfilters:
 	$(MANAGE) selectfilters
-
-selectfilters_clean:
-	# clean previously checked filters
-	$(MANAGE) selectfilters -c
 
 ##
 # cghub specific setup targets.
@@ -117,8 +105,11 @@ cghub-setup:
 	find ${CGHUB_APP_DIR} -type d |xargs chmod g+rwxs
 	chmod -R g+w ${CGHUB_APP_DIR}
 
+# restart all daemons
+restart: http_restart
+
 # restart http [checks for FreeBSD and Linux]
-restart:
+http_restart:
 ifneq ($(wildcard /usr/local/etc/rc.d/apache22),)
 	sudo /usr/local/etc/rc.d/apache22 restart
 else
