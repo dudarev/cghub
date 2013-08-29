@@ -716,6 +716,19 @@ class SearchViewPaginationTestCase(TestCase):
         self.assertContains(response, 'Prev')
         self.assertContains(response, 'Next')
 
+    def test_pagination_limit_saved_in_cookie(self):
+        """
+        If offset is not specified in get, then will be used
+        offset saved in cookie or default offset.
+        """
+        request = get_request()
+        context = {'request': request, 'num_results': 100}
+        result = Paginator(context)
+        self.assertEqual(result.pages_count, 10)
+        context['request'].COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
+        result = Paginator(context)
+        self.assertEqual(result.pages_count, 4)
+
     def test_redirect_from_home_page(self):
         """
         Test redirect from home page if any GET parameters are specified.

@@ -262,7 +262,9 @@ class BatchSearchView(TemplateView):
 
                 ids = sorted(ids)
                 results = []
-                for i in ids[:settings.DEFAULT_PAGINATOR_LIMIT]:
+
+                offset, limit = paginator_params(request)
+                for i in ids[offset:offset + limit]:
                     results.append(i)
 
                 results = get_results_for_ids(results)
