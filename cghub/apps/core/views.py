@@ -17,9 +17,9 @@ from cghub.apps.cart.utils import item_metadata, Cart
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .utils import (
-                get_filters_dict, query_dict_to_str,
-                paginator_params, get_results_for_ids)
-from .requests import RequestDetail, RequestID, RequestFull
+            get_filters_dict, query_dict_to_str, paginator_params)
+from .requests import (
+            RequestDetail, RequestID, RequestFull, get_results_for_ids)
 from .forms import BatchSearchForm, AnalysisIDsForm
 
 

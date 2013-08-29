@@ -7,10 +7,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import simplejson as json
 
 from cghub.apps.core import browser_text_search
-from cghub.apps.core.utils import (
-                    get_filters_dict, paginator_params,
-                    get_results_for_ids)
-from cghub.apps.core.requests import RequestMinimal
+from cghub.apps.core.utils import get_filters_dict, paginator_params
+from cghub.apps.core.requests import RequestMinimal, get_results_for_ids
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedItemsForm, AllItemsForm
