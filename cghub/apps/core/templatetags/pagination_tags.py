@@ -15,21 +15,8 @@ class Paginator(object):
 
         # num_results
         self.num_results = self.context['num_results']
-        request = context['request']
 
-        # limit
-        limit = request.GET.get('limit')
-        if limit and limit.isdigit():
-            self.limit = int(limit)
-        else:
-            self.limit = settings.DEFAULT_PAGINATOR_LIMIT
-
-        # offset
-        offset = request.GET.get('offset')
-        if offset and offset.isdigit():
-            self.offset = int(offset)
-        else:
-            self.offset = 0
+        self.offset, self.limit = paginator_params(context['request'])
 
         # is_paginated
         self.is_paginated = self.limit or self.offset
