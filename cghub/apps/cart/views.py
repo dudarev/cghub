@@ -9,6 +9,7 @@ from django.utils import simplejson as json
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.utils import get_filters_dict, paginator_params
 from cghub.apps.core.requests import RequestMinimal, get_results_for_ids
+from cghub.apps.core.forms import AnalysisIDsForm
 
 import cghub.apps.cart.utils as cart_utils
 from .forms import SelectedItemsForm, AllItemsForm
@@ -117,15 +118,14 @@ class CartAddRemoveFilesView(View):
         if 'add' == action:
             return cart_add_files(request)
         if 'remove' == action:
-            cart = Cart(request.session)
-            for analysis_id in request.POST.getlist('selected_files'):
-                cart.remove(analysis_id)
-            cart.update_stats()
-            params = request.META.get('HTTP_REFERER', '')
-            url = reverse('cart_page')
-            if params.find('/?') != -1:
-                url += params[params.find('/?') + 1:len(params)]
-            return HttpResponseRedirect(url)
+            form = AnalysisIDsForm(request.POST or None)
+            if form.is_valid():
+                cart = Cart(request.session)
+                for analysis_id in form.cleaned_data['ids']:
+                    cart.remove(analysis_id)
+                cart.update_stats()
+        url = reverse('cart_page')
+        return HttpResponseRedirect(url)
 
     def get(self, request, action):
         raise Http404

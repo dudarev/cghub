@@ -430,7 +430,7 @@ class TemplateTagsTestCase(TestCase):
     def test_items_per_page_tag(self):
         request = HttpRequest()
         default_limit = settings.DEFAULT_PAGINATOR_LIMIT
-        default_limit_link = ('<a href="?limit={limit}"><span class="hidden">'
+        default_limit_link = ('<a href="?limit={limit}&amp;offset=0"><span class="hidden">'
                 'view </span>{limit}'.format(limit=default_limit))
 
         request.GET = QueryDict('', mutable=False)
@@ -438,7 +438,7 @@ class TemplateTagsTestCase(TestCase):
                 "{% load pagination_tags %}{% items_per_page request " +
                 str(default_limit) + " 100 %}")
         result = template.render(RequestContext(request, {}))
-        self.assertIn('<a href="?limit=100"><span class="hidden">view </span>100', result)
+        self.assertIn('<a href="?limit=100&amp;offset=0"><span class="hidden">view </span>100', result)
         self.assertTrue(not default_limit_link in result)
 
         request.GET = QueryDict('limit=100', mutable=False)
@@ -446,6 +446,22 @@ class TemplateTagsTestCase(TestCase):
         self.assertTrue(not '<a href="?limit=100" '
                     'title="View 100 items per page">100</a>' in result)
         self.assertTrue(default_limit_link in result)
+
+        # test offset
+        # offset=10, limit=10 -> offset=0, limit=25
+        # offset=20, limit=10 -> offset=0, limit=25
+        # offset=30, limit=10 -> offset=25, limit=25
+        template = Template(
+                "{% load pagination_tags %}{% items_per_page request " +
+                "10 25 %}")
+        request.GET = QueryDict('limit=10&offset=10', mutable=False)
+        result = template.render(RequestContext(request, {}))
+        self.assertNotIn('offset=10', result)
+        self.assertIn('offset=0', result)
+        request.GET = QueryDict('limit=10&offset=30', mutable=False)
+        result = template.render(RequestContext(request, {}))
+        self.assertNotIn('offset=10', result)
+        self.assertIn('offset=25', result)
 
         template = Template(
             "{% load pagination_tags %}{% items_per_page request 10 'incorrect_data' %}")

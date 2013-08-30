@@ -56,11 +56,10 @@ jQuery(function ($) {
             return false;
         },
         removeIDs:function () {
-            var selected_files = $('input[type="checkbox"][name="selected_files"]:checked'),
-                ids = cghub.batch_search.$idsStorage.val().split(' ');
-            if(!selected_files.length) return false;
-            selected_files.each(function() {
-                var id = $(this).val();
+            cghub.selected.save();
+            if(!cghub.selected.exists) return false;
+            var ids = cghub.batch_search.$idsStorage.val().split(' ');
+            $.each(cghub.selected.get_ids_list(), function(i, id) {
                 var index = ids.indexOf(id);
                 if (index != -1) {
                     ids.splice(index, 1)

@@ -50,11 +50,6 @@ class Paginator(object):
             getvars = '{0}'.format(get_copy.urlencode())
         else:
             getvars = ''
-        # patch for the home page where sort_by=-last_modified 
-        # is enabled and should remain
-        # on other paginated pages
-        if request.path == reverse('home_page'):
-            getvars += '&sort_by=-last_modified'
         return getvars
 
     def current_page(self):
@@ -141,6 +136,7 @@ def items_per_page(request, *limits):
             link = '%d' % limit
         else:
             get['limit'] = str(limit)
+            get['offset'] = str(int(offset / limit) * limit)
             path = request.path + '?' + get.urlencode()
             link = ('<a href="{link}"><span class="hidden">view </span>'
                     '{limit}<span class="hidden"> items per page</span></a>'.format(
