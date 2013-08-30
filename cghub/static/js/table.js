@@ -22,9 +22,15 @@ jQuery(function ($) {
             cghub.selected.count();
         },
         save:function () {
+            /* add checked items */
             var selected_items = $('input[type="checkbox"][name="selected_files"]:checked');
             selected_items.each(function (i, f) {
                 cghub.selected.add($(f).val());
+            });
+            /* remove unchecked */
+            var selected_items = $('input[type="checkbox"][name="selected_files"]:not(:checked)');
+            selected_items.each(function (i, f) {
+                delete cghub.selected.items[$(f).val()];
             });
             sessionStorage.setItem(cghub.selected._storage_key, JSON.stringify(cghub.selected.items));
         },
