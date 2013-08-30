@@ -507,6 +507,7 @@ class CartCacheTestCase(TestCase):
         self.assertIn(self.last_modified[:10], result)
         self.assertIn(self.analysis_id, result)
         self.assertIn(self.analysis_id2, result)
+        self.assertNotIn('Error!', result)
 
         # analysis_xml iterator
         iterator = analysis_xml_iterator(cart)
@@ -516,6 +517,37 @@ class CartCacheTestCase(TestCase):
         self.assertIn('ResultSet', result)
         self.assertIn('Result id="1"', result)
         self.assertIn('Result id="2"', result)
+        self.assertNotIn('Error!', result)
+
+        # test error when some analysis was not found
+
+        self.assertEqual(cart.cart.items.count(), 2)
+        # add one bad analysis_id
+        analysis = cart.cart.items.all()[1].analysis
+        analysis.analysis_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+        analysis.save()
+
+        # summary tsv iterator
+        iterator = summary_tsv_iterator(cart)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('center', result)
+        self.assertIn('analysis_id', result)
+        self.assertIn(self.last_modified[:10], result)
+        self.assertIn(self.analysis_id, result)
+        self.assertNotIn(self.analysis_id2, result)
+        self.assertIn('Error!', result)
+
+        # analysis_xml iterator
+        iterator = analysis_xml_iterator(cart)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('ResultSet', result)
+        self.assertIn('Result id="1"', result)
+        self.assertNotIn('Result id="2"', result)
+        self.assertIn('Error!', result)
 
     def test_metadata_views(self):
         create_session(self)
