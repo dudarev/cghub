@@ -141,6 +141,7 @@ def items_per_page(request, *limits):
             link = '%d' % limit
         else:
             get['limit'] = str(limit)
+            get['offset'] = str(int(offset / limit) * limit)
             path = request.path + '?' + get.urlencode()
             link = ('<a href="{link}"><span class="hidden">view </span>'
                     '{limit}<span class="hidden"> items per page</span></a>'.format(

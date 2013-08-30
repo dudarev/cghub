@@ -7,16 +7,53 @@ jQuery(function ($) {
     } else {
         this.cghub = cghub;
     }
+
+    cghub.selected = {
+        _storage_key: 'selectedItems',
+        items: {},
+        init:function () {
+            var saved_items = sessionStorage.getItem(cghub.selected._storage_key);
+            if(saved_items != null) {
+                cghub.selected.items = $.parseJSON(saved_items);
+                sessionStorage.setItem(cghub.selected._storage_key, '{}');
+            }
+        },
+        save:function () {
+            sessionStorage.setItem(cghub.selected._storage_key, JSON.stringify(cghub.selected.items));
+        },
+        add:function (analysis_id, save=true) {
+            var item = $('input[type="checkbox"][value="'+analysis_id+'"]');
+            if(item.length) {
+                cghub.selected.items[analysis_id] = item.data();
+                if(save) {
+                    cghub.selected.save();
+                }
+            }
+        },
+        ids:function () {
+            var ids = [];
+            for (var i in cghub.selected.items) {
+                ids.push(i);
+            }
+            return ids;
+        },
+        count:function () {
+            return cghub.selected.items.length;
+        },
+    }
+    cghub.selected.init();
+
     cghub.table = {
         clearSelectionTimeout: undefined,
         init:function () {
             cghub.table.cacheElements();
             cghub.table.bindEvents();
-            cghub.table.selectFiles();
             cghub.table.$selectAllCheckbox.removeAttr('disabled');
+            cghub.table.repairSelection();
         },
         cacheElements:function () {
-            cghub.table.$itemsPerPageLink = $('div.items-per-page-label > a');
+            cghub.table.$itemsPerPageLink = $('.items-per-page-label > a');
+            cghub.table.$pageLink = $('.pagination ul li a');
             cghub.table.$selectAllCheckbox = $('.js-select-all');
             cghub.table.$checkboxes = $('.data-table-checkbox');
             cghub.table.$flexigrid = $('.flexigrid');
@@ -25,7 +62,9 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
-            cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedFiles);
+            cghub.table.$itemsPerPageLink.unbind('click');
+            cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedItems);
+            cghub.table.$pageLink.on('click', cghub.table.saveSelectedItems);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
             cghub.table.$checkboxes.on('focusin', cghub.table.tableCheckboxFocus);
@@ -81,10 +120,10 @@ jQuery(function ($) {
             cghub.table.$selectAllCheckbox.prop('checked',
                 cghub.table.$checkboxes.length == $('.data-table-checkbox:checked').length);
         },
-        selectFiles: function() {
-            var selected_items = $.cookie('browser_checked_items');
-            if (selected_items) {
-                selected_items = selected_items.split(',');
+        repairSelection:function() {
+            var selected_items = cghub.selected.ids();
+            console.log(selected_items);
+            if (selected_items.length) {
                 for (var item in selected_items) {
                     var checkbox = $('.data-table-checkbox[value='+selected_items[item]+']');
                     if(checkbox.length) {
@@ -94,17 +133,14 @@ jQuery(function ($) {
                 if($('input.data-table-checkbox:checked').length == $('input.data-table-checkbox').length) {
                     $('.js-select-all').prop('checked', true);
                 }
-                $.removeCookie('browser_checked_items', { path: '/' });
             }
         },
-        saveSelectedFiles:function(){
-            var selected_items = [];
-            $('form .data-table-checkbox').serializeArray().map(
-                function(i) {
-                    selected_items.push(i.value);
-                }
-            )
-            $.cookie('browser_checked_items', selected_items.join(','), { path: '/', expires: 7 });
+        saveSelectedItems:function () {
+            var selected_items = $('input[type="checkbox"][name="selected_files"]:checked');
+            selected_items.each(function (i, f) {
+                cghub.selected.add($(f).val(), false);
+            });
+            cghub.selected.save();
         },
         tableCheckboxFocus:function(event){
             if (event.type == 'focusin'){
