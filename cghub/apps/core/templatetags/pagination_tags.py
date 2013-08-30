@@ -50,11 +50,6 @@ class Paginator(object):
             getvars = '{0}'.format(get_copy.urlencode())
         else:
             getvars = ''
-        # patch for the home page where sort_by=-last_modified 
-        # is enabled and should remain
-        # on other paginated pages
-        if request.path == reverse('home_page'):
-            getvars += '&sort_by=-last_modified'
         return getvars
 
     def current_page(self):

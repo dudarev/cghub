@@ -1116,6 +1116,43 @@ class SearchUITestCase(LiveServerTestCase):
                         "//a[contains(text(), %s)]" % str(pages_count - 1))
             assert not link_state(current)
 
+    def test_save_selection_while_pagination(self):
+        """
+        1. Go to home page
+        2. Select first 2 items
+        3. Go to 2-nd page
+        4. Check that no items selected
+        5. Go to 1-st page
+        6. Check that first 2 items are selected
+        """
+        self.selenium.get(self.live_server_url)
+        time.sleep(3)
+        # select first 2 items
+        self.assertFalse(self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[2]/td[1]/div/input"
+                ).get_attribute('checked'))
+        self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[1]/div/input").click()
+        self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[2]/td[1]/div/input").click()
+        self.assertTrue(self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[2]/td[1]/div/input"
+                ).get_attribute('checked'))
+        # go to second page
+        self.selenium.find_element_by_xpath(
+                '//div[@class="pagination-centered"]/ul/li[3]/a').click()
+        time.sleep(3)
+        self.assertFalse(self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[2]/td[1]/div/input"
+                ).get_attribute('checked'))
+        # got to first page
+        self.selenium.find_element_by_xpath(
+                '//div[@class="pagination-centered"]/ul/li[2]/a').click()
+        time.sleep(3)
+        self.assertTrue(self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[2]/td[1]/div/input"
+                ).get_attribute('checked'))
+
     def test_sorting_order(self):
         """
         Test that sorting works properly.
