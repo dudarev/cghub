@@ -146,7 +146,8 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
                             short=short)
         except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
-            continue
+            yield 'Error!'
+            return
         counter += 1
         downloadable_size += analysis.files_size
         yield result_template.render(Context({
@@ -175,15 +176,16 @@ def summary_tsv_iterator(cart):
     items = cart.cart.items.all()
     for item in items:
         analysis = item.analysis
-        # try:
-        result = get_analysis(
+        try:
+            result = get_analysis(
                             analysis_id=analysis.analysis_id,
                             last_modified=analysis.last_modified)
-        #except Exception as e:
-        #    cart_logger.error(
-        #            u'Error while composing summary tsv. analysis_id: %s. Error: %s' % (
-        #                    analysis.analysis_id, unicode(e)))
-        #    continue
+        except Exception as e:
+            cart_logger.error(
+                    u'Error while composing summary tsv. analysis_id: %s. Error: %s' % (
+                            analysis.analysis_id, unicode(e)))
+            yield 'Error!'
+            return
         fields = field_values(result, humanize_files_size=False)
         row = []
         for field_name in COLUMNS:
