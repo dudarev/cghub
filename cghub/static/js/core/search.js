@@ -181,22 +181,18 @@ jQuery(function ($) {
             cghub.search.$addFilesButton.addClass('disabled');
             cghub.search.$spinner.show();
             // collect all data attributes
-            var data = [];
-            var selected_files = $('input[type="checkbox"][name="selected_files"]:checked');
+            cghub.selected.save()
 
             // show message if nothing selected
-            if (selected_files.length == 0) {
+            if (!cghub.selected.exists) {
                 cghub.base.showMessage(cghub.search.nothingSelectedTitle, cghub.search.nothingSelectedContent);
                 cghub.search.$addFilesButton.removeClass('disabled');
                 cghub.search.$spinner.hide();
                 return false;
             }
 
-            selected_files.each(function (i, f) {
-                data.push($(f).data());
-            });
             $.ajax({
-                data:$(this).serialize() + "&selected_items=" + JSON.stringify(data),
+                data:$(this).serialize() + "&selected_items=" + JSON.stringify(cghub.selected.get_data_list()),
                 type:$(this).attr('method'),
                 dataType:'json',
                 url:$(this).attr('action'),

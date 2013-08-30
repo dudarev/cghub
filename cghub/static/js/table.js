@@ -10,24 +10,28 @@ jQuery(function ($) {
 
     cghub.selected = {
         _storage_key: 'selectedItems',
+        exists: false,
         items: {},
         init:function () {
             var saved_items = sessionStorage.getItem(cghub.selected._storage_key);
-            if(saved_items != null) {
+            if(saved_items !== null) {
                 cghub.selected.items = $.parseJSON(saved_items);
                 sessionStorage.setItem(cghub.selected._storage_key, '{}');
             }
+            cghub.selected.count();
         },
         save:function () {
+            var selected_items = $('input[type="checkbox"][name="selected_files"]:checked');
+            selected_items.each(function (i, f) {
+                cghub.selected.add($(f).val());
+            });
             sessionStorage.setItem(cghub.selected._storage_key, JSON.stringify(cghub.selected.items));
         },
-        add:function (analysis_id, save=true) {
+        add:function (analysis_id) {
             var item = $('input[type="checkbox"][value="'+analysis_id+'"]');
             if(item.length) {
                 cghub.selected.items[analysis_id] = item.data();
-                if(save) {
-                    cghub.selected.save();
-                }
+                cghub.selected.exists = true;
             }
         },
         ids:function () {
@@ -37,8 +41,25 @@ jQuery(function ($) {
             }
             return ids;
         },
+        get_data_list:function() {
+            var data = [];
+            $.each(cghub.selected.items, function (i, d) {
+                data.push(d);
+            });
+            sessionStorage.setItem(cghub.selected._storage_key, '{}');
+            return data
+        },
         count:function () {
-            return cghub.selected.items.length;
+            var count = 0;
+            for (var i in cghub.selected.items) {
+                count += 1;
+            }
+            if(count > 0) {
+                cghub.selected.exists = true;
+            } else {
+                cghub.selected.exists = false;
+            }
+            return count;
         },
     }
     cghub.selected.init();
@@ -63,8 +84,8 @@ jQuery(function ($) {
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
             cghub.table.$itemsPerPageLink.unbind('click');
-            cghub.table.$itemsPerPageLink.on('click', cghub.table.saveSelectedItems);
-            cghub.table.$pageLink.on('click', cghub.table.saveSelectedItems);
+            cghub.table.$itemsPerPageLink.on('click', cghub.selected.save);
+            cghub.table.$pageLink.on('click', cghub.selected.save);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
             cghub.table.$checkboxes.on('change', cghub.table.updateSelectAll);
             cghub.table.$checkboxes.on('focusin', cghub.table.tableCheckboxFocus);
@@ -122,7 +143,6 @@ jQuery(function ($) {
         },
         repairSelection:function() {
             var selected_items = cghub.selected.ids();
-            console.log(selected_items);
             if (selected_items.length) {
                 for (var item in selected_items) {
                     var checkbox = $('.data-table-checkbox[value='+selected_items[item]+']');
@@ -134,13 +154,6 @@ jQuery(function ($) {
                     $('.js-select-all').prop('checked', true);
                 }
             }
-        },
-        saveSelectedItems:function () {
-            var selected_items = $('input[type="checkbox"][name="selected_files"]:checked');
-            selected_items.each(function (i, f) {
-                cghub.selected.add($(f).val(), false);
-            });
-            cghub.selected.save();
         },
         tableCheckboxFocus:function(event){
             if (event.type == 'focusin'){
