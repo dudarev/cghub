@@ -39,9 +39,9 @@
         <analysis_xml>{{ result.analysis_xml.text|without_header|safe }}</analysis_xml>
         <experiment_xml>{{ result.experiment_xml.text|without_header|safe }}</experiment_xml>
         <run_xml>{{ result.run_xml.text|without_header|safe }}</run_xml>
-        <analysis_detail_uri>https://{{ server_url }}/cghub/metadata/analysisDetail/{{ result.analysis_id.text }}</analysis_detail_uri>
-        <analysis_submission_uri>https://{{ server_url }}/cghub/metadata/analysisSubmission/{{ result.analysis_id.text }}</analysis_submission_uri>
-        <analysis_data_uri>https://{{ server_url }}/cghub/data/analysis/download/{{ result.analysis_id.text }}</analysis_data_uri>
+        <analysis_detail_uri>{{ server_url }}/cghub/metadata/analysisDetail/{{ result.analysis_id.text }}</analysis_detail_uri>
+        <analysis_submission_uri>{{ server_url }}/cghub/metadata/analysisSubmission/{{ result.analysis_id.text }}</analysis_submission_uri>
+        <analysis_data_uri>{{ server_url }}/cghub/data/analysis/download/{{ result.analysis_id.text }}</analysis_data_uri>
     </Result>
     <ResultSummary>
         <downloadable_file_count>{{ files_count }}</downloadable_file_count>

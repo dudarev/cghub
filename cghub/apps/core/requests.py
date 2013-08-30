@@ -92,7 +92,7 @@ def build_wsapi_xml(result):
             'files_count': files_count,
             'files_size': files_size,
             'files_units': files_units,
-            'server_url': settings.CGHUB_SERVER})
+            'server_url': settings.CGHUB_DOWNLOAD_SERVER})
     return xml
 
 

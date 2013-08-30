@@ -236,7 +236,7 @@ class RequestsTestCase(TestCase):
         xml_solr =  build_wsapi_xml(result_solr)
         with codecs.open(path_wsapi, 'r', encoding='utf-8') as f:
             xml_wsapi = f.read()
-        self.assertIn(settings.CGHUB_SERVER, xml_solr)
+        self.assertIn(settings.CGHUB_DOWNLOAD_SERVER, xml_solr)
         xml_solr = self.clean_xml(xml_solr)
         xml_wsapi = self.clean_xml(xml_wsapi)
         self.assertEqual(xml_solr, xml_wsapi)
