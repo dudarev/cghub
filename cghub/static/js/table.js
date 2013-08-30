@@ -9,6 +9,7 @@ jQuery(function ($) {
     }
 
     cghub.selected = {
+        /* used to store list of selected ids while pagination */
         _storage_key: 'selectedItems',
         exists: false,
         items: {},
@@ -40,6 +41,10 @@ jQuery(function ($) {
                 ids.push(i);
             }
             return ids;
+        },
+        get_ids_list:function () {
+            sessionStorage.setItem(cghub.selected._storage_key, '{}');
+            return cghub.selected.ids();
         },
         get_data_list:function() {
             var data = [];
