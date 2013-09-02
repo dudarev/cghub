@@ -29,3 +29,5 @@ SECRET_KEY = 'f3=dg%b600m5aivknk-tld04ucg0a1yj&amp;4+1nxj#a!p3m6kkbp'
 ROOT_URLCONF = 'cghub.urls'
 
 WSGI_APPLICATION = 'cghub.wsgi.application'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'

@@ -215,7 +215,6 @@ class CoreTestCase(TestCase):
         self.session['messages'] = {1: {
                 'level': 'error', 'content': 'Some error!'}}
         self.session.save()
-        # self.assertIn(1, self.client.session['messages'])
         response = self.client.post(
                 reverse('message_remove', args=(2,)),
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
