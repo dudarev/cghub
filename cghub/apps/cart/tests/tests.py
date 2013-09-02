@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.sessions.models import Session
 
 from cghub.apps.core import browser_text_search
-from cghub.apps.core.tests import create_session
+from cghub.apps.core.tests import create_session, get_request
 
 from ..utils import (
                     manifest, metadata, summary, Cart,
@@ -482,8 +482,8 @@ class CartCacheTestCase(TestCase):
         self.assertNotIn('experiment_xml', xml)
 
     def test_iterators(self):
-        create_session(self)
-        cart = Cart(session=self.client.session)
+        request = get_request()
+        cart = Cart(session=request.session)
         analysis = AnalysisFactory.create(
                 analysis_id=self.analysis_id,
                 last_modified=self.last_modified)
@@ -498,7 +498,7 @@ class CartCacheTestCase(TestCase):
                 analysis=analysis)
 
         # summary tsv iterator
-        iterator = summary_tsv_iterator(cart)
+        iterator = summary_tsv_iterator(request)
         result = ''
         for i in iterator:
             result += i
@@ -510,7 +510,7 @@ class CartCacheTestCase(TestCase):
         self.assertNotIn('Error!', result)
 
         # analysis_xml iterator
-        iterator = analysis_xml_iterator(cart)
+        iterator = analysis_xml_iterator(request)
         result = ''
         for i in iterator:
             result += i
@@ -527,8 +527,10 @@ class CartCacheTestCase(TestCase):
         analysis.analysis_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
         analysis.save()
 
+        self.assertNotIn('messages', request.session)
+
         # summary tsv iterator
-        iterator = summary_tsv_iterator(cart)
+        iterator = summary_tsv_iterator(request)
         result = ''
         for i in iterator:
             result += i
@@ -538,20 +540,24 @@ class CartCacheTestCase(TestCase):
         self.assertIn(self.analysis_id, result)
         self.assertNotIn(self.analysis_id2, result)
         self.assertIn('Error!', result)
+        # test message added on error
+        self.assertIn('messages', request.session)
 
         # analysis_xml iterator
-        iterator = analysis_xml_iterator(cart)
+        iterator = analysis_xml_iterator(request)
         result = ''
         for i in iterator:
             result += i
         self.assertIn('ResultSet', result)
         self.assertIn('Result id="1"', result)
         self.assertNotIn('Result id="2"', result)
-        self.assertIn('Error!', result)
+        self.assertNotIn('Error!', result)
+        self.assertEqual(len(request.session['messages']), 2)
 
     def test_metadata_views(self):
-        create_session(self)
-        cart = Cart(session=self.client.session)
+        request = get_request()
+        request.session.save()
+        cart = Cart(session=request.session)
         analysis = AnalysisFactory.create(
                 analysis_id=self.analysis_id,
                 last_modified=self.last_modified)
@@ -566,7 +572,7 @@ class CartCacheTestCase(TestCase):
                 analysis=analysis)
 
         # test summary
-        response = summary(cart)
+        response = summary(request)
         content = response.content
         self.assertTrue(all(field.lower().replace(' ', '_') in content
                             for field in settings.TABLE_COLUMNS))
@@ -575,7 +581,7 @@ class CartCacheTestCase(TestCase):
         self._check_content_type_and_disposition(response, type='text/tsv', filename='summary.tsv')
 
         # test metadata view
-        response = metadata(cart)
+        response = metadata(request)
         content = response.content
         self.assertTrue(
                 ('<analysis_id>%s</analysis_id>' % self.analysis_id in content) or
@@ -586,7 +592,7 @@ class CartCacheTestCase(TestCase):
         self._check_content_type_and_disposition(response, type='text/xml', filename='metadata.xml')
 
         # test manifest
-        response = manifest(cart)
+        response = manifest(request)
         content = response.content
         self.assertTrue(
                 ('<analysis_id>%s</analysis_id>' % self.analysis_id in content) or

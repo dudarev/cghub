@@ -26,10 +26,10 @@ from ..templatetags.search_tags import (
                     get_name_by_code, table_header, table_row,
                     file_size, details_table, period_from_query,
                     only_date, get_sample_type_by_code)
-from ..templatetags.core_tags import without_header
+from ..templatetags.core_tags import without_header, messages
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
-                    paginator_params, generate_tmp_file_name)
+                    paginator_params, generate_tmp_file_name, add_message)
 from ..requests import (
                     RequestFull, RequestDetail, RequestID,
                     ResultFromSOLRFile, build_wsapi_xml,
@@ -208,6 +208,24 @@ class CoreTestCase(TestCase):
         self.assertTrue(isinstance(result['checksum'], str))
         self.assertTrue(isinstance(result['filename'], str))
 
+    def test_message_remove_view(self):
+        create_session(self)
+        response = self.client.get(reverse('message_remove', args=(1,)))
+        self.assertEqual(response.status_code, 405)
+        self.session['messages'] = {1: {
+                'level': 'error', 'content': 'Some error!'}}
+        self.session.save()
+        response = self.client.post(
+                reverse('message_remove', args=(2,)),
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(1, self.client.session['messages'])
+        response = self.client.post(
+                reverse('message_remove', args=(1,)),
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(1, self.client.session['messages'])
+
 
 class RequestsTestCase(TestCase):
 
@@ -313,6 +331,21 @@ class UtilsTestCase(TestCase):
         # attributes was loaded for second item
         self.assertEqual(results[1]['disease_abbr'], 'COAD')
 
+    def test_add_message(self):
+        request = get_request()
+        self.assertNotIn('messages', request.session)
+        level = 'error'
+        content = 'Some error!'
+        add_message(request=request, level=level, content=content)
+        self.assertIn('messages', request.session)
+        self.assertEqual(
+                request.session['messages'][1],
+                {'level': level, 'content': content})
+        # test increase id
+        self.assertNotIn(2, request.session['messages'])
+        add_message(request=request, level=level, content=content)
+        self.assertIn(2, request.session['messages'])
+        
 
 class ContextProcessorsTestCase(TestCase):
 
@@ -608,6 +641,23 @@ class TemplateTagsTestCase(TestCase):
         xml = u'<analysis>123</analysis>'
         self.assertEqual(without_header(xml), u'<analysis>123</analysis>')
         self.assertEqual(without_header(None), u'')
+
+    def test_messages(self):
+        request = get_request()
+        self.assertNotIn('messages', request.session)
+        result = messages({'request': request})
+        self.assertEqual(result, '')
+        request.session['messages'] = {}
+        result = messages({'request': request})
+        self.assertEqual(result, '')
+        level = 'error'
+        content = 'Some error!'
+        request.session['messages'][1] = {
+                'level': level, 'content': content}
+        result = messages({'request': request})
+        self.assertIn('alert-%s' % level, result)
+        self.assertIn('1', result)
+        self.assertIn(content, result)
 
 
 class BatchSearchTestCase(TestCase):

@@ -18,6 +18,7 @@ from cghub.apps.help.models import HelpText
 
 from ..filters_storage import ALL_FILTERS
 from ..attributes import DATE_ATTRIBUTES, COLUMN_NAMES
+from .tests import create_session
 
 
 TEST_SETTINGS = dict(
@@ -222,6 +223,51 @@ class CoreUITestCase(LiveServerTestCase):
                 assert 'q=' not in driver.current_url
                 check_bad_query()
                 check_good_query()
+
+    def test_messages(self):
+        """
+        1. Add 2 messages
+        2. Go to home page
+        3. Check that 2 messages are displayed
+        4. Click on close button
+        5. Check that only one message displayed
+        6. Reload page
+        7. Check that only one message displayed
+        """
+        with self.settings(**TEST_SETTINGS):
+            # initialize browser
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            # create messages
+            create_session(self)
+            self.session['messages'] = {
+                1: {'level': 'error', 'content': 'Some error!'},
+                2: {'level': 'info', 'content': 'All ok!'}}
+            self.session.save()
+            self.selenium.add_cookie({
+                'name': settings.SESSION_COOKIE_NAME,
+                'value': self.session.session_key})
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            self.assertEqual(
+                    len(self.selenium.find_elements_by_xpath(
+                            '//div[@class="messages"]/div')),
+                    2)            
+            # close first message
+            self.selenium.find_element_by_xpath(
+                            '//div[@class="messages"]/div[1]/button').click()
+            time.sleep(1)
+            self.assertEqual(
+                    len(self.selenium.find_elements_by_xpath(
+                            '//div[@class="messages"]/div')),
+                    1)
+            # reload page
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            self.assertEqual(
+                    len(self.selenium.find_elements_by_xpath(
+                            '//div[@class="messages"]/div')),
+                    1)
 
 
 class NavigationLinksUITestCase(LiveServerTestCase):

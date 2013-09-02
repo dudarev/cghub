@@ -17,6 +17,7 @@ jQuery(function ($) {
             cghub.base.bindEvents();
             cghub.base.mockIePlaceholder();
             cghub.base.activateSkipNavigation();
+            cghub.base.activateMessages();
         },
         cacheElements:function () {
             cghub.base.$navbarAnchors = $('header.navbar ul.nav li a');
@@ -25,6 +26,7 @@ jQuery(function ($) {
             cghub.base.$messageModal = $('#messageModal');
             cghub.base.$searchForm = $('form.navbar-search');
             cghub.base.$accessibilityLinks = $('#accessibility-links');
+            cghub.base.$messagesCloseLinks = $('.messages .close');
         },
         bindEvents:function () {
             cghub.base.defineActiveLink();
@@ -95,7 +97,7 @@ jQuery(function ($) {
                 $('input[placeholder]').css({'height': '18px', 'line-height': '18px'})
             }
         },
-        checkSearchField:function(){
+        checkSearchField:function() {
             var searchValue = $(this).find('input').val();
             for (var i = 0; i < cghub.base.reservedChars.length; i++){
                 if (searchValue.indexOf(cghub.base.reservedChars[i]) != -1){
@@ -104,7 +106,18 @@ jQuery(function ($) {
                 }
             }
             return true;
-        }
+        },
+        activateMessages:function() {
+            cghub.base.$messagesCloseLinks.on('click', function() {
+                var url = $(this).data('message-url');
+                $.ajax({
+                    url: url,
+                    dataType: "json",
+                    data: {'csrfmiddlewaretoken': cghub.vars.csrfToken},
+                    type: 'POST',
+                });
+            });
+        },
     };
     cghub.base.init();
 });
