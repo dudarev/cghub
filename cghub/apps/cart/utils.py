@@ -15,7 +15,7 @@ from django.db.models import Sum
 
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetail
-from cghub.apps.core.utils import CSVUnicodeWriter
+from cghub.apps.core.utils import CSVUnicodeWriter, add_message
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis
@@ -117,7 +117,7 @@ class Cart(object):
         self.session.modified = True
 
 
-def analysis_xml_iterator(cart, short=False, live_only=False):
+def analysis_xml_iterator(request, short=False, live_only=False):
     """
     Return xml for files with specified ids.
     If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
@@ -126,6 +126,7 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
     :param short: if True - file will be contains only most necessary attributes
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
+    cart = Cart(request.session)
     if live_only:
         items = cart.cart.items.filter(analysis__state='live')
     else:
@@ -146,7 +147,11 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
                             short=short)
         except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
-            yield 'Error!'
+            add_message(
+                    request=request,
+                    level='error',
+                    content='An error occured while composing metadata/manifest xml file.')
+            request.session.save()
             return
         counter += 1
         downloadable_size += analysis.files_size
@@ -158,7 +163,7 @@ def analysis_xml_iterator(cart, short=False, live_only=False):
                     'size': str(round(downloadable_size / 1073741824. * 100) / 100)})
 
 
-def summary_tsv_iterator(cart):
+def summary_tsv_iterator(request):
     """
     Returns Summary tsv file content.
     Data to generate file takes from cart cache. If data not exists in cache,
@@ -166,6 +171,7 @@ def summary_tsv_iterator(cart):
 
     param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
     """
+    cart = Cart(request.session)
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
     csvwriter = CSVUnicodeWriter(
@@ -185,6 +191,11 @@ def summary_tsv_iterator(cart):
                     u'Error while composing summary tsv. analysis_id: %s. Error: %s' % (
                             analysis.analysis_id, unicode(e)))
             yield 'Error!'
+            add_message(
+                    request=request,
+                    level='error',
+                    content='An error occured while composing summary tsv file.')
+            request.session.save()
             return
         fields = field_values(result, humanize_files_size=False)
         row = []
@@ -199,24 +210,24 @@ def summary_tsv_iterator(cart):
         yield line
 
 
-def manifest(cart):
+def manifest(request):
     response = HttpResponse(
-            analysis_xml_iterator(cart, short=True, live_only=True),
+            analysis_xml_iterator(request, short=True, live_only=True),
             content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
-def metadata(cart):
+def metadata(request):
     response = HttpResponse(
-            analysis_xml_iterator(cart), content_type='text/xml')
+            analysis_xml_iterator(request), content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
-def summary(cart):
+def summary(request):
     response = HttpResponse(
-            summary_tsv_iterator(cart), content_type='text/tsv')
+            summary_tsv_iterator(request), content_type='text/tsv')
     response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
