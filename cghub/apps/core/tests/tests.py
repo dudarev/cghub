@@ -29,7 +29,7 @@ from ..templatetags.search_tags import (
 from ..templatetags.core_tags import without_header
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
-                    paginator_params, generate_tmp_file_name)
+                    paginator_params, generate_tmp_file_name, add_message)
 from ..requests import (
                     RequestFull, RequestDetail, RequestID,
                     ResultFromSOLRFile, build_wsapi_xml,
@@ -313,6 +313,16 @@ class UtilsTestCase(TestCase):
         # attributes was loaded for second item
         self.assertEqual(results[1]['disease_abbr'], 'COAD')
 
+    def test_add_message(self):
+        request = get_request()
+        self.assertNotIn('messages', request.session)
+        level = 'error'
+        content = 'Hi'
+        add_message(request=request, level=level, content=content)
+        self.assertIn('messages', request.session)
+        self.assertEqual(
+                request.session['messages'][1],
+                {'level': level, 'content': content})
 
 class ContextProcessorsTestCase(TestCase):
 
