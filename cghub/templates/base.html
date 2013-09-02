@@ -1,4 +1,5 @@
 {% load static from staticfiles %}
+{% load core_tags %}
 <!DOCTYPE HTML>
 <html lang="en-US">
 <head>
@@ -73,15 +74,16 @@
         </div>
     </div>
 </header>
+{% messages %}
 <div class="base-container row">
-        {% block main_content %}
-            <aside class="span3 base-sidebar">
-                {% block extra_sidebar %} {% endblock %}
-            </aside>
-            <div class="span9 base-content">
-                {% block extra_content %} {% endblock %}
-            </div>
-        {% endblock %}
+    {% block main_content %}
+    <aside class="span3 base-sidebar">
+        {% block extra_sidebar %} {% endblock %}
+    </aside>
+    <div class="span9 base-content">
+        {% block extra_content %} {% endblock %}
+    </div>
+    {% endblock %}
 </div>
 {% comment %}
     Common message popup template

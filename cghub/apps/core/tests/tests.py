@@ -26,7 +26,7 @@ from ..templatetags.search_tags import (
                     get_name_by_code, table_header, table_row,
                     file_size, details_table, period_from_query,
                     only_date, get_sample_type_by_code)
-from ..templatetags.core_tags import without_header
+from ..templatetags.core_tags import without_header, messages
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
                     paginator_params, generate_tmp_file_name, add_message)
@@ -317,12 +317,17 @@ class UtilsTestCase(TestCase):
         request = get_request()
         self.assertNotIn('messages', request.session)
         level = 'error'
-        content = 'Hi'
+        content = 'Some error!'
         add_message(request=request, level=level, content=content)
         self.assertIn('messages', request.session)
         self.assertEqual(
                 request.session['messages'][1],
                 {'level': level, 'content': content})
+        # test increase id
+        self.assertNotIn(2, request.session['messages'])
+        add_message(request=request, level=level, content=content)
+        self.assertIn(2, request.session['messages'])
+        
 
 class ContextProcessorsTestCase(TestCase):
 
@@ -618,6 +623,23 @@ class TemplateTagsTestCase(TestCase):
         xml = u'<analysis>123</analysis>'
         self.assertEqual(without_header(xml), u'<analysis>123</analysis>')
         self.assertEqual(without_header(None), u'')
+
+    def test_messages(self):
+        request = get_request()
+        self.assertNotIn('messages', request.session)
+        result = messages({'request': request})
+        self.assertEqual(result, '')
+        request.session['messages'] = {}
+        result = messages({'request': request})
+        self.assertEqual(result, '')
+        level = 'error'
+        content = 'Some error!'
+        request.session['messages'][1] = {
+                'level': level, 'content': content}
+        result = messages({'request': request})
+        self.assertIn('alert-%s' % level, result)
+        self.assertIn('1', result)
+        self.assertIn(content, result)
 
 
 class BatchSearchTestCase(TestCase):

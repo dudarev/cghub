@@ -73,7 +73,7 @@ def add_message(request, level, content):
     if not messages:
         message_id = 1
     else:
-        message_id = sorted(mesages.keys())[-1] + 1
+        message_id = sorted(messages.keys())[-1] + 1
     messages[message_id] = {'level': level, 'content': content}
     request.session['messages'] = messages
     request.session.modified = True
