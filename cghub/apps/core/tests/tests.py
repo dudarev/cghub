@@ -208,6 +208,25 @@ class CoreTestCase(TestCase):
         self.assertTrue(isinstance(result['checksum'], str))
         self.assertTrue(isinstance(result['filename'], str))
 
+    def test_message_remove_view(self):
+        create_session(self)
+        response = self.client.get(reverse('message_remove'), {'id': 1})
+        self.assertEqual(response.status_code, 405)
+        self.session['messages'] = {1: {
+                'level': 'error', 'content': 'Some error!'}}
+        self.session.save()
+        # self.assertIn(1, self.client.session['messages'])
+        response = self.client.post(
+                reverse('message_remove'), {'id': 2},
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(1, self.client.session['messages'])
+        response = self.client.post(
+                reverse('message_remove'), {'id': 1},
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(1, self.client.session['messages'])
+
 
 class RequestsTestCase(TestCase):
 

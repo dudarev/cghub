@@ -22,6 +22,8 @@ def without_header(value):
 
 @register.simple_tag(takes_context=True)
 def messages(context):
+    if 'request' not in context:
+        return ''
     session = context['request'].session
     if not session or 'messages' not in session or not session['messages']:
         return u''

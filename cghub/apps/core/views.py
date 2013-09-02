@@ -17,7 +17,8 @@ from cghub.apps.cart.utils import item_metadata, Cart
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .utils import (
-            get_filters_dict, query_dict_to_str, paginator_params)
+            get_filters_dict, query_dict_to_str, paginator_params,
+            add_message)
 from .requests import (
             RequestDetail, RequestID, RequestFull, get_results_for_ids)
 from .forms import BatchSearchForm, AnalysisIDsForm
@@ -319,6 +320,25 @@ class MetadataView(View):
         return item_metadata(
                 analysis_id=analysis_id,
                 last_modified=request.GET.get('last_modified'))
+
+
+class MessageView(AjaxView):
+
+    http_method_names = ['post']
+
+    def post(self, request):
+        messages = request.session.get('messages')
+        if not messages:
+            return self.render_to_response({'success': False})
+        try:
+            message_id = int(request.POST.get('id'))
+        except TypeError:
+            return self.render_to_response({'success': False})
+        if message_id in messages:
+            del messages[message_id]
+            request.session['messages'] = messages
+            request.session.modified = True
+        return self.render_to_response({'success': True})
 
 
 def error_500(request):
