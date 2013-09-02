@@ -326,14 +326,11 @@ class MessageView(AjaxView):
 
     http_method_names = ['post']
 
-    def post(self, request):
+    def post(self, request, message_id):
         messages = request.session.get('messages')
         if not messages:
             return self.render_to_response({'success': False})
-        try:
-            message_id = int(request.POST.get('id'))
-        except TypeError:
-            return self.render_to_response({'success': False})
+        message_id = int(message_id)
         if message_id in messages:
             del messages[message_id]
             request.session['messages'] = messages

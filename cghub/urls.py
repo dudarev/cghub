@@ -19,7 +19,8 @@ urlpatterns = patterns(
     url(r'^metadata/(?P<analysis_id>'
         '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
         MetadataView.as_view(), name='metadata'),
-    url(r'^message/remove/$', MessageView.as_view(), name='message_remove'),
+    url(r'^message/(?P<message_id>\d+)/remove/$',
+        MessageView.as_view(), name='message_remove'),
     url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^help/', include('cghub.apps.help.urls')),
     url(r'^admin/', include(admin.site.urls)),

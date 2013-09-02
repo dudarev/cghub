@@ -118,7 +118,8 @@
             helpHintUrl: "{% url help_hint %}",
             helpTextUrl: "{% url help_text %}",
             supportEmail: "{{ SUPPORT_EMAIL }}",
-            tooltipHoverTime: {{ TOOLTIP_HOVER_TIME }}
+            tooltipHoverTime: {{ TOOLTIP_HOVER_TIME }},
+            csrfToken: '{{ csrf_token }}'
         }
     });
 </script>

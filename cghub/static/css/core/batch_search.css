@@ -29,6 +29,7 @@
 .modal table{margin-top:15px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 div.btn-toolbar .btn{margin:0 6px 0 0;}
+.messages{position:relative;top:50px;padding:10px 10px 0 10px;margin-rigth:10px;}
 .ui-dropdownchecklist-selector{border:1px solid #CCC;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
 span.ui-dropdownchecklist-text{padding-top:1px;}
 .ui-dropdownchecklist-selector-wrapper{margin-bottom:5px;}
