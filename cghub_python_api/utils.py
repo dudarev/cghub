@@ -13,11 +13,21 @@ def urlopen(url, format='xml', max_attempts=5, sleep_time=1):
     :param max_attempts: maximum count of attempts to retrieve answer after URLError raised
     :param sleep_time: time between attempts, seconds
     """
+    error_msg = ''
     for i in range(max_attempts):
         try:
             req = urllib2.Request(url, headers={'Accept': format})
             return urllib2.urlopen(req)
-        except urllib2.URLError:
+        except urllib2.URLError as e:
+            try:
+                if e.getcode() == 400:
+                    raise urllib2.URLError(u'%s: %s' % (e.msg, url))
+                error_msg = e.msg
+            except AttributeError:
+                pass
             time.sleep(sleep_time)
+    if error_msg:
+        error_msg = ' (%s)' % error_msg
     raise urllib2.URLError(
-            'No response after %d attempts: %s' % (max_attempts, url))
+            u'No response after %d attempts: %s%s' % (
+                    max_attempts, url, error_msg))

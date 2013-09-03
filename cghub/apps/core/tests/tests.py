@@ -885,8 +885,14 @@ class ErrorViewsTestCase(TestCase):
         request = factory.get('/')
         r = error_500(request)
         self.assertEqual(r.status_code, 500)
-        self.assertTrue(str(r).find('Server error.') != -1)
-        with patch.object(sys, 'exc_info', return_value=(URLError, 'some val', 'some_tb')) as mock_exc_info:
+        self.assertTrue(str(r).find('Internal server error.') != -1)
+        error_value = 'some val'
+        with patch.object(sys, 'exc_info', return_value=(URLError, error_value, 'some_tb')) as mock_exc_info:
             r = error_500(request)
             self.assertEqual(r.status_code, 500)
-            self.assertTrue(str(r).find('Connection to WS-API server failed') != -1)
+            self.assertTrue(str(r).find(error_value) != -1)
+        # Details should be shown only for URLError exception
+        with patch.object(sys, 'exc_info', return_value=(AttributeError, error_value, 'some_tb')) as mock_exc_info:
+            r = error_500(request)
+            self.assertEqual(r.status_code, 500)
+            self.assertTrue(str(r).find(error_value) == -1)

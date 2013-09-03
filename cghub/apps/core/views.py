@@ -1,27 +1,27 @@
-import sys
 import logging
+import sys
 
 from urllib2 import URLError
 
 from django.conf import settings
-from django.http import (
-                        QueryDict, HttpResponseRedirect, HttpResponse,
-                        HttpResponseServerError)
-from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
+from django.template import loader, Context, RequestContext
+from django.utils import simplejson as json
+from django.http import (
+            QueryDict, HttpResponseRedirect, HttpResponse,
+            HttpResponseServerError)
 from django.views.generic.base import TemplateView, View
-from django.template import loader, Context
 
 from cghub.apps.cart.utils import item_metadata, Cart
 
 from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
+from .forms import BatchSearchForm, AnalysisIDsForm
+from .requests import (
+            RequestDetail, RequestID, RequestFull, get_results_for_ids)
 from .utils import (
             get_filters_dict, query_dict_to_str, paginator_params,
             add_message)
-from .requests import (
-            RequestDetail, RequestID, RequestFull, get_results_for_ids)
-from .forms import BatchSearchForm, AnalysisIDsForm
 
 
 DEFAULT_SORT_BY = None
@@ -345,5 +345,9 @@ def error_500(request):
     """
     t = loader.get_template('500.html')
     exc_type, value, tb = sys.exc_info()
-    return HttpResponseServerError(
-                t.render(Context({'wsapi_connection_error': exc_type == URLError})))
+    context = RequestContext(request)
+    if exc_type == URLError:
+        context['error'] = value
+    else:
+        context['error'] = None
+    return HttpResponseServerError(t.render(Context(context)))

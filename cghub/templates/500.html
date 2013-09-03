@@ -5,14 +5,13 @@
 {% block extra_header_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=2" media="all">
 {% endblock %}
+{% block messages %}{% endblock %}
 {% block main_content %}
-<div class="span6 offset1">
+<div class="span10 offset1" style="margin-top: 20px;">
     <h1>Error</h1>
-    {% if wsapi_connection_error %}
-        <p>Connection to WS-API server failed, please try later.</p>
-        <p><a href="{% url home_page %}">Go to home page</a>.</p>
-    {% else %}
-        <p>Server error. Please contact <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+    <p>Internal server error. Please contact <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+    {% if error %}
+        Details: <pre>{{ error }}</pre></p>
     {% endif %}
 </div>
 {% endblock %}

@@ -27,7 +27,7 @@ class BatchSearchForm(forms.Form):
         id_pattern = re.compile(
                     '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
                     '[0-9abcdef]{4}-[0-9abcdef]{12}$')
-        legacy_sample_id_pattern = re.compile('^[a-z]{2,8}-.{10,30}$')
+        legacy_sample_id_pattern = re.compile('^[a-z]{2,8}-[0-9a-z\-]{10,30}$')
         for i in text.split():
             id = i.strip()
             if not id:

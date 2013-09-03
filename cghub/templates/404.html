@@ -5,9 +5,10 @@
 {% block extra_header_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=2" media="all">
 {% endblock %}
+{% block messages %}{% endblock %}
 {% block main_content %}
-<div class="span6 offset1">
+<div class="span6 offset1" style="margin-top: 20px;">
     <h1>Error</h1>
-    <p>This page is not found.</p>
+    <p>This page was not found.</p>
 </div>
 {% endblock %}
