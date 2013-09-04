@@ -1,1 +1,0 @@
-- `schemas` - XSD schemas used in binding generation.
