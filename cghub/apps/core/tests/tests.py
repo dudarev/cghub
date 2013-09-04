@@ -9,7 +9,6 @@ from mock import patch
 from cghub_python_api import SOLRRequest
 
 from django.conf import settings
-from django.contrib.sessions.models import Session
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -57,7 +56,7 @@ def get_request(url=reverse('home_page')):
     Returns request object with session
     """
     # initialize session
-    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+    settings.SESSION_ENGINE = 'django.contrib.sessions.backends.db'
     engine = import_module(settings.SESSION_ENGINE)
     store = engine.SessionStore()
     store.save()
@@ -67,11 +66,6 @@ def get_request(url=reverse('home_page')):
     request.session = store
     request.cookies = {}
     request.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
-    # create session
-    s = Session(
-            expire_date=timezone.now() + datetime.timedelta(days=7),
-            session_key=store.session_key)
-    s.save()
     return request
 
 
