@@ -61,3 +61,10 @@ ADDITIONAL_ATTRIBUTES = (
     'sample_id',
     'tss_id',
 )
+
+CART_SORT_ATTRIBUTES = (
+    'analysis_id',
+    'last_modified',
+    'files_size',
+    'state'
+)
