@@ -6,6 +6,7 @@ import shutil
 import datetime
 import time
 
+from cProfile import runctx
 from StringIO import StringIO
 
 from django.test.client import RequestFactory
@@ -34,6 +35,8 @@ IDS = [
     '7547b5d8-ee5f-4b64-9372-deaf90ea2a5b', 'c56ebc51-fc57-4cab-9138-e95b37cbcb4e',
     'bb37f714-d137-49ef-897c-9013499a571a']
 
+RUN_COUNT = 5
+
 
 def remove_database():
     path = DATABASES['default']['NAME']
@@ -60,6 +63,10 @@ def empty_cache():
         shutil.rmtree(FULL_METADATA_CACHE_DIR)
 
 
+def run_view(view, request):
+    unicode(view(request))
+
+
 def profile_view(view):
     empty_database()
     empty_cache()
@@ -71,28 +78,24 @@ def profile_view(view):
     for result in api_request.call():
         cart.add(result)
     cart.update_stats()
-    # without full metadata cache
-    start = datetime.datetime.now()
-    unicode(view(request))
-    first_time = datetime.datetime.now() - start
-    # with dull metadata cache
-    start = datetime.datetime.now()
-    unicode(view(request))
-    second_time = datetime.datetime.now() - start
+    # Call view RUN_COUNT times
+    for i in range(RUN_COUNT):
+        print 'Run #%d ...' % (i + 1)
+        runctx('run_view(view, request)',
+                {'run_view': run_view},
+                {'view': view, 'request': request})
     print 'done'
-    print 'First run: %d us' % first_time.microseconds
-    print 'Second run: %d us' % second_time.microseconds
 
 
 def profile():
     print 'Creating database ...',
     create_database()
     print 'done'
-    print 'Profiling metadata view ...',
+    print 'Profiling metadata view ...'
     profile_view(metadata)
-    print 'Profiling manifest view ...',
+    print 'Profiling manifest view ...'
     profile_view(manifest)
-    print 'Profiling summary view ...',
+    print 'Profiling summary view ...'
     profile_view(summary)
     empty_cache()
     remove_database()
