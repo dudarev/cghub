@@ -14,6 +14,7 @@ from django.contrib.sessions.models import Session
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import create_session, get_request
+from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 
 from ..utils import (
                     manifest, metadata, summary, Cart,
@@ -158,10 +159,13 @@ class CartUtilsTestCase(TestCase):
         # check is last_modified is the same as in Result
         self.assertNotEqual(analysis.last_modified, page[0]['last_modified'])
         # test sorting
-        page1 = cart.page(sort_by='analysis_id')
-        page2 = cart.page(sort_by='-analysis_id')
-        self.assertEqual(page1[0], page2[1])
-        self.assertEqual(page1[1], page2[0])
+        for attr in CART_SORT_ATTRIBUTES:
+            page1 = cart.page(sort_by=attr)
+            page2 = cart.page(sort_by='-%s' % attr)
+            if attr == 'analysis_id':
+                self.assertEqual(page1[0], page2[1])
+                self.assertEqual(page1[1], page2[0])
+        
 
 
 class CartTestCase(TestCase):
