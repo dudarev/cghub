@@ -14,7 +14,6 @@ from django.contrib.sessions.models import Session
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.tests import create_session, get_request
-from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 
 from ..utils import (
                     manifest, metadata, summary, Cart,
@@ -149,14 +148,20 @@ class CartUtilsTestCase(TestCase):
         analysis.save()
         page = cart.page()
         self.assertEqual(len(page), 2)
-        self.assertIn(
-                cart_item1.analysis.analysis_id, page[0]['analysis_id'])
-        self.assertIn(
-                cart_item2.analysis.analysis_id, page[1]['analysis_id'])
+        self.assertTrue(
+                ((cart_item1.analysis.analysis_id == page[0]['analysis_id']) and
+                (cart_item2.analysis.analysis_id == page[1]['analysis_id'])) or
+                ((cart_item1.analysis.analysis_id == page[1]['analysis_id']) and
+                (cart_item2.analysis.analysis_id == page[0]['analysis_id'])))
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
         # check is last_modified is the same as in Result
         self.assertNotEqual(analysis.last_modified, page[0]['last_modified'])
+        # test sorting
+        page1 = cart.page(sort_by='analysis_id')
+        page2 = cart.page(sort_by='-analysis_id')
+        self.assertEqual(page1[0], page2[1])
+        self.assertEqual(page1[1], page2[0])
 
 
 class CartTestCase(TestCase):
@@ -168,13 +173,13 @@ class CartTestCase(TestCase):
                 'files_size': 12345
             }, {
                 'analysis_id': '016b792f-e659-4143-b833-163141e21363',
-                'state': 'suppressed',
-                'last_modified': '2013-06-16T20:43:40Z',
+                'state': 'live',
+                'last_modified': '2013-05-16T20:43:40Z',
                 'files_size': 12346
             }, {
                 'analysis_id': '01810b1a-84e4-43d5-8a1e-42b132a1126f',
-                'state': 'redacted',
-                'last_modified': '2013-07-16T20:43:40Z',
+                'state': 'live',
+                'last_modified': '2013-05-16T20:43:40Z',
                 'files_size': 12347
             }]
 
@@ -269,20 +274,20 @@ class CartTestCase(TestCase):
         # go to cart page
         response = self.client.get(self.cart_page_url)
         self.assertEqual(response.status_code, 200)
-        id1 = self.RANDOM_IDS[0]['analysis_id']
-        id2 = self.RANDOM_IDS[2]['analysis_id']
         # check sort by analysis_id
-        for attr in CART_SORT_ATTRIBUTES:
+        for attr in ('analysis_id',):
+            val1 = str(self.RANDOM_IDS[0][attr])
+            val2 = str(self.RANDOM_IDS[1][attr])
             response = self.client.get(
                     self.cart_page_url,
                     {'sort_by': attr})
             self.assertEqual(response.status_code, 200)
-            result1 = response.content.find(id1) > response.content.find(id2)
-            esponse = self.client.get(
+            result1 = response.content.find(val1) > response.content.find(val2)
+            response = self.client.get(
                     self.cart_page_url,
                     {'sort_by': '-%s' % attr})
             self.assertEqual(response.status_code, 200)
-            result2 = response.content.find(id1) > response.content.find(id2)
+            result2 = response.content.find(val1) > response.content.find(val2)
             self.assertNotEqual(result1, result2)
 
     def test_cart_add_raise_http_404_when_get(self):
