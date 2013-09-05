@@ -1,5 +1,5 @@
 @charset "UTF-8";
-.flexigrid{font-family:Arial,Helvetica,sans-serif;font-size:13px;position:relative;border:0px solid #eee;overflow:hidden;color:#000;}
+.flexigrid{font-family:Arial,Helvetica,sans-serif;font-size:14px;position:relative;border:0px solid #eee;overflow:hidden;color:#000;}
 .flexigrid.hideBody{height:26px !important;border-bottom:1px solid #ccc;}
 .ie6fullwidthbug{border-right:0px solid #ccc;padding-right:2px;}
 .flexigrid div.nDiv{background:#eeeeee url(images/line.gif) repeat-y -1px top;border:1px solid #ccc;border-top:0px;overflow:auto;left:0px;position:absolute;z-index:999;float:left;}
@@ -42,13 +42,13 @@
 .flexigrid div.iDiv input,.flexigrid div.iDiv select,.flexigrid div.iDiv textarea{font-family:Arial,Helvetica,sans-serif;font-size:11px;}
 .flexigrid div.iDiv input.tb{border:0px;width:100%;height:100%;padding:0px;background:none;}
 .flexigrid div.bDiv{border:1px solid #ccc;border-top:0px;background:#fff;overflow:auto;position:relative;}
-.flexigrid div.bDiv table{border-bottom:1px solid #ccc;}
+.flexigrid div.bDiv table{}
 .flexigrid div.hGrip{position:absolute;top:0px;right:0px;height:5px;width:5px;background:url(images/line.gif) repeat-x center;margin-right:1px;cursor:col-resize;}
 .flexigrid div.hGrip:hover,.flexigrid div.hGrip.hgOver{border-right:1px solid #999;margin-right:0px;}
 .flexigrid div.vGrip{height:5px;overflow:hidden;position:relative;background:#fafafa url(images/wbg.gif) repeat-x 0px -1px;border:1px solid #ccc;border-top:0px;text-align:center;cursor:row-resize;}
 .flexigrid div.vGrip span{display:block;margin:1px auto;width:20px;height:1px;overflow:hidden;border-top:1px solid #aaa;border-bottom:1px solid #aaa;background:none;}
 .flexigrid div.hDiv th,.flexigrid div.bDiv td{text-align:left;border-right:1px solid #ddd;border-left:1px solid #fff;overflow:hidden;vertical-align:top !important;padding-left:0;padding-right:0;}
-.flexigrid div.hDiv th div,.flexigrid div.bDiv td div,div.colCopy div{padding:5px;border-left:0px solid #fff;}
+.flexigrid div.hDiv th div,.flexigrid div.bDiv td div,div.colCopy div{padding:6px 5px 4px 5px;border-left:0px solid #fff;}
 .flexigrid div.hDiv th,div.colCopy{font-weight:normal;height:24px;cursor:default;white-space:normal;overflow:hidden;}
 div.colCopy{font-family:Arial,Helvetica,sans-serif;font-size:11px;background:#fafafa url(images/fhbg.gif) repeat-x bottom;border:1px solid #ccc;border-bottom:0px;overflow:hidden;}
 .flexigrid div.hDiv th.sorted{background:url(images/wbg.gif) repeat-x 0px -1px;border-bottom:0px solid #ccc;}
@@ -60,14 +60,14 @@ div.colCopy{font-family:Arial,Helvetica,sans-serif;font-size:11px;background:#fa
 .flexigrid div.hDiv th.thMove div{background:#fff !important;}
 .flexigrid div.hDiv th div.sdesc{background:url(images/dn.png) no-repeat center top;}
 .flexigrid div.hDiv th div.sasc{background:url(images/up.png) no-repeat center top;}
-.flexigrid div.bDiv td{border-bottom:1px solid #fff;vertical-align:top;white-space:nowrap;}
+.flexigrid div.bDiv td{border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap;}
 .flexigrid span.cdropleft{display:block;background:url(images/prev.gif) no-repeat -4px center;width:24px;height:24px;position:relative;top:-24px;margin-bottom:-24px;z-index:3;}
 .flexigrid div.hDiv span.cdropright{display:block;background:url(images/next.gif) no-repeat 12px center;width:24px;height:24px;float:right;position:relative;top:-24px;margin-bottom:-24px;}
-.flexigrid div.bDiv td div{border-top:0px solid #fff;padding-bottom:4px;}
+.flexigrid div.bDiv td div{border-top:0px solid #fff;padding-bottom:2px;padding-top:3px;}
 .flexigrid tr td.sorted{background:#f3f3f3;border-right:1px solid #ddd;border-bottom:1px solid #f3f3f3;}
-.flexigrid tr.erow td{background:#f7f7f7;border-bottom:1px solid #f7f7f7;}
+.flexigrid tr.erow td{background:#f0f0f0;border-bottom:1px solid #f0f0f0;}
 .flexigrid tr.erow td.sorted{background:#e3e3e3;border-bottom:1px solid #e3e3e3;}
-.flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td{background:#d9ebf5;border-left:1px solid #eef8ff;border-bottom:1px dotted #a8d8eb;}
+.flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td{background:#d9ebf5;border-left:1px solid #eef8ff;}
 .flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td{background:#d5effc url(images/hl.png) repeat-x top;border-right:1px solid #d2e3ec;border-left:1px solid #eef8ff;border-bottom:1px solid #a8d8eb;}
 .flexigrid.novstripe .bDiv table{border-bottom:1px solid #ccc;border-right:1px solid #ccc;}
 .flexigrid.novstripe div.bDiv td{border-right-color:#fff;}
