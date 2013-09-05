@@ -65,7 +65,7 @@ function obtains value and should return new value, for example:
 
 COLUMN_STYLES = {
     'Analysis Id': {
-        'width': 250, 'align': 'left', 'default_state': 'visible',
+        'width': 300, 'align': 'left', 'default_state': 'visible',
         },
     'Assembly': {
         'width': 170, 'align': 'left', 'default_state': 'visible',
@@ -77,10 +77,10 @@ COLUMN_STYLES = {
         'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Center Name': {
-        'width': 300, 'align': 'left', 'default_state': 'hidden',
+        'width': 400, 'align': 'left', 'default_state': 'hidden',
         },
     'Checksum': {
-        'width': 250, 'align': 'left', 'default_state': 'hidden',
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
     'Disease': {
         'width': 65, 'align': 'left', 'default_state': 'visible',
@@ -89,10 +89,10 @@ COLUMN_STYLES = {
         'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Experiment Type': {
-        'width': 100, 'align': 'left', 'default_state': 'hidden',
+        'width': 120, 'align': 'left', 'default_state': 'hidden',
         },
     'Filename': {
-        'width': 300, 'align': 'left', 'default_state': 'hidden',
+        'width': 400, 'align': 'left', 'default_state': 'hidden',
         },
     'Files Size': {
         'width': 75, 'align': 'right', 'default_state': 'visible',

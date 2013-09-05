@@ -2,7 +2,7 @@
 /* CSS Document */
 .flexigrid {
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 13px;
+	font-size: 14px;
 	position: relative;
 	border: 0px solid #eee;
 	overflow: hidden;
@@ -309,7 +309,7 @@
 }
 
 .flexigrid div.bDiv table {
-	border-bottom: 1px solid #ccc;
+	/* border-bottom: 1px solid #ccc; */
 }
 
 .flexigrid div.hGrip {
@@ -363,7 +363,8 @@
 
 .flexigrid div.hDiv th div,.flexigrid  div.bDiv td  div,div.colCopy div
 	/* common inner cell properties*/ {
-	padding: 5px;
+	/* padding: 5px; */
+    padding: 6px 5px 4px 5px;
 	border-left: 0px solid #fff;
 }
 
@@ -426,7 +427,7 @@ div.colCopy {
 }
 
 .flexigrid div.bDiv td {
-	border-bottom: 1px solid #fff;
+	border-bottom: 1px solid #f0f0f0;
 	vertical-align: top;
 	white-space: nowrap;
 }
@@ -459,7 +460,9 @@ div.colCopy {
 
 .flexigrid div.bDiv td div {
 	border-top: 0px solid #fff;
-	padding-bottom: 4px;
+	/* padding-bottom: 4px; */
+    padding-bottom: 2px;
+    padding-top: 3px;
 }
 
 .flexigrid tr td.sorted {
@@ -473,8 +476,8 @@ div.colCopy {
 }
 
 .flexigrid tr.erow td {
-	background: #f7f7f7;
-	border-bottom: 1px solid #f7f7f7;
+	background: #f0f0f0;
+	border-bottom: 1px solid #f0f0f0;
 }
 
 .flexigrid tr.erow td.sorted {
@@ -490,7 +493,7 @@ div.colCopy {
 	{
 	background: #d9ebf5;
 	border-left: 1px solid #eef8ff;
-	border-bottom: 1px dotted #a8d8eb;
+	/* border-bottom: 1px dotted #a8d8eb; */
 }
 
 .flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td
