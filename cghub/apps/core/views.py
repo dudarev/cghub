@@ -207,6 +207,9 @@ class BatchSearchView(TemplateView):
                     ids.append(analysis_id)
             found['legacy_sample_id'] = api_request.hits
 
+        # sort ids
+        ids.sort()
+
         return ids, found
 
     def post(self, request, **kwargs):
@@ -242,7 +245,7 @@ class BatchSearchView(TemplateView):
                 for i in ids[offset:(offset + limit)]:
                     results.append(i)
 
-                results = get_results_for_ids(results)
+                results = get_results_for_ids(results, sort_by='analysis_id')
 
                 return self.render_to_response({
                         'form': form, 'ids': ids,
@@ -268,7 +271,7 @@ class BatchSearchView(TemplateView):
                 for i in ids[offset:offset + limit]:
                     results.append(i)
 
-                results = get_results_for_ids(results)
+                results = get_results_for_ids(results, sort_by='analysis_id')
 
                 if not results:
                     form.errors['__all__'] = form.error_class(["No results found."])

@@ -264,13 +264,13 @@ class ResultFromSOLRFile(SOLRRequest):
         return codecs.open(filename, 'r')
 
 
-def get_results_for_ids(ids):
+def get_results_for_ids(ids, sort_by=None):
     """
     Obtain all necessary attributes for specified analysis_ids
     """
     if not ids:
         return []
-    api_request = RequestDetail(query={'analysis_id': ids})
+    api_request = RequestDetail(query={'analysis_id': ids}, sort_by=sort_by)
     results = []
     for result in api_request.call():
         results.append(result)
