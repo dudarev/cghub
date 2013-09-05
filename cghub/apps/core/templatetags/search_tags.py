@@ -12,7 +12,8 @@ from django.template.loader import select_template
 
 from cghub.apps.core.filters_storage import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.attributes import (
-                COLUMN_NAMES, DATE_ATTRIBUTES, SORT_BY_ATTRIBUTES)
+                COLUMN_NAMES, DATE_ATTRIBUTES, SORT_BY_ATTRIBUTES,
+                CART_SORT_ATTRIBUTES)
 
 
 register = template.Library()
@@ -235,19 +236,22 @@ def sort_link(request, attribute, link_anchor):
     """
     Generates a link based on request.path and `order` direction for `attribute`
     Specifies sort `direction`: '-' (DESC) or '' (ASC)
-
     """
-    if attribute not in SORT_BY_ATTRIBUTES:
+    if request.path == reverse('cart_page'):
+        # allow sorting in cart only by CART_SORT_ATTRIBUTES
+        if attribute not in CART_SORT_ATTRIBUTES:
+            return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+    elif request.path == reverse('batch_search_page'):
+        # disable sorting on batch search results page
         return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
-    # do not allow to sort in cart
-    if (reverse('cart_page') == request.path or
-            reverse('batch_search_page') == request.path):
+    elif attribute not in SORT_BY_ATTRIBUTES:
+        # allow sorting on search page only by SORT_BY_ATTRIBUTES
         return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+
     data = {}
     for k in request.GET:
         if k not in ('offset',):
             data[k] = request.GET[k]
-
     if 'sort_by' in data and attribute in data['sort_by']:
         # for current sort change NEXT possible order
         if data['sort_by'].startswith('-'):
@@ -269,7 +273,7 @@ def sort_link(request, attribute, link_anchor):
         if direction_label == 'down':
             sorting_arrow = triangle.format('down')
 
-    path = request.path or '/search/'
+    path = request.path or reverse('search_page')
     href = escape(path + '?' + urllib.urlencode(data))
     return ('<a class="sort-link" href="%(href)s" '
         'title="click to sort by %(link_anchor)s">%(link_anchor)s%(sorting_arrow)s</a>' % {

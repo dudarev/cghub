@@ -13,6 +13,7 @@ from django.contrib.sessions.models import Session
 from django.db import IntegrityError
 from django.db.models import Sum
 
+from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetail
 from cghub.apps.core.utils import CSVUnicodeWriter, add_message
@@ -62,8 +63,18 @@ class Cart(object):
             return
         item.delete()
 
-    def page(self, offset=0, limit=10):
-        items = self.cart.items.all()[offset:offset + limit]
+    def page(self, offset=0, limit=10, sort_by=None):
+        if (sort_by and sort_by not in CART_SORT_ATTRIBUTES and
+                        sort_by[1:] not in CART_SORT_ATTRIBUTES):
+            sort_by = None
+        if sort_by:
+            if sort_by[0] == '-':
+                sort_str = '-analysis__%s' % sort_by[1:]
+            else:
+                sort_str = 'analysis__%s' % sort_by
+            items = self.cart.items.order_by(sort_str)[offset:offset + limit]
+        else:    
+            items = self.cart.items.all()[offset:offset + limit]
         if not items.exists():
             return []
         results = []
@@ -71,6 +82,11 @@ class Cart(object):
                 'analysis_id': [i.analysis.analysis_id for i in items]})
         for result in api_request.call():
             results.append(result)
+        # sort results
+        if sort_by:
+            sort_attribute = sort_by[1:] if sort_by[0] == '-' else sort_by
+            sort_key = lambda s: s[sort_attribute]
+            results.sort(key=sort_key, reverse=sort_by[0].find('-') == 0)
         return results
 
     def add(self, result):

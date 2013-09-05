@@ -91,11 +91,12 @@ class CartView(TemplateView):
 
     def get_context_data(self, **kwargs):
         cart = Cart(self.request.session)
+        sort_by = self.request.GET.get('sort_by')
         offset, limit = paginator_params(self.request)
         # will be saved to cookie in get method
         self.paginator_limit = limit
         return {
-            'results': cart.page(offset=offset, limit=limit),
+            'results': cart.page(offset=offset, limit=limit, sort_by=sort_by),
             'num_results': cart.all_count,
             'size': cart.size}
 
