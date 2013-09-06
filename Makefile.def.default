@@ -15,6 +15,7 @@ TEST_APP=core.CoreTestCase core.UtilsTestCase core.TemplateTagsTestCase \
 			core.MetadataViewTestCase core.ContextProcessorsTestCase \
 			core.SettingsTestCase core.ErrorViewsTestCase \
 			core.BatchSearchTestCase core.RequestsTestCase \
+			core.SelectFiltersTestCase \
 			cart.CartTestCase cart.CartAddItemsTestCase \
 			cart.CartCacheTestCase cart.CartFormsTestCase \
 			cart.CartModelsTestCase cart.CartUtilsTestCase \

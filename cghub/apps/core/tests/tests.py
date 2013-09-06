@@ -1,25 +1,39 @@
-import os.path
-import sys
-import shutil
-import datetime
 import codecs
+import datetime
+import os.path
+import shutil
+import sys
 
-from urllib2 import URLError
-from mock import patch
+try:
+    from collections import OrderedDict
+except ImportError:
+    from django.utils.simplejson import OrderedDict
+
 from cghub_python_api import SOLRRequest
+from mock import patch
+from urllib2 import URLError
+from StringIO import StringIO
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
-from django.utils import timezone
-from django.utils.importlib import import_module
 from django.template import Template, Context, RequestContext
 from django.test.client import RequestFactory
 from django.test.testcases import TestCase
+from django.utils import timezone
+from django.utils.importlib import import_module
 from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
+from ..attributes import ADDITIONAL_ATTRIBUTES
+from ..filters_storage import ALL_FILTERS
+from ..forms import BatchSearchForm, AnalysisIDsForm
+from ..management.commands.selectfilters import FiltersProcessor
+from ..requests import (
+                    RequestFull, RequestDetail, RequestID,
+                    ResultFromSOLRFile, build_wsapi_xml,
+                    get_results_for_ids)
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
                     get_name_by_code, table_header, table_row,
@@ -29,14 +43,7 @@ from ..templatetags.core_tags import without_header, messages
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
                     paginator_params, generate_tmp_file_name, add_message)
-from ..requests import (
-                    RequestFull, RequestDetail, RequestID,
-                    ResultFromSOLRFile, build_wsapi_xml,
-                    get_results_for_ids)
 from ..views import error_500
-from ..filters_storage import ALL_FILTERS
-from ..forms import BatchSearchForm, AnalysisIDsForm
-from ..attributes import ADDITIONAL_ATTRIBUTES
 
 
 def create_session(self):
@@ -652,6 +659,34 @@ class TemplateTagsTestCase(TestCase):
         self.assertIn('alert-%s' % level, result)
         self.assertIn('1', result)
         self.assertIn(content, result)
+
+
+class SelectFiltersTestCase(TestCase):
+
+    def test_selectfilters(self):
+        """
+        filters_storage.json.test will be used while testing
+        """
+        # test FiltersProcessor
+        options = OrderedDict([
+            ('NCBI37/HG19', OrderedDict([
+                ('HG19', 'HG19'),
+                ('HG19_Broad_variant', 'HG19_Broad_variant'),
+            ])),
+            ('GRCh37', 'GRCh37'),
+        ])
+        filter_name = 'refassem_short_name'
+        stdout = StringIO()
+        processor = FiltersProcessor(stdout=stdout)
+        options = processor.process(
+                filter_name=filter_name, options=options)
+        print options
+        OrderedDict([
+            ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
+            ('HG19', ' - HG19'),
+            ('HG19_Broad_variant', ' - HG19_Broad_variant'),
+            ('GRCh37', 'GRCh37'),
+        ])
 
 
 class BatchSearchTestCase(TestCase):
