@@ -5,6 +5,7 @@ import sys
 import shutil
 import datetime
 import time
+import pstats
 
 from cProfile import runctx
 from StringIO import StringIO
@@ -83,7 +84,9 @@ def profile_view(view):
         print 'Run #%d ...' % (i + 1)
         runctx('run_view(view, request)',
                 {'run_view': run_view},
-                {'view': view, 'request': request})
+                {'view': view, 'request': request}, 'stats')
+        p = pstats.Stats('stats')
+        p.sort_stats('time').print_stats(20)
     print 'done'
 
 
