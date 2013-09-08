@@ -10,6 +10,7 @@ import pstats
 from cProfile import runctx
 from StringIO import StringIO
 
+from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.core.management import call_command
 
@@ -17,6 +18,7 @@ from cghub.apps.cart.utils import Cart, metadata, manifest, summary
 from cghub.apps.cart.models import Analysis, Cart as CartModel
 from cghub.apps.core.tests.tests import get_request
 from cghub.apps.core.requests import RequestMinimal
+from cghub.apps.core.views import SearchView
 
 from devtools.profile_settings import DATABASES, FULL_METADATA_CACHE_DIR
 
@@ -65,7 +67,10 @@ def empty_cache():
 
 
 def run_view(view, request):
-    unicode(view(request))
+    response = view(request)
+    if isinstance(response, TemplateResponse):
+        response = response.render()
+    str(response)
 
 
 def profile_view(view):
@@ -94,6 +99,8 @@ def profile():
     print 'Creating database ...',
     create_database()
     print 'done'
+    print 'Profiling home view ...'
+    profile_view(SearchView.as_view())
     print 'Profiling metadata view ...'
     profile_view(metadata)
     print 'Profiling manifest view ...'
