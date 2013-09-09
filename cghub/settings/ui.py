@@ -12,8 +12,9 @@ List of columns to display:
 
 Available column_names: 'Assembly', 'Barcode', 'Center', 'Center Name',
 'Checksum', 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
-'Library Type', 'Modified', 'Platform', 'Platform Name', 'Sample Accession',
-'Sample Type', 'Sample Type Name', 'State', 'Study', 'Uploaded', 'Analysis Id'.
+'Library Type', 'Modified', 'Platform', 'Platform Name', 'Reason',
+'Sample Accession', 'Sample Type', 'Sample Type Name', 'State', 'Study',
+'Uploaded', 'Analysis Id'.
 
 Styles of the columns:
 
@@ -176,6 +177,7 @@ DETAILS_FIELDS = (
     'Uploaded',
     'Modified',
     'State',
+    'Reason',
     'Aliquot id',
     'TSS id',
     'Participant id',

@@ -139,6 +139,8 @@ class CoreTestCase(TestCase):
         self.assertContains(response, '<head>')
         self.assertContains(response, 'Collapse all')
         self.assertContains(response, 'Expand all')
+        # reason shows only for state != live
+        self.assertNotContains(response, 'Reason')
         # try ajax request
         response = self.client.get(
                         reverse('item_details',
@@ -168,7 +170,8 @@ class CoreTestCase(TestCase):
                 'item_details', kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
         # once in table and once in raw xml
-        self.assertContains(response, u'Failed to augment fileset', 2)
+        self.assertContains(response, 'Reason')
+        self.assertContains(response, 'Failed to augment fileset', 2)
 
     def test_save_filters_state(self):
         # TODO: Extend this test (only filters should be persistent, not query)
