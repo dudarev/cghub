@@ -16,23 +16,20 @@ from cghub.apps.core.requests import RequestDetail, RequestID
 
 class FiltersProcessor(object):
     """
-    procesor = FiltersProcessor(stdout=sys.stdout, selectfilters=False)
+    procesor = FiltersProcessor(stdout=sys.stdout)
     options = processor.process(filter_name='refassem_short_name', options=OrderedDict([
         ('NCBI37/HG19', OrderedDict([
             ('HG19', 'HG19'),
             ('HG19_Broad_variant', 'HG19_Broad_variant'),
         ])),
         ('GRCh37', 'GRCh37'),
-    ]))
+    ]), selectfilters=False)
     assert options == OrderedDict([
         ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
         ('HG19', ' - HG19'),
         ('HG19_Broad_variant', ' - HG19_Broad_variant'),
         ('GRCh37', 'GRCh37'),
     ])
-    options = processor.process(...)
-    ...
-    print processor.new_options
 
     :param stdout: sys.stdout
     """
@@ -53,11 +50,18 @@ class FiltersProcessor(object):
         if selectfilters:
             self.find_all_options(filter_name)
             options = self.select_options(filter_name, options)
+            # add not existent options
+            new_options = set(self.all_options) - set(self.used_options)
+            for option in new_options:
+                options.append((option, option))
+                self.stdout.write('- Added new filter %s:%s\n' % (filter_name, option))
+                self.stdout.write('! Please add this filter to filters_storage_full.py\n')
+            options = OrderedDict(options)
 
-        new_dict, all_val = self.open_hierarchieal_structures(options)
+        new_dict, all_val = self.open_hierarchical_structures(options)
         return OrderedDict(new_dict)
 
-    def open_hierarchieal_structures(self, options, depth=0):
+    def open_hierarchical_structures(self, options, depth=0):
         result = []
         val = []
         for option_name, option_value in options.iteritems():
@@ -65,7 +69,7 @@ class FiltersProcessor(object):
                 if not option_value:
                     # remove empty substructures
                     continue
-                new_dict, v = self.open_hierarchieal_structures(
+                new_dict, v = self.open_hierarchical_structures(
                         option_value, depth=depth + 1)
                 val.append(v)
                 result.append((' OR '.join(val), option_name))
@@ -80,29 +84,32 @@ class FiltersProcessor(object):
 
     def select_options(self, filter_name, options):
         """
-        Remove unused filters and add not existent
+        Remove unused filters
 
         :param filter_name: filter name
         :param filter_values: list of filter options values
         """
 
         result = []
+        self.used_options = []
 
         for option_name, option_value in options.iteritems():
             if isinstance(option_value, OrderedDict):
                 sub_result = self.select_options(filter_name, option_value)
                 if not result:
                     continue
-                result.append((option_name, sub_result))
+                result.append((option_name, OrderedDict(sub_result)))
             else:
                 # check is option was used
+                used = False
                 for o in option_value.split(' OR '):
                     if o in self.all_options:
-                        break
-                else:
-                    continue
-                result.append((option_name, option_value))
-        return OrderedDict(result)
+                        used = True
+                        if o not in self.used_options:
+                            self.used_options.append(o)
+                if used:
+                    result.append((option_name, option_value))
+        return result
 
     def find_all_options(self, filter_name):
         api_request = RequestID(query={filter_name: '*'}, limit=5)
@@ -149,13 +156,14 @@ class FiltersProcessor(object):
 
 
 class Command(BaseCommand):
-    help = 'Check what filters are used.'
+    help = 'Process filters from filters_storrage_full.py.'
 
     def handle(self, *args, **options):
 
         processor = FiltersProcessor(stdout=self.stdout)
 
         for filter_name, filter_data in ALL_FILTERS.iteritems():
+            self.stdout.write('Processing %s filter\n' % filter_name)
             if filter_name in DATE_ATTRIBUTES:
                 continue
             options = processor.process(
