@@ -673,20 +673,24 @@ class SelectFiltersTestCase(TestCase):
                 ('HG19', 'HG19'),
                 ('HG19_Broad_variant', 'HG19_Broad_variant'),
             ])),
+            ('Empty', OrderedDict([])),
             ('GRCh37', 'GRCh37'),
         ])
         filter_name = 'refassem_short_name'
         stdout = StringIO()
         processor = FiltersProcessor(stdout=stdout)
         options = processor.process(
-                filter_name=filter_name, options=options)
-        print options
-        OrderedDict([
-            ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
-            ('HG19', ' - HG19'),
-            ('HG19_Broad_variant', ' - HG19_Broad_variant'),
-            ('GRCh37', 'GRCh37'),
-        ])
+                filter_name=filter_name, options=options,
+                selectfilters=False)
+        self.assertEqual(
+            options,
+            OrderedDict([
+                ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
+                ('HG19', '- HG19'),
+                ('HG19_Broad_variant', '- HG19_Broad_variant'),
+                ('GRCh37', 'GRCh37')]
+            )
+        )
 
 
 class BatchSearchTestCase(TestCase):
