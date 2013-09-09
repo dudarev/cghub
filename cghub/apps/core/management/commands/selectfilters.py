@@ -16,7 +16,7 @@ from cghub.apps.core.requests import RequestDetail, RequestID
 
 class FiltersProcessor(object):
     """
-    procesor = FiltersProcessor()
+    procesor = FiltersProcessor(stdout=sys.stdout, selectfilters=False)
     options = processor.process(filter_name='refassem_short_name', options=OrderedDict([
         ('NCBI37/HG19', OrderedDict([
             ('HG19', 'HG19'),
@@ -33,25 +33,59 @@ class FiltersProcessor(object):
     options = processor.process(...)
     ...
     print processor.new_options
+
+    :param stdout: sys.stdout
     """
 
     def __init__(self, stdout):
         self.stdout = stdout
-        self.new_options = {}
         self.CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
 
-    def filter_all_items(self, filter_name):
+    def process(self, filter_name, options, selectfilters=False):
+        """
+        1. Process hierarchieal structures
+        2. Transorm option/query to query/option
+        3. Run selectfilters algorithm is selectfilters == True
+
+        :param selectfilters: boolean, set to True if need to run selectfilters algorithm
+        """
+
+        new_dict, all_val = self.open_hierarchieal_structure(options)
+        processed_options = OrderedDict(new_dict)
+
+        if selectfilters:
+            processed_options = self.select_filters(processed_options)
+
+        return processed_options
+
+    def open_hierarchieal_structure(self, options, depth=0):
+        result = []
+        val = []
+        for option_name, option_value in options.iteritems():
+            if isinstance(option_value, OrderedDict):
+                new_dict, v = self.open_hierarchieal_structure(
+                        option_value, depth=depth + 1)
+                result.append(new_dict)
+                val.append(v)
+            else:
+                result.append((
+                    option_value,
+                    '%s%s' % ('-' * depth, option_name)))
+                val.append(option_value)
+        return result, ' OR '.join(val)
+
+    def select_filters(self, filter_name, options):
+        """
+        Remove unused filters and add not existent
+        """
+        new_options = []
+        used_options = []
         api_request = RequestID(query={filter_name: '*'}, limit=5)
         try:
             result = api_request.call().next()
+            all_count = api_request.hits
         except StopIteration:
-            return 0
-        return api_request.hits
-
-    def process(self, filter_name, options):
-        self.new_options[filter_name] = []
-        used_options = []
-        all_count = self.filter_all_items(filter_name=filter_name)
+            all_count = 0
         count = 0
 
         for option_name, option_value in options.iteritems():
@@ -66,7 +100,8 @@ class FiltersProcessor(object):
 
         if count < count_all:
             self.new_options[filter_name] = list(
-                    set(self.get_all_filters(filter_name=filter_name, count_all=count_all)) -
+                    set(self.get_all_filters(
+                            filter_name=filter_name, count_all=count_all)) -
                     set(used_options))
         return used_options + self.new_options[filter_name]
 
