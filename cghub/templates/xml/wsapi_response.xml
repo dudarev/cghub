@@ -5,7 +5,7 @@
     <Result id="1">
         <analysis_id>{{ result.analysis_id.text }}</analysis_id>
         <state>{{ result.state.text }}</state>
-        {% if result.reasone.text %}
+        {% if result.reason.text %}
         <reason>{{ result.reason.text }}</reason>
         {% else %}
         <reason/>

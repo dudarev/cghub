@@ -338,6 +338,7 @@ def field_values(result, humanize_files_size=True):
         'Platform Name': get_name_by_code(
             'platform',
             get_result_attr(result, 'platform')),
+        'Reason': get_result_attr(result, 'reason'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
@@ -397,6 +398,8 @@ def details_table(result):
         if field_name in settings.VALUE_RESOLVERS:
             value = settings.VALUE_RESOLVERS[field_name](value)
         if value is None:
+            continue
+        if field_name == 'Reason' and value.isspace():
             continue
         html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
                  '<td headers="id-row-{col_name}">{value}</td></tr>'.format(

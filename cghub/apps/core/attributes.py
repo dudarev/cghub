@@ -24,6 +24,7 @@ COLUMN_NAMES = {
     'Modified': 'last_modified',
     'Platform': 'platform',
     'Platform Name': 'platform',
+    'Reason': 'reason',
     'Sample Accession': 'sample_accession',
     'Sample Type': 'sample_type',
     'Sample Type Name': 'sample_type',
