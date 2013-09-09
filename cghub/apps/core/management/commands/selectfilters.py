@@ -8,123 +8,169 @@ except ImportError:
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
 
+from cghub.apps.core.attributes import DATE_ATTRIBUTES
 from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
 from cghub.apps.core.requests import RequestDetail, RequestID
 
 
-CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
+class FiltersProcessor(object):
+    """
+    procesor = FiltersProcessor(stdout=sys.stdout)
+    options = processor.process(filter_name='refassem_short_name', options=OrderedDict([
+        ('NCBI37/HG19', OrderedDict([
+            ('HG19', 'HG19'),
+            ('HG19_Broad_variant', 'HG19_Broad_variant'),
+        ])),
+        ('GRCh37', 'GRCh37'),
+    ]), selectfilters=False)
+    assert options == OrderedDict([
+        ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
+        ('HG19', ' - HG19'),
+        ('HG19_Broad_variant', ' - HG19_Broad_variant'),
+        ('GRCh37', 'GRCh37'),
+    ])
 
+    :param stdout: sys.stdout
+    """
 
-def get_all_filters(stdout, key, start='', count_all=None):
-    filters = []
-    count = 0
-    for c in CHARACTERS:
-        query = {key: '%s%s*' % (start, c)}
-        stdout.write('Searching [%s]' % query)
-        api_request = RequestDetail(query=query, limit=5, sort_by=key)
+    def __init__(self, stdout):
+        self.stdout = stdout
+        self.CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
+
+    def process(self, filter_name, options, selectfilters=False):
+        """
+        1. Run selectfilters algorithm is selectfilters == True
+        2. Process hierarchieal structures
+        3. Transorm option/query to query/option
+
+        :param selectfilters: boolean, set to True if need to run selectfilters algorithm
+        """
+
+        if selectfilters:
+            self.find_all_options(filter_name)
+            options = self.select_options(filter_name, options)
+            # add not existent options
+            new_options = set(self.all_options) - set(self.used_options)
+            for option in new_options:
+                options.append((option, option))
+                self.stdout.write('- Added new filter %s:%s\n' % (filter_name, option))
+                self.stdout.write('! Please add this filter to filters_storage_full.py\n')
+            options = OrderedDict(options)
+
+        new_dict, all_val = self.open_hierarchical_structures(options)
+        return OrderedDict(new_dict)
+
+    def open_hierarchical_structures(self, options, depth=0):
+        result = []
+        val = []
+        for option_name, option_value in options.iteritems():
+            if isinstance(option_value, OrderedDict):
+                if not option_value:
+                    # remove empty substructures
+                    continue
+                new_dict, v = self.open_hierarchical_structures(
+                        option_value, depth=depth + 1)
+                val.append(v)
+                result.append((' OR '.join(val), option_name))
+                for d in new_dict:
+                    result.append(d)
+            else:
+                result.append((
+                    option_value,
+                    '%s%s' % ('- ' * depth, option_name)))
+                val.append(option_value)
+        return result, ' OR '.join(val)
+
+    def select_options(self, filter_name, options):
+        """
+        Remove unused filters
+
+        :param filter_name: filter name
+        :param filter_values: list of filter options values
+        """
+
+        result = []
+        self.used_options = []
+
+        for option_name, option_value in options.iteritems():
+            if isinstance(option_value, OrderedDict):
+                sub_result = self.select_options(filter_name, option_value)
+                if not result:
+                    continue
+                result.append((option_name, OrderedDict(sub_result)))
+            else:
+                # check is option was used
+                used = False
+                for o in option_value.split(' OR '):
+                    if o in self.all_options:
+                        used = True
+                        if o not in self.used_options:
+                            self.used_options.append(o)
+                if used:
+                    result.append((option_name, option_value))
+        return result
+
+    def find_all_options(self, filter_name):
+        api_request = RequestID(query={filter_name: '*'}, limit=5)
         try:
             result = api_request.call().next()
+            all_count = api_request.hits
         except StopIteration:
-            pass
-        stdout.write('- Found %d\n' % api_request.hits)
-        count += api_request.hits
-        if api_request.hits:
-            filters.append(result.get(key))
-            if count_all and count_all == count:
-                return filters
-            api_request = RequestDetail(query=query, limit=5, sort_by='-%s' % key)
+            all_count = 0
+        self.all_options = self._all_options(
+                filter_name=filter_name,
+                all_count=all_count)
+
+    def _all_options(self, filter_name, start='', all_count=None):
+        options = []
+        count = 0
+        for c in self.CHARACTERS:
+            query = {filter_name: '%s%s*' % (start, c)}
+            api_request = RequestDetail(
+                    query=query, limit=5, sort_by=filter_name)
             try:
                 result = api_request.call().next()
             except StopIteration:
-                result = None
-            # if some other filters which starts from start+c exists
-            if result and result.get(key) not in filters:
-                for f in get_all_filters(
-                            stdout=stdout, key=key,
-                            start='%s%s' % (start, c),
-                            count_all=api_request.hits):
-                    if f not in filters:
-                        filters.append(f)
-    return filters
-
-class Command(BaseCommand):
-    help = 'Check what filters are used.'
-
-    def handle(self, *args, **options):
-
-        self.stdout.write('Checking filters\n')
-
-        used_filters = {}
-        unused_filters = {}
-        new_filters = {}
-
-        for key in ALL_FILTERS:
-            if not ALL_FILTERS[key].get('selectFilter', True):
                 continue
-
-            # get all results count
-            api_request = RequestID(query={key: '*'}, limit=5)
-            try:
-                result = api_request.call().next()
-            except StopIteration:
-                pass
-
-            count_all = api_request.hits
-
-            self.stdout.write('Checking %s filters\n' % key)
-
-            used_filters[key] = []
-            unused_filters[key] = []
-            new_filters[key] = []
-            count = 0
-
-            for filter in ALL_FILTERS[key]['filters']:
-                self.stdout.write('- Filter %s ... ' % filter)
-                api_request = RequestID(query={key: filter}, limit=5)
+            count += api_request.hits
+            if api_request.hits:
+                options.append(result.get(filter_name))
+                if all_count and all_count == count:
+                    return options
+                api_request = RequestDetail(
+                        query=query, limit=5, sort_by='-%s' % filter_name)
                 try:
                     result = api_request.call().next()
                 except StopIteration:
-                    pass
-                count += api_request.hits
-                if api_request.hits:
-                    self.stdout.write('added\n')
-                    used_filters[key].append(filter)
-                else:
-                    self.stdout.write('removed\n')
-                    unused_filters[key].append(filter)
-            if count < count_all:
-                self.stdout.write(
-                        'Some other filters for %s exists (%d from %d).\n' % (
-                                        key, count_all - count, count_all))
-                self.stdout.write('Searching for other filters ...\n')
-                new_filters[key] = list(
-                        set(get_all_filters(
-                                stdout=self.stdout,
-                                key=key, count_all=count_all)) -
-                        set(used_filters[key]))
+                    result = None
+                # if some other filters which starts from start+c exists
+                if result and result.get(filter_name) not in options:
+                    for f in self._all_options(
+                            filter_name=filter_name,
+                            start='%s%s' % (start, c),
+                            all_count=api_request.hits):
+                        if f not in options:
+                            options.append(f)
+        return options
 
-        # delete those filters that are not used
-        self.stdout.write('Removing those filters that are not used ...\n')
-        for key in ALL_FILTERS:
-            if not ALL_FILTERS[key].get('selectFilter', True):
-                continue
-            for filter in unused_filters[key]:
-                del ALL_FILTERS[key]['filters'][filter]
-                self.stdout.write('- Removed %s:%s\n' % (key, filter))
 
-        # add new filters that are not present in filters_storage_full.py
-        self.stdout.write('Adding new filters ...\n')
-        for key in ALL_FILTERS:
-            if not ALL_FILTERS[key].get('selectFilter', True):
+class Command(BaseCommand):
+    help = 'Process filters from filters_storrage_full.py.'
+
+    def handle(self, *args, **options):
+
+        processor = FiltersProcessor(stdout=self.stdout)
+
+        for filter_name, filter_data in ALL_FILTERS.iteritems():
+            self.stdout.write('Processing %s filter\n' % filter_name)
+            if filter_name in DATE_ATTRIBUTES:
                 continue
-            for filter in new_filters[key]:
-                ALL_FILTERS[key]['filters'][filter] = filter
-                self.stdout.write('- Added new filter %s:%s\n' % (key, filter))
-                self.stdout.write('! Please add this filter to filters_storage_full.py')
-            # sorting by key
-            ALL_FILTERS[key]['filters'] = OrderedDict(
-                            sorted(ALL_FILTERS[key]['filters'].items()))
+            options = processor.process(
+                    filter_name=filter_name,
+                    options=filter_data['filters'],
+                    selectfilters=filter_data.get('selectFilter', True))
+            filter_data['filters'] = options
 
         # write filters found to filters_storage.json
         json_filters = open(JSON_FILTERS_FILE_NAME, 'w')
