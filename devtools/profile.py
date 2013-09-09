@@ -16,6 +16,7 @@ from django.core.management import call_command
 
 from cghub.apps.cart.utils import Cart, metadata, manifest, summary
 from cghub.apps.cart.models import Analysis, Cart as CartModel
+from cghub.apps.cart.views import CartView
 from cghub.apps.core.tests.tests import get_request
 from cghub.apps.core.requests import RequestMinimal
 from cghub.apps.core.views import SearchView
@@ -101,6 +102,8 @@ def profile():
     print 'done'
     print 'Profiling home view ...'
     profile_view(SearchView.as_view())
+    print 'Profiling cart view ...'
+    profile_view(CartView.as_view())
     print 'Profiling metadata view ...'
     profile_view(metadata)
     print 'Profiling manifest view ...'
@@ -109,6 +112,7 @@ def profile():
     profile_view(summary)
     empty_cache()
     remove_database()
+
 
 if __name__ == '__main__':
     profile()
