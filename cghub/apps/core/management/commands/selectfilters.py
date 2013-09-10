@@ -78,7 +78,7 @@ class FiltersProcessor(object):
             else:
                 result.append((
                     option_value,
-                    '%s%s' % ('- ' * depth, option_name)))
+                    '%s%s' % ('-' * depth, option_name)))
                 val.append(option_value)
         return result, ' OR '.join(val)
 

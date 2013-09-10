@@ -127,6 +127,28 @@ jQuery(function ($) {
                         explicitClose: 'close'
                     });
                 } else {
+                    /* add space for subitems */
+                    cghub.search.$filterSelects.each(function(i, f) {
+                        var previous_space = '';
+                        var previous_option = undefined;
+                        $(f).find('option').each(function(i, f) {
+                            var text = $.trim($(f).text());
+                            var space = '';
+                            while(text.indexOf('-') == 0) {
+                                space += '\xa0\xa0\xa0\xa0';
+                                text = text.substring(1)
+                            }
+                            if(space.length) {
+                                $(f).text(space + text);
+                                /* roots should have empty query */
+                                if(space.length > previous_space.length) {
+                                    previous_option.attr('value', '');
+                                }
+                            }
+                            previous_space = space;
+                            previous_option = $(f);
+                        })
+                    });
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 180,
@@ -135,12 +157,17 @@ jQuery(function ($) {
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
                     });
-                    // Fixing width bug
+                    /* multiselect feature for hierarchical filters, ticket:395 */
+                    $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"][value=""]').on('change', function(f) {
+                    });
+                    $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on('change', function(f) {
+                    });
+                    /* Fixing width bug */
                     var width = $(select).next().next().width();
                     $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
-                // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
+                /* Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector */
                 $(select).attr("id", $(select).prev().attr('for'));
             }
             $('.sidebar').css('visibility', 'visible');
@@ -161,7 +188,13 @@ jQuery(function ($) {
                 countSelected = 0,
                 color = '#333';
             $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                preview += '<span class="ui-dropdownchecklist-text-item">' + $(el).find('label').html() + '</span><br>';
+                var $el = $(el);
+                if($el.find('input').val().length) {
+                    /* skip root elements */
+                    preview += '<span class="ui-dropdownchecklist-text-item">' +
+                            $el.find('label').html().split('&nbsp;').join('') +
+                            '</span><br>';
+                }
                 countSelected++;
             });
             if (countSelected === 0) {
@@ -281,14 +314,16 @@ jQuery(function ($) {
             sections.each(function (i, section) {
                 var dropContainer = $(section).next().next(),
                     all_checked = Boolean(dropContainer.find('input[value = "(Toggle all)"]:checked').length),
-                    query = '',
+                    query = [],
                     section_name = $(section).attr('data-section');
                 // Checked some boxes
                 if (!all_checked && dropContainer.find('input:checked').length !== 0) {
                     dropContainer.find('input:checked').each(function (j, checkbox) {
-                        query += $(checkbox).val() + ' OR ';
+                        if($(checkbox).val().length) {
+                            query.push($(checkbox).val());
+                        };
                     });
-                    new_search[section_name] = '(' + query.slice(0,-4) + ')';
+                    new_search[section_name] = '(' + query.join(' OR ') + ')';
                     return true;
                 }
 

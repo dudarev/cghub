@@ -696,8 +696,8 @@ class SelectFiltersTestCase(TestCase):
             options,
             OrderedDict([
                 ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
-                ('HG19', '- HG19'),
-                ('HG19_Broad_variant', '- HG19_Broad_variant'),
+                ('HG19', '-HG19'),
+                ('HG19_Broad_variant', '-HG19_Broad_variant'),
                 ('GRCh37', 'GRCh37')]
             )
         )
