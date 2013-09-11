@@ -11,6 +11,7 @@ jQuery(function ($) {
         addToCartErrorContent: 'There was an error while adding to the cart. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>',
         nothingSelectedTitle: 'No selected files',
         nothingSelectedContent: 'Please select some files to add them to cart',
+        spaceStr: '\xa0\xa0\xa0\xa0',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -117,6 +118,45 @@ jQuery(function ($) {
             TODO: fix this in future */
             $('#id-col-files_size .sort-link').on('click', function() {return false;});
         },
+        updateRootItemValue: function(root) {
+            /* used by hierarchical filters, ticket:395 */
+            if(!root) return;
+            var unchecked = 0;
+            var next = root.next();
+            var level = root.data('level') + 1;
+            while(parseInt(next.data('level')) == level) {
+                if(!next.find('input').prop('checked')) {
+                    unchecked += 1;
+                    break;
+                }
+                next = next.next();
+            }
+            if (unchecked == 0) {
+                root.find('input').prop('checked', true);
+            } else {
+                root.find('input').prop('checked', false);
+            }
+            /* update higher roots */
+            if(level > 1) {
+                while (parseInt(root.data('level')) == level - 1) {
+                    root = root.prev();
+                    if (!root) {
+                        break;
+                    }
+                }
+                cghub.search.updateRootItemValue(root);
+            }
+        },
+        updateToggleAll: function(item) {
+            /* update toggle all */
+            var unchecked = 0;
+            item.parent().find('.ui-dropdownchecklist-item:not(:first)').each(function(i, f) {
+                if($(f).find('input').prop('checked') == false) {
+                    unchecked += 1;
+                }
+            })
+            item.parent().find('.ui-dropdownchecklist-item').first().find('input').prop('checked', !Boolean(unchecked));
+        },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
                 var select = cghub.search.$filterSelects[i];
@@ -127,6 +167,28 @@ jQuery(function ($) {
                         explicitClose: 'close'
                     });
                 } else {
+                    /* add space for subitems */
+                    cghub.search.$filterSelects.each(function(i, f) {
+                        var previous_space = '';
+                        var previous_option = undefined;
+                        $(f).find('option').each(function(i, f) {
+                            var text = $.trim($(f).text());
+                            var space = '';
+                            while(text.indexOf('-') == 0) {
+                                space += cghub.search.spaceStr;
+                                text = text.substring(1);
+                            }
+                            if(space.length) {
+                                $(f).text(space + text);
+                                /* roots should have empty query */
+                                if(space.length > previous_space.length) {
+                                    previous_option.attr('value', '');
+                                }
+                            }
+                            previous_space = space;
+                            previous_option = $(f);
+                        })
+                    });
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
                         width: 180,
@@ -135,14 +197,56 @@ jQuery(function ($) {
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
                     });
-                    // Fixing width bug
+                    /* Fixing width bug */
                     var width = $(select).next().next().width();
                     $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
-                // Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector
+                /* Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector */
                 $(select).attr("id", $(select).prev().attr('for'));
             }
+            /* multiselect feature for hierarchical filters, ticket:395 */
+            $('#filters-bar .ui-dropdownchecklist-item label').each(function(i, f) {
+                var level = $(f).text().split(cghub.search.spaceStr).length - 1;
+                $(f).parent().attr('data-level', level);
+            });
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"][value=""]').each(function(i, f) {
+                cghub.search.updateRootItemValue($(f).parent());
+            });
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"][value=""]').on('change', function(f) {
+                var list_item = $(f.target).parent();
+                var level = parseInt(list_item.data('level'));
+                var next = list_item.next();
+                var new_val = $(f.target).prop('checked');
+                while(parseInt(next.data('level')) > level) {
+                    next.find('input').prop('checked', new_val);
+                    next = next.next();
+                }
+                if(level > 0) {
+                    while (parseInt(list_item.data('level')) < level) {
+                        list_item = list_item.prev();
+                        if(!list_item) {
+                            break;
+                        }
+                    }
+                    cghub.search.updateRootItemValue(list_item);
+                }
+                cghub.search.updateToggleAll(list_item);
+            });
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on('change', function(f) {
+                var list_item = $(f.target).parent();
+                var level = parseInt(list_item.data('level'));
+                if (level > 0) {
+                    /* count of checked subitems */
+                    var root = list_item.prev()
+                    while (parseInt(root.data('level')) == level) {
+                        root = root.prev();
+                    }
+                    cghub.search.updateRootItemValue(root);
+                }
+                cghub.search.updateToggleAll(list_item);
+            });
+            /* show ddcls */
             $('.sidebar').css('visibility', 'visible');
             /* fix for IE, saves focus on current element */
             if($.browser.msie) {
@@ -161,7 +265,13 @@ jQuery(function ($) {
                 countSelected = 0,
                 color = '#333';
             $(selector).next().next().find('.ui-dropdownchecklist-item:has(input:checked)').each(function (i, el) {
-                preview += '<span class="ui-dropdownchecklist-text-item">' + $(el).find('label').html() + '</span><br>';
+                var $el = $(el);
+                if($el.find('input').val().length) {
+                    /* skip root elements */
+                    preview += '<span class="ui-dropdownchecklist-text-item">' +
+                            $el.find('label').html().split('&nbsp;').join('') +
+                            '</span><br>';
+                }
                 countSelected++;
             });
             if (countSelected === 0) {
@@ -281,14 +391,16 @@ jQuery(function ($) {
             sections.each(function (i, section) {
                 var dropContainer = $(section).next().next(),
                     all_checked = Boolean(dropContainer.find('input[value = "(Toggle all)"]:checked').length),
-                    query = '',
+                    query = [],
                     section_name = $(section).attr('data-section');
                 // Checked some boxes
                 if (!all_checked && dropContainer.find('input:checked').length !== 0) {
                     dropContainer.find('input:checked').each(function (j, checkbox) {
-                        query += $(checkbox).val() + ' OR ';
+                        if($(checkbox).val().length) {
+                            query.push($(checkbox).val());
+                        };
                     });
-                    new_search[section_name] = '(' + query.slice(0,-4) + ')';
+                    new_search[section_name] = '(' + query.join(' OR ') + ')';
                     return true;
                 }
 

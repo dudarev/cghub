@@ -463,13 +463,14 @@ class TemplateTagsTestCase(TestCase):
         self.assertEqual(
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
-            '<b>Text query</b>: "Some text"</li>'
-            '<li data-name="center_name" data-filters="HMS-RK"><b>Center</b>: <span>HMS-RK </span></li>'
-            '<li data-name="refassem_short_name" data-filters="HG18"><b>Assembly</b>: <span>HG18 </span></li>'
-            '<li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]"><b>Modified</b>: last week</li>'
-            '<li data-name="disease_abbr" data-filters="CNTL&amp;COAD"><b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
+            '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
+            '<b>Center</b>: <span>HMS-RK </span></li><li data-name="refassem_short_name" data-filters="HG18">'
+            '<b>Assembly</b>: <span>HG18</span></li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
+            '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
+            '<b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
             '<li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span></li>'
-            '<li data-name="library_strategy" data-filters="WGS&amp;WXS"><b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
+            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
+            '<b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()
@@ -682,6 +683,10 @@ class SelectFiltersTestCase(TestCase):
             ('NCBI37/HG19', OrderedDict([
                 ('HG19', 'HG19'),
                 ('HG19_Broad_variant', 'HG19_Broad_variant'),
+                ('NCBI37', OrderedDict([
+                    ('NCBI37_BCCAGSC_variant', 'NCBI37_BCCAGSC_variant'),
+                    ('NCBI37_BCM_variant', 'NCBI37_BCM_variant'),
+                ])),
             ])),
             ('Empty', OrderedDict([])),
             ('GRCh37', 'GRCh37'),
@@ -695,9 +700,12 @@ class SelectFiltersTestCase(TestCase):
         self.assertEqual(
             options,
             OrderedDict([
-                ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
-                ('HG19', '- HG19'),
-                ('HG19_Broad_variant', '- HG19_Broad_variant'),
+                ('HG19 OR HG19_Broad_variant OR NCBI37_BCCAGSC_variant OR NCBI37_BCM_variant', 'NCBI37/HG19'),
+                ('HG19', '-HG19'),
+                ('HG19_Broad_variant', '-HG19_Broad_variant'),
+                ('NCBI37_BCCAGSC_variant OR NCBI37_BCM_variant', '-NCBI37'),
+                ('NCBI37_BCCAGSC_variant', '--NCBI37_BCCAGSC_variant'),
+                ('NCBI37_BCM_variant', '--NCBI37_BCM_variant'),
                 ('GRCh37', 'GRCh37')]
             )
         )

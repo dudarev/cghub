@@ -239,10 +239,12 @@ ALL_FILTERS = OrderedDict([
             ('NCBI36/HG18', OrderedDict([
                 ('HG18', 'HG18'),
                 ('HG18_Broad_variant', 'HG18_Broad_variant'),
-                ('NCBI36_BCCAGSC_variant', 'NCBI36_BCCAGSC_variant'),
-                ('NCBI36_BCM_variant', 'NCBI36_BCM_variant'),
-                ('NCBI36_WUGSC_variant', 'NCBI36_WUGSC_variant'),
-                ('NCBI-human-build36', 'NCBI-human-build36'),
+                ('NCBI36', OrderedDict([
+                    ('NCBI36_BCCAGSC_variant', 'NCBI36_BCCAGSC_variant'),
+                    ('NCBI36_BCM_variant', 'NCBI36_BCM_variant'),
+                    ('NCBI36_WUGSC_variant', 'NCBI36_WUGSC_variant'),
+                    ('NCBI-human-build36', 'NCBI-human-build36'),
+                ])),
             ])),
             ('NCBI37/HG19', OrderedDict([
                 ('HG19', 'HG19'),
