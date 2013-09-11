@@ -482,6 +482,9 @@ class SidebarUITestCase(LiveServerTestCase):
                     if i not in selected_options_values[f]:
                         unselected_options.append(i)
 
+            # test for hierarchical filters will be added later
+            del selected_options_values['refassem_short_name']
+
             # select filters options
             for f in selected_options_values:
                 # open filter DDCL
@@ -528,6 +531,44 @@ class SidebarUITestCase(LiveServerTestCase):
                     self.assertIn(option, applied_filters)
             for option in unselected_options:
                 self.assertIn(option, applied_filters)
+
+    def test_hierarchical_filters(self):
+        """
+        1. Go to home page.
+        2. Open refassem_short_name filter.
+        3. Unselect all.
+        4. Click on NCBI36/HG18 filter.
+        5. Check that HG18 and HG18_Broad_variant are selected.
+        6. Unselect one of subitems.
+        7. Check that root option is unselected.
+        """
+        with self.settings(**TEST_SETTINGS):
+
+            self.selenium.get(self.live_server_url)
+            filter_name = 'refassem_short_name'
+
+            # open refassem_short_name DDCL
+            scroll_page_to_filter(self.selenium, filter_name)
+            self.selenium.find_element_by_css_selector(
+                        "#ddcl-id-{0} > span:first-child > span".format(filter_name)).click()
+            # unselect all
+            self.selenium.find_element_by_id("ddcl-id-{0}-i0".format(filter_name)).click()
+            
+            self.assertFalse(self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 2)).get_attribute('checked'))
+            # select necessary options
+            self.selenium.find_element_by_id("ddcl-id-{0}-i{1}".format(filter_name, 1)).click()
+            time.sleep(1)
+
+            # check that subitems are selected
+            self.assertTrue(self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 2)).get_attribute('checked'))
+
+            # auto uncheck root option
+            self.selenium.find_element_by_id("ddcl-id-{0}-i{1}".format(filter_name, 2)).click()
+            time.sleep(1)
+            self.assertFalse(self.selenium.find_element_by_id(
+                    "ddcl-id-{0}-i{1}".format(filter_name, 1)).get_attribute('checked'))
 
 
 class CustomPeriodUITestCase(LiveServerTestCase):
