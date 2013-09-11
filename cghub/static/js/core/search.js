@@ -120,6 +120,7 @@ jQuery(function ($) {
         },
         updateRootItemValue: function(root) {
             /* used by hierarchical filters, ticket:395 */
+            if(!root) return;
             var unchecked = 0;
             var next = root.next();
             var level = root.data('level') + 1;
@@ -135,6 +136,26 @@ jQuery(function ($) {
             } else {
                 root.find('input').prop('checked', false);
             }
+            /* update higher roots */
+            if(level > 1) {
+                while (parseInt(root.data('level')) == level - 1) {
+                    root = root.prev();
+                    if (!root) {
+                        break;
+                    }
+                }
+                cghub.search.updateRootItemValue(root);
+            }
+        },
+        updateToggleAll: function(item) {
+            /* update toggle all */
+            var unchecked = 0;
+            item.parent().find('.ui-dropdownchecklist-item:not(:first)').each(function(i, f) {
+                if($(f).find('input').prop('checked') == false) {
+                    unchecked += 1;
+                }
+            })
+            item.parent().find('.ui-dropdownchecklist-item').first().find('input').prop('checked', !Boolean(unchecked));
         },
         initDdcl: function() {
             for (var i=0; i<cghub.search.$filterSelects.length; i++) {
@@ -197,10 +218,20 @@ jQuery(function ($) {
                 var level = parseInt(list_item.data('level'));
                 var next = list_item.next();
                 var new_val = $(f.target).prop('checked');
-                while(parseInt(next.data('level')) == level + 1) {
+                while(parseInt(next.data('level')) > level) {
                     next.find('input').prop('checked', new_val);
                     next = next.next();
                 }
+                if(level > 0) {
+                    while (parseInt(list_item.data('level')) < level) {
+                        list_item = list_item.prev();
+                        if(!list_item) {
+                            break;
+                        }
+                    }
+                    cghub.search.updateRootItemValue(list_item);
+                }
+                cghub.search.updateToggleAll(list_item);
             });
             $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on('change', function(f) {
                 var list_item = $(f.target).parent();
@@ -213,6 +244,7 @@ jQuery(function ($) {
                     }
                     cghub.search.updateRootItemValue(root);
                 }
+                cghub.search.updateToggleAll(list_item);
             });
             /* show ddcls */
             $('.sidebar').css('visibility', 'visible');
