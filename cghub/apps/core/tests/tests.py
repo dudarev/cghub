@@ -683,6 +683,10 @@ class SelectFiltersTestCase(TestCase):
             ('NCBI37/HG19', OrderedDict([
                 ('HG19', 'HG19'),
                 ('HG19_Broad_variant', 'HG19_Broad_variant'),
+                ('NCBI37', OrderedDict([
+                    ('NCBI37_BCCAGSC_variant', 'NCBI37_BCCAGSC_variant'),
+                    ('NCBI37_BCM_variant', 'NCBI37_BCM_variant'),
+                ])),
             ])),
             ('Empty', OrderedDict([])),
             ('GRCh37', 'GRCh37'),
@@ -696,9 +700,12 @@ class SelectFiltersTestCase(TestCase):
         self.assertEqual(
             options,
             OrderedDict([
-                ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
+                ('HG19 OR HG19_Broad_variant OR NCBI37_BCCAGSC_variant OR NCBI37_BCM_variant', 'NCBI37/HG19'),
                 ('HG19', '-HG19'),
                 ('HG19_Broad_variant', '-HG19_Broad_variant'),
+                ('NCBI37_BCCAGSC_variant OR NCBI37_BCM_variant', '-NCBI37'),
+                ('NCBI37_BCCAGSC_variant', '--NCBI37_BCCAGSC_variant'),
+                ('NCBI37_BCM_variant', '--NCBI37_BCM_variant'),
                 ('GRCh37', 'GRCh37')]
             )
         )

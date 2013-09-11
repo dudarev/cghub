@@ -72,7 +72,9 @@ class FiltersProcessor(object):
                 new_dict, v = self.open_hierarchical_structures(
                         option_value, depth=depth + 1)
                 val.append(v)
-                result.append((' OR '.join(val), option_name))
+                result.append((
+                    v,
+                    '%s%s' % ('-' * depth, option_name)))
                 for d in new_dict:
                     result.append(d)
             else:
