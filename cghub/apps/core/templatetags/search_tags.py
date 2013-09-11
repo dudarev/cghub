@@ -141,6 +141,14 @@ def filter_link(request, attribute, value):
     return request.path + u'?' + urlencode(data)
 
 
+def remove_dashes(value):
+    if not value:
+        return ''
+    while value.find('-') == 0:
+        value = value[1:]
+    return value
+
+
 @register.simple_tag
 def applied_filters(request):
     applied_filters = {
@@ -207,8 +215,8 @@ def applied_filters(request):
                     if option not in filters:
                         break
                 else:
-                    filters_str += ', <span>%s </span>' % (
-                            ALL_FILTERS[f]['filters'].get(value))
+                    filters_str += ', <span>%s</span>' % (
+                            remove_dashes(ALL_FILTERS[f]['filters'].get(value)))
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -219,10 +227,11 @@ def applied_filters(request):
             # or if the filter type is state
             if ALL_FILTERS[f]['filters'].get(value) == value or f == 'state':
                 filters_str += ', <span>%s </span>' % (
-                        ALL_FILTERS[f]['filters'].get(value))
+                        remove_dashes(ALL_FILTERS[f]['filters'].get(value)))
             else:
                 filters_str += ', <span>%s (%s)</span>' % (
-                        ALL_FILTERS[f]['filters'].get(value), value)
+                        remove_dashes(ALL_FILTERS[f]['filters'].get(value)),
+                        value)
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
