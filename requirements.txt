@@ -7,6 +7,7 @@ coverage==3.5.2
 django-coverage==1.2.2
 django-debug-toolbar==0.9.4
 docutils==0.9.1
+ijson==1.0
 wsgiref==0.1.2
 nose==1.1.2
 selenium==2.31.0
