@@ -15,7 +15,7 @@ from django.db.models import Sum
 
 from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 from cghub.apps.core.templatetags.search_tags import field_values
-from cghub.apps.core.requests import RequestDetail
+from cghub.apps.core.requests import RequestDetailJSON, get_results_for_ids
 from cghub.apps.core.utils import CSVUnicodeWriter, add_message
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
@@ -77,12 +77,7 @@ class Cart(object):
             items = self.cart.items.all()[offset:offset + limit]
         if not items.exists():
             return []
-        results = []
-        api_request = RequestDetail(query={
-                'analysis_id': [i.analysis.analysis_id for i in items]})
-        for result in api_request.call():
-            results.append(result)
-        # sort results
+        results = get_results_for_ids([i.analysis.analysis_id for i in items])
         if sort_by:
             sort_attribute = sort_by[1:] if sort_by[0] == '-' else sort_by
             sort_key = lambda s: s[sort_attribute]
@@ -195,35 +190,40 @@ def summary_tsv_iterator(request):
             dialect='excel-tab', lineterminator='\n')
     csvwriter.writerow(
             [field.lower().replace(' ', '_') for field in COLUMNS])
-    items = cart.cart.items.all()
-    for item in items:
-        analysis = item.analysis
-        try:
-            result = get_analysis(
-                            analysis_id=analysis.analysis_id,
-                            last_modified=analysis.last_modified)
-        except Exception as e:
-            cart_logger.error(
-                    u'Error while composing summary tsv. analysis_id: %s. Error: %s' % (
-                            analysis.analysis_id, unicode(e)))
-            yield 'Error!'
-            add_message(
-                    request=request,
-                    level='error',
-                    content='An error occured while composing summary tsv file.')
-            request.session.save()
-            return
-        fields = field_values(result, humanize_files_size=False)
-        row = []
-        for field_name in COLUMNS:
-            value = fields.get(field_name, '')
-            row.append(unicode(value))
-        csvwriter.writerow(row)
-        stringio.seek(0)
-        line = stringio.read()
-        stringio.seek(0)
-        stringio.truncate()
-        yield line
+    count_all = cart.all_count
+    iterator = cart.cart.items.all().iterator()
+    count = 0
+    while True:
+        ids = []
+        for i in xrange(settings.MAX_ITEMS_IN_QUERY):
+            try:
+                ids.append(next(iterator).analysis.analysis_id)
+            except StopIteration:
+                break
+        if not ids:
+            break
+        api_request = RequestDetailJSON(query={'analysis_id': ids})
+        for result in api_request.call():
+            fields = field_values(result, humanize_files_size=False)
+            row = []
+            for field_name in COLUMNS:
+                value = fields.get(field_name, '')
+                row.append(unicode(value))
+            csvwriter.writerow(row)
+            stringio.seek(0)
+            line = stringio.read()
+            stringio.seek(0)
+            stringio.truncate()
+            yield line
+            count += 1
+    if count != count_all:
+        cart_logger.error('Error while composing summary tsv.')
+        add_message(
+                request=request,
+                level='error',
+                content='An error occured while composing summary tsv.')
+        request.session.save()
+        yield u'Error!'
 
 
 def manifest(request):
