@@ -13,10 +13,17 @@ def urlopen(url, format='xml', max_attempts=5, sleep_time=1):
     :param max_attempts: maximum count of attempts to retrieve answer after URLError raised
     :param sleep_time: time between attempts, seconds
     """
+
+    FORMAT_CHOICES = {
+        'xml': 'text/xml',
+        'json': 'application/json',
+    }
+
     error_msg = ''
     for i in range(max_attempts):
         try:
-            req = urllib2.Request(url, headers={'Accept': format})
+            req = urllib2.Request(url, headers={
+                    'Accept':  FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])})
             return urllib2.urlopen(req)
         except urllib2.URLError as e:
             try:

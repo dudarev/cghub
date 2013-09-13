@@ -49,10 +49,18 @@ def get_from_test_cache(url, format='xml'):
     path = os.path.join(CACHE_DIR, '%s_%s.%s.cache' % (
             settings.API_TYPE.lower(), md5.hexdigest(), format))
     if os.path.exists(path):
-        return codecs.open(path, 'r', encoding='utf-8')
+        if format == 'json':
+            return open(path, 'r')
+        else:
+            return codecs.open(path, 'r', encoding='utf-8')
     headers = {'Accept': FORMAT_CHOICES.get(format, FORMAT_CHOICES['xml'])}
     req = urllib2.Request(url, headers=headers)
     content = urllib2.urlopen(req).read()
+    if format == 'json':
+        # JSON is always ASCII and uses \uXXXX to represent non-ASCII symbols.
+        with open(path, 'w') as f:
+            f.write(content)
+        return open(path, 'r')
     with codecs.open(path, 'w', encoding='utf-8') as f:
         f.write(content)
     return codecs.open(path, 'r', encoding='utf-8')
@@ -114,12 +122,13 @@ class RequestBase(REQUEST_CLASS):
                 if self.sort_by not in SORT_BY_ATTRIBUTES:
                     self.sort_by = None
 
-    def get_xml_file(self, url):
+    def get_source_file(self, url):
         if 'test' in sys.argv:
-            return get_from_test_cache(url=url)
+            return get_from_test_cache(url=url, format=self.format)
         api_logger.debug(urllib2.unquote(url))
         return urlopen(
                 url=url,
+                format=self.format,
                 max_attempts=getattr(settings, 'API_HTTP_ERROR_ATTEMPTS', 5),
                 sleep_time=getattr(settings, 'API_HTTP_ERROR_SLEEP_AFTER', 1))
 
@@ -192,6 +201,41 @@ class RequestDetail(RequestBase):
             'state', 'study', 'upload_date']
 
 
+class RequestDetailJSON(RequestDetail):
+    """
+    URI: analysisDetail uri.
+    Fields: analysis_id, refassem_short_name,
+        legacy_sample_id, center_name, checksum, disease_abbr,
+        analyte_code, filename, filesize, library_strategy,
+        last_modified, platform, sample_accession, sample_type,
+        state, study, upload_date
+
+    Used json response from wsapi/solr.
+    """
+
+    def patch_input_data(self):
+        super(RequestDetailJSON, self).patch_input_data()
+        self.format = self.FORMAT_JSON
+
+    def patch_result(self, result, result_xml):
+        try:
+            if result.get('files'):
+                result['filename'] = result['files'][0]['filename']
+                result['checksum'] = result['files'][0]['checksum']['#text']
+                result['files_size'] = result['files'][0]['filesize']
+            elif isinstance(result['filename'], list):
+                result['filename'] = result['filename'][0]
+                result['checksum'] = result['checksum'][0]
+                result['files_size'] = result['filesize'][0]
+            else:
+                result['files_size'] = int(result['filesize'])
+        except KeyError:
+            result['filename'] = ''
+            result['checksum'] = ''
+            result['files_size'] = 0
+        return result
+
+
 class RequestFull(RequestBase):
     """
     URI: analysisFull uri.
@@ -228,7 +272,7 @@ class ResultFromWSAPIFile(WSAPIRequest):
     from analysis xml stored in local file
     """
 
-    def get_xml_file(self, url):
+    def get_source_file(self, url):
         filename = self.query['filename']
         return codecs.open(filename, 'r')
 
@@ -259,7 +303,7 @@ class ResultFromSOLRFile(SOLRRequest):
     Used by RequestsTestCase.test_build_wsapi_xml
     """
 
-    def get_xml_file(self, url):
+    def get_source_file(self, url):
         filename = self.query['filename']
         return codecs.open(filename, 'r')
 
@@ -270,7 +314,7 @@ def get_results_for_ids(ids, sort_by=None):
     """
     if not ids:
         return []
-    api_request = RequestDetail(query={'analysis_id': ids}, sort_by=sort_by)
+    api_request = RequestDetailJSON(query={'analysis_id': ids}, sort_by=sort_by)
     results = []
     for result in api_request.call():
         results.append(result)

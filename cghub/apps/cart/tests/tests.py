@@ -699,13 +699,13 @@ class CartCommandsTestCase(TestCase):
     analysis_id = '015fd6a5-a77e-4bd1-9430-b44d1c043b54'
     last_modified = '2013-05-16T20:43:40Z'
 
-    def get_xml_file(self, url):
+    def get_source_file(self, url):
         path = os.path.join(
                 os.path.dirname(__file__),
                 'test_data/minimal_2items_%s.xml' % settings.API_TYPE.lower())
         return codecs.open(path, 'r', encoding='utf-8')
 
-    @patch('cghub.apps.core.requests.RequestMinimal.get_xml_file', get_xml_file)
+    @patch('cghub.apps.core.requests.RequestMinimal.get_source_file', get_source_file)
     def test_update_full_metadata_cache(self):
         # remove existed cache
         path = get_cart_cache_file_path(

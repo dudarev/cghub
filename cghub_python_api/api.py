@@ -1,4 +1,5 @@
 import urllib2
+import ijson
 
 from xml.dom import pulldom
 from xml.etree import ElementTree
@@ -90,9 +91,12 @@ class BaseRequest(object):
     CGHub API base class
     """
 
+    FORMAT_XML = 'xml'
+    FORMAT_JSON = 'json'
+
     def __init__(self,
             query, offset=0, limit=None, sort_by=None,
-            server_url=None, uri=None, fields=None):
+            server_url=None, uri=None, fields=None, format=FORMAT_XML):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
@@ -101,6 +105,7 @@ class BaseRequest(object):
         :param server_url: server url where API works
         :param uri: uri that will be used to access data on API server
         :param fields: list of fields will be returned in result (used only in SOLRRequest)
+        :param format: format of requested data ('xml' or 'json')
         """
         self.query = query
         self.server_url = server_url
@@ -109,12 +114,13 @@ class BaseRequest(object):
         self.limit = limit
         self.sort_by = sort_by
         self.fields = fields
+        self.format = format
 
-    def get_xml_file(self, url):
+    def get_source_file(self, url):
         """
         Can be overridden for testing purposes
         """
-        return urlopen(url)
+        return urlopen(url, format=self.format)
 
     def patch_input_data(self):
         """
@@ -163,10 +169,13 @@ class WSAPIRequest(BaseRequest):
     CGHUB_ANALYSIS_ID_URI = '/cghub/metadata/analysisId'
     CGHUB_ANALYSIS_DETAIL_URI = '/cghub/metadata/analysisDetail'
     CGHUB_ANALYSIS_FULL_URI = '/cghub/metadata/analysisFull'
+    FORMAT_XML = 'xml'
+    FORMAT_JSON = 'json'
 
     def __init__(self,
                 query, offset=0, limit=None, sort_by=None,
-                server_url=CGHUB_SERVER, uri=CGHUB_ANALYSIS_DETAIL_URI, fields=None):
+                server_url=CGHUB_SERVER, uri=CGHUB_ANALYSIS_DETAIL_URI,
+                fields=None, format=FORMAT_XML):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
@@ -175,6 +184,7 @@ class WSAPIRequest(BaseRequest):
         :param server_url: server url where WSAPI works
         :param uri: uri that will be used to access data on WSAPI server
         :param fields: list of fields will be returned in result (used only in SOLRRequest)
+        :param format: format of requested data from wsapi server ('xml' or 'json')
         """
         self.query = query
         self.server_url = server_url
@@ -182,6 +192,7 @@ class WSAPIRequest(BaseRequest):
         self.offset = offset
         self.limit = limit
         self.sort_by = sort_by
+        self.format = format
 
     def call(self):
         """
@@ -193,23 +204,28 @@ class WSAPIRequest(BaseRequest):
         url = '%s%s' % (self.server_url, self.uri)
         if query:
             url = '%s?%s' % (url, query)
-        xml = self.get_xml_file(url)
-        # http://docs.python.org/dev/library/xml.dom.pulldom.html
-        doc = pulldom.parse(xml)
-        for event, node in doc:
-            if event == pulldom.START_ELEMENT:
-                if node.tagName == 'Result':
-                    doc.expandNode(node)
-                    # convert to python object
-                    # http://docs.python.org/2/library/xml.etree.elementtree.html
-                    result_xml = node.toxml(encoding='utf-8')
-                    tree = ElementTree.fromstring(result_xml)
-                    result = Result(tree)
-                    yield self.patch_result(result, result_xml)
-                elif node.tagName == 'Hits':
-                    doc.expandNode(node)
-                    tree = ElementTree.fromstring(node.toxml())
-                    self.hits = int(tree.text)
+        xml = self.get_source_file(url)
+        if self.format == self.FORMAT_JSON:
+            results = ijson.items(xml, 'result_set.results.item')
+            for result in results:
+                yield self.patch_result(result, None)
+        else:
+            # http://docs.python.org/dev/library/xml.dom.pulldom.html
+            doc = pulldom.parse(xml)
+            for event, node in doc:
+                if event == pulldom.START_ELEMENT:
+                    if node.tagName == 'Result':
+                        doc.expandNode(node)
+                        # convert to python object
+                        # http://docs.python.org/2/library/xml.etree.elementtree.html
+                        result_xml = node.toxml(encoding='utf-8')
+                        tree = ElementTree.fromstring(result_xml)
+                        result = Result(tree)
+                        yield self.patch_result(result, result_xml)
+                    elif node.tagName == 'Hits':
+                        doc.expandNode(node)
+                        tree = ElementTree.fromstring(node.toxml())
+                        self.hits = int(tree.text)
 
     def build_query(self):
         """
@@ -253,10 +269,13 @@ class SOLRRequest(BaseRequest):
 
     CGHUB_SERVER = 'http://127.0.0.1:8983'
     CGHUB_SEARCH_URI = '/solr/select/'
+    FORMAT_XML = 'xml'
+    FORMAT_JSON = 'json'
 
     def __init__(self,
                 query, offset=0, limit=None, sort_by=None,
-                server_url=CGHUB_SERVER, uri=CGHUB_SEARCH_URI, fields=None):
+                server_url=CGHUB_SERVER, uri=CGHUB_SEARCH_URI,
+                fields=None, format=FORMAT_XML):
         """
         :param query: a dict with query to send to the server
         :param offset: how many results should be skipped
@@ -264,6 +283,7 @@ class SOLRRequest(BaseRequest):
         :param sort_by: the attribute by which the results should be sorted (use '-' for reverse)
         :param server_url: server url where WSAPI works
         :param uri: uri that will be used to access data on WSAP
+        :param format: format of requested data from solr server ('xml' or 'json')
         """
         self.query = query
         self.server_url = server_url
@@ -272,6 +292,7 @@ class SOLRRequest(BaseRequest):
         self.limit = limit
         self.sort_by = sort_by
         self.fields = fields
+        self.format = format
 
     def call(self):
         """
@@ -283,21 +304,26 @@ class SOLRRequest(BaseRequest):
         url = '%s%s' % (self.server_url, self.uri)
         if query:
             url = '%s?%s' % (url, query)
-        xml = self.get_xml_file(url)
-        # http://docs.python.org/dev/library/xml.dom.pulldom.html
-        doc = pulldom.parse(xml)
-        for event, node in doc:
-            if event == pulldom.START_ELEMENT:
-                if node.tagName == 'doc':
-                    doc.expandNode(node)
-                    # convert to python object
-                    # http://docs.python.org/2/library/xml.etree.elementtree.html
-                    result_xml = node.toxml(encoding='utf-8')
-                    tree = ElementTree.fromstring(result_xml)
-                    result = Result(tree)
-                    yield self.patch_result(result, result_xml)
-                elif node.tagName == 'result':
-                    self.hits = int(node.getAttribute('numFound'))
+        xml = self.get_source_file(url)
+        if self.format == self.FORMAT_JSON:
+            results = ijson.items(xml, 'response.docs.item')
+            for result in results:
+                yield self.patch_result(result, None)
+        else:
+            # http://docs.python.org/dev/library/xml.dom.pulldom.html
+            doc = pulldom.parse(xml)
+            for event, node in doc:
+                if event == pulldom.START_ELEMENT:
+                    if node.tagName == 'doc':
+                        doc.expandNode(node)
+                        # convert to python object
+                        # http://docs.python.org/2/library/xml.etree.elementtree.html
+                        result_xml = node.toxml(encoding='utf-8')
+                        tree = ElementTree.fromstring(result_xml)
+                        result = Result(tree)
+                        yield self.patch_result(result, result_xml)
+                    elif node.tagName == 'result':
+                        self.hits = int(node.getAttribute('numFound'))
 
     def build_query(self):
         """
@@ -336,4 +362,6 @@ class SOLRRequest(BaseRequest):
                         'fl',
                         ','.join(
                             [urllib2.quote(f) for f in self.fields])]))
+        if self.format == self.FORMAT_JSON:
+            parts.append('wt=json')
         return '&'.join(parts)
