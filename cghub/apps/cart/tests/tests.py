@@ -18,7 +18,7 @@ from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 
 from ..utils import (
                     manifest, metadata, summary, Cart,
-                    analysis_xml_iterator, summary_tsv_iterator)
+                    analysis_xml_generator, summary_tsv_generator)
 from ..forms import SelectedItemsForm, AllItemsForm
 from ..cache import (
                     AnalysisException, get_cart_cache_file_path,
@@ -518,8 +518,8 @@ class CartCacheTestCase(TestCase):
                 cart=cart.cart,
                 analysis=analysis)
 
-        # summary tsv iterator
-        iterator = summary_tsv_iterator(request)
+        # summary tsv generator
+        iterator = summary_tsv_generator(request)
         result = ''
         for i in iterator:
             result += i
@@ -530,8 +530,15 @@ class CartCacheTestCase(TestCase):
         self.assertIn(self.analysis_id2, result)
         self.assertNotIn('Error!', result)
 
-        # analysis_xml iterator
-        iterator = analysis_xml_iterator(request)
+        # test compressing for tsv generator
+        iterator = summary_tsv_generator(request, compress=True)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('summary.tsv', result)
+
+        # analysis xml generator
+        iterator = analysis_xml_generator(request)
         result = ''
         for i in iterator:
             result += i
@@ -539,6 +546,13 @@ class CartCacheTestCase(TestCase):
         self.assertIn('Result id="1"', result)
         self.assertIn('Result id="2"', result)
         self.assertNotIn('Error!', result)
+
+        # test compressing for xml generator
+        iterator = analysis_xml_generator(request, compress=True, short=True)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('manifest.xml', result)
 
         # test error when some analysis was not found
 
@@ -551,7 +565,7 @@ class CartCacheTestCase(TestCase):
         self.assertNotIn('messages', request.session)
 
         # summary tsv iterator
-        iterator = summary_tsv_iterator(request)
+        iterator = summary_tsv_generator(request)
         result = ''
         for i in iterator:
             result += i
@@ -565,7 +579,7 @@ class CartCacheTestCase(TestCase):
         self.assertIn('messages', request.session)
 
         # analysis_xml iterator
-        iterator = analysis_xml_iterator(request)
+        iterator = analysis_xml_generator(request)
         result = ''
         for i in iterator:
             result += i

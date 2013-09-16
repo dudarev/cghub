@@ -2,9 +2,11 @@ import os
 import threading
 import socket
 import csv
-import cStringIO
 import codecs
 import errno
+
+from gzip import GzipFile
+from cStringIO import StringIO
 
 from django.conf import settings
 
@@ -159,7 +161,7 @@ class CSVUnicodeWriter:
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
@@ -179,3 +181,42 @@ class CSVUnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
+
+
+class Gzipper(object):
+    """
+    Text stream compressor.
+    """
+
+    def __init__(self, filename=None, compress=False):
+        self.compress = compress
+        if not self.compress:
+            self.buffer = ''
+        else:
+            self.io = StringIO()
+            self.zipfile = GzipFile(filename, mode='wb', fileobj=self.io)
+
+    def read(self):
+        if not self.compress:
+            result = self.buffer
+            self.buffer = ''
+            return result
+        self.zipfile.flush()
+        self.io.seek(0)
+        line = self.io.read()
+        self.io.seek(0)
+        self.io.truncate()
+        return line
+
+    def write(self, l):
+        if not self.compress:
+            self.buffer += l
+        else:
+            self.zipfile.write(l)
+
+    def close(self):
+        if not self.compress:
+            return self.buffer
+        self.zipfile.close()
+        self.io.seek(0)
+        return self.io.read()

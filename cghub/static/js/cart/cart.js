@@ -17,16 +17,12 @@ jQuery(function ($) {
             cghub.cart.$nextColumn;
             cghub.cart.$nextColumnWidth = 0;
             cghub.cart.$searchTable = $('table.data-table');
-            cghub.cart.$downloadManifestXml = $('.cart-download-manifest');
-            cghub.cart.$downloadMetadataXml = $('.cart-download-metadata');
-            cghub.cart.$downloadMetadataTsv = $('.cart-download-summary');
+            cghub.cart.$downloadFileBtn = $('.cart-download');
             cghub.cart.$removeBtn = $('.cart-remove');
             cghub.cart.$clearBtn = $('.cart-clear');
         },
         bindEvents:function () {
-            cghub.cart.$downloadManifestXml.on('click', cghub.cart.downloadManifest);
-            cghub.cart.$downloadMetadataXml.on('click', cghub.cart.downloadMetadata);
-            cghub.cart.$downloadMetadataTsv.on('click', cghub.cart.downloadSummary);
+            cghub.cart.$downloadFileBtn.on('click', cghub.cart.downloadFile);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
             cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
         },
@@ -44,6 +40,7 @@ jQuery(function ($) {
         removeFromCart:function () {
             var btn = $(this);
             var form = btn.closest('form');
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
             cghub.selected.save();
             if(!cghub.selected.exists) return false;
             form.append($('<textarea name="ids" style="display: none;">'+cghub.selected.get_ids_list().join(' ')+'</textarea>'))
@@ -52,22 +49,22 @@ jQuery(function ($) {
         clearCart: function(){
             var btn = $(this);
             var form = btn.closest('form');
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/clear/'));
         },
-        downloadManifest:function () {
+        downloadFile:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/'));
-        },
-        downloadMetadata:function () {
-            var btn = $(this);
-            var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/'));
-        },
-        downloadSummary:function () {
-            var btn = $(this);
-            var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
+            var url = '/' + btn.data('download') + '/';
+            if(btn.is('a')) {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, url + '?gzip=true'));
+                form.trigger('submit');
+                btn.parent().trigger('click');
+                return false;
+            } else {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, url));
+            }
         },
     };
     cghub.cart.init();

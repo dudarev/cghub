@@ -16,7 +16,7 @@ from django.db.models import Sum
 from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
 from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetailJSON, get_results_for_ids
-from cghub.apps.core.utils import CSVUnicodeWriter, add_message
+from cghub.apps.core.utils import CSVUnicodeWriter, add_message, Gzipper
 
 from .cache import AnalysisException, get_analysis, get_analysis_xml
 from .models import CartItem, Analysis
@@ -128,7 +128,7 @@ class Cart(object):
         self.session.modified = True
 
 
-def analysis_xml_iterator(request, short=False, live_only=False):
+def analysis_xml_generator(request, short=False, live_only=False, compress=False):
     """
     Return xml for files with specified ids.
     If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
@@ -138,14 +138,17 @@ def analysis_xml_iterator(request, short=False, live_only=False):
     :param live_only: if True - files with state attribute != 'live' will be not included to results
     """
     cart = Cart(request.session)
+    zipper = Gzipper(
+            filename='manifest.xml' if short else 'metadata.xml',
+            compress=compress)
     if live_only:
         items = cart.cart.items.filter(analysis__state='live')
     else:
         items = cart.cart.items.all()
-    yield render_to_string('xml/analysis_xml_header.xml', {
+    zipper.write(render_to_string('xml/analysis_xml_header.xml', {
                         'date': datetime.datetime.strftime(
                                     timezone.now(), '%Y-%d-%m %H:%M:%S'),
-                        'len': items.count()})
+                        'len': items.count()}))
     counter = 0
     downloadable_size = 0
     result_template = get_template('xml/analysis_xml_result.xml')
@@ -166,15 +169,17 @@ def analysis_xml_iterator(request, short=False, live_only=False):
             return
         counter += 1
         downloadable_size += analysis.files_size
-        yield result_template.render(Context({
+        zipper.write(result_template.render(Context({
                     'counter': counter,
-                    'xml': xml.strip()}))
-    yield render_to_string('xml/analysis_xml_summary.xml', {
+                    'xml': xml.strip()})))
+        yield zipper.read()
+    zipper.write(render_to_string('xml/analysis_xml_summary.xml', {
                     'counter': counter,
-                    'size': str(round(downloadable_size / 1073741824. * 100) / 100)})
+                    'size': str(round(downloadable_size / 1073741824. * 100) / 100)}))
+    yield zipper.close()
 
 
-def summary_tsv_iterator(request):
+def summary_tsv_generator(request, compress=False):
     """
     Returns Summary tsv file content.
     Data to generate file takes from cart cache. If data not exists in cache,
@@ -183,6 +188,7 @@ def summary_tsv_iterator(request):
     param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
     """
     cart = Cart(request.session)
+    zipper = Gzipper(filename='summary.tsv', compress=compress)
     COLUMNS = settings.TABLE_COLUMNS
     stringio = StringIO()
     csvwriter = CSVUnicodeWriter(
@@ -210,12 +216,13 @@ def summary_tsv_iterator(request):
                 value = fields.get(field_name, '')
                 row.append(unicode(value))
             csvwriter.writerow(row)
-            stringio.seek(0)
-            line = stringio.read()
-            stringio.seek(0)
-            stringio.truncate()
-            yield line
             count += 1
+        stringio.seek(0)
+        line = stringio.read()
+        stringio.seek(0)
+        stringio.truncate()
+        zipper.write(line)
+        yield zipper.read()
     if count != count_all:
         cart_logger.error('Error while composing summary tsv.')
         add_message(
@@ -223,28 +230,48 @@ def summary_tsv_iterator(request):
                 level='error',
                 content='An error occured while composing summary tsv.')
         request.session.save()
-        yield u'Error!'
+        zipper.write(u'\nError!')
+    yield zipper.close()
 
 
 def manifest(request):
-    response = HttpResponse(
-            analysis_xml_iterator(request, short=True, live_only=True),
-            content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                analysis_xml_generator(
+                        request, short=True, live_only=True, compress=True),
+                content_type='application/x-gzip')
+        response['Content-Disposition'] = 'attachment; filename=manifest.gz'
+    else:
+        response = HttpResponse(
+                analysis_xml_generator(request, short=True, live_only=True),
+                content_type='text/xml')
+        response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
 def metadata(request):
-    response = HttpResponse(
-            analysis_xml_iterator(request), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                analysis_xml_generator(request, compress=True),
+                content_type='application/x-gzip')
+        response['Content-Disposition'] = 'attachment; filename=metadata.gz'
+    else:
+        response = HttpResponse(
+            analysis_xml_generator(request), content_type='text/xml')
+        response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
 def summary(request):
-    response = HttpResponse(
-            summary_tsv_iterator(request), content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                summary_tsv_generator(
+                        request, compress=True), content_type='application/x-gzip')
+        response['Content-Disposition'] = 'attachment; filename=summary.gz'
+    else:
+        response = HttpResponse(
+                summary_tsv_generator(request), content_type='text/tsv')
+        response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
 

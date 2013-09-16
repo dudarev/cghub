@@ -72,7 +72,7 @@ class CartUITestCase(LiveServerTestCase):
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
         fp.set_preference("browser.download.dir", settings.FULL_METADATA_CACHE_DIR)
-        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv")
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv,application/x-gzip")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.implicitly_wait(5)
@@ -101,11 +101,13 @@ class CartUITestCase(LiveServerTestCase):
         11. Try to download manifest.xml
         12. Try to download metadata.xml
         13. Try to download summary.tsv
-        14. Get cart stats
-        15. Click 'Remove files from cart'
-        16. Get cart stats, check that files count was decremented by 1
-        17. Click on 'Clear cart'
-        18. Check that cart is empty
+        14. Open download manifest dropdown
+        15. Try to download manifest.gz
+        16. Get cart stats
+        17. Click 'Remove files from cart'
+        18. Get cart stats, check that files count was decremented by 1
+        19. Click on 'Clear cart'
+        20. Check that cart is empty
         """
         with self.settings(**TEST_SETTINGS):
             # test adding items to cart
@@ -179,11 +181,14 @@ class CartUITestCase(LiveServerTestCase):
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
                         'summary.tsv'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'manifest.gz'))
             except OSError:
                 pass
 
             # download Manifest XML
-            btn = driver.find_element_by_class_name('cart-download-manifest')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/button[1]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -194,7 +199,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File manifest.xml wasn't downloaded"
 
             # download Metadata XML
-            btn = driver.find_element_by_class_name('cart-download-metadata')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[2]/button[1]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -205,7 +210,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File metadata.xml wasn't downloaded"
 
             # download Summary TSV
-            btn = driver.find_element_by_class_name('cart-download-summary')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[3]/button[1]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -214,6 +219,18 @@ class CartUITestCase(LiveServerTestCase):
                         'summary.tsv'))
             except OSError:
                 assert False, "File summary.tsv wasn't downloaded"
+
+            # download gunzipped Manifest XML
+            driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/button[2]').click()
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/ul/li/a[1]')
+            btn.click()
+            driver.implicitly_wait(5)
+            try:
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'manifest.gz'))
+            except OSError:
+                assert False, "File manifest.gz wasn't downloaded"
 
             # select first file in table
             checkbox = driver.find_element_by_css_selector(
@@ -230,6 +247,8 @@ class CartUITestCase(LiveServerTestCase):
             btn = driver.find_element_by_class_name('cart-remove')
             btn.click()
 
+            time.sleep(1)
+
             stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert 'Files in your cart: {0}'.format(len(selected) - 1) in stat.text
 
@@ -239,6 +258,9 @@ class CartUITestCase(LiveServerTestCase):
             # test 'clear cart' button
             btn = driver.find_element_by_class_name('cart-clear')
             btn.click()
+
+            time.sleep(1)
+
             stat = driver.find_element_by_xpath('//span[@id="results-summary"]')
             assert stat.text == 'Files in your cart: 0 (0 Bytes)'
 
