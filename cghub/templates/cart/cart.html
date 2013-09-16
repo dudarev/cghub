@@ -8,7 +8,7 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/cart/cart.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/cart/cart.css' %}?v=3" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/cart/cart.css' %}?v=4" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -54,30 +54,30 @@
                     </div>
                     <div class="cart-btn-group">
                         <div class="btn-group">
-                            <button class="btn cart-download-manifest">Download manifest</button>
+                            <button class="btn cart-download" data-download="manifest">Download manifest</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="cart-download-manifest">gzip archive</a></li>
+                                <li><a href="#" class="cart-download" data-download="manifest">gzip archive</a></li>
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <button class="btn cart-download-metadata">Download metadata</button>
+                            <button class="btn cart-download" data-download="metadata">Download metadata</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="cart-download-metadata">gzip archive</a></li>
+                                <li><a href="#" class="cart-download" data-download="metadata">gzip archive</a></li>
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <button class="btn cart-download-summary">Download summary TSV</button>
+                            <button class="btn cart-download" data-download="summary">Download summary TSV</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="cart-download-summary">gzip archive</a></li>
+                                <li><a href="#" class="cart-download" data-download="summary">gzip archive</a></li>
                             </ul>
                         </div>
                     </div>
@@ -101,30 +101,30 @@
                     </div>
                     <div class="cart-btn-group dropup">
                         <div class="btn-group">
-                            <button class="btn cart-download-manifest">Download manifest</button>
+                            <button class="btn cart-download" data-download="manifest">Download manifest</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li class="cart-download-manifest">gzip archive</li>
+                                <li><a href="#" class="cart-download" data-download="manifest">gzip archive</a></li>
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <button class="btn cart-download-metadata">Download metadata</button>
+                            <button class="btn cart-download" data-download="metadata">Download metadata</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="cart-download-metadata">gzip archive</a></li>
+                                <li><a href="#" class="cart-download" data-download="metadata">gzip archive</a></li>
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <button class="btn cart-download-summary">Download summary TSV</button>
+                            <button class="btn cart-download" data-download="summary">Download summary TSV</button>
                             <button class="btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" class="cart-download-summary">gzip archive</a></li>
+                                <li><a href="#" class="cart-download" data-download="summary">gzip archive</a></li>
                             </ul>
                         </div>
                     </div>
@@ -141,6 +141,6 @@
         <script type="text/javascript" src="{% static 'js/cart/cart.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/table.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=3"></script>
+        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=4"></script>
     {% endif %}
 {% endblock %}
