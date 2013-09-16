@@ -9,6 +9,7 @@ DATE_ATTRIBUTES = (
 )
 
 COLUMN_NAMES = {
+    'Aliquot Id': 'aliquot_id',
     'Analysis Id': 'analysis_id',
     'Assembly':  'refassem_short_name',
     'Barcode': 'legacy_sample_id',
@@ -22,14 +23,18 @@ COLUMN_NAMES = {
     'Files Size': 'files_size',
     'Library Type': 'library_strategy',
     'Modified': 'last_modified',
+    'Participant Id': 'participant_id',
+    'Published': 'published_date',
     'Platform': 'platform',
     'Platform Name': 'platform',
     'Reason': 'reason',
     'Sample Accession': 'sample_accession',
+    'Sample Id': 'sample_id',
     'Sample Type': 'sample_type',
     'Sample Type Name': 'sample_type',
     'State': 'state',
     'Study': 'study',
+    'TSS Id': 'tss_id',
     'Uploaded': 'upload_date',
 }
 
@@ -39,6 +44,7 @@ for name, attribute in COLUMN_NAMES.iteritems():
         ATTRIBUTES.append(attribute)
 
 SORT_BY_ATTRIBUTES = (
+    'aliquot_id',
     'analysis_id',
     'analyte_code',
     'center_name',
@@ -46,21 +52,17 @@ SORT_BY_ATTRIBUTES = (
     'last_modified',
     'legacy_sample_id',
     'library_strategy',
+    'published_date',
+    'participant_id',
     'platform',
     'refassem_short_name',
     'sample_accession',
+    'sample_id',
     'sample_type',
     'state',
     'study',
-    'upload_date',
-)
-
-# present only in RequestFull
-ADDITIONAL_ATTRIBUTES = (
-    'aliquot_id',
-    'participant_id',
-    'sample_id',
     'tss_id',
+    'upload_date',
 )
 
 CART_SORT_ATTRIBUTES = (

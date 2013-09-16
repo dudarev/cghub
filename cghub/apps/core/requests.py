@@ -1,10 +1,10 @@
+import codecs
+import datetime
+import logging
+import os
 import sys
 import urllib2
 import hashlib
-import os
-import logging
-import datetime
-import codecs
 
 from cghub_python_api import WSAPIRequest, SOLRRequest
 from cghub_python_api.utils import urlopen
@@ -13,8 +13,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from .attributes import (
-        ATTRIBUTES, SORT_BY_ATTRIBUTES, ADDITIONAL_ATTRIBUTES)
+from .attributes import ATTRIBUTES, SORT_BY_ATTRIBUTES
 from .templatetags.search_tags import file_size as file_size_to_str
 from .utils import makedirs_group_write
 
@@ -183,23 +182,26 @@ class RequestMinimal(RequestBase):
 class RequestDetail(RequestBase):
     """
     URI: analysisDetail uri.
-    Fields: analysis_id, refassem_short_name,
-        legacy_sample_id, center_name, checksum, disease_abbr,
-        analyte_code, filename, filesize, library_strategy,
-        last_modified, platform, sample_accession, sample_type,
-        state, study, upload_date
+    Fields: analysis_id, state, reason, last_modified,
+            upload_date, published_date, center_name, study,
+            aliquot_id, filename, filesize, checksum,
+            sample_accession, legacy_sample_id, disease_abbr,
+            tss_id, participant_id, sample_id, analyte_code,
+            sample_type, library_strategy, platform,
+            refassem_short_name
     """
 
     def patch_input_data(self):
         super(RequestDetail, self).patch_input_data()
         self.uri = getattr(self, 'CGHUB_ANALYSIS_DETAIL_URI', self.uri)
         self.fields = [
-            'analysis_id', 'refassem_short_name',
-            'legacy_sample_id', 'center_name', 'checksum', 'disease_abbr',
-            'analyte_code', 'filename', 'filesize', 'library_strategy',
-            'last_modified', 'platform', 'sample_accession', 'sample_type',
-            'state', 'study', 'upload_date']
-
+            'analysis_id', 'state', 'reason', 'last_modified',
+            'upload_date', 'published_date', 'center_name', 'study',
+            'aliquot_id', 'filename', 'filesize', 'checksum',
+            'sample_accession', 'legacy_sample_id', 'disease_abbr',
+            'tss_id', 'participant_id', 'sample_id', 'analyte_code',
+            'sample_type', 'library_strategy', 'platform',
+            'refassem_short_name']
 
 class RequestDetailJSON(RequestDetail):
     """
@@ -255,10 +257,7 @@ class RequestFull(RequestBase):
             # create the same xml as WSAPI returns
             xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
-        # additional attributes
-        for attr in ADDITIONAL_ATTRIBUTES:
-            if result[attr].exist:
-                new_result[attr] = result[attr].text
+        new_result['reason'] = result['reason'].text or ''
         if settings.API_TYPE == 'WSAPI':
             new_result['xml'] = xml.decode('utf-8')
         else:
@@ -281,11 +280,7 @@ class ResultFromWSAPIFile(WSAPIRequest):
         for attr in ATTRIBUTES:
             if result[attr].exist:
                 new_result[attr] = result[attr].text
-        # additional attributes
-        for attr in ADDITIONAL_ATTRIBUTES:
-            if result[attr].exist:
-                new_result[attr] = result[attr].text
-        new_result['filename'] = result['filename.0'].text
+        new_result['reason'] = result['reason'].text or ''
         try:
             new_result['files_size'] = int(result['filesize.0'].text)
         except TypeError:

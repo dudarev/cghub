@@ -10,10 +10,11 @@ List of columns to display:
         'Study',
         'Disease',
 
-Available column_names: 'Assembly', 'Barcode', 'Center', 'Center Name',
-'Checksum', 'Disease', 'Disease Name', 'Experiment Type', 'Files Size',
-'Library Type', 'Modified', 'Platform', 'Platform Name', 'Reason',
-'Sample Accession', 'Sample Type', 'Sample Type Name', 'State', 'Study',
+Available column_names: 'Aliquot Id', 'Assembly', 'Barcode', 'Center',
+'Center Name', 'Checksum', 'Disease', 'Disease Name', 'Experiment Type',
+'Files Size', 'Library Type', 'Modified', 'Participant Id', 'Platform',
+'Platform Name', 'Published', 'Reason', 'Sample Id', 'Sample Accession',
+'Sample Type', 'Sample Type Name', 'State', 'Study', 'TSS Id',
 'Uploaded', 'Analysis Id'.
 
 Styles of the columns:
@@ -65,6 +66,9 @@ function obtains value and should return new value, for example:
 """
 
 COLUMN_STYLES = {
+    'Aliquot Id': {
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
+        },
     'Analysis Id': {
         'width': 300, 'align': 'left', 'default_state': 'visible',
         },
@@ -104,14 +108,23 @@ COLUMN_STYLES = {
     'Modified': {
         'width': 80, 'align': 'left', 'default_state': 'visible',
         },
+    'Participant Id': {
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
+        },
     'Platform': {
         'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'Platform Name': {
         'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
+    'Published': {
+        'width': 80, 'align': 'left', 'default_state': 'hidden',
+        },
     'Sample Accession': {
         'width': 120, 'align': 'left', 'default_state': 'hidden',
+        },
+    'Sample Id': {
+        'width': 300, 'align': 'left', 'default_state': 'hidden',
         },
     'Sample Type': {
         'width': 100, 'align': 'left', 'default_state': 'visible',
@@ -124,6 +137,9 @@ COLUMN_STYLES = {
         },
     'Study': {
         'width': 100, 'align': 'left', 'default_state': 'visible',
+        },
+    'TSS Id': {
+        'width': 50, 'align': 'left', 'default_state': 'hidden',
         },
     'Uploaded': {
         'width': 80, 'align': 'left', 'default_state': 'hidden',
@@ -149,7 +165,12 @@ TABLE_COLUMNS = (
     'Files Size',
     'Checksum',
     'Analysis Id',
+    'Aliquot Id',
+    'Participant Id',
+    'Sample Id',
+    'TSS Id',
     'Sample Accession',
+    'Published',
     'Uploaded',
     'Modified',
     'State',
@@ -166,22 +187,23 @@ DETAILS_FIELDS = (
     'Library Type',
     'Center',
     'Center Name',
-    'Checksum',
     'Platform',
     'Platform Name',
     'Assembly',
     'Filename',
     'Files Size',
+    'Checksum',
     'Analysis Id',
+    'Aliquot Id',
+    'Participant Id',
+    'Sample Id',
+    'TSS Id',
     'Sample Accession',
+    'Published',
     'Uploaded',
     'Modified',
     'State',
     'Reason',
-    'Aliquot id',
-    'TSS id',
-    'Participant id',
-    'Sample id',
 )
 
 # study id to name
