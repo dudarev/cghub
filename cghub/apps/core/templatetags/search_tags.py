@@ -325,6 +325,7 @@ def field_values(result, humanize_files_size=True):
     if humanize_files_size:
         files_size = file_size(files_size)
     return {
+        'Aliquot Id': get_result_attr(result, 'aliquot_id'),
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
@@ -343,12 +344,15 @@ def field_values(result, humanize_files_size=True):
         'Files Size': files_size,
         'Modified': get_result_attr(result, 'last_modified'),
         'Library Type': get_result_attr(result, 'library_strategy'),
+        'Participant Id': get_result_attr(result, 'participant_id'),
         'Platform': get_result_attr(result, 'platform'),
         'Platform Name': get_name_by_code(
             'platform',
             get_result_attr(result, 'platform')),
+        'Published': get_result_attr(result, 'published_date'),
         'Reason': get_result_attr(result, 'reason'),
         'Sample Accession': get_result_attr(result, 'sample_accession'),
+        'Sample Id': get_result_attr(result, 'sample_id'),
         'Sample Type': get_sample_type_by_code(
             get_result_attr(result, 'sample_type'),
             format='shortcut'),
@@ -359,16 +363,9 @@ def field_values(result, humanize_files_size=True):
             'state', get_result_attr(result, 'state')),
         'Study': get_name_by_code(
             'study', get_result_attr(result, 'study')),
+        'TSS Id': get_result_attr(result, 'tss_id'),
         'Uploaded': get_result_attr(result, 'upload_date'),
         'Analysis Id': get_result_attr(result, 'analysis_id'),
-
-        # additional fields for details
-        'Aliquot id': get_result_attr(result, 'aliquot_id'),
-        'Disease abbr': get_result_attr(result, 'disease_abbr'),
-        'Published time': get_result_attr(result, 'published_date'),
-        'Participant id': get_result_attr(result, 'participant_id'),
-        'Sample id': get_result_attr(result, 'sample_id'),
-        'TSS id': get_result_attr(result, 'tss_id'),
     }
 
 

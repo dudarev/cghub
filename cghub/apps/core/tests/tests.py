@@ -26,7 +26,6 @@ from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
-from ..attributes import ADDITIONAL_ATTRIBUTES
 from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
@@ -161,9 +160,8 @@ class CoreTestCase(TestCase):
         self.assertTrue(response.context['raw_xml'])
         # check all entries are present
         self.assertIn('run_xml', response.context['raw_xml'])
-        # check additional attributes are present
-        for attr in ADDITIONAL_ATTRIBUTES:
-            self.assertTrue(len(response.context['res'][attr]))
+        # check reason is present
+        self.assertFalse(response.context['res']['reason'] is None)
         # test reason field
         analysis_id = '333a5cc4-741b-445c-93f9-9fde6f64b88f' # state = bad_data
         response = self.client.get(reverse(
