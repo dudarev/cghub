@@ -235,24 +235,43 @@ def summary_tsv_generator(request, compress=False):
 
 
 def manifest(request):
-    response = HttpResponse(
-            analysis_xml_generator(request, short=True, live_only=True),
-            content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=manifest.xml'
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                analysis_xml_generator(
+                        request, short=True, live_only=True, compress=True),
+                content_type='gzip')
+        response['Content-Disposition'] = 'attachment; filename=manifest.gz'
+    else:
+        response = HttpResponse(
+                analysis_xml_generator(request, short=True, live_only=True),
+                content_type='text/xml')
+        response['Content-Disposition'] = 'attachment; filename=manifest.xml'
     return response
 
 
 def metadata(request):
-    response = HttpResponse(
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                analysis_xml_generator(request, compress=True),
+                content_type='gzip')
+        response['Content-Disposition'] = 'attachment; filename=metadata.gz'
+    else:
+        response = HttpResponse(
             analysis_xml_generator(request), content_type='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=metadata.xml'
+        response['Content-Disposition'] = 'attachment; filename=metadata.xml'
     return response
 
 
 def summary(request):
-    response = HttpResponse(
-            summary_tsv_generator(request), content_type='text/tsv')
-    response['Content-Disposition'] = 'attachment; filename=summary.tsv'
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                summary_tsv_generator(
+                        request, compress=True), content_type='gzip')
+        response['Content-Disposition'] = 'attachment; filename=summary.gz'
+    else:
+        response = HttpResponse(
+                summary_tsv_generator(request), content_type='text/tsv')
+        response['Content-Disposition'] = 'attachment; filename=summary.tsv'
     return response
 
 

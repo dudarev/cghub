@@ -3,9 +3,16 @@
 @import "../dropdownchecklist.less";
 
 
-div.cart-btn-group {
+.cart-btn-group {
     padding: 15px 20px 15px 0;
     display: inline-block;
+    .btn-group .btn {
+        float: none;
+        margin: 0;
+        &.dropdown-toggle {
+            margin-left: -5px;
+        }
+    }
 }
 
 .cart-content{

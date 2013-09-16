@@ -57,17 +57,41 @@ jQuery(function ($) {
         downloadManifest:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/'));
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
+            if(btn.is('a')) {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/?gzip=true'));
+                form.trigger('submit');
+                btn.parent().trigger('click');
+                return false;
+            } else {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/manifest/'));
+            }
         },
         downloadMetadata:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/'));
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
+            if(btn.is('a')) {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/?gzip=true'));
+                form.trigger('submit');
+                btn.parent().trigger('click');
+                return false;
+            } else {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/metadata/'));
+            }
         },
         downloadSummary:function () {
             var btn = $(this);
             var form = btn.closest('form');
-            form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
+            if(btn.is('a')) {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/?gzip=true'));
+                form.trigger('submit');
+                btn.parent().trigger('click');
+                return false;
+            } else {
+                form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/summary/'));
+            }
         },
     };
     cghub.cart.init();

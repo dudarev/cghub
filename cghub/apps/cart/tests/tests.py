@@ -518,7 +518,7 @@ class CartCacheTestCase(TestCase):
                 cart=cart.cart,
                 analysis=analysis)
 
-        # summary tsv iterator
+        # summary tsv generator
         iterator = summary_tsv_generator(request)
         result = ''
         for i in iterator:
@@ -530,7 +530,14 @@ class CartCacheTestCase(TestCase):
         self.assertIn(self.analysis_id2, result)
         self.assertNotIn('Error!', result)
 
-        # analysis_xml iterator
+        # test compressing for tsv generator
+        iterator = summary_tsv_generator(request, compress=True)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('summary.tsv', result)
+
+        # analysis xml generator
         iterator = analysis_xml_generator(request)
         result = ''
         for i in iterator:
@@ -539,6 +546,13 @@ class CartCacheTestCase(TestCase):
         self.assertIn('Result id="1"', result)
         self.assertIn('Result id="2"', result)
         self.assertNotIn('Error!', result)
+
+        # test compressing for xml generator
+        iterator = analysis_xml_generator(request, compress=True, short=True)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('manifest.xml', result)
 
         # test error when some analysis was not found
 

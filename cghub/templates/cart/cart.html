@@ -53,9 +53,33 @@
                         <button class="btn cart-clear">Clear cart</button>
                     </div>
                     <div class="cart-btn-group">
-                        <button class="btn cart-download-manifest">Download manifest</button>
-                        <button class="btn cart-download-metadata">Download metadata</button>
-                        <button class="btn cart-download-summary">Download summary TSV</button>
+                        <div class="btn-group">
+                            <button class="btn cart-download-manifest">Download manifest</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="cart-download-manifest">gzip archive</a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn cart-download-metadata">Download metadata</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="cart-download-metadata">gzip archive</a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn cart-download-summary">Download summary TSV</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="cart-download-summary">gzip archive</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 {% items_per_page request 10 25 50 %}
@@ -75,10 +99,34 @@
                         <button class="btn cart-remove">Remove from cart</button>
                         <button class="btn cart-clear">Clear cart</button>
                     </div>
-                    <div class="cart-btn-group">
-                        <button class="btn cart-download-manifest">Download manifest</button>
-                        <button class="btn cart-download-metadata">Download metadata</button>
-                        <button class="btn cart-download-summary">Download summary TSV</button>
+                    <div class="cart-btn-group dropup">
+                        <div class="btn-group">
+                            <button class="btn cart-download-manifest">Download manifest</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="cart-download-manifest">gzip archive</li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn cart-download-metadata">Download metadata</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="cart-download-metadata">gzip archive</a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn cart-download-summary">Download summary TSV</button>
+                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="cart-download-summary">gzip archive</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             {% else %}
