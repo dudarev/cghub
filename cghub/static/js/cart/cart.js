@@ -40,6 +40,7 @@ jQuery(function ($) {
         removeFromCart:function () {
             var btn = $(this);
             var form = btn.closest('form');
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
             cghub.selected.save();
             if(!cghub.selected.exists) return false;
             form.append($('<textarea name="ids" style="display: none;">'+cghub.selected.get_ids_list().join(' ')+'</textarea>'))
@@ -48,6 +49,7 @@ jQuery(function ($) {
         clearCart: function(){
             var btn = $(this);
             var form = btn.closest('form');
+            form.attr('action', form.attr('action').replace('?gzip=true', ''));
             form.attr('action', form.attr('action').replace(/\/[a-z_]+\/$/, '/clear/'));
         },
         downloadFile:function () {
