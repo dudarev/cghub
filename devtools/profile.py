@@ -14,9 +14,9 @@ from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.core.management import call_command
 
-from cghub.apps.cart.utils import Cart, metadata, manifest, summary
+from cghub.apps.cart.utils import Cart
 from cghub.apps.cart.models import Analysis, Cart as CartModel
-from cghub.apps.cart.views import CartView
+from cghub.apps.cart.views import CartView, metadata, manifest, summary
 from cghub.apps.core.tests.tests import get_request
 from cghub.apps.core.requests import RequestMinimal
 from cghub.apps.core.views import SearchView

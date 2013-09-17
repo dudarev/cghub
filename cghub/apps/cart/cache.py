@@ -8,7 +8,7 @@ from django.conf import settings
 from cghub.apps.core.utils import (
                         makedirs_group_write, generate_tmp_file_name,
                         xml_add_spaces)
-from cghub.apps.core.requests import RequestFull, ResultFromWSAPIFile
+from cghub.apps.core.requests import RequestFull
 
 
 RESULT_START = '<Result id="1">'
@@ -112,29 +112,7 @@ def save_to_cart_cache(analysis_id, last_modified):
     os.rename(tmp_path, file_path)
 
 
-def get_analysis_path(analysis_id, last_modified):
-    """
-    returns path to analysis file on disk
-    """
-    path = get_cart_cache_file_path(analysis_id, last_modified)
-    if os.path.exists(path):
-        return path
-    save_to_cart_cache(analysis_id, last_modified)
-    return path
-
-
-def get_analysis(analysis_id, last_modified):
-    """
-    returns analysis dict
-    """
-    path = get_cart_cache_file_path(analysis_id, last_modified)
-    if not os.path.exists(path):
-        save_to_cart_cache(analysis_id, last_modified)
-    api_request = ResultFromWSAPIFile(query={'filename': path})
-    return api_request.call().next()
-
-
-def get_analysis_xml(analysis_id, last_modified, short=False):
+def get_analysis_xml(analysis_id, last_modified):
     """
     Returns part of xml file (Result content) stored in cache
     """
@@ -153,22 +131,4 @@ def get_analysis_xml(analysis_id, last_modified, short=False):
     if start != -1:
         stop = result.find(FSIZE_STOP, start + 1)
         files_size = int(result[start + len(FSIZE_START):stop])
-    if short:
-        attributes_to_remove = (
-                'analysis_xml', 'experiment_xml', 'run_xml',
-                'sample_accession', 'legacy_sample_id',
-                'disease_abbr', 'tss_id', 'participant_id', 'sample_id',
-                'analyte_code', 'sample_type', 'library_strategy',
-                'platform')
-        for attribute in attributes_to_remove:
-            start_str = '<%s>' % attribute
-            stop_str = '</%s>' % attribute
-            start = result.find(start_str)
-            stop = result.find(stop_str, start)
-            if start != -1 and stop != -1:
-                stop += len(stop_str)
-                # remove empty line
-                while start != 0 and result[start - 1] != '>':
-                    start -= 1
-                result = u'%s%s' % (result[:start], result[stop:])
     return result, files_size

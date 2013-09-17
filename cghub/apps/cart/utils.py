@@ -18,7 +18,7 @@ from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetailJSON, get_results_for_ids
 from cghub.apps.core.utils import CSVUnicodeWriter, add_message, Gzipper
 
-from .cache import AnalysisException, get_analysis, get_analysis_xml
+from .cache import AnalysisException, get_analysis_xml
 from .models import CartItem, Analysis
 
 
@@ -128,37 +128,80 @@ class Cart(object):
         self.session.modified = True
 
 
-def analysis_xml_generator(request, short=False, live_only=False, compress=False):
+def manifest_xml_generator(request, compress=False):
     """
-    Return xml for files with specified ids.
-    If file exists in cache, it will be used, otherwise, file will be downloaded and saved to cache.
+    Return manifest xml for cart items with state==live.
 
-    :param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
-    :param short: if True - file will be contains only most necessary attributes
-    :param live_only: if True - files with state attribute != 'live' will be not included to results
+    :param request: django Request object
+    :param compress: set to True to enable compression 
     """
     cart = Cart(request.session)
-    zipper = Gzipper(
-            filename='manifest.xml' if short else 'metadata.xml',
-            compress=compress)
-    if live_only:
-        items = cart.cart.items.filter(analysis__state='live')
+    zipper = Gzipper(filename='manifest.xml', compress=compress)
+    count_live = cart.live_count
+    zipper.write(render_to_string('xml/analysis_xml_header.xml', {
+                        'date': datetime.datetime.strftime(
+                                    timezone.now(), '%Y-%d-%m %H:%M:%S'),
+                        'len': count_live}))
+    iterator = cart.cart.items.filter(analysis__state='live').iterator()
+    counter = 0
+    downloadable_size = 0
+    result_template = get_template('xml/manifest_xml_result.xml')
+    while True:
+        ids = []
+        for i in xrange(settings.MAX_ITEMS_IN_QUERY):
+            try:
+                ids.append(next(iterator).analysis.analysis_id)
+            except StopIteration:
+                break
+        if not ids:
+            break
+        api_request = RequestDetailJSON(query={'analysis_id': ids})
+        for result in api_request.call():
+            for f in result['files']:
+                downloadable_size += f['filesize']
+            counter += 1
+            zipper.write(result_template.render(Context({
+                    'counter': counter,
+                    'result': result,
+                    'server_url': settings.CGHUB_DOWNLOAD_SERVER})))
+        yield zipper.read()
+    if counter != count_live:
+        cart_logger.error('Error while composing manifest xml.')
+        add_message(
+                request=request,
+                level='error',
+                content='An error occured while composing manifest xml.')
+        request.session.save()
     else:
-        items = cart.cart.items.all()
+        zipper.write(render_to_string('xml/analysis_xml_summary.xml', {
+                    'counter': counter,
+                    'size': str(round(downloadable_size / 1073741824. * 100) / 100)}))
+    yield zipper.close()
+
+
+def metadata_xml_generator(request, compress=False):
+    """
+    Return metadata xml for all cart items.
+
+    :param request: django Request object
+    :param compress: set to True to enable compression 
+    """
+    cart = Cart(request.session)
+    zipper = Gzipper(filename='metadata.xml', compress=compress)
+    items = cart.cart.items.all()
     zipper.write(render_to_string('xml/analysis_xml_header.xml', {
                         'date': datetime.datetime.strftime(
                                     timezone.now(), '%Y-%d-%m %H:%M:%S'),
                         'len': items.count()}))
     counter = 0
     downloadable_size = 0
-    result_template = get_template('xml/analysis_xml_result.xml')
+    result_template = get_template('xml/metadata_xml_result.xml')
     for item in items:
         analysis = item.analysis
         try:
             xml, files_size = get_analysis_xml(
                             analysis_id=analysis.analysis_id,
-                            last_modified=analysis.last_modified,
-                            short=short)
+                            last_modified=analysis.last_modified)
         except AnalysisException as e:
             cart_logger.error('Error while composing metadata xml. %s' % str(e))
             add_message(
@@ -181,11 +224,10 @@ def analysis_xml_generator(request, short=False, live_only=False, compress=False
 
 def summary_tsv_generator(request, compress=False):
     """
-    Returns Summary tsv file content.
-    Data to generate file takes from cart cache. If data not exists in cache,
-    it will be downloaded.
+    Return summary tsv for all cart items.
 
-    param data: cart data like it stored in session: {analysis_id: {'last_modified': '..', 'state': '..', ...}, analysis_id: {..}, ...}
+    :param request: django Request object
+    :param compress: set to True to enable compression 
     """
     cart = Cart(request.session)
     zipper = Gzipper(filename='summary.tsv', compress=compress)
@@ -234,58 +276,16 @@ def summary_tsv_generator(request, compress=False):
     yield zipper.close()
 
 
-def manifest(request):
-    if request.GET.get('gzip'):
-        response = HttpResponse(
-                analysis_xml_generator(
-                        request, short=True, live_only=True, compress=True),
-                content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=manifest.gz'
-    else:
-        response = HttpResponse(
-                analysis_xml_generator(request, short=True, live_only=True),
-                content_type='text/xml')
-        response['Content-Disposition'] = 'attachment; filename=manifest.xml'
-    return response
-
-
-def metadata(request):
-    if request.GET.get('gzip'):
-        response = HttpResponse(
-                analysis_xml_generator(request, compress=True),
-                content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=metadata.gz'
-    else:
-        response = HttpResponse(
-            analysis_xml_generator(request), content_type='text/xml')
-        response['Content-Disposition'] = 'attachment; filename=metadata.xml'
-    return response
-
-
-def summary(request):
-    if request.GET.get('gzip'):
-        response = HttpResponse(
-                summary_tsv_generator(
-                        request, compress=True), content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=summary.gz'
-    else:
-        response = HttpResponse(
-                summary_tsv_generator(request), content_type='text/tsv')
-        response['Content-Disposition'] = 'attachment; filename=summary.tsv'
-    return response
-
-
 def item_metadata(analysis_id, last_modified):
     content = render_to_string('xml/analysis_xml_header.xml', {
                         'date': datetime.datetime.strftime(
                                     timezone.now(), '%Y-%d-%m %H:%M:%S'),
                         'len': 1})
-    result_template = get_template('xml/analysis_xml_result.xml')
+    result_template = get_template('xml/metadata_xml_result.xml')
     try:
         xml, files_size = get_analysis_xml(
                 analysis_id=analysis_id,
-                last_modified=last_modified,
-                short=False)
+                last_modified=last_modified)
     except AnalysisException as e:
         cart_logger.error(
                 'Error while composing metadata xml. %s' % str(e))

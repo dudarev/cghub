@@ -222,15 +222,19 @@ class RequestDetailJSON(RequestDetail):
     def patch_result(self, result, result_xml):
         try:
             if result.get('files'):
-                result['filename'] = result['files'][0]['filename']
-                result['checksum'] = result['files'][0]['checksum']['#text']
-                result['files_size'] = result['files'][0]['filesize']
+                for f in result['files']:
+                    f['checksum'] = f['checksum']['#text']
             elif isinstance(result['filename'], list):
-                result['filename'] = result['filename'][0]
-                result['checksum'] = result['checksum'][0]
-                result['files_size'] = result['filesize'][0]
-            else:
-                result['files_size'] = int(result['filesize'])
+                result['files'] = []
+                for i in range(len(result['filename'])):
+                    result['files'].append({
+                        'filename': result['filename'][i],
+                        'checksum': result['checksum'][i],
+                        'filesize': result['filesize'][i],
+                    })
+            result['filename'] = result['files'][0]['filename']
+            result['checksum'] = result['files'][0]['checksum']
+            result['files_size'] = result['files'][0]['filesize']
         except KeyError:
             result['filename'] = ''
             result['checksum'] = ''
@@ -262,34 +266,6 @@ class RequestFull(RequestBase):
             new_result['xml'] = xml.decode('utf-8')
         else:
             new_result['xml'] = xml
-        return new_result
-
-
-class ResultFromWSAPIFile(WSAPIRequest):
-    """
-    Allows to create cghub_python_apy.api.Request
-    from analysis xml stored in local file
-    """
-
-    def get_source_file(self, url):
-        filename = self.query['filename']
-        return codecs.open(filename, 'r')
-
-    def patch_result(self, result, result_xml):
-        new_result = {}
-        for attr in ATTRIBUTES:
-            if result[attr].exist:
-                new_result[attr] = result[attr].text
-        new_result['reason'] = result['reason'].text or ''
-        try:
-            new_result['files_size'] = int(result['filesize.0'].text)
-        except TypeError:
-            new_result['files_size'] = 0
-        new_result['checksum'] = result['checksum.0'].text
-        if settings.API_TYPE == 'WSAPI':
-            new_result['xml'] = result_xml.decode('utf-8')
-        else:
-            new_result['xml'] = result_xml
         return new_result
 
 
