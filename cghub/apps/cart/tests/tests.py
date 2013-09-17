@@ -5,26 +5,28 @@ import codecs
 from mock import patch
 from StringIO import StringIO
 
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.core.management import call_command
-from django.utils import timezone, simplejson as json
 from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.core.management import call_command
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.utils import timezone, simplejson as json
 
 from cghub.apps.core import browser_text_search
-from cghub.apps.core.tests import create_session, get_request
 from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
+from cghub.apps.core.tests import create_session, get_request
 
-from ..utils import (
-                    manifest, metadata, summary, Cart,
-                    analysis_xml_generator, summary_tsv_generator)
-from ..forms import SelectedItemsForm, AllItemsForm
 from ..cache import (
                     AnalysisException, get_cart_cache_file_path,
-                    save_to_cart_cache, get_analysis_path, get_analysis,
-                    get_analysis_xml, is_cart_cache_exists)
+                    save_to_cart_cache, get_analysis_xml,
+                    is_cart_cache_exists)
+from ..forms import SelectedItemsForm, AllItemsForm
 from ..models import Cart as CartModel, CartItem, Analysis
+from ..utils import (
+        Cart, manifest_xml_generator, metadata_xml_generator,
+        summary_tsv_generator)
+from ..views import manifest, metadata, summary
+
 from .factories import AnalysisFactory, CartItemFactory
 
 
@@ -460,30 +462,6 @@ class CartCacheTestCase(TestCase):
         else:
             raise False, 'AnalysisException doesn\'t raised'
 
-    def test_get_analysis(self):
-        # test get_analysis_path
-        path = os.path.join(
-                            settings.FULL_METADATA_CACHE_DIR,
-                            self.analysis_id[:2],
-                            self.analysis_id[2:4],
-                            self.analysis_id)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-        analysis_path = get_analysis_path(self.analysis_id, self.last_modified)
-        self.assertEqual(
-            analysis_path,
-            get_cart_cache_file_path(self.analysis_id, self.last_modified))
-        self.assertTrue(os.path.exists(analysis_path))
-        # now using cache
-        analysis_path = get_analysis_path(self.analysis_id, self.last_modified)
-        self.assertEqual(
-            analysis_path,
-            get_cart_cache_file_path(self.analysis_id, self.last_modified))
-        # test get_analysis
-        # with cache
-        analysis = get_analysis(self.analysis_id, self.last_modified)
-        self.assertIn('analysis_xml', analysis['xml'])
-
     def test_get_analysis_xml(self):
         xml, files_size = get_analysis_xml(
             analysis_id=self.analysis_id,
@@ -492,15 +470,6 @@ class CartCacheTestCase(TestCase):
         self.assertIn('analysis_id', xml)
         self.assertIn('analysis_xml', xml)
         self.assertTrue(files_size)
-        # short
-        xml, files_size = get_analysis_xml(
-            analysis_id=self.analysis_id,
-            last_modified=self.last_modified, short=True)
-        self.assertNotIn('Result', xml)
-        self.assertNotIn('<doc>', xml)
-        self.assertIn('analysis_id', xml)
-        self.assertNotIn('analysis_xml', xml)
-        self.assertNotIn('experiment_xml', xml)
 
     def test_iterators(self):
         request = get_request()
@@ -517,6 +486,7 @@ class CartCacheTestCase(TestCase):
         CartItemFactory.create(
                 cart=cart.cart,
                 analysis=analysis)
+        cart.update_stats()
 
         # summary tsv generator
         iterator = summary_tsv_generator(request)
@@ -537,8 +507,8 @@ class CartCacheTestCase(TestCase):
             result += i
         self.assertIn('summary.tsv', result)
 
-        # analysis xml generator
-        iterator = analysis_xml_generator(request)
+        # metadata xml generator
+        iterator = metadata_xml_generator(request)
         result = ''
         for i in iterator:
             result += i
@@ -546,9 +516,21 @@ class CartCacheTestCase(TestCase):
         self.assertIn('Result id="1"', result)
         self.assertIn('Result id="2"', result)
         self.assertNotIn('Error!', result)
+        self.assertIn('<analysis_xml>', result)
+
+        # menifest xml generator
+        iterator = manifest_xml_generator(request)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('ResultSet', result)
+        self.assertIn('Result id="1"', result)
+        self.assertIn('Result id="2"', result)
+        self.assertNotIn('Error!', result)
+        self.assertNotIn('<analysis_xml>', result)
 
         # test compressing for xml generator
-        iterator = analysis_xml_generator(request, compress=True, short=True)
+        iterator = manifest_xml_generator(request, compress=True)
         result = ''
         for i in iterator:
             result += i
@@ -579,7 +561,7 @@ class CartCacheTestCase(TestCase):
         self.assertIn('messages', request.session)
 
         # analysis_xml iterator
-        iterator = analysis_xml_generator(request)
+        iterator = metadata_xml_generator(request)
         result = ''
         for i in iterator:
             result += i

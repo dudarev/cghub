@@ -265,34 +265,6 @@ class RequestFull(RequestBase):
         return new_result
 
 
-class ResultFromWSAPIFile(WSAPIRequest):
-    """
-    Allows to create cghub_python_apy.api.Request
-    from analysis xml stored in local file
-    """
-
-    def get_source_file(self, url):
-        filename = self.query['filename']
-        return codecs.open(filename, 'r')
-
-    def patch_result(self, result, result_xml):
-        new_result = {}
-        for attr in ATTRIBUTES:
-            if result[attr].exist:
-                new_result[attr] = result[attr].text
-        new_result['reason'] = result['reason'].text or ''
-        try:
-            new_result['files_size'] = int(result['filesize.0'].text)
-        except TypeError:
-            new_result['files_size'] = 0
-        new_result['checksum'] = result['checksum.0'].text
-        if settings.API_TYPE == 'WSAPI':
-            new_result['xml'] = result_xml.decode('utf-8')
-        else:
-            new_result['xml'] = result_xml
-        return new_result
-
-
 class ResultFromSOLRFile(SOLRRequest):
     """
     Used by RequestsTestCase.test_build_wsapi_xml
