@@ -222,15 +222,19 @@ class RequestDetailJSON(RequestDetail):
     def patch_result(self, result, result_xml):
         try:
             if result.get('files'):
-                result['filename'] = result['files'][0]['filename']
-                result['checksum'] = result['files'][0]['checksum']['#text']
-                result['files_size'] = result['files'][0]['filesize']
+                for f in result['files']:
+                    f['checksum'] = f['checksum']['#text']
             elif isinstance(result['filename'], list):
-                result['filename'] = result['filename'][0]
-                result['checksum'] = result['checksum'][0]
-                result['files_size'] = result['filesize'][0]
-            else:
-                result['files_size'] = int(result['filesize'])
+                result['files'] = []
+                for i in range(len(result['filename'])):
+                    result['files'].append({
+                        'filename': result['filename'][i],
+                        'checksum': result['checksum'][i],
+                        'filesize': result['filesize'][i],
+                    })
+            result['filename'] = result['files'][0]['filename']
+            result['checksum'] = result['files'][0]['checksum']
+            result['files_size'] = result['files'][0]['filesize']
         except KeyError:
             result['filename'] = ''
             result['checksum'] = ''

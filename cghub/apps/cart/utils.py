@@ -157,11 +157,13 @@ def manifest_xml_generator(request, compress=False):
             break
         api_request = RequestDetailJSON(query={'analysis_id': ids})
         for result in api_request.call():
-            downloadable_size += result['files_size']
+            for f in result['files']:
+                downloadable_size += f['filesize']
             counter += 1
             zipper.write(result_template.render(Context({
                     'counter': counter,
-                    'result': result})))
+                    'result': result,
+                    'server_url': settings.CGHUB_DOWNLOAD_SERVER})))
         yield zipper.read()
     if counter != count_live:
         cart_logger.error('Error while composing manifest xml.')

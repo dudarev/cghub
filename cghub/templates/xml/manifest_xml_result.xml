@@ -9,13 +9,11 @@
     <study>{{ result.study }}</study>
     <aliquot_id>{{ result.aliquot_id }}</aliquot_id>
     <files>
-      {% for file in result.files %}
-      <file>
+      {% for file in result.files %}<file>
         <filename>{{ file.filename }}</filename>
         <filesize>{{ file.filesize }}</filesize>
         <checksum type="MD5">{{ file.checksum }}</checksum>
-      </file>
-      {% endfor %}
+      </file>{% endfor %}
     </files>
     <refassem_short_name>{{ result.refasem_short_name }}</refassem_short_name>
     <analysis_detail_uri>{{ server_url }}/cghub/metadata/analysisDetail/{{ result.analysis_id }}</analysis_detail_uri>

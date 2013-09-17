@@ -528,6 +528,8 @@ class CartCacheTestCase(TestCase):
         self.assertIn('Result id="2"', result)
         self.assertNotIn('Error!', result)
         self.assertNotIn('<analysis_xml>', result)
+        self.assertIn('<filename>', result)
+        self.assertIn(settings.CGHUB_DOWNLOAD_SERVER, result)
 
         # test compressing for xml generator
         iterator = manifest_xml_generator(request, compress=True)
