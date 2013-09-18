@@ -938,20 +938,29 @@ class SearchUITestCase(LiveServerTestCase):
     def test_filters_state_is_persistent(self):
         """
         1. Go to search page (used default query)
-        2. Check that selected 'All' for center filter
-        3. Check that first center name not exists in url
-        4. Select first center
-        5. Apply filters
-        6. Check that first center name exists in url
-        7. Check that first center selected
-        8. Go to cart page
-        9. Go to search page
-        10. Check that first center selected
-        11. Check that first center name not exists in url
+        2. Check that 'remember filter settings' is checked
+        3. Check that selected 'All' for center filter
+        4. Check that first center name not exists in url
+        5. Select first center
+        6. Apply filters
+        7. Check that first center name exists in url
+        8. Check that first center selected
+        9. Go to cart page
+        10. Go to search page
+        11. Check that first center selected
+        12. Check that first center name not exists in url
+        13. Uncheck 'remember filter settings'
+        14. Submit
+        15. Go to home page
+        16. Check that first center is unselected
         """
         with self.settings(**TEST_SETTINGS):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
+            # check that 'remember filter settings' is selected by default
+            self.assertTrue(self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input"
+                    ).get_attribute('checked'))
             filter_name = 'center_name'
             filter_object = ALL_FILTERS[filter_name]
             options = filter_object['filters']
@@ -1006,6 +1015,22 @@ class SearchUITestCase(LiveServerTestCase):
             self.assertNotIn(option_attribute, url)
             # check selected options
             self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_id(
+                            "id-{0}-ui-selector".format(filter_name)).text)
+            # disable filters remembering
+            self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input").click()
+            self.assertFalse(self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input"
+                    ).get_attribute('checked'))
+            # submit
+            self.selenium.find_element_by_id("id_apply_filters").click()
+            time.sleep(1)
+            # go to home page
+            self.selenium.get(self.live_server_url)
+            time.sleep(1)
+            self.assertNotIn(
                     option_name,
                     self.selenium.find_element_by_id(
                             "id-{0}-ui-selector".format(filter_name)).text)
