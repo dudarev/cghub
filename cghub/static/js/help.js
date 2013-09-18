@@ -171,7 +171,7 @@ jQuery(function ($) {
                 var filterName = $target.parents('.ui-dropdownchecklist-dropcontainer-wrapper').prev().prev().prev().text();
                 filterName = filterName.replace(':', '').replace('By ', '');
                 if($.inArray(filterName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
-                return filterName + ':' + $target.text();
+                return filterName + ':' + $.trim($target.text());
             });
         },
         // for selected filters when dropdown list is closed
