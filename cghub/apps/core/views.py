@@ -135,14 +135,14 @@ class SearchView(TemplateView):
         response = self.render_to_response(context)
         # save current query to cookie
         if response.status_code == 200:
-            if request.GET:
+            if request.GET and request.GET.get('remember', 'false') == 'true':
                 query = request.GET.urlencode(safe='()[]*')
+                response.set_cookie(settings.LAST_QUERY_COOKIE,
+                        query,
+                        max_age=settings.COOKIE_MAX_AGE,
+                        path=reverse('home_page'))
             else:
-                query = ''
-            response.set_cookie(settings.LAST_QUERY_COOKIE,
-                    query,
-                    max_age=settings.COOKIE_MAX_AGE,
-                    path=reverse('home_page'))
+                response.delete_cookie(settings.LAST_QUERY_COOKIE)
             response.set_cookie(settings.PAGINATOR_LIMIT_COOKIE,
                     self.paginator_limit,
                     max_age=settings.COOKIE_MAX_AGE,

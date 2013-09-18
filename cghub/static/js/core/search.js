@@ -19,6 +19,7 @@ jQuery(function ($) {
             cghub.search.parseAppliedFilters();
             cghub.search.initDdcl();
             cghub.search.initCustomPeriodButtons();
+            cghub.search.initRememberFilters();
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
@@ -36,6 +37,7 @@ jQuery(function ($) {
             cghub.search.$spinner = $('.js-spinner');
             cghub.search.$numResults = $('.js-num-results');
             cghub.search.$searchField = $('.navbar-search input');
+            cghub.search.$rememberFiltersCheckbox = $('.js-remember-filters input');
         },
         bindEvents:function () {
             cghub.search.$navbarSearchForm.on('submit', cghub.search.onNavbarSearchFormSubmit);
@@ -44,6 +46,14 @@ jQuery(function ($) {
             cghub.search.$resetFiltersButton.on('click', cghub.search.resetFilters);
             cghub.search.$addAllFilesButton.on('click', cghub.search.addAllFilesClick);
             cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
+        },
+        initRememberFilters: function() {
+            var remember = sessionStorage.getItem('remember-filters');
+            if(remember===null) {remember = 'true'};
+            cghub.search.$rememberFiltersCheckbox.prop('checked', remember == 'true');
+            cghub.search.$rememberFiltersCheckbox.on('change', function() {
+                sessionStorage.setItem('remember-filters', $(this).prop('checked'));
+            })
         },
         onNavbarSearchFormSubmit: function () {
             cghub.search.applyFilters();
@@ -442,6 +452,11 @@ jQuery(function ($) {
                 if($.isEmptyObject(filters['filters'])) {
                     window.location.href = href;
                 } else {
+                    if(cghub.search.$rememberFiltersCheckbox.prop('checked')) {
+                        filters['filters']['remember'] = 'true';
+                    } else {
+                        delete filters['filters']['remember'];
+                    }
                     window.location.href = href.search(filters['filters']);
                 }
             }

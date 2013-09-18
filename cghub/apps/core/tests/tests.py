@@ -172,15 +172,29 @@ class CoreTestCase(TestCase):
         self.assertContains(response, 'Failed to augment fileset', 2)
 
     def test_save_filters_state(self):
-        # TODO: Extend this test (only filters should be persistent, not query)
+        """
+        Filters should be persistent only if 'remember filter settings' is checked.
+        Only filters can be persistent, not query.
+        """
         response = self.client.get(
-                '%s?q=%s' % (reverse('search_page'), self.query))
+                '%s?state=(live)&q=%s' % (reverse('search_page'), self.query))
         self.assertEqual(
                 self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
-                'q=%s' % self.query)
+                '')
         response = self.client.get(reverse('home_page'))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.query)
+        self.assertNotContains(response, 'data-filters="live"')
+        # save query
+        response = self.client.get(
+                '%s?state=(live)&q=%s&remember=true' % (reverse('search_page'), self.query))
+        self.assertEqual(
+                self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
+                'q=%s&state=(live)&remember=true' % self.query)
+        response = self.client.get(reverse('home_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.query)
+        self.assertContains(response, 'data-filters="live"')
 
     def test_save_limit_in_cookies(self):
         DEFAULT_FILTERS = {
@@ -462,13 +476,13 @@ class TemplateTagsTestCase(TestCase):
             result,
             u'Applied filter(s): <ul><li data-name="q" data-filters="Some text">'
             '<b>Text query</b>: "Some text"</li><li data-name="center_name" data-filters="HMS-RK">'
-            '<b>Center</b>: <span>HMS-RK </span></li><li data-name="refassem_short_name" data-filters="HG18">'
+            '<b>Center</b>: <span>HMS-RK</span></li><li data-name="refassem_short_name" data-filters="HG18">'
             '<b>Assembly</b>: <span>HG18</span></li><li data-name="last_modified" data-filters="[NOW-7DAY TO NOW]">'
             '<b>Modified</b>: last week</li><li data-name="disease_abbr" data-filters="CNTL&amp;COAD">'
-            '<b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span></li>'
-            '<li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span></li>'
-            '<li data-name="library_strategy" data-filters="WGS&amp;WXS">'
-            '<b>Library Type</b>: <span>WGS </span>, <span>WXS </span></li></ul>')
+            '<b>Disease</b>: <span>Controls (CNTL)</span>, <span>Colon adenocarcinoma (COAD)</span>'
+            '</li><li data-name="study" data-filters="phs000178"><b>Study</b>: <span>TCGA (phs000178)</span>'
+            '</li><li data-name="library_strategy" data-filters="WGS&amp;WXS">'
+            '<b>Library Type</b>: <span>WGS</span>, <span>WXS</span></li></ul>')
 
     def test_items_per_page_tag(self):
         request = HttpRequest()

@@ -226,7 +226,7 @@ def applied_filters(request):
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
             if ALL_FILTERS[f]['filters'].get(value) == value or f == 'state':
-                filters_str += ', <span>%s </span>' % (
+                filters_str += ', <span>%s</span>' % (
                         remove_dashes(ALL_FILTERS[f]['filters'].get(value)))
             else:
                 filters_str += ', <span>%s (%s)</span>' % (
