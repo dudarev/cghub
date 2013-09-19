@@ -25,11 +25,24 @@
 	margin-top:0px;
 }
 .Clickable {	
-	font-weight:900;
-	font-size:large;
-	color: #800080;	
-	cursor:pointer;
-	vertical-align:middle;
+	background: transparent no-repeat url(../../../img/chevrons.png) 0 0;
+    height: 20px;
+    width: 20px;
+    display: inline-block;
+	cursor: pointer;
+	vertical-align: middle;
+}
+.Clickable.element-expand {
+    background-position: 0 0;
+}
+.Clickable.element-expand-all {
+    background-position: -20px 0;
+}
+.Clickable.element-collapse-all {
+    background-position: -40px 0;
+}
+.Clickable.element-collapse {
+    background-position: -60px 0;
 }
 .XmlContainer {
     margin-bottom: 20px;

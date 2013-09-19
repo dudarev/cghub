@@ -6,6 +6,8 @@
  * the author be liable for any damages arising in any way out of the use
  * of this software, even if advised of the possibility of such damage.
  * $Date: 2007-10-03 19:08:15 -0700 (Wed, 03 Oct 2007) $
+ * 
+ * 2013.09.19 Modified by 42cc.
  */
 
 function LoadXML(ParentElementID,URL) {
@@ -28,7 +30,8 @@ function LoadXMLDom(ParentElementID,xmlDoc) {
 
 function LoadXMLString(ParentElementID,XMLString) {
 	xmlDoc = CreateXMLDOM(XMLString);
-	return LoadXMLDom(ParentElementID,xmlDoc) ;
+	LoadXMLDom(ParentElementID,xmlDoc) ;
+    //ToggleSubElements(document.getElementById('div_content_all_1').parentNode, false)
 }
 ////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS - SHOULD NOT BE DIRECTLY CALLED BY USERS
@@ -199,15 +202,55 @@ function AddNodeNameWithAttributes(TagEmptyElement, RootNode) {
 }
 
 function AddClickablePlus (element, counter) {
-    var ClickableElement = AddTextNode(element,'+','Clickable') ;
+    var ClickableElement = AddTextNode(element,'','Clickable element-expand') ;
     ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
     ClickableElement.id = 'div_empty_' + counter;
+    var ClickableElementAll = AddTextNode(element,'','Clickable element-expand-all') ;
+    ClickableElementAll.onclick  = function() {
+        ToggleSubElements(ClickableElement, true);
+        ClickableElement.click();
+    }
 }
 
 function AddClickableMinus (element, counter) {
-    var ClickableElement = AddTextNode(element,'-','Clickable') ;
+    var ClickableElement = AddTextNode(element,'','Clickable element-collapse') ;
     ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
     ClickableElement.id = 'div_content_' + counter;
+    var ClickableElementAll = AddTextNode(element,'','Clickable element-collapse-all') ;
+    ClickableElementAll.onclick  = function() {
+        ToggleSubElements(ClickableElement, false);
+        ClickableElement.click();
+    }
+}
+
+function ToggleSubElements(el, show) {
+    if (!el|| !el.id) { return; }
+    try {
+        ElementID = parseInt(el.id.slice(el.id.lastIndexOf('_')+1));
+    }
+    catch(e) { return ; }
+    var ElementToShow = '';
+    if(show) {
+        ElementToShow = 'div_content_' + ElementID;
+    } else {
+        ElementToShow = 'div_empty_' + ElementID;
+    }
+    ElementToShow = CompatibleGetElementByID(ElementToShow);
+    var arr = ElementToShow.parentNode.getElementsByClassName('Clickable');
+    var length = arr.length,
+        element = null;
+    for (var i = 0; i < length; i++) {
+        element = ElementToShow.getElementById(arr[i]);
+        if(show) {
+            if(element.className.indexOf('element-expand') != -1 && element.className.indexOf('element-expand-all') == -1 && element.style['display'] != 'none'){
+                element.click();
+            }
+        } else {
+            if(element.className.indexOf('element-collapse') != -1 && element.className.indexOf('element-collapse-all') == -1 && element.style['display'] != 'none'){
+                element.click();
+            }
+        }
+    }
 }
 
 function AddTextInDiv(element, text) {
@@ -280,6 +323,6 @@ function ToggleElementVisibility(Element) {
 	ElementToShow = CompatibleGetElementByID(ElementToShow);
 	if (ElementToHide) { ElementToHide = ElementToHide.parentNode;}
 	if (ElementToShow) { ElementToShow = ElementToShow.parentNode;}
-	SetVisibility(ElementToHide,false);
-	SetVisibility(ElementToShow,true);
+    SetVisibility(ElementToHide,false);
+    SetVisibility(ElementToShow,true);
 }
