@@ -4,6 +4,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     from django.utils.simplejson import OrderedDict
+from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
@@ -16,7 +17,7 @@ from cghub.apps.core.requests import RequestDetail, RequestID
 
 class FiltersProcessor(object):
     """
-    procesor = FiltersProcessor(stdout=sys.stdout)
+    procesor = FiltersProcessor(stdout=sys.stdout, stderr=sys.stderr, verbosity=1)
     options = processor.process(filter_name='refassem_short_name', options=OrderedDict([
         ('NCBI37/HG19', OrderedDict([
             ('HG19', 'HG19'),
@@ -32,10 +33,13 @@ class FiltersProcessor(object):
     ])
 
     :param stdout: sys.stdout
+    :param stderr: sys.stderr
     """
 
-    def __init__(self, stdout):
+    def __init__(self, stdout, stderr, verbosity):
         self.stdout = stdout
+        self.stderr = stderr
+        self.verbosity = verbosity
         self.CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
 
     def process(self, filter_name, options, selectfilters=False):
@@ -50,12 +54,10 @@ class FiltersProcessor(object):
         if selectfilters:
             self.find_all_options(filter_name)
             options = self.select_options(filter_name, options)
-            # add not existent options
+            # notify about not existent options
             new_options = set(self.all_options) - set(self.used_options)
             for option in new_options:
-                options.append((option, option))
-                self.stdout.write('- Added new filter %s:%s\n' % (filter_name, option))
-                self.stdout.write('! Please add this filter to filters_storage_full.py\n')
+                self.stderr.write('! New option %s:%s. Please add this option to filters_storage_full.py\n' % (filter_name, option))
             options = OrderedDict(options)
 
         new_dict, all_val = self.open_hierarchical_structures(options)
@@ -158,14 +160,26 @@ class FiltersProcessor(object):
 
 
 class Command(BaseCommand):
+    """
+    Verbosity levels (manage.py --verbosity 0):
+    0: print nothing (only errors)
+    1 or greater: print basic information
+    2 or greater: print as much information as possible (typically for debugging)
+    """
+
     help = 'Process filters from filters_storrage_full.py.'
 
     def handle(self, *args, **options):
+        verbosity = int(options['verbosity'])
 
-        processor = FiltersProcessor(stdout=self.stdout)
+        processor = FiltersProcessor(
+                stdout=self.stdout,
+                stderr=self.stderr,
+                verbosity=verbosity)
 
         for filter_name, filter_data in ALL_FILTERS.iteritems():
-            self.stdout.write('Processing %s filter\n' % filter_name)
+            if verbosity > 0:
+                self.stderr.write('Processing %s filter\n' % filter_name)
             if filter_name in DATE_ATTRIBUTES:
                 continue
             options = processor.process(
@@ -178,4 +192,5 @@ class Command(BaseCommand):
         json_filters = open(JSON_FILTERS_FILE_NAME, 'w')
         json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], json_filters, indent=2)
         json_filters.close()
-        self.stdout.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)
+        if verbosity > 0:
+            self.stderr.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)
