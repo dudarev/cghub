@@ -97,9 +97,12 @@ There are many possible options for filters in the sidebar. Not all of them are 
 
     $ python manage.py selectfilters
 
-``selectfilters`` management command first trying to obtain data for existing filters.
-If no results returns, filter will be removed.
-In case when sum of results for every filter will be less than count of all results, all filters will be found by recursive search.
+Can be used verbosity option.
+Setting the verbose level to 0 would cause only error message and the warnings about need to add new filters be printed. If there are no problems, selectfilters would be completely silent:
+
+.. code-block:: bash
+
+    $ python manage.py selectfilters --verbosity 0
 
 Command output:
 
@@ -107,8 +110,8 @@ Command output:
 
     Processing study filter
     Processing disease_abbr filter
-    - Added new filter disease_abbr:provolone
-    ! Please add this filter to filters_storage_full.py
+    ! New option disease_abbr:TEST. Please add this option to filters_storage_full.py
+    ! New option disease_abbr:provolone. Please add this option to filters_storage_full.py
     Processing sample_type filter
     Processing analyte_code filter
     Processing library_strategy filter
@@ -117,19 +120,7 @@ Command output:
     Processing refassem_short_name filter
     Processing upload_date filter
     Processing last_modified filter
-    Processing state filter
 
-`provolone` will be added to filters_storage.json:
-
-.. code-block:: bash
-
-    ...
-    "MESO": "Mesothelioma", 
-    "MM": "Multiple Myeloma Plasma cell leukemia", 
-    "OV": "Ovarian serous cystadenocarcinoma", 
-    "PAAD": "Pancreatic adenocarcinoma",
-    "provolone": "provolone",
-
-To change `provolone` name, You should add this filter to filters_storage_full.py and reexecute ``selectfilters`` command.
+To add `provolone` name to filters, You should add this filter to filters_storage_full.py and reexecute ``selectfilters`` command.
 
 Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_FILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
