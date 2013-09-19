@@ -14,6 +14,8 @@ SIDEBAR-5	Time filters have 'Pick period' option.	When chosing 'Pick period' opt
 SIDEBAR-6	check states	augmenting_data bad_data live redacted submitted suppressed uploading validating_data validating_sample
 SIDEBAR-7	check center list 	BCCAGSC WUGSC BI HMS-RK UNC-LCCC BCM UCSC CGHUB USC-JHU
 SIDEBAR-8	Hierarchical filters	Click on root option cause selecting/unselecting all suboptions	
+SIDEBAR-9	Remember filter settings toggle 1	Uncheck checkbox, select filters, submit, go to home page	Filters are setted to defaults
+SIDEBAR-10	Remember filter settings toggle 2	Check checkbox, select filters, submit, go to home page	Selected the same filters as before
 Search		
 SEARCH-1	Entering a search term `a2' and hitting enter leads to correct page	
 SEARCH-2	No search results when nothing is found	A message is displayed when no results are found:  (try aaa)

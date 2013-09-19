@@ -11,8 +11,8 @@ except ImportError:
 
 from cghub_python_api import SOLRRequest
 from mock import patch
-from urllib2 import URLError
 from StringIO import StringIO
+from urllib2 import URLError
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -705,7 +705,8 @@ class SelectFiltersTestCase(TestCase):
         ])
         filter_name = 'refassem_short_name'
         stdout = StringIO()
-        processor = FiltersProcessor(stdout=stdout)
+        stderr = StringIO()
+        processor = FiltersProcessor(stdout=stdout, stderr=stderr, verbosity=1)
         options = processor.process(
                 filter_name=filter_name, options=options,
                 selectfilters=False)
