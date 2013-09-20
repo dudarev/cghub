@@ -202,7 +202,9 @@ function AddClickablePlus (element, counter) {
     var ClickableElement = AddTextNode(element,'','Clickable element-expand') ;
     ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
     ClickableElement.id = 'div_empty_' + counter;
+    ClickableElement.title = 'Expand';
     var ClickableElementAll = AddTextNode(element,'','Clickable element-expand-all') ;
+    ClickableElementAll.title = 'Expand all';
     ClickableElementAll.onclick  = function() {
         ClickableElement.click();
         ToggleSubElements(ClickableElement, true);
@@ -213,7 +215,9 @@ function AddClickableMinus (element, counter) {
     var ClickableElement = AddTextNode(element,'','Clickable element-collapse') ;
     ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
     ClickableElement.id = 'div_content_' + counter;
+    ClickableElement.title = 'Collapse';
     var ClickableElementAll = AddTextNode(element,'','Clickable element-collapse-all') ;
+    ClickableElementAll.title = 'Collapse all';
     ClickableElementAll.onclick  = function() {
         ClickableElement.click();
         ToggleSubElements(ClickableElement, false);

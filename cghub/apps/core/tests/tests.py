@@ -136,8 +136,7 @@ class CoreTestCase(TestCase):
         self.assertContains(response, result['center_name'])
         # not ajax
         self.assertContains(response, '<head>')
-        self.assertContains(response, 'Collapse all')
-        self.assertContains(response, 'Expand all')
+        self.assertContains(response, '<script>LoadXMLString')
         # reason shows only for state != live
         self.assertNotContains(response, 'Reason')
         # try ajax request
@@ -148,8 +147,7 @@ class CoreTestCase(TestCase):
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, result['center_name'])
-        self.assertNotContains(response, 'Collapse all')
-        self.assertNotContains(response, 'Expand all')
+        self.assertNotContains(response, '<script>LoadXMLString')
         self.assertContains(response, 'Show metadata XML')
         # test if response contains some of needed fields
         self.assertContains(response, 'Modified')
