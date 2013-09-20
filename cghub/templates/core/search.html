@@ -8,7 +8,7 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/search.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/core/search.css' %}?v=4" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/search.css' %}?v=5" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -63,7 +63,7 @@
                 <div class="search-btn-group">
                     <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
                     <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button" >Add all to cart</button>
-                    <img src="{% static 'img/spinner.gif' %}" class="js-spinner spinner" alt="Working ...">
+                    <span class="js-spinner spinner">Working ... <img src="{% static 'img/ajax-loader.gif' %}"  alt="Working ..."></span>
                 </div>
 
             </div>
