@@ -8,7 +8,7 @@
     {% else %}
         <link rel="stylesheet" type="text/css" href="{% static 'css/core/details.css' %}?v=2" media="all">
     {% endif %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/libs/xmldisplay/XMLDisplay.css' %}?v=1" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/libs/xmldisplay/XMLDisplay.css' %}?v=2" media="all">
 {% endblock %}
 
 {% block extra_content %}
@@ -24,7 +24,7 @@
     {% if debug %}
         <script type="text/javascript" src="{% static 'js/libs/XMLDisplay.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{% static 'js/details.min.js' %}?v=1"></script>
+        <script type="text/javascript" src="{% static 'js/details.min.js' %}?v=5"></script>
     {% endif %}
     <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
 {% endblock %}
