@@ -24,7 +24,7 @@
     {% if debug %}
         <script type="text/javascript" src="{% static 'js/libs/XMLDisplay.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{% static 'js/details.min.js' %}?v=5"></script>
+        <script type="text/javascript" src="{% static 'js/libs/XMLDisplay.min.js' %}"></script>
     {% endif %}
     <script>LoadXMLString('XMLHolder', {{ raw_xml|safe }});</script>
 {% endblock %}
