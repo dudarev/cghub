@@ -23,11 +23,12 @@
     border-left-style:solid;
     padding-top:0px;
     margin-top:0px;
+    padding-left: 2px;
 }
 .Clickable {	
-    background: transparent no-repeat url(../../../img/chevrons.png) 0 0;
-    height: 20px;
-    width: 20px;
+    background: transparent no-repeat url(../../../img/expand_collapse.png) 0 0;
+    height: 12px;
+    width: 14px;
     display: inline-block;
     cursor: pointer;
     vertical-align: middle;
@@ -35,14 +36,14 @@
 .Clickable.element-expand {
     background-position: 0 0;
 }
+.Clickable.element-collapse {
+    background-position: -27px 0;
+}
 .Clickable.element-expand-all {
-    background-position: -20px 0;
+    background-position: -51px 0;
 }
 .Clickable.element-collapse-all {
-    background-position: -40px 0;
-}
-.Clickable.element-collapse {
-    background-position: -60px 0;
+    background-position: -72px 0;
 }
 .XmlContainer {
     margin-bottom: 20px;

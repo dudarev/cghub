@@ -30,8 +30,10 @@ function LoadXMLDom(ParentElementID,xmlDoc) {
 
 function LoadXMLString(ParentElementID,XMLString) {
     xmlDoc = CreateXMLDOM(XMLString);
-    LoadXMLDom(ParentElementID,xmlDoc) ;
+    LoadXMLDom(ParentElementID,xmlDoc);
     /* open first root by default */
+    ToggleSubElements(document.getElementById('div_empty_1'), false);
+    ToggleElementVisibility(document.getElementById('div_empty_1'));
 }
 ////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS - SHOULD NOT BE DIRECTLY CALLED BY USERS
@@ -172,7 +174,6 @@ function ShowXML(xmlHolderElement, RootNode, indent) {
         AddClosingElement(TagElement, RootNode.nodeName) ;
         xmlHolderElement.appendChild(TagElement);
     }
-    // if (indent==0) { ToggleElementVisibility(TagElement.childNodes(0)); } - uncomment to collapse the external element
     return Result;
 }
 
