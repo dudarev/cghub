@@ -825,7 +825,11 @@ class DetailsUITestCase(LiveServerTestCase):
         1. Go to search page
         2. Click on link to item details page (cell context menu)
         3. Check that url contains #raw-xml
-        4. Check that collapse/expand future works properly
+        4. Check that first node is extended
+        5. Collapse first node
+        6. Check then next elements are unvisible
+        7. Expand, check that next node is visible
+        8. Collapse all, check that next node is unvisible
         """
         with self.settings(**TEST_SETTINGS):
             # FIXME(nanvel): extend description ^
@@ -838,19 +842,24 @@ class DetailsUITestCase(LiveServerTestCase):
             time.sleep(3)
             driver.find_element_by_css_selector('.raw-xml-link').click()
             time.sleep(3)
-            assert '#raw-xml' in driver.current_url
-
-            # test 'Collapse all' and 'Expand all' buttons
-            driver.find_element_by_css_selector('#id-expand-all-button').click()
-            xml_containers = driver.find_elements_by_css_selector('#XMLHolder > .Element')
-            collapsed_xml = xml_containers[0].find_elements_by_class_name('Element')
-            expanded_xml = xml_containers[1].find_elements_by_class_name('Element')
-            assert len(expanded_xml) > len(collapsed_xml)
-            assert not xml_containers[0].is_displayed()
-            assert xml_containers[1].is_displayed()
-            driver.find_element_by_css_selector('#id-collapse-all-button').click()
-            assert xml_containers[0].is_displayed()
-            assert not xml_containers[1].is_displayed()
+            self.assertIn('#raw-xml', driver.current_url)
+            # test 'Collapse', 'Expand', 'Collapse all' and 'Expand all' buttons
+            self.assertTrue(driver.find_element_by_xpath(
+                    '//div[@id="XMLHolder"]/div[2]/div[1]').is_displayed())
+            driver.find_element_by_id('div_content_1').click()
+            self.assertFalse(driver.find_element_by_xpath(
+                    '//div[@id="XMLHolder"]/div[2]/div[1]').is_displayed())
+            # expand and collapse all
+            driver.find_element_by_id('div_empty_1').click()
+            time.sleep(1)
+            driver.find_element_by_xpath(
+                    '//span[@id="div_content_1"]/../span[2]').click()
+            time.sleep(1)
+            self.assertFalse(driver.find_element_by_xpath(
+                    '//div[@id="XMLHolder"]/div[2]/div[1]').is_displayed())
+            self.assertEqual(
+                    driver.find_element_by_xpath(
+                            '//span[@id="div_content_2"]/..').get_attribute('display'), None)
 
     def test_details_page(self):
         """
