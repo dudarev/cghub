@@ -744,6 +744,8 @@ class DetailsUITestCase(LiveServerTestCase):
         fp.set_preference(
                 "browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.selenium = webdriver.Firefox(firefox_profile=fp)
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(DetailsUITestCase, self).setUpClass()
 
@@ -832,7 +834,6 @@ class DetailsUITestCase(LiveServerTestCase):
         8. Collapse all, check that next node is unvisible
         """
         with self.settings(**TEST_SETTINGS):
-            # FIXME(nanvel): extend description ^
             driver = self.selenium
             driver.get(self.live_server_url)
             # Click on 'Metadata XML' in details popup
@@ -840,7 +841,7 @@ class DetailsUITestCase(LiveServerTestCase):
                     "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             td.click()
             time.sleep(3)
-            driver.find_element_by_css_selector('.raw-xml-link').click()
+            driver.find_element_by_xpath('//a[contains(text(), "Show metadata XML")]').click()
             time.sleep(3)
             self.assertIn('#raw-xml', driver.current_url)
             # test 'Collapse', 'Expand', 'Collapse all' and 'Expand all' buttons
@@ -906,6 +907,72 @@ class DetailsUITestCase(LiveServerTestCase):
                         'metadata.xml'))
             except OSError:
                 assert False, "File metadata.xml wasn't downloaded"
+
+    def test_add_to_cart_button(self):
+        """
+        1. Go to home page
+        2. Click on first row
+        3. Click on 'Add to cart' button
+        4. Check redirect to cart page
+        5. Check that 1 item was added to cart
+        6. Clear cart
+        7. Go to item details page
+        8. Click on 'Add to cart' button
+        9. Check redirect to cart page
+        10. Check that 1 item was added to cart
+        11. Go to details page
+        12. Check that 'Add to cart' button not exists
+        """
+        self.selenium.get(self.live_server_url)
+        analysis_id = self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                ).get_attribute('data-analysis_id')
+        # open popup
+        self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]"
+                ).click()
+        time.sleep(1)
+        self.assertNotIn(reverse('cart_page'), self.selenium.current_url)
+        self.selenium.find_elements_by_xpath(
+                "//button[contains(text(), 'Add to cart')]")[1].click()
+        time.sleep(3)
+        self.assertIn(reverse('cart_page'), self.selenium.current_url)
+        self.assertEqual(
+                analysis_id,
+                self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                ).get_attribute('data-analysis_id'))
+        # clear cart
+        self.selenium.find_element_by_xpath(
+                "//button[contains(text(), 'Clear cart')]").click()
+        # go to details page
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('item_details', args=(analysis_id,))))
+        # scroll to buttons
+        time.sleep(2)
+        self.selenium.execute_script(
+            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+        time.sleep(2)
+        # click on 'Add to cart'
+        self.selenium.find_element_by_xpath(
+                "//button[contains(text(), 'Add to cart')]").click()
+        time.sleep(3)
+        self.assertIn(reverse('cart_page'), self.selenium.current_url)
+        self.assertEqual(
+                analysis_id,
+                self.selenium.find_element_by_xpath(
+                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                ).get_attribute('data-analysis_id'))
+        # go to details page, check that button is no more visible
+        self.selenium.get('%s%s' % (
+                self.live_server_url,
+                reverse('item_details', args=(analysis_id,))))
+        time.sleep(2)
+        self.selenium.execute_script(
+            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+        self.assertFalse(self.selenium.find_elements_by_xpath(
+                "//button[contains(text(), 'Add to cart')]"))
 
 
 class SearchUITestCase(LiveServerTestCase):
