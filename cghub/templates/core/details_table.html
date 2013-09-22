@@ -3,7 +3,10 @@
 {% if res %}
     {% if is_ajax %}
         {% comment %} This will be shown in popup {% endcomment %}
-        <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
+        <form action="{% url cart_add_item analysis_id %}" method="POST">
+            <a href="{% url item_details analysis_id %}#raw-xml" class="btn">Show metadata XML</a>
+            <button type="submit" class="btn">Add to cart</button>
+        </form>
     {% else %}
         <h2 class="hidden">Details table:</h2>
     {% endif %}
@@ -11,19 +14,15 @@
         <caption class="hidden">returned file details</caption>
         {% details_table res %}
     </table>
-    {% if is_ajax %}
-        {% comment %} This will be shown in popup {% endcomment %}
-        <a href="{% url item_details analysis_id %}#raw-xml" class="raw-xml-link">Show metadata XML</a>
-    {% else %}
+    {% if not is_ajax %}
         <h2 id="raw-xml">Metadata XML:</h2>
         <form action="{% url metadata analysis_id %}" method="GET">
             {% csrf_token %}
-            <div class="btn-toolbar">
-                <div class="">
-                    <input type="hidden" name="last_modified" value="{{ res.last_modified }}">
-                    <button id="id-download-metadata" class="btn" tabindex="104">Download XML</button>
-                </div>
-            </div>
+            <input type="hidden" name="last_modified" value="{{ res.last_modified }}">
+            <button id="id-download-metadata" class="btn" tabindex="104">Download XML</button>
+        </form>
+        <form action="{% url cart_add_item analysis_id %}" method="POST">
+            <button type="submit" class="btn">Add to cart</button>
         </form>
         <div id="XMLHolder" class="XmlContainer" tabindex="105" title="raw xml"></div>
     {% endif %}

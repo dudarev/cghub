@@ -25,8 +25,8 @@
 .flexigrid div.bDiv tr{cursor:pointer;}.flexigrid div.bDiv tr td:first-child{cursor:default;}
 .tooltip{position:fixed;display:none;max-width:250px;background:#F8F8C1;visibility:visible;padding:5px;font-size:13px;opacity:1;color:#000;padding:5px 6px 4px 10px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;border:1px solid #996;z-index:1110;}
 .dropdown-menu li>a:hover{color:#222;background-color:#eee;}
-.modal .raw-xml-link{font-size:14px;padding:20px 0;}
 .modal table{margin-top:15px;}
+.modal .btn{margin-right:5px;}
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 div.btn-toolbar .btn{margin:0 6px 0 0;}
 .messages{position:relative;top:50px;padding:10px 10px 0 10px;margin-rigth:10px;}

@@ -57,7 +57,7 @@
             <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
             <div class="applied-filters">{% applied_filters request %}</div>
         </section>
-        <form action="{% url cart_add_remove_files action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
+        <form action="{% url cart_add_remove_items action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
             {% csrf_token %}
             <div class="btn-toolbar">
                 <div class="search-btn-group">
