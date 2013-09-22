@@ -120,23 +120,24 @@ class CoreTestCase(TestCase):
     def test_item_details_view(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
         bad_analysis_id = 'badd1bd2-f503-4775-951c-123456789112'
-        response = self.client.get(reverse(
-                'item_details', kwargs={'analysis_id': bad_analysis_id}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'No data.')
+        try:
+            response = self.client.get(reverse(
+                    'item_details', kwargs={'analysis_id': bad_analysis_id}))
+        except URLError as e:
+            self.assertIn('No results for analysis_id', str(e))
 
-        api_request = RequestFull(query={'analysis_id': analysis_id})
-        result = api_request.call().next()
-        self.assertEqual(api_request.hits, 1)
         response = self.client.get(
                         reverse('item_details',
                         kwargs={'analysis_id': analysis_id}))
         self.assertEqual(response.status_code, 200)
+        result = response.context['res']
         self.assertNotContains(response, u'No data.')
         self.assertContains(response, result['center_name'])
         # not ajax
         self.assertContains(response, '<head>')
         self.assertContains(response, '<script>LoadXMLString')
+        self.assertContains(response, 'Add to cart')
+        self.assertNotContains(response, 'In your cart')
         # reason shows only for state != live
         self.assertNotContains(response, 'Reason')
         # try ajax request
@@ -149,6 +150,8 @@ class CoreTestCase(TestCase):
         self.assertContains(response, result['center_name'])
         self.assertNotContains(response, '<script>LoadXMLString')
         self.assertContains(response, 'Show metadata XML')
+        self.assertContains(response, 'Add to cart')
+        self.assertNotContains(response, 'In your cart')
         # test if response contains some of needed fields
         self.assertContains(response, 'Modified')
         self.assertContains(response, 'Disease')
@@ -161,13 +164,32 @@ class CoreTestCase(TestCase):
         # check reason is present
         self.assertFalse(response.context['res']['reason'] is None)
         # test reason field
-        analysis_id = '333a5cc4-741b-445c-93f9-9fde6f64b88f' # state = bad_data
+        analysis_id2 = '333a5cc4-741b-445c-93f9-9fde6f64b88f' # state = bad_data
         response = self.client.get(reverse(
-                'item_details', kwargs={'analysis_id': analysis_id}))
+                'item_details', kwargs={'analysis_id': analysis_id2}))
         self.assertEqual(response.status_code, 200)
         # once in table and once in raw xml
         self.assertContains(response, 'Reason')
         self.assertContains(response, 'Failed to augment fileset', 2)
+        # show 'Add to cart' button only if item not in cart
+        create_session(self)
+        cart = Cart(self.session)
+        cart.add(result)
+        response = self.client.get(
+                        reverse('item_details',
+                        kwargs={'analysis_id': analysis_id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Add to cart')
+        self.assertContains(response, 'In your cart')
+        # try ajax request
+        response = self.client.get(
+                        reverse('item_details',
+                        kwargs={'analysis_id': analysis_id}),
+                        {'ajax': 1},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Add to cart')
+        self.assertContains(response, 'In your cart')
 
     def test_save_filters_state(self):
         """

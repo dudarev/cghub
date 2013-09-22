@@ -82,6 +82,7 @@ class CartUtilsTestCase(TestCase):
         # Analysises already created
         analysis1 = AnalysisFactory.create()
         analysis2 = AnalysisFactory.create()
+        self.assertFalse(my_cart.in_cart(analysis2.analysis_id))
         analysis1_result = {
                 'analysis_id': analysis1.analysis_id,
                 'last_modified': analysis1.last_modified}
@@ -90,9 +91,11 @@ class CartUtilsTestCase(TestCase):
                 'last_modified': analysis2.last_modified}
         my_cart.add(analysis1_result)
         my_cart.add(analysis2_result)
+        self.assertTrue(my_cart.in_cart(analysis2.analysis_id))
         self.assertEqual(cart.items.count(), 2)
         # remove
         my_cart.remove(analysis2.analysis_id)
+        self.assertFalse(my_cart.in_cart(analysis2.analysis_id))
         self.assertEqual(cart.items.count(), 1)
         # check update_stats
         analysis3 = AnalysisFactory.create(state='somestate')
@@ -192,8 +195,8 @@ class CartTestCase(TestCase):
     def setUp(self):
         self.cart_page_url = reverse('cart_page')
 
-    def test_cart_add_files(self):
-        url = reverse('cart_add_remove_files', args=['add'])
+    def test_cart_add_items(self):
+        url = reverse('cart_add_remove_items', args=['add'])
 
         self.client.post(
                         url, {'selected_items': json.dumps(self.RANDOM_IDS)},
@@ -213,9 +216,24 @@ class CartTestCase(TestCase):
         for f in self.RANDOM_IDS:
             self.assertIn(f['analysis_id'], response.content)
 
+    def test_cart_add_item(self):
+        analysis_id = self.RANDOM_IDS[0]['analysis_id']
+        # get method not allowed
+        response = self.client.get(
+                reverse('cart_add_item', args=[analysis_id]))
+        self.assertEqual(response.status_code, 405)
+        response = self.client.post(
+                reverse('cart_add_item', args=[analysis_id]), follow=True)
+        self.assertRedirects(response, self.cart_page_url)
+        self.assertEqual(response.status_code, 200)
+
+        # make sure counter in header is OK
+        self.assertContains(response, 'Cart (1)')
+        self.assertContains(response, 'Files in your cart: 1')
+
     def test_cart_remove_files(self):
         # add files
-        url = reverse('cart_add_remove_files', args=['add'])
+        url = reverse('cart_add_remove_items', args=['add'])
         self.client.post(
                         url, {'selected_items': json.dumps(self.RANDOM_IDS)},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -223,7 +241,7 @@ class CartTestCase(TestCase):
         rm_selected_files = [
                 self.RANDOM_IDS[0]['analysis_id'],
                 self.RANDOM_IDS[1]['analysis_id']]
-        url = reverse('cart_add_remove_files', args=['remove'])
+        url = reverse('cart_add_remove_items', args=['remove'])
         self.client.post(
                         url, {'ids': ' '.join(rm_selected_files)},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -242,7 +260,7 @@ class CartTestCase(TestCase):
 
     def test_cart_pagination(self):
         # add 3 files to cart
-        url = reverse('cart_add_remove_files', args=['add'])
+        url = reverse('cart_add_remove_items', args=['add'])
         self.client.post(
                         url, {'selected_items': json.dumps(self.RANDOM_IDS)},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -273,7 +291,7 @@ class CartTestCase(TestCase):
 
     def test_cart_sorting(self):
         # add 3 files to cart
-        url = reverse('cart_add_remove_files', args=['add'])
+        url = reverse('cart_add_remove_items', args=['add'])
         self.client.post(
                         url, {'selected_items': json.dumps(self.RANDOM_IDS)},
                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -298,11 +316,11 @@ class CartTestCase(TestCase):
 
     def test_cart_add_raise_http_404_when_get(self):
         """
-        Only POST method allowed for 'cart_add_remove_files' url
+        Only POST method allowed for 'cart_add_remove_items' url
         """
-        url = reverse('cart_add_remove_files', args=['add'])
+        url = reverse('cart_add_remove_items', args=['add'])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 405)
 
 
 class CartAddItemsTestCase(TestCase):
@@ -316,7 +334,7 @@ class CartAddItemsTestCase(TestCase):
                         'state': '(live)',
                         'q': '(00b27c0f-acf5-434c-8efa-25b1f3c4f506)'
                     })}
-        url = reverse('cart_add_remove_files', args=('add',))
+        url = reverse('cart_add_remove_items', args=('add',))
         response = self.client.post(
                 url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
@@ -341,7 +359,7 @@ class CartAddItemsTestCase(TestCase):
                     'state': '(live)',
                     'q': '00b27c0f-acf5-434c-8efa-25b1f3c4f506'
                 })}
-        url = reverse('cart_add_remove_files', args=('add',))
+        url = reverse('cart_add_remove_items', args=('add',))
         response = self.client.post(
                 url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
@@ -362,7 +380,7 @@ class CartAddItemsTestCase(TestCase):
                         'upload_date': '[NOW-1DAY TO NOW]',
                         'study': '(*Other_Sequencing_Multiisolate)'
                     })}
-        url = reverse('cart_add_remove_files', args=('add',))
+        url = reverse('cart_add_remove_items', args=('add',))
         response = self.client.post(
                 url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)

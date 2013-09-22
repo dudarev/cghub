@@ -115,6 +115,12 @@ class Cart(object):
         self.cart.items.all().delete()
         self.update_stats()
 
+    def in_cart(self, analysis_id):
+        """
+        Returns True if item with specified analysis_id exists in cart.
+        """
+        return self.cart.items.filter(analysis__analysis_id=analysis_id).exists()
+
     def update_stats(self):
         """
         Update cart.size and cart.live_count

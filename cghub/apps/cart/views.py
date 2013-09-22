@@ -1,5 +1,7 @@
 import logging
 
+from urllib2 import URLError
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
@@ -8,7 +10,8 @@ from django.views.generic.base import TemplateView, View
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.forms import AnalysisIDsForm
-from cghub.apps.core.requests import RequestMinimal, get_results_for_ids
+from cghub.apps.core.requests import (
+        RequestMinimal, RequestDetailJSON, get_results_for_ids)
 from cghub.apps.core.utils import get_filters_dict, paginator_params
 
 from .forms import SelectedItemsForm, AllItemsForm
@@ -112,10 +115,13 @@ class CartView(TemplateView):
         return response
 
 
-class CartAddRemoveFilesView(View):
+class CartAddRemoveItemsView(View):
     """
     Handles files added to cart
     """
+
+    http_method_names = ['post']
+
     def post(self, request, action):
         if 'add' == action:
             return cart_add_files(request)
@@ -126,11 +132,23 @@ class CartAddRemoveFilesView(View):
                 for analysis_id in form.cleaned_data['ids']:
                     cart.remove(analysis_id)
                 cart.update_stats()
-        url = reverse('cart_page')
-        return HttpResponseRedirect(url)
+        return HttpResponseRedirect(reverse('cart_page'))
 
-    def get(self, request, action):
-        raise Http404
+
+class CartAddItem(View):
+
+    http_method_names = ['post']
+
+    def post(self, request, analysis_id):
+        cart = Cart(request.session)
+        api_request = RequestDetailJSON(query={'analysis_id': analysis_id})
+        try:
+            result = api_request.call().next()
+        except StopIteration:
+            raise URLError('No results for analysis_id == %s' % analysis_id)
+        cart.add(result)
+        cart.update_stats()
+        return HttpResponseRedirect(reverse('cart_page'))
 
 
 class CartClearView(View):

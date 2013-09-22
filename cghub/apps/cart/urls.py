@@ -1,13 +1,17 @@
 from django.conf.urls import patterns, url
 from cghub.apps.cart.views import (
-                CartView, CartAddRemoveFilesView,
-                CartDownloadFilesView, CartClearView)
+                CartAddItem, CartAddRemoveItemsView, CartClearView,
+                CartDownloadFilesView, CartView)
 
 
 urlpatterns = patterns('',
     url(
         r'^(?P<action>add|remove)/$',
-        CartAddRemoveFilesView.as_view(), name='cart_add_remove_files'),
+        CartAddRemoveItemsView.as_view(), name='cart_add_remove_items'),
+    url(
+        r'^add/(?P<analysis_id>'
+        '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/$',
+        CartAddItem.as_view(), name='cart_add_item'),
     url(
         r'^clear/$',
         CartClearView.as_view(), name='cart_clear'),
