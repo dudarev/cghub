@@ -82,6 +82,7 @@ class CartUtilsTestCase(TestCase):
         # Analysises already created
         analysis1 = AnalysisFactory.create()
         analysis2 = AnalysisFactory.create()
+        self.assertFalse(my_cart.in_cart(analysis2.analysis_id))
         analysis1_result = {
                 'analysis_id': analysis1.analysis_id,
                 'last_modified': analysis1.last_modified}
@@ -90,9 +91,11 @@ class CartUtilsTestCase(TestCase):
                 'last_modified': analysis2.last_modified}
         my_cart.add(analysis1_result)
         my_cart.add(analysis2_result)
+        self.assertTrue(my_cart.in_cart(analysis2.analysis_id))
         self.assertEqual(cart.items.count(), 2)
         # remove
         my_cart.remove(analysis2.analysis_id)
+        self.assertFalse(my_cart.in_cart(analysis2.analysis_id))
         self.assertEqual(cart.items.count(), 1)
         # check update_stats
         analysis3 = AnalysisFactory.create(state='somestate')
