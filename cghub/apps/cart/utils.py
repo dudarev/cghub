@@ -98,11 +98,13 @@ class Cart(object):
             items = self.cart.items.all()[offset:offset + limit]
         if not items.exists():
             return []
-        results = get_results_for_ids([i.analysis.analysis_id for i in items])
-        if sort_by:
-            sort_attribute = sort_by[1:] if sort_by[0] == '-' else sort_by
-            sort_key = lambda s: s.get(sort_attribute)
-            results.sort(key=sort_key, reverse=sort_by[0].find('-') == 0)
+        results = []
+        for item in items:
+            result = {}
+            analysis = item.analysis
+            for attr in CART_SORT_ATTRIBUTES:
+                result[attr] = getattr(analysis, attr, None)
+            results.append(result)
         return results
 
     def add(self, result):

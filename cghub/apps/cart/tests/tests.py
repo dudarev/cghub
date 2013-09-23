@@ -193,7 +193,7 @@ class CartUtilsTestCase(TestCase):
         self.assertIn('platform', page[0])
         self.assertIn('refassem_short_name', page[0])
         # check is last_modified is the same as in Result
-        self.assertNotEqual(analysis.last_modified, page[0]['last_modified'])
+        self.assertEqual(analysis.last_modified, page[0]['last_modified'])
         # test sorting
         for attr in CART_SORT_ATTRIBUTES:
             page1 = cart.page(sort_by=attr)
