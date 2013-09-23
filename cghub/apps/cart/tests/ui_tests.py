@@ -17,6 +17,8 @@ class AddToCartUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(AddToCartUITestCase, self).setUpClass()
 
@@ -75,6 +77,8 @@ class CartUITestCase(LiveServerTestCase):
         fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv,application/x-gzip")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(CartUITestCase, self).setUpClass()
 
@@ -276,6 +280,8 @@ class SortWithinCartUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = webdriver.Firefox()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(SortWithinCartUITestCase, self).setUpClass()
 

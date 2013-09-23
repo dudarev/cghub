@@ -144,6 +144,8 @@ class CoreUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         # http://selenium-python.readthedocs.org/en/latest/api.html#selenium.webdriver.remote.webdriver.implicitly_wait
         self.selenium.implicitly_wait(5)
         super(CoreUITestCase, self).setUpClass()
@@ -339,6 +341,8 @@ class SidebarUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(SidebarUITestCase, self).setUpClass()
 
@@ -609,6 +613,8 @@ class CustomPeriodUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(CustomPeriodUITestCase, self).setUpClass()
 
@@ -662,6 +668,7 @@ class CustomPeriodUITestCase(LiveServerTestCase):
         text = "{0} - {1}".format(
                         datetime.strftime(start, '%Y/%m/%d'),
                         datetime.strftime(end, '%Y/%m/%d'))
+        print text, filter_text.strip()
         assert text in filter_text.strip()
 
     def test_custom_upload_date(self):
@@ -980,6 +987,8 @@ class SearchUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(SearchUITestCase, self).setUpClass()
 
@@ -1400,6 +1409,8 @@ class ColumnSelectUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(ColumnSelectUITestCase, self).setUpClass()
 
@@ -1555,6 +1566,8 @@ class ResetFiltersUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(ResetFiltersUITestCase, self).setUpClass()
 
@@ -1629,6 +1642,8 @@ class BatchSearchUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(BatchSearchUITestCase, self).setUpClass()
 
@@ -1785,6 +1800,8 @@ class SkipNavUITestCase(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.selenium.implicitly_wait(5)
         super(SkipNavUITestCase, self).setUpClass()
 
@@ -1826,6 +1843,8 @@ class TabbingUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
 
@@ -1948,7 +1967,6 @@ class TabbingUITestCase(LiveServerTestCase):
             elements = (
                 '//ul[@id="accessibility-links"]/li[2]/a', # skip to main content link
                 '//ul[@class="nav"]/li[2]/a', # Cart page link
-                '//a[@id="id-collapse-all-button"]', # collapse all button
                 '//button[@id="id-download-metadata"]', # download xml button
                 '//div[@id="XMLHolder"]', # raw xml view
             )
@@ -1959,6 +1977,8 @@ class TableNavigationUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
 
@@ -2071,6 +2091,8 @@ class HelpHintsUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
+        self.selenium.set_window_size(1280, 800)
+        self.selenium.set_window_position(0, 0)
         self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
 

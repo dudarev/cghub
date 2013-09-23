@@ -30,5 +30,5 @@
 .navbar-fixed-top .navbar-inner .container-fluid{min-width:770px;}
 div.btn-toolbar .btn{margin:0 6px 0 0;}
 .messages{position:relative;top:50px;padding:10px 10px 0 10px;margin-rigth:10px;}
-.modal.fade.in{box-shadow:0 0 4px 4px #888;margin-top:-280px;}
+.modal.fade.in{box-shadow:0 0 4px 4px #888;}
 .details-content{margin-left:20px;}.details-content form{display:inline-block;margin-right:5px;}
