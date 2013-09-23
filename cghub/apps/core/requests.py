@@ -163,20 +163,18 @@ class RequestID(RequestBase):
 class RequestMinimal(RequestBase):
     """
     URI: analysisDetail uri.
-    Fields: analysis_id, last_modified, state, filesize.
+    Fields: analysis_id, last_modified.
     """
 
     def patch_input_data(self):
         super(RequestMinimal, self).patch_input_data()
         self.uri = getattr(self, 'CGHUB_ANALYSIS_DETAIL_URI', self.uri)
-        self.fields = ['analysis_id', 'last_modified', 'state', 'filesize']
+        self.fields = ['analysis_id', 'last_modified']
 
     def patch_result(self, result, result_xml):
         return {
                 'analysis_id': result['analysis_id'].text,
-                'last_modified': result['last_modified'].text,
-                'state': result['state'].text,
-                'files_size': result['filesize.0'].text}
+                'last_modified': result['last_modified'].text}
 
 
 class RequestDetail(RequestBase):
