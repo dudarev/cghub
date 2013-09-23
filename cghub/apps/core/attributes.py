@@ -43,7 +43,7 @@ for name, attribute in COLUMN_NAMES.iteritems():
     if attribute not in ATTRIBUTES:
         ATTRIBUTES.append(attribute)
 
-SORT_BY_ATTRIBUTES = (
+SORT_BY_ATTRIBUTES = [
     'aliquot_id',
     'analysis_id',
     'analyte_code',
@@ -63,11 +63,8 @@ SORT_BY_ATTRIBUTES = (
     'study',
     'tss_id',
     'upload_date',
-)
+]
 
-CART_SORT_ATTRIBUTES = (
-    'analysis_id',
-    'last_modified',
+CART_SORT_ATTRIBUTES = SORT_BY_ATTRIBUTES + [
     'files_size',
-    'state'
-)
+]
