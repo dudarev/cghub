@@ -66,5 +66,7 @@ SORT_BY_ATTRIBUTES = [
 ]
 
 CART_SORT_ATTRIBUTES = SORT_BY_ATTRIBUTES + [
+    'checksum',
+    'filename',
     'files_size',
 ]

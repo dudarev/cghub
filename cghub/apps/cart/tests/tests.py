@@ -14,6 +14,7 @@ from django.utils import timezone, simplejson as json
 
 from cghub.apps.core import browser_text_search
 from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
+from cghub.apps.core.requests import RequestMinimal, RequestDetailJSON
 from cghub.apps.core.tests import create_session, get_request
 
 from ..cache import (
@@ -24,7 +25,7 @@ from ..forms import SelectedItemsForm, AllItemsForm
 from ..models import Cart as CartModel, CartItem, Analysis
 from ..utils import (
         Cart, manifest_xml_generator, metadata_xml_generator,
-        summary_tsv_generator)
+        summary_tsv_generator, update_analysis)
 from ..views import manifest, metadata, summary
 
 from .factories import AnalysisFactory, CartItemFactory
@@ -71,6 +72,35 @@ class CartModelsTestCase(TestCase):
 
 
 class CartUtilsTestCase(TestCase):
+
+    def test_update_analysis(self):
+        # create not existent
+        analysis_id = '016b792f-e659-4143-b833-163141e21363'
+        self.assertFalse(Analysis.objects.filter(
+                analysis_id=analysis_id).exists())
+        api_request = RequestMinimal(query={'analysis_id': analysis_id})
+        result = api_request.call().next()
+        analysis = update_analysis(result)
+        self.assertTrue(Analysis.objects.filter(
+                analysis_id=analysis_id).exists())
+        # update
+        new_last_modified = '2077-77-77T77:77:77Z'
+        new_center_name = 'ABCD'
+        self.assertNotEqual(analysis.last_modified, new_last_modified)
+        self.assertNotEqual(analysis.center_name, new_center_name)
+        analysis.last_modified = new_last_modified
+        analysis.center_name = new_center_name
+        analysis.save()
+        self.assertEqual(analysis.last_modified, new_last_modified)
+        self.assertEqual(analysis.center_name, new_center_name)
+        analysis = update_analysis(result)
+        self.assertNotEqual(analysis.last_modified, new_last_modified)
+        self.assertNotEqual(analysis.center_name, new_center_name)
+        # check all attributes are setted
+        api_request = RequestDetailJSON(query={'analysis_id': analysis_id})
+        result = api_request.call().next()
+        for attr in CART_SORT_ATTRIBUTES:
+            self.assertEqual(result.get(attr), getattr(analysis, attr))
 
     def test_cart_class(self):
         create_session(self)
@@ -122,7 +152,8 @@ class CartUtilsTestCase(TestCase):
                 'analysis_id': analysis1.analysis_id,
                 'last_modified': '3000-01-01T11:11:11Z',
                 'state': 'bad',
-                'files_size': 54321}
+                'files_size': 54321,
+                'platform': 'PLT1'}
         self.assertNotEqual(analysis1.last_modified, result['last_modified'])
         self.assertNotEqual(analysis1.state, result['state'])
         self.assertNotEqual(analysis1.files_size, result['files_size'])

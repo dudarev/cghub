@@ -23,9 +23,19 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.CharField')(max_length=36, null=True, blank=True),
                       keep_default=False)
 
+        # Adding field 'Analysis.checksum'
+        db.add_column('cart_analysis', 'checksum',
+                      self.gf('django.db.models.fields.CharField')(max_length=36, null=True, blank=True),
+                      keep_default=False)
+
         # Adding field 'Analysis.disease_abbr'
         db.add_column('cart_analysis', 'disease_abbr',
                       self.gf('django.db.models.fields.CharField')(max_length=36, null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Analysis.filename'
+        db.add_column('cart_analysis', 'filename',
+                      self.gf('django.db.models.fields.CharField')(max_length=250, null=True, blank=True),
                       keep_default=False)
 
         # Adding field 'Analysis.legacy_sample_id'
@@ -99,8 +109,14 @@ class Migration(SchemaMigration):
         # Deleting field 'Analysis.center_name'
         db.delete_column('cart_analysis', 'center_name')
 
+        # Deleting field 'Analysis.checksum'
+        db.delete_column('cart_analysis', 'checksum')
+
         # Deleting field 'Analysis.disease_abbr'
         db.delete_column('cart_analysis', 'disease_abbr')
+
+        # Deleting field 'Analysis.filename'
+        db.delete_column('cart_analysis', 'filename')
 
         # Deleting field 'Analysis.legacy_sample_id'
         db.delete_column('cart_analysis', 'legacy_sample_id')
@@ -146,7 +162,9 @@ class Migration(SchemaMigration):
             'analysis_id': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '36', 'db_index': 'True'}),
             'analyte_code': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
             'center_name': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
+            'checksum': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
             'disease_abbr': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
+            'filename': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'files_size': ('django.db.models.fields.BigIntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_modified': ('django.db.models.fields.CharField', [], {'max_length': '20'}),

@@ -4,8 +4,8 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
-
 from cghub.apps.core.requests import RequestDetailJSON
+
 
 class Migration(DataMigration):
 
@@ -21,7 +21,9 @@ class Migration(DataMigration):
             analysis.aliquot_id = result.get('aliquot_id')
             analysis.analyte_code = result.get('analyte_code')
             analysis.center_name = result.get('center_name')
+            analysis.checksum = result.get('checksum')
             analysis.disease_abbr = result.get('disease_abbr')
+            analysis.filename = result.get('filename')
             analysis.legacy_sample_id = result.get('legacy_sample_id')
             analysis.library_strategy = result.get('library_strategy')
             analysis.published_date = result.get('published_date')
@@ -46,7 +48,9 @@ class Migration(DataMigration):
             'analysis_id': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '36', 'db_index': 'True'}),
             'analyte_code': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
             'center_name': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
+            'checksum': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
             'disease_abbr': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
+            'filename': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'files_size': ('django.db.models.fields.BigIntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_modified': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
