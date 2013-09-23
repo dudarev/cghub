@@ -25,6 +25,27 @@ from .models import CartItem, Analysis
 cart_logger = logging.getLogger('cart')
 
 
+def update_analysis(data):
+    """
+    Updates analysis with data.analysis_id.
+    :param data: Result object (may contains only analysis_id or all attributes).
+    """
+    try:
+        analysis = Analysis.objects.get(analysis_id=data['analysis_id'])
+    except Analysis.DoesNotExist:
+        analysis = Analysis(analysis_id=data['analysis_id'])
+    if 'platform' in data:
+        result = data
+    else:
+        # get all attributes
+        api_request = RequestDetailJSON(query={'analysis_id': data['analysis_id']})
+        result = api_request.call().next()
+    for attr in CART_SORT_ATTRIBUTES:
+        setattr(analysis, attr, result.get(attr))
+    analysis.save()
+    return analysis
+
+
 class Cart(object):
     """
     Class allows to manage user cart.
@@ -77,11 +98,13 @@ class Cart(object):
             items = self.cart.items.all()[offset:offset + limit]
         if not items.exists():
             return []
-        results = get_results_for_ids([i.analysis.analysis_id for i in items])
-        if sort_by:
-            sort_attribute = sort_by[1:] if sort_by[0] == '-' else sort_by
-            sort_key = lambda s: s[sort_attribute]
-            results.sort(key=sort_key, reverse=sort_by[0].find('-') == 0)
+        results = []
+        for item in items:
+            result = {}
+            analysis = item.analysis
+            for attr in CART_SORT_ATTRIBUTES:
+                result[attr] = getattr(analysis, attr, None)
+            results.append(result)
         return results
 
     def add(self, result):
@@ -90,26 +113,18 @@ class Cart(object):
             analysis = Analysis.objects.get(analysis_id=analysis_id)
             if analysis.last_modified != result['last_modified']:
                 # update analysis
-                analysis.state = result['state']
-                analysis.files_size = result['files_size']
-                analysis.last_modified = result['last_modified']
-                analysis.save()
-            item = CartItem(
-                    cart=self.cart,
-                    analysis=analysis)
-            item.save()
+                analysis = update_analysis(result)
         except IntegrityError:
             return
         except Analysis.DoesNotExist:
-            analysis = Analysis.objects.create(
-                    analysis_id=analysis_id,
-                    last_modified=result['last_modified'],
-                    state=result['state'],
-                    files_size=result['files_size'])
-            item = CartItem(
-                    cart=self.cart,
-                    analysis=analysis)
+            analysis = update_analysis(result)
+        item = CartItem(
+                cart=self.cart,
+                analysis=analysis)
+        try:
             item.save()
+        except IntegrityError:
+            pass
 
     def clear(self):
         self.cart.items.all().delete()

@@ -6,8 +6,9 @@ from django.conf import settings
 
 from cghub.apps.core.requests import RequestMinimal, RequestID
 
-from ...models import Analysis
 from ...cache import is_cart_cache_exists, save_to_cart_cache
+from ...models import Analysis
+from ...utils import update_analysis
 
 
 cart_logger = logging.getLogger('cart')
@@ -45,23 +46,17 @@ class Command(BaseCommand):
 
         api_request = RequestMinimal(query={})
         for result in api_request.call():
-            analysis, created = Analysis.objects.get_or_create(
-                    analysis_id=result['analysis_id'],
-                    defaults={
-                        'last_modified': result['last_modified'],
-                        'state': result['state'],
-                        'files_size': result['files_size']
-                    })
-            if created:
+            try:
+                analysis = Analysis.objects.get(
+                        analysis_id=result['analysis_id'],
+                        last_modified=result['last_modified'])
+                if analysis.last_modified != result['last_modified']:
+                    analysis = update_analysis(result)
+                    self.stderr.write('- %s was updated\n' % analysis.analysis_id)
+            except Analysis.DoesNotExist:
+                analysis = update_analysis(result)
                 self.stderr.write('- %s was created\n' % analysis.analysis_id)
-            elif analysis.last_modified != result['last_modified']:
-                analysis.last_modified = result['last_modified']
-                analysis.state = result['state']
-                analysis.files_size = result['files_size']
-                analysis.save()
-                self.stderr.write('- %s was updated\n' % analysis.analysis_id)
 
-        self.stdout.write('Downloading not existent cache ...\n')
         self.stderr.write('Downloading not existent cache ...\n')
         self.done_count = 0
         self.error_count = 0

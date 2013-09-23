@@ -476,9 +476,7 @@ class TemplateTagsTestCase(TestCase):
         ).render(Context({
             'request': test_request
         }))
-        self.assertEqual(
-            out,
-            '<a href="#" onclick="return false;">Study</a>')
+        self.assertIn('sort_by=study', out)
 
     def test_applied_filters_tag(self):
         request = HttpRequest()

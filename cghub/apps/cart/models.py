@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.sessions.models import Session
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete
 
 
 class Cart(models.Model):
@@ -17,6 +17,25 @@ class Analysis(models.Model):
     state = models.CharField(max_length=20)
     last_modified = models.CharField(max_length=20)
     files_size = models.BigIntegerField()
+    # used for sorting purpose
+    aliquot_id = models.CharField(max_length=36, blank=True, null=True)
+    analyte_code = models.CharField(max_length=4, blank=True, null=True)
+    center_name = models.CharField(max_length=36, blank=True, null=True)
+    checksum = models.CharField(max_length=36, blank=True, null=True)
+    disease_abbr = models.CharField(max_length=36, blank=True, null=True)
+    filename = models.CharField(max_length=250, blank=True, null=True)
+    legacy_sample_id = models.CharField(max_length=36, blank=True, null=True)
+    library_strategy = models.CharField(max_length=36, blank=True, null=True)
+    published_date = models.CharField(max_length=20, blank=True, null=True)
+    participant_id = models.CharField(max_length=36, blank=True, null=True)
+    platform = models.CharField(max_length=36, blank=True, null=True)
+    refassem_short_name = models.CharField(max_length=36, blank=True, null=True)
+    sample_accession = models.CharField(max_length=36, blank=True, null=True)
+    sample_id = models.CharField(max_length=36, blank=True, null=True)
+    sample_type = models.CharField(max_length=4, blank=True, null=True)
+    study = models.CharField(max_length=36, blank=True, null=True)
+    tss_id = models.CharField(max_length=4, blank=True, null=True)
+    upload_date = models.CharField(max_length=20, blank=True, null=True)
 
     def __unicode__(self):
         return self.analysis_id
@@ -42,7 +61,8 @@ def create_cart(sender, instance, created, **kwargs):
 post_save.connect(create_cart, sender=Session)
 
 def remove_cart(sender, instance, **kwargs):
-    instance.cart.items.all().delete()
-    instance.cart.delete()
+    if instance.cart:
+        instance.cart.items.all().delete()
+        instance.cart.delete()
 
-post_delete.connect(remove_cart, sender=Session)
+pre_delete.connect(remove_cart, sender=Session)
