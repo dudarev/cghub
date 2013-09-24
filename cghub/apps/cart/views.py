@@ -167,7 +167,7 @@ def manifest(request):
         response = HttpResponse(
                 manifest_xml_generator(request, compress=True),
                 content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=manifest.gz'
+        response['Content-Disposition'] = 'attachment; filename=manifest.xml.gz'
     else:
         response = HttpResponse(
                 manifest_xml_generator(request),
@@ -181,7 +181,7 @@ def metadata(request):
         response = HttpResponse(
                 metadata_xml_generator(request, compress=True),
                 content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=metadata.gz'
+        response['Content-Disposition'] = 'attachment; filename=metadata.xml.gz'
     else:
         response = HttpResponse(
             metadata_xml_generator(request), content_type='text/xml')
@@ -194,7 +194,7 @@ def summary(request):
         response = HttpResponse(
                 summary_tsv_generator(request, compress=True),
                 content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=summary.gz'
+        response['Content-Disposition'] = 'attachment; filename=summary.tsv.gz'
     else:
         response = HttpResponse(
                 summary_tsv_generator(request),
