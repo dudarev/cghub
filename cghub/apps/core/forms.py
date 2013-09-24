@@ -22,11 +22,8 @@ class BatchSearchForm(forms.Form):
         # get list of ids
         raw_ids = []
         ids = []
-        legacy_sample_ids = []
         unvalidated_ids = []
-        id_pattern = re.compile(
-                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
-                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
+        id_pattern = re.compile(settings.ID_PATTERN)
         legacy_sample_id_pattern = re.compile('^[a-z]{2,8}-[0-9a-z\-]{10,30}$')
         for i in text.split():
             id = i.strip()
@@ -51,23 +48,21 @@ class BatchSearchForm(forms.Form):
                     ids.append(lower_id)
                 continue
             elif legacy_sample_id_pattern.match(lower_id):
-                if lower_id.upper() not in legacy_sample_ids:
-                    legacy_sample_ids.append(lower_id.upper())
+                if lower_id not in ids and lower_id.upper() not in ids:
+                    ids.append(lower_id.upper())
                 continue
             elif id not in unvalidated_ids:
                 unvalidated_ids.append(id)
 
-        if (len(ids) > settings.MAX_ITEMS_IN_QUERY or
-                    len(legacy_sample_ids) > settings.MAX_ITEMS_IN_QUERY):
+        if len(ids) > settings.MAX_ITEMS_IN_QUERY:
             raise forms.ValidationError('Max count of ids that can be '
                 'submitted at once limited by %d' % settings.MAX_ITEMS_IN_QUERY)
 
-        if not ids and not legacy_sample_ids:
+        if not ids:
             raise forms.ValidationError('No valid ids were found')
 
         data['raw_ids'] = raw_ids
         data['ids'] = ids
-        data['legacy_sample_ids'] = legacy_sample_ids
         data['unvalidated_ids'] = unvalidated_ids
 
         return data
@@ -86,9 +81,7 @@ class AnalysisIDsForm(forms.Form):
         if not ids or ids.isspace():
             raise forms.ValidationError('No analysis_ids found')
 
-        id_pattern = re.compile(
-                    '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-'
-                    '[0-9abcdef]{4}-[0-9abcdef]{12}$')
+        id_pattern = re.compile(settings.ID_PATTERN)
 
         cleaned_ids = []
 

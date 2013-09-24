@@ -18,7 +18,7 @@ from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .forms import BatchSearchForm, AnalysisIDsForm
 from .requests import (
-            RequestDetail, RequestID, RequestFull, get_results_for_ids)
+            RequestDetail, RequestFull, SearchByIDs, get_results_for_ids)
 from .utils import (
             get_filters_dict, query_dict_to_str, paginator_params,
             add_message)
@@ -157,61 +157,6 @@ class BatchSearchView(TemplateView):
         form = BatchSearchForm()
         return self.render_to_response({'form': form})
 
-    def search(self, submitted_ids, submitted_legacy_sample_ids):
-        """
-        Search by analysis_id and legacy_sample_id first.
-        Then if some ids were not found,
-        search them by sample_id, participant_id and aliquot_id.
-        """
-        found = {}
-        ids = []
-        if submitted_ids:
-            query = {'analysis_id': submitted_ids}
-            api_request = RequestID(query=query)
-            ids = []
-            for result in api_request.call():
-                ids.append(result['analysis_id'])
-            found['analysis_id'] = api_request.hits
-            if api_request.hits != len(submitted_ids):
-                # search them by sample_id
-                query = {'sample_id': submitted_ids}
-                api_request = RequestID(query=query)
-                for result in api_request.call():
-                    analysis_id = result['analysis_id']
-                    if analysis_id not in ids:
-                        ids.append(analysis_id)
-                found['sample_id'] = api_request.hits
-                # search by participant_id and aliquot_id
-                query = {'participant_id':  submitted_ids}
-                api_request = RequestID(query=query)
-                for result in api_request.call():
-                    analysis_id = result['analysis_id']
-                    if analysis_id not in ids:
-                        ids.append(analysis_id)
-                found['participant_id'] = api_request.hits
-                # search by aliquot_id
-                query = {'aliquot_id': submitted_ids}
-                api_request = RequestID(query=query)
-                for result in api_request.call():
-                    analysis_id = result['analysis_id']
-                    if analysis_id not in ids:
-                        ids.append(analysis_id)
-                found['aliquot_id'] = api_request.hits
-
-        if submitted_legacy_sample_ids:
-            query = {'legacy_sample_id': submitted_legacy_sample_ids}
-            api_request = RequestID(query=query)
-            for result in api_request.call():
-                analysis_id = result['analysis_id']
-                if analysis_id not in ids:
-                    ids.append(analysis_id)
-            found['legacy_sample_id'] = api_request.hits
-
-        # sort ids
-        ids.sort()
-
-        return ids, found
-
     def post(self, request, **kwargs):
         if 'ids' in request.POST:
             form = AnalysisIDsForm(request.POST)
@@ -255,23 +200,20 @@ class BatchSearchView(TemplateView):
             form = BatchSearchForm(request.POST or None, request.FILES or None)
             if form.is_valid():
                 submitted_ids = form.cleaned_data['ids']
-                submitted_legacy_sample_ids = form.cleaned_data['legacy_sample_ids']
                 unvalidated = form.cleaned_data.get('unvalidated_ids')
-                submitted = (
-                        len(form.cleaned_data.get('ids')) +
-                        len(form.cleaned_data.get('legacy_sample_ids')) +
-                        len(unvalidated))
+                submitted = len(submitted_ids) + len(unvalidated)
 
-                ids, found = self.search(submitted_ids, submitted_legacy_sample_ids)
-
-                ids = sorted(ids)
-                results = []
-
+                search = SearchByIDs(ids=submitted_ids)
+                found = {}
+                for attr in search.results:
+                    l = len(search.results[attr])
+                    if l:
+                        found[attr] = l
+                ids = sorted(search.get_ids())
                 offset, limit = paginator_params(request)
-                for i in ids[offset:offset + limit]:
-                    results.append(i)
-
-                results = get_results_for_ids(results, sort_by='analysis_id')
+                results = get_results_for_ids(
+                        ids[offset:offset + limit],
+                        sort_by='analysis_id')
 
                 if not results:
                     form.errors['__all__'] = form.error_class(["No results found."])
