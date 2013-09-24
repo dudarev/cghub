@@ -125,7 +125,7 @@ jQuery(function ($) {
         },
         // for headers in results table
         activateTableHeaderTooltipHelp:function () {
-            cghub.help.activateTooltipsForSelector('.hDivBox a', function($target) {
+            cghub.help.activateTooltipsForSelector('.hDivBox a, .hDivBox span', function($target) {
                 return $target.text()
             });
         },

@@ -249,13 +249,13 @@ def sort_link(request, attribute, link_anchor):
     if request.path == reverse('cart_page'):
         # allow sorting in cart only by CART_SORT_ATTRIBUTES
         if attribute not in CART_SORT_ATTRIBUTES:
-            return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+            return ('<span>%s</span>' % link_anchor)
     elif request.path == reverse('batch_search_page'):
         # disable sorting on batch search results page
-        return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+        return ('<span>%s</span>' % link_anchor)
     elif attribute not in SORT_BY_ATTRIBUTES:
         # allow sorting on search page only by SORT_BY_ATTRIBUTES
-        return ('<a href="#" onclick="return false;">%s</a>' % link_anchor)
+        return ('<span>%s</span>' % link_anchor)
 
     data = {}
     for k in request.GET:
