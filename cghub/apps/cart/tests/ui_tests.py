@@ -106,7 +106,7 @@ class CartUITestCase(LiveServerTestCase):
         12. Try to download metadata.xml
         13. Try to download summary.tsv
         14. Open download manifest dropdown
-        15. Try to download manifest.gz
+        15. Try to download manifest.xml.gz
         16. Get cart stats
         17. Click 'Remove files from cart'
         18. Get cart stats, check that files count was decremented by 1
@@ -187,7 +187,7 @@ class CartUITestCase(LiveServerTestCase):
                         'summary.tsv'))
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
-                        'manifest.gz'))
+                        'manifest.xml.gz'))
             except OSError:
                 pass
 
@@ -232,9 +232,9 @@ class CartUITestCase(LiveServerTestCase):
             try:
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
-                        'manifest.gz'))
+                        'manifest.xml.gz'))
             except OSError:
-                assert False, "File manifest.gz wasn't downloaded"
+                assert False, "File manifest.xml.gz wasn't downloaded"
 
             # select first file in table
             checkbox = driver.find_element_by_css_selector(
