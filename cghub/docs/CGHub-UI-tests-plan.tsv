@@ -31,17 +31,18 @@ SEARCH-11	When table row is clicked, popup with details is shown.	When user clic
 SEARCH-12	Metadata XML nodes on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' (double minus) or 'Expand all' (double plus) button XML data is collapsed and expanded respectively. 
 SEARCH-13	Details page contains 'Add to cart' button (if item not already added to cart)	On click on button, item will be added to cart, user will be redirected to cart page	
 SEARCH-14	Type search of aa* (no quotes)	get error that search is not supported.
-SEARCH-15	3-users search at a time simultaneous search - with different library strategies  [WGS, WXS, and RNA-Seq	Completes successfuly and counts consistent
-SEARCH-16	3-way simultaneous "Add all to Cart"  (with items from 3-way simultaneous search task above)	Completes successfuly and counts consistent
-SEARCH-17	2-way simultaneous test. A selects centers BCM thru HMS-RK. B flltering on the rest starting at UNC-LCCC.  Both filter at once, create cart when results appear, and then each downloading manifest and then metadata.	Both sessions complete, counts consistent
-SEARCH-18	Check use of unsupported metaseach characters in text box.   Enter aaa* in the search box and hit enter  (from RM 1915)	Page saying that one shouldn't be using * or ? in searches.
-SEARCH-19	Check search box done not persistence when browser window is closed and revisited.  	Search box should be empty. [WILL FAIL, FEATURE NOT IMPLEMENTED]
-SEARCH-20	search for analysis id: ee4756b2-8596-44e9-8477-854932a44e71	1 result
-SEARCH-21	search for barcode: TCGA-A1-A0SM-10A-02W-A097-09	1 result
-SEARCH-22	search for aliquot id 99ac224e-ad08-4ba8-a486-7668f4142f87	1 result
-SEARCH-23	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live, 11 total
-SEARCH-24	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results, search input is empty		
-SEARCH-25	select all options for all filters (no applied filters), click on 'Apply filters', go to cart page and back to home	no applied filters remains		
+SEARCH-15	Warning message appears when no ids were found (by query)	Try to search by '123', warning should appear. Try to search by 'TCGA-A1-A0SM-10A-02W-A097-09', warning shouldn't be displayed	
+SEARCH-16	3-users search at a time simultaneous search - with different library strategies  [WGS, WXS, and RNA-Seq	Completes successfuly and counts consistent
+SEARCH-17	3-way simultaneous "Add all to Cart"  (with items from 3-way simultaneous search task above)	Completes successfuly and counts consistent
+SEARCH-18	2-way simultaneous test. A selects centers BCM thru HMS-RK. B flltering on the rest starting at UNC-LCCC.  Both filter at once, create cart when results appear, and then each downloading manifest and then metadata.	Both sessions complete, counts consistent
+SEARCH-19	Check use of unsupported metaseach characters in text box.   Enter aaa* in the search box and hit enter  (from RM 1915)	Page saying that one shouldn't be using * or ? in searches.
+SEARCH-20	Check search box done not persistence when browser window is closed and revisited.  	Search box should be empty. [WILL FAIL, FEATURE NOT IMPLEMENTED]
+SEARCH-21	search for analysis id: ee4756b2-8596-44e9-8477-854932a44e71	1 result
+SEARCH-22	search for barcode: TCGA-A1-A0SM-10A-02W-A097-09	1 result
+SEARCH-23	search for aliquot id 99ac224e-ad08-4ba8-a486-7668f4142f87	1 result
+SEARCH-24	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live, 11 total
+SEARCH-25	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results, search input is empty		
+SEARCH-26	select all options for all filters (no applied filters), click on 'Apply filters', go to cart page and back to home	no applied filters remains		
 BATCH SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
 BATCH SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		
 BATCH SEARCH-3	Enter TCGA-A1-A0SM-01A-11D-A099-09 into textarea.	Found 1 result by legacy_sample_id		
@@ -62,9 +63,10 @@ CART-8	Headers may sort cart content	When clicking cart table headers, table con
 CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart should be downloaded in XML format.  
 CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button is clicked, metadata for all items in the cart should be downloaded in XML format. 
 CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart should be downloaded in TSV format. 
-CART-12	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
-CART-13	Add all to cart' button adds all files to cart.	Add all to cart' button when clicked adds all files from search results to the cart. 
-CART-14	Repetitive Search/Add to cart cycles.   1. Clear filters,  2. Set date uploaded to a period ending before the current date. 3. Set disease filter to "all" iniitally 4. Do the following, removing one Disease entry each iteration     a) Set Filter - capture count   (note time taken)     b) Hit "add all to cart" (note time taken)     c) Note time and count in cart if got message  "Confirmation of adding files to cart Y/N" after hitting "Y" if prompted)     d) Note if "Notice: Still obtaining data.. Reload to check for completion" mesage appears, checking time and count.  Hit reload every minute or so checking count again.     e) Record end time and end result count, check final count in cart compared to filtering results	
+CART-12	manifest.xml, metadata.xml and summary.tsv can be downloaded as compressed file	Add few files to cart, open pull down menu of interested file, click on gzip compressed. Saved file should has '.gz' extension	
+CART-13	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
+CART-14	Add all to cart' button adds all files to cart.	Add all to cart' button when clicked adds all files from search results to the cart. 
+CART-15	Repetitive Search/Add to cart cycles.   1. Clear filters,  2. Set date uploaded to a period ending before the current date. 3. Set disease filter to "all" iniitally 4. Do the following, removing one Disease entry each iteration     a) Set Filter - capture count   (note time taken)     b) Hit "add all to cart" (note time taken)     c) Note time and count in cart if got message  "Confirmation of adding files to cart Y/N" after hitting "Y" if prompted)     d) Note if "Notice: Still obtaining data.. Reload to check for completion" mesage appears, checking time and count.  Hit reload every minute or so checking count again.     e) Record end time and end result count, check final count in cart compared to filtering results	
 DISPLAY-1	Check for FOUC.   Start web browser or refresh the current page if you're already on a search result page of the browser.	The page should load with the correct table layout and dimension right from the beginning.  No "Flash Of Unstyled Content".
 UNITTEST-1	Run unit test (make test)	Long running, no errors expect
 ACCESSIBILITY-1	Skip navigation links	Skip navigation links shows on focus and hides when click on link or press enter or focus out. Focus shifts to targeted element on click

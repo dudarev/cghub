@@ -31,7 +31,7 @@ from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
 from ..requests import (
                     RequestFull, RequestDetail, RequestID,
-                    ResultFromSOLRFile, build_wsapi_xml,
+                    ResultFromSOLRFile, SearchByIDs, build_wsapi_xml,
                     get_results_for_ids)
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
@@ -107,6 +107,11 @@ class CoreTestCase(TestCase):
         response = self.client.get(reverse('search_page'), {
                 'q': '%s' % self.query})
         self.assertEqual(response.status_code, 200)
+        # search by query alert (if no ids were found)
+        self.assertContains(
+                response,
+                'The results maybe be incomplete or inconsistent due '
+                'to limited about of textual data available.')
 
     def test_search_all(self):
         response = self.client.get(reverse('search_page'))
@@ -301,6 +306,34 @@ class RequestsTestCase(TestCase):
         xml_solr = self.clean_xml(xml_solr)
         xml_wsapi = self.clean_xml(xml_wsapi)
         self.assertEqual(xml_solr, xml_wsapi)
+
+    def test_search_by_ids(self):
+        search = SearchByIDs(ids=['123'])
+        self.assertTrue(search.is_empty())
+        ids = [
+            '916d1bd2-f503-4775-951c-20ff19dfe409',
+            'TCGA-AZ-6608-11A-01D-1835-10'
+        ]
+        search = SearchByIDs(ids=ids)
+        self.assertEqual(search.results, {
+                'sample_id': [],
+                'aliquot_id': [],
+                'analysis_id': [{'analysis_id': '916d1bd2-f503-4775-951c-20ff19dfe409'}],
+                'legacy_sample_id': [{'analysis_id': '860ca061-681b-46dc-8e15-db2a2cbe1c21'}],
+                'participant_id': []})
+        self.assertFalse(search.is_empty())
+        self.assertEqual(
+                search.get_ids(),
+                ['916d1bd2-f503-4775-951c-20ff19dfe409',
+                '860ca061-681b-46dc-8e15-db2a2cbe1c21'])
+        self.assertEqual(search.get_results(), [
+                {'analysis_id': '916d1bd2-f503-4775-951c-20ff19dfe409'},
+                {'analysis_id': '860ca061-681b-46dc-8e15-db2a2cbe1c21'}])
+        # another Request class
+        search = SearchByIDs(
+                ids=['916d1bd2-f503-4775-951c-20ff19dfe409'],
+                request_cls=RequestDetail)
+        self.assertIn('platform', search.get_results()[0])
 
 
 class UtilsTestCase(TestCase):
@@ -700,6 +733,13 @@ class TemplateTagsTestCase(TestCase):
         self.assertIn('alert-%s' % level, result)
         self.assertIn('1', result)
         self.assertIn(content, result)
+        # test show messages from context
+        result = messages({'notifications': [
+                {'level': level, 'content': content}
+            ]})
+        self.assertIn('alert-%s' % level, result)
+        self.assertNotIn('1', result)
+        self.assertIn(content, result)
 
 
 class SelectFiltersTestCase(TestCase):
@@ -760,12 +800,11 @@ class BatchSearchTestCase(TestCase):
         self.assertTrue(form.is_valid())
         form = BatchSearchForm({}, {'upload': f})
         self.assertTrue(form.is_valid())
-        self.assertEqual(len(form.cleaned_data['ids']), 4)
-        self.assertEqual(len(form.cleaned_data['legacy_sample_ids']), 2)
+        self.assertEqual(len(form.cleaned_data['ids']), 6)
         for id in ids:
             self.assertTrue(
                     (id.lower() in form.cleaned_data['ids']) or
-                    (id.upper() in form.cleaned_data['legacy_sample_ids']))
+                    (id.upper() in form.cleaned_data['ids']))
         self.assertEqual(len(form.cleaned_data['unvalidated_ids']), 0)
         form = BatchSearchForm({})
         self.assertFalse(form.is_valid())

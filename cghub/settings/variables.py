@@ -21,3 +21,6 @@ SUPPORT_EMAIL = 'support@cghub.ucsc.edu'
 
 # time, after which tooltip will be shown, in ms
 TOOLTIP_HOVER_TIME = 250
+
+# regexp for aliquot_id, analysis_id, participant_id, sample_id
+ID_PATTERN = '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-[0-9abcdef]{4}-[0-9abcdef]{12}$'

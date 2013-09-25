@@ -124,3 +124,37 @@ Command output:
 To add `provolone` name to filters, You should add this filter to filters_storage_full.py and reexecute ``selectfilters`` command.
 
 Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_FILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
+
+--------
+Messages
+--------
+
+It is possible to add messages to show them to user.
+There are two ways to add message:
+
+    - add it to session (using `cghub.apps.core.utils.add_message`)
+    - add message by adding notifications variable to response context
+
+Adding messages:
+
+.. code-block:: python
+
+    from cghub.apps.core.utils import add_message
+
+
+    def myview(request):
+        add_message(request=request, level='error', content='Some error!')
+
+This message will be visible on all pages until it will be slosed by user.
+
+And this message will be shown only once:
+
+.. code-block:: python
+
+    def myview(request):
+        context = {}
+        context['notifications'] = [{
+            'level': 'error',
+            'content': 'Some error!'
+        }]
+        response = render('simetemplate.html', context)

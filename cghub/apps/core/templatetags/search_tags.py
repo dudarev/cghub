@@ -163,7 +163,7 @@ def applied_filters(request):
         'platform': request.GET.get('platform'),
         'state': request.GET.get('state'),
         'refassem_short_name': request.GET.get('refassem_short_name'),
-        'q': request.GET.get('q'),
+        'q': request.GET.get('q', '').strip(),
     }
 
     if not any(applied_filters.values()):
