@@ -110,12 +110,14 @@ jQuery(function ($) {
         activateMessages:function() {
             cghub.base.$messagesCloseLinks.on('click', function() {
                 var url = $(this).data('message-url');
-                $.ajax({
-                    url: url,
-                    dataType: "json",
-                    data: {'csrfmiddlewaretoken': cghub.vars.csrfToken},
-                    type: 'POST',
-                });
+                if(url){
+                    $.ajax({
+                        url: url,
+                        dataType: "json",
+                        data: {'csrfmiddlewaretoken': cghub.vars.csrfToken},
+                        type: 'POST',
+                    });
+                };
             });
         },
     };

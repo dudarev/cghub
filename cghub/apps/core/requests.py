@@ -298,8 +298,14 @@ class SearchByIDs(object):
 
     ID_ATTRS = ('aliquot_id', 'analysis_id', 'participant_id', 'sample_id')
 
-    def __init__(self, ids, request_cls=RequestID):
+    def __init__(self, ids, request_cls=RequestID, filters=None):
+        """
+        :param ids: list of ids to search by
+        :param request_cls: Request class will be used to obtain results (RequestID, RequestDetail, ...)
+        :param filters: filters dict to use in query
+        """
         self.request_cls = request_cls
+        self.filters = filters or {}
         self.legacy_sample_ids = []
         self.other_ids = []
         id_regexp = re.compile(settings.ID_PATTERN)
@@ -316,13 +322,16 @@ class SearchByIDs(object):
         if self.other_ids:
             for attr in self.ID_ATTRS:
                 self.results[attr] = []
-                api_request = self.request_cls(query={attr: self.other_ids})
+                query = dict(self.filters)
+                query[attr] = self.other_ids
+                api_request = self.request_cls(query=query)
                 for result in api_request.call():
                     self.results[attr].append(result)
         if self.legacy_sample_ids:
             self.results['legacy_sample_id'] = []
-            api_request = self.request_cls(query={
-                    'legacy_sample_id': self.legacy_sample_ids})
+            query = dict(self.filters)
+            query['legacy_sample_id'] = self.legacy_sample_ids
+            api_request = self.request_cls(query=query)
             for result in api_request.call():
                 self.results['legacy_sample_id'].append(result)
 

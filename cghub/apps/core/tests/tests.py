@@ -107,6 +107,11 @@ class CoreTestCase(TestCase):
         response = self.client.get(reverse('search_page'), {
                 'q': '%s' % self.query})
         self.assertEqual(response.status_code, 200)
+        # search by query alert (if no ids were found)
+        self.assertContains(
+                response,
+                'The results maybe be incomplete or inconsistent due '
+                'to limited about of textual data available.')
 
     def test_search_all(self):
         response = self.client.get(reverse('search_page'))
@@ -727,6 +732,13 @@ class TemplateTagsTestCase(TestCase):
         result = messages({'request': request})
         self.assertIn('alert-%s' % level, result)
         self.assertIn('1', result)
+        self.assertIn(content, result)
+        # test show messages from context
+        result = messages({'notifications': [
+                {'level': level, 'content': content}
+            ]})
+        self.assertIn('alert-%s' % level, result)
+        self.assertNotIn('1', result)
         self.assertIn(content, result)
 
 

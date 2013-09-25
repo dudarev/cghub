@@ -28,18 +28,6 @@ DEFAULT_SORT_BY = None
 core_logger = logging.getLogger('core')
 
 
-def query_from_get(data):
-    q = data.get('q')
-    filters = get_filters_dict(data)
-    if q:
-        # FIXME: temporary hack to work around GNOS not quoting Solr query
-        if browser_text_search.useAllMetadataIndex:
-            filters.update({'all_metadata': browser_text_search.ws_query(q)})
-        else:
-            filters.update({'xml_text': '(%s)' % q})
-    return filters
-
-
 class AjaxView(View):
 
     http_method_names = ['get']
@@ -97,26 +85,42 @@ class SearchView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
-        q = self.request.GET.get('q')
+        q = self.request.GET.get('q', '').strip()
         sort_by = self.request.GET.get('sort_by', DEFAULT_SORT_BY)
         offset, limit = paginator_params(self.request)
         # will be saved to cookie in get method
         self.paginator_limit = limit
-        query = query_from_get(self.request.GET)
+        filters = get_filters_dict(self.request.GET)
 
         # set offset to zero if no results returned
         for offset in (offset, 0):
-            if 'xml_text' in query:
-                # FIXME: this is temporary hack, need for multiple requests will fixed CGHub
-                queries_list = [query, {'analysis_id': q}]
-                # FIXME: need to handle queries_list properly
-                api_request = RequestDetail(
-                        query=queries_list[0], sort_by=sort_by,
-                        offset=offset, limit=limit)
-            else:
-                api_request = RequestDetail(
-                        query=query, sort_by=sort_by, offset=offset,
-                        limit=limit)
+            if q:
+                # search by ids first
+                search = SearchByIDs(
+                        ids=[q.upper(), q.lower()],
+                        request_cls=RequestDetail)
+                if not search.is_empty():
+                    results = search.get_results()
+                    context['results'] = results[offset:offset + limit]
+                    context['num_results'] = len(results)
+                    return context
+                else:
+                    # FIXME: temporary hack to work around GNOS not quoting Solr query
+                    if browser_text_search.useAllMetadataIndex:
+                        filters.update({'all_metadata': browser_text_search.ws_query(q)})
+                    else:
+                        filters.update({'xml_text': '(%s)' % q})
+                    context['notifications'] = [{
+                            'level': 'alert',
+                            'content': '<strong>Warning:</strong> these results were '
+                            'produced by a free text work search of the metadata. '
+                            'The results maybe be incomplete or inconsistent due '
+                            'to limited about of textual data available. Use the '
+                            'filters to get s consistent set of results or '
+                            'search for a particular identifier.'}]
+
+            api_request = RequestDetail(
+                    query=filters, sort_by=sort_by, offset=offset, limit=limit)
             results = []
             for result in api_request.call():
                 results.append(result)
