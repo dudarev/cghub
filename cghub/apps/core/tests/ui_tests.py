@@ -198,6 +198,10 @@ class CoreUITestCase(LiveServerTestCase):
             search_field = driver.find_element_by_css_selector(
                     '.navbar-search .search-query')
             self.assertEqual(search_field.get_attribute('value'), '')
+            # check that warning is shown (only if id was not found)
+            self.assertIn(
+                    'The results maybe be incomplete or inconsistent due to limited about of textual data available.',
+                    driver.find_element_by_xpath('//div[@class="messages"]/div').text)
 
         def check_bad_query(key='bad*'):
             """
