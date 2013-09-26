@@ -100,6 +100,7 @@
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     </div>
 </div>
+<div class="js-spinner spinner">Working ... <img src="{% static 'img/ajax-loader.gif' %}"  alt="Working ..."></div>
 
 {% block extra_body_css %} {% endblock %}
 <script type="text/javascript" src="{% static 'js/libs/jquery-1.7.2.min.js' %}"></script>
@@ -134,7 +135,7 @@
 {% else %}
     <script type="text/javascript" src="{% static 'js/libs/flexigrid.min.js' %}?v=4"></script>
     <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/base.min.js' %}?v=7"></script>
+    <script type="text/javascript" src="{% static 'js/base.min.js' %}?v=8"></script>
 {% endif %}
 {% block extra_body_js %} {% endblock %}
 {% if debug %}

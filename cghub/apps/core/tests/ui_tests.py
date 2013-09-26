@@ -275,6 +275,30 @@ class CoreUITestCase(LiveServerTestCase):
                             '//div[@class="messages"]/div')),
                     1)
 
+    def test_spinner(self):
+        """
+        1. Go to home page
+        2. Check thay spinner is unvisible
+        3. Run cghub.base.showSpinner
+        4. Check that spinner is visible
+        5. Run cghub.base.hideSpinner
+        6. Check that spinner is unvisible
+        """
+        self.selenium.get(self.live_server_url)
+        time.sleep(2)
+        self.assertFalse(self.selenium.find_element_by_xpath(
+                '//div[@class="js-spinner spinner"]').is_displayed())
+        self.selenium.execute_script(
+                'jQuery(function ($) {this.cghub.base.showSpinner()})')
+        time.sleep(1)
+        self.assertTrue(self.selenium.find_element_by_xpath(
+                '//div[@class="js-spinner spinner"]').is_displayed())
+        self.selenium.execute_script(
+                'jQuery(function ($) {this.cghub.base.hideSpinner()})')
+        time.sleep(1)
+        self.assertFalse(self.selenium.find_element_by_xpath(
+                '//div[@class="js-spinner spinner"]').is_displayed())
+
 
 class NavigationLinksUITestCase(LiveServerTestCase):
 

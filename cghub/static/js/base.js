@@ -37,6 +37,15 @@ jQuery(function ($) {
             cghub.base.$messageModal.find('.modal-body').html(content);
             cghub.base.$messageModal.modal();
         },
+        showSpinner: function () {
+            $('<div class="modal-backdrop fade in"></div>').appendTo($('body'));
+            $('.js-spinner').show();
+        },
+        hideSpinner: function () {
+            $('.js-spinner').hide();
+            $('.modal-backdrop').remove();
+            
+        },
         defineActiveLink:function () {
             cghub.base.$navbarAnchors.each(cghub.base.resetActiveLink);
         },
