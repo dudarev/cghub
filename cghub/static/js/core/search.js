@@ -34,7 +34,6 @@ jQuery(function ($) {
             cghub.search.$navbarSearchForm = $('form.navbar-search');
             cghub.search.$messageModal = $('#messageModal');
             cghub.search.$manyItemsModal = $('#manyItemsModal');
-            cghub.search.$spinner = $('.js-spinner');
             cghub.search.$numResults = $('.js-num-results');
             cghub.search.$searchField = $('.navbar-search input');
             cghub.search.$rememberFiltersCheckbox = $('.js-remember-filters input');
@@ -299,7 +298,7 @@ jQuery(function ($) {
             // disable button
             if(cghub.search.$addFilesButton.hasClass('disabled')) return false;
             cghub.search.$addFilesButton.addClass('disabled');
-            cghub.search.$spinner.show();
+            cghub.base.showSpinner();
             // collect all data attributes
             cghub.selected.save()
 
@@ -307,7 +306,7 @@ jQuery(function ($) {
             if (!cghub.selected.exists) {
                 cghub.base.showMessage(cghub.search.nothingSelectedTitle, cghub.search.nothingSelectedContent);
                 cghub.search.$addFilesButton.removeClass('disabled');
-                cghub.search.$spinner.hide();
+                cghub.base.hideSpinner();
                 return false;
             }
 
@@ -322,13 +321,13 @@ jQuery(function ($) {
                     } else {
                         cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         cghub.search.$addFilesButton.removeClass('disabled');
-                        cghub.search.$spinner.hide();
+                        cghub.base.hideSpinner();
                     }
                 },
                 error:function (){
                     cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     cghub.search.$addFilesButton.removeClass('disabled');
-                    cghub.search.$spinner.hide();
+                    cghub.base.hideSpinner();
                 }
             });
             return false;
@@ -357,7 +356,7 @@ jQuery(function ($) {
             }
             var $button = cghub.search.$addAllFilesButton;
             $button.addClass('disabled');
-            cghub.search.$spinner.show();
+            cghub.base.showSpinner();
             var $form = $button.parents('form');
             $.ajax({
                 data:$form.serialize() + '&filters=' + JSON.stringify(filters),
@@ -371,18 +370,18 @@ jQuery(function ($) {
                     if (data['action']=='message') {
                         cghub.base.showMessage(data['title'], data['content']);
                         $($button).removeClass('disabled');
-                        cghub.search.$spinner.hide();
+                        cghub.base.hideSpinner();
                     }
                     if (data['action']=='error') {
                         cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         $($button).removeClass('disabled');
-                        cghub.search.$spinner.hide();
+                        cghub.base.hideSpinner();
                     }
                 },
                 error:function (){
                     cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
-                    cghub.search.$spinner.hide();
+                    cghub.base.hideSpinner();
                 }
             });
             cghub.search.$manyItemsModal.modal('hide');

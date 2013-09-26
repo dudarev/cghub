@@ -27,13 +27,6 @@ module.exports = function (grunt) {
                     compress:true
                 }
             },
-            core_home:{
-                src:cssStaticFolder + 'core/home.less',
-                dest:cssStaticFolder + 'core/home.css',
-                options:{
-                    compress:true
-                }
-            },
             core_search:{
                 src:cssStaticFolder + 'core/search.less',
                 dest:cssStaticFolder + 'core/search.css',
