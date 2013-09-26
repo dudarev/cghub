@@ -1518,7 +1518,7 @@
             // select presented columns
             for (var i = 0; i < columnsCount; i++) {
                 var col = $(columns[i]),
-                    option = $('<option>').attr('value', i + 1).html(col.find('a').html());
+                    option = $('<option>').attr('value', i + 1).html(col.find('a, span').html());
                 if (hiddenColumns.indexOf((i + 1).toString()) < 0) {option.attr('selected', 'selected')}
                 columnSelectMenu.append(option)
             }
