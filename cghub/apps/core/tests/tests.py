@@ -996,6 +996,9 @@ class SettingsTestCase(TestCase):
         self.assertEqual(api_request.hits, 1)
         field_values_dict = field_values(result)
         for name in names:
+            if name == 'Files':
+                self.assertTrue(len(result['files']))
+                continue
             self.assertIn(name, field_values_dict)
 
 
