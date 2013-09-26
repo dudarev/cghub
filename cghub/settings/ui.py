@@ -176,6 +176,9 @@ TABLE_COLUMNS = (
     'State',
 )
 
+# Use 'Files' field to place files list into Details table
+# (every file will be displayed in three rows: Filename, Files Size, Checksum)
+
 DETAILS_FIELDS = (
     'Study',
     'Barcode',
@@ -190,9 +193,7 @@ DETAILS_FIELDS = (
     'Platform',
     'Platform Name',
     'Assembly',
-    'Filename',
-    'Files Size',
-    'Checksum',
+    'Files',
     'Analysis Id',
     'Aliquot Id',
     'Participant Id',

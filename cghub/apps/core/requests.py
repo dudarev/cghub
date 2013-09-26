@@ -137,12 +137,24 @@ class RequestBase(REQUEST_CLASS):
         for attr in ATTRIBUTES:
             if result[attr].exist:
                 new_result[attr] = result[attr].text
-        new_result['filename'] = result['filename.0'].text
+        # files
+        new_result['files'] = []
+        for i in range(10):
+            if not result['filename.%d' % i].exist:
+                break
+            new_result['files'].append({
+                'filename': result['filename.%d' % i].text,
+                'filesize': int(result['filesize.%d' % i].text),
+                'checksum': result['checksum.%d' % i].text,
+            })
         try:
-            new_result['files_size'] = int(result['filesize.0'].text)
-        except TypeError:
+            new_result['filename'] = new_result['files'][0]['filename']
+            new_result['checksum'] = new_result['files'][0]['checksum']
+            new_result['files_size'] = new_result['files'][0]['filesize']
+        except KeyError:
+            new_result['filename'] = ''
+            new_result['checksum'] = ''
             new_result['files_size'] = 0
-        new_result['checksum'] = result['checksum.0'].text
         return new_result
 
 

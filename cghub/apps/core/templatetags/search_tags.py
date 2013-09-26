@@ -396,9 +396,24 @@ def details_table(result):
     """
     Return table with details
     """
+
+    DETAIL_ROW = ('<tr><th id="id-row-{col_name}">{field_name}</th>'
+                 '<td headers="id-row-{col_name}">{value}</td></tr>')
+
     fields = field_values(result)
     html = ''
     for field_name in settings.DETAILS_FIELDS:
+        if field_name == 'Files':
+            for f in result['files']:
+                html += DETAIL_ROW.format(
+                    col_name='filename', field_name='Filename',
+                    value=f['filename'])
+                html += DETAIL_ROW.format(
+                    col_name='filesize', field_name='Filesize',
+                    value=file_size(f['filesize']))
+                html += DETAIL_ROW.format(
+                    col_name='checksum', field_name='Checksum',
+                    value=f['checksum'])
         value = fields.get(field_name, None)
         col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
@@ -407,7 +422,6 @@ def details_table(result):
             continue
         if field_name == 'Reason' and value.isspace():
             continue
-        html += ('<tr><th id="id-row-{col_name}">{field_name}</th>'
-                 '<td headers="id-row-{col_name}">{value}</td></tr>'.format(
-                    col_name=col_name, field_name=field_name, value=value))
+        html += DETAIL_ROW.format(
+                    col_name=col_name, field_name=field_name, value=value)
     return html
