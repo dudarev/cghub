@@ -43,6 +43,7 @@ SEARCH-23	search for aliquot id 99ac224e-ad08-4ba8-a486-7668f4142f87	1 result
 SEARCH-24	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live, 11 total
 SEARCH-25	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results, search input is empty		
 SEARCH-26	select all options for all filters (no applied filters), click on 'Apply filters', go to cart page and back to home	no applied filters remains		
+SEARCH-27	Show spinner with fixed position	Select few items and click on 'Add to cart' button	Spinner is shown in the center of screen
 BATCH SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
 BATCH SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		
 BATCH SEARCH-3	Enter TCGA-A1-A0SM-01A-11D-A099-09 into textarea.	Found 1 result by legacy_sample_id		
