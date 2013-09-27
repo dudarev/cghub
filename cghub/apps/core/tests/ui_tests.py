@@ -668,12 +668,16 @@ class CustomPeriodUITestCase(LiveServerTestCase):
         # set year
         dp_start.find_element_by_css_selector('.ui-datepicker-year').click()
         dp_start.find_element_by_css_selector("option[value='{0}']".format(start.year)).click()
+        driver.execute_script("$('.ui-datepicker-year').trigger('change');")
         dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
+        driver.execute_script("$('.ui-datepicker-year').trigger('change');")
         dp_end.find_element_by_css_selector("option[value='{0}']".format(end.year)).click()
         # set month
         dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
         dp_start.find_element_by_css_selector("option[value='{0}']".format(start.month - 1)).click()
+        driver.execute_script("$('.ui-datepicker-month').trigger('change');")
         dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
+        driver.execute_script("$('.ui-datepicker-month').trigger('change');")
         dp_end.find_element_by_css_selector("option[value='{0}']".format(end.month - 1)).click()
         # set days
         dp_start.find_element_by_link_text("{}".format(start.day)).click()
@@ -696,7 +700,6 @@ class CustomPeriodUITestCase(LiveServerTestCase):
         text = "{0} - {1}".format(
                         datetime.strftime(start, '%Y/%m/%d'),
                         datetime.strftime(end, '%Y/%m/%d'))
-        print text, filter_text.strip()
         assert text in filter_text.strip()
 
     def test_custom_upload_date(self):
@@ -1409,7 +1412,14 @@ class SearchUITestCase(LiveServerTestCase):
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
-                self.selenium.find_element_by_partial_link_text(column).click()
+                elements = self.selenium.find_elements_by_xpath('//a[@class="sort-link"][contains(text(), "%s")]' % column)
+                if not elements:
+                    # skip unsortable columns
+                    continue
+                for e in elements:
+                    if e.is_displayed():
+                        e.click()
+                        break
 
                 # getting top element in the column
                 selector = "//div[@class='bDiv']//table/tbody/tr[1]/td[{}]".format(i + 2)
