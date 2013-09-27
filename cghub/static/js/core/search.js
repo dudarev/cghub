@@ -298,7 +298,6 @@ jQuery(function ($) {
             // disable button
             if(cghub.search.$addFilesButton.hasClass('disabled')) return false;
             cghub.search.$addFilesButton.addClass('disabled');
-            cghub.base.showSpinner();
             // collect all data attributes
             cghub.selected.save()
 
@@ -309,6 +308,8 @@ jQuery(function ($) {
                 cghub.base.hideSpinner();
                 return false;
             }
+
+            cghub.base.showSpinner();
 
             $.ajax({
                 data:$(this).serialize() + "&selected_items=" + JSON.stringify(cghub.selected.get_data_list()),
@@ -448,14 +449,14 @@ jQuery(function ($) {
             var filters = cghub.search.getFiltersValues();
             var href = URI(cghub.search.$applyFiltersButton.data('search-url'));
             if(!filters['is_error']) {
+                if(cghub.search.$rememberFiltersCheckbox.prop('checked')) {
+                    filters['filters']['remember'] = 'true';
+                } else {
+                    delete filters['filters']['remember'];
+                }
                 if($.isEmptyObject(filters['filters'])) {
                     window.location.href = href;
                 } else {
-                    if(cghub.search.$rememberFiltersCheckbox.prop('checked')) {
-                        filters['filters']['remember'] = 'true';
-                    } else {
-                        delete filters['filters']['remember'];
-                    }
                     window.location.href = href.search(filters['filters']);
                 }
             }
