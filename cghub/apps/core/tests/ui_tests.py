@@ -958,56 +958,57 @@ class DetailsUITestCase(LiveServerTestCase):
         11. Go to details page
         12. Check that 'Add to cart' button not exists
         """
-        self.selenium.get(self.live_server_url)
-        analysis_id = self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id')
-        # open popup
-        self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]"
-                ).click()
-        time.sleep(1)
-        self.assertNotIn(reverse('cart_page'), self.selenium.current_url)
-        self.selenium.find_elements_by_xpath(
-                "//button[contains(text(), 'Add to cart')]")[1].click()
-        time.sleep(3)
-        self.assertIn(reverse('cart_page'), self.selenium.current_url)
-        self.assertEqual(
-                analysis_id,
-                self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id'))
-        # clear cart
-        self.selenium.find_element_by_xpath(
-                "//button[contains(text(), 'Clear cart')]").click()
-        # go to details page
-        self.selenium.get('%s%s' % (
-                self.live_server_url,
-                reverse('item_details', args=(analysis_id,))))
-        # scroll to buttons
-        time.sleep(2)
-        self.selenium.execute_script(
-            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
-        time.sleep(2)
-        # click on 'Add to cart'
-        self.selenium.find_element_by_xpath(
-                "//button[contains(text(), 'Add to cart')]").click()
-        time.sleep(3)
-        self.assertIn(reverse('cart_page'), self.selenium.current_url)
-        self.assertEqual(
-                analysis_id,
-                self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id'))
-        # go to details page, check that button is no more visible
-        self.selenium.get('%s%s' % (
-                self.live_server_url,
-                reverse('item_details', args=(analysis_id,))))
-        time.sleep(2)
-        self.selenium.execute_script(
-            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
-        self.assertFalse(self.selenium.find_elements_by_xpath(
-                "//button[contains(text(), 'Add to cart')]"))
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            analysis_id = self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                    ).get_attribute('data-analysis_id')
+            # open popup
+            self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]"
+                    ).click()
+            time.sleep(1)
+            self.assertNotIn(reverse('cart_page'), self.selenium.current_url)
+            self.selenium.find_elements_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]")[1].click()
+            time.sleep(3)
+            self.assertIn(reverse('cart_page'), self.selenium.current_url)
+            self.assertEqual(
+                    analysis_id,
+                    self.selenium.find_element_by_xpath(
+                            "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                            ).get_attribute('data-analysis_id'))
+            # clear cart
+            self.selenium.find_element_by_xpath(
+                    "//button[contains(text(), 'Clear cart')]").click()
+            # go to details page
+            self.selenium.get('%s%s' % (
+                    self.live_server_url,
+                    reverse('item_details', args=(analysis_id,))))
+            # scroll to buttons
+            time.sleep(2)
+            self.selenium.execute_script(
+                "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+            time.sleep(2)
+            # click on 'Add to cart'
+            self.selenium.find_element_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]").click()
+            time.sleep(3)
+            self.assertIn(reverse('cart_page'), self.selenium.current_url)
+            self.assertEqual(
+                    analysis_id,
+                    self.selenium.find_element_by_xpath(
+                            "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                            ).get_attribute('data-analysis_id'))
+            # go to details page, check that button is no more visible
+            self.selenium.get('%s%s' % (
+                    self.live_server_url,
+                    reverse('item_details', args=(analysis_id,))))
+            time.sleep(2)
+            self.selenium.execute_script(
+                    "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+            self.assertFalse(self.selenium.find_elements_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]"))
 
 
 class SearchUITestCase(LiveServerTestCase):
