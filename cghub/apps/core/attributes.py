@@ -27,6 +27,7 @@ COLUMN_NAMES = {
     'Published': 'published_date',
     'Platform': 'platform',
     'Platform Name': 'platform',
+    'Preservation Method': 'preservation_method',
     'Reason': 'reason',
     'Sample Accession': 'sample_accession',
     'Sample Id': 'sample_id',

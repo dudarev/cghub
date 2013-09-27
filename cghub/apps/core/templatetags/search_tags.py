@@ -152,17 +152,18 @@ def remove_dashes(value):
 @register.simple_tag
 def applied_filters(request):
     applied_filters = {
-        'study': request.GET.get('study'),
-        'center_name': request.GET.get('center_name'),
-        'upload_date': request.GET.get('upload_date'),
-        'last_modified': request.GET.get('last_modified'),
         'analyte_code': request.GET.get('analyte_code'),
-        'sample_type': request.GET.get('sample_type'),
-        'library_strategy': request.GET.get('library_strategy'),
+        'center_name': request.GET.get('center_name'),
         'disease_abbr': request.GET.get('disease_abbr'),
+        'last_modified': request.GET.get('last_modified'),
+        'library_strategy': request.GET.get('library_strategy'),
         'platform': request.GET.get('platform'),
-        'state': request.GET.get('state'),
+        'preservation_method': request.GET.get('preservation_method'),
         'refassem_short_name': request.GET.get('refassem_short_name'),
+        'sample_type': request.GET.get('sample_type'),
+        'state': request.GET.get('state'),
+        'study': request.GET.get('study'),
+        'upload_date': request.GET.get('upload_date'),
         'q': request.GET.get('q', '').strip(),
     }
 
