@@ -1188,7 +1188,7 @@ class SearchUITestCase(LiveServerTestCase):
             self.selenium.find_element_by_id("id_apply_filters").click()
             time.sleep(2)
             url = unquote(self.selenium.current_url)
-            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(reverse('search_page'), url)
             self.assertIn(
                     'No applied filters',
                     self.selenium.find_element_by_xpath(
@@ -1196,7 +1196,7 @@ class SearchUITestCase(LiveServerTestCase):
             # go to home page, check that filters are the same
             self.selenium.get(self.live_server_url)
             time.sleep(3)
-            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(reverse('search_page'), url)
             self.assertIn(
                     'No applied filters',
                     self.selenium.find_element_by_xpath(
@@ -2130,9 +2130,9 @@ class HelpHintsUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
         self.selenium.set_window_size(1280, 800)
         self.selenium.set_window_position(0, 0)
-        self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
 
     def tearDown(self):
@@ -2152,7 +2152,10 @@ class HelpHintsUITestCase(LiveServerTestCase):
         """
         Check that tooltip appears if place cursor on it and wait few seconds
         """
-        assert not self.selenium.find_elements_by_css_selector('.js-tooltip')
+        if self.selenium.find_elements_by_css_selector('.js-tooltip'):
+            self.ac.move_by_offset(-1000, -1000)
+            self.ac.perform()
+            time.sleep(5)
         self.ac.move_to_element(target)
         self.ac.perform()
         time.sleep(3)
