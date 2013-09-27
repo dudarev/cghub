@@ -829,7 +829,7 @@ class CartCommandsTestCase(TestCase):
         stderr.seek(0)
         stderr = stderr.read()
         self.assertIn('Done', stderr)
-        self.assertEqual(Analysis.objects.count(), 2)
+        self.assertEqual(Analysis.objects.count(), 0)
         self.assertEqual(Session.objects.count(), 0)
         self.assertEqual(CartModel.objects.count(), 0)
         self.assertEqual(CartItem.objects.count(), 0)

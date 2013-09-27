@@ -125,6 +125,17 @@ To add `provolone` name to filters, You should add this filter to filters_storag
 
 Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_FILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
 
+---------------------------
+Removing sessions and carts
+---------------------------
+
+`clean_sessions` management command allows to remove Sessions,
+Carts and Analysises from database at once.
+
+.. code-block:: bash
+
+    python manage.py clean_sessions
+
 --------
 Messages
 --------

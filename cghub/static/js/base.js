@@ -38,12 +38,12 @@ jQuery(function ($) {
             cghub.base.$messageModal.modal();
         },
         showSpinner: function () {
-            $('<div class="modal-backdrop fade in"></div>').appendTo($('body'));
+            $('<div class="modal-backdrop fade in js-spinner-back"></div>').appendTo($('body'));
             $('.js-spinner').show();
         },
         hideSpinner: function () {
             $('.js-spinner').hide();
-            $('.modal-backdrop').remove();
+            $('.js-spinner-back').remove();
             
         },
         defineActiveLink:function () {

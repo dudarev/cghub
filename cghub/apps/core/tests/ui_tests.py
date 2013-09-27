@@ -668,12 +668,16 @@ class CustomPeriodUITestCase(LiveServerTestCase):
         # set year
         dp_start.find_element_by_css_selector('.ui-datepicker-year').click()
         dp_start.find_element_by_css_selector("option[value='{0}']".format(start.year)).click()
+        driver.execute_script("$('.ui-datepicker-year').trigger('change');")
         dp_end.find_element_by_css_selector('.ui-datepicker-year').click()
+        driver.execute_script("$('.ui-datepicker-year').trigger('change');")
         dp_end.find_element_by_css_selector("option[value='{0}']".format(end.year)).click()
         # set month
         dp_start.find_element_by_css_selector('.ui-datepicker-month').click()
         dp_start.find_element_by_css_selector("option[value='{0}']".format(start.month - 1)).click()
+        driver.execute_script("$('.ui-datepicker-month').trigger('change');")
         dp_end.find_element_by_css_selector('.ui-datepicker-month').click()
+        driver.execute_script("$('.ui-datepicker-month').trigger('change');")
         dp_end.find_element_by_css_selector("option[value='{0}']".format(end.month - 1)).click()
         # set days
         dp_start.find_element_by_link_text("{}".format(start.day)).click()
@@ -696,7 +700,6 @@ class CustomPeriodUITestCase(LiveServerTestCase):
         text = "{0} - {1}".format(
                         datetime.strftime(start, '%Y/%m/%d'),
                         datetime.strftime(end, '%Y/%m/%d'))
-        print text, filter_text.strip()
         assert text in filter_text.strip()
 
     def test_custom_upload_date(self):
@@ -958,56 +961,57 @@ class DetailsUITestCase(LiveServerTestCase):
         11. Go to details page
         12. Check that 'Add to cart' button not exists
         """
-        self.selenium.get(self.live_server_url)
-        analysis_id = self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id')
-        # open popup
-        self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]"
-                ).click()
-        time.sleep(1)
-        self.assertNotIn(reverse('cart_page'), self.selenium.current_url)
-        self.selenium.find_elements_by_xpath(
-                "//button[contains(text(), 'Add to cart')]")[1].click()
-        time.sleep(3)
-        self.assertIn(reverse('cart_page'), self.selenium.current_url)
-        self.assertEqual(
-                analysis_id,
-                self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id'))
-        # clear cart
-        self.selenium.find_element_by_xpath(
-                "//button[contains(text(), 'Clear cart')]").click()
-        # go to details page
-        self.selenium.get('%s%s' % (
-                self.live_server_url,
-                reverse('item_details', args=(analysis_id,))))
-        # scroll to buttons
-        time.sleep(2)
-        self.selenium.execute_script(
-            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
-        time.sleep(2)
-        # click on 'Add to cart'
-        self.selenium.find_element_by_xpath(
-                "//button[contains(text(), 'Add to cart')]").click()
-        time.sleep(3)
-        self.assertIn(reverse('cart_page'), self.selenium.current_url)
-        self.assertEqual(
-                analysis_id,
-                self.selenium.find_element_by_xpath(
-                "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
-                ).get_attribute('data-analysis_id'))
-        # go to details page, check that button is no more visible
-        self.selenium.get('%s%s' % (
-                self.live_server_url,
-                reverse('item_details', args=(analysis_id,))))
-        time.sleep(2)
-        self.selenium.execute_script(
-            "$(window).scrollTop($('#raw-xml').offset().top - 100);")
-        self.assertFalse(self.selenium.find_elements_by_xpath(
-                "//button[contains(text(), 'Add to cart')]"))
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            analysis_id = self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                    ).get_attribute('data-analysis_id')
+            # open popup
+            self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]"
+                    ).click()
+            time.sleep(1)
+            self.assertNotIn(reverse('cart_page'), self.selenium.current_url)
+            self.selenium.find_elements_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]")[1].click()
+            time.sleep(3)
+            self.assertIn(reverse('cart_page'), self.selenium.current_url)
+            self.assertEqual(
+                    analysis_id,
+                    self.selenium.find_element_by_xpath(
+                            "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                            ).get_attribute('data-analysis_id'))
+            # clear cart
+            self.selenium.find_element_by_xpath(
+                    "//button[contains(text(), 'Clear cart')]").click()
+            # go to details page
+            self.selenium.get('%s%s' % (
+                    self.live_server_url,
+                    reverse('item_details', args=(analysis_id,))))
+            # scroll to buttons
+            time.sleep(2)
+            self.selenium.execute_script(
+                "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+            time.sleep(2)
+            # click on 'Add to cart'
+            self.selenium.find_element_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]").click()
+            time.sleep(3)
+            self.assertIn(reverse('cart_page'), self.selenium.current_url)
+            self.assertEqual(
+                    analysis_id,
+                    self.selenium.find_element_by_xpath(
+                            "//div[@class='bDiv']/fieldset/table/tbody/tr[1]"
+                            ).get_attribute('data-analysis_id'))
+            # go to details page, check that button is no more visible
+            self.selenium.get('%s%s' % (
+                    self.live_server_url,
+                    reverse('item_details', args=(analysis_id,))))
+            time.sleep(2)
+            self.selenium.execute_script(
+                    "$(window).scrollTop($('#raw-xml').offset().top - 100);")
+            self.assertFalse(self.selenium.find_elements_by_xpath(
+                    "//button[contains(text(), 'Add to cart')]"))
 
 
 class SearchUITestCase(LiveServerTestCase):
@@ -1163,6 +1167,12 @@ class SearchUITestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
+            # set remember filters to True
+            if not self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input"
+                    ).get_attribute('checked'):
+                self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input").click()
             url = unquote(self.selenium.current_url)
             self.assertFalse(url.endswith(reverse('search_page')))
             self.assertNotIn(
@@ -1184,7 +1194,7 @@ class SearchUITestCase(LiveServerTestCase):
             self.selenium.find_element_by_id("id_apply_filters").click()
             time.sleep(2)
             url = unquote(self.selenium.current_url)
-            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(reverse('search_page'), url)
             self.assertIn(
                     'No applied filters',
                     self.selenium.find_element_by_xpath(
@@ -1192,7 +1202,7 @@ class SearchUITestCase(LiveServerTestCase):
             # go to home page, check that filters are the same
             self.selenium.get(self.live_server_url)
             time.sleep(3)
-            self.assertTrue(url.endswith(reverse('search_page')))
+            self.assertIn(reverse('search_page'), url)
             self.assertIn(
                     'No applied filters',
                     self.selenium.find_element_by_xpath(
@@ -1408,7 +1418,14 @@ class SearchUITestCase(LiveServerTestCase):
                         ".scrollLeft($('th[axis=col{0}]')"
                         ".position().left);".format(i + 1))
                 # after first click element element is asc sorted
-                self.selenium.find_element_by_partial_link_text(column).click()
+                elements = self.selenium.find_elements_by_xpath('//a[@class="sort-link"][contains(text(), "%s")]' % column)
+                if not elements:
+                    # skip unsortable columns
+                    continue
+                for e in elements:
+                    if e.is_displayed():
+                        e.click()
+                        break
 
                 # getting top element in the column
                 selector = "//div[@class='bDiv']//table/tbody/tr[1]/td[{}]".format(i + 2)
@@ -2119,9 +2136,9 @@ class HelpHintsUITestCase(LiveServerTestCase):
 
     def setUp(self):
         self.selenium = WebDriver()
+        self.ac = ActionChains(self.selenium)
         self.selenium.set_window_size(1280, 800)
         self.selenium.set_window_position(0, 0)
-        self.ac = ActionChains(self.selenium)
         self.selenium.implicitly_wait(5)
 
     def tearDown(self):
@@ -2141,7 +2158,10 @@ class HelpHintsUITestCase(LiveServerTestCase):
         """
         Check that tooltip appears if place cursor on it and wait few seconds
         """
-        assert not self.selenium.find_elements_by_css_selector('.js-tooltip')
+        if self.selenium.find_elements_by_css_selector('.js-tooltip'):
+            self.ac.move_by_offset(-1000, -1000)
+            self.ac.perform()
+            time.sleep(5)
         self.ac.move_to_element(target)
         self.ac.perform()
         time.sleep(3)
