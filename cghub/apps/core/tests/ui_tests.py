@@ -1167,6 +1167,12 @@ class SearchUITestCase(LiveServerTestCase):
         with self.settings(**TEST_SETTINGS):
             self.selenium.get(self.live_server_url)
             time.sleep(3)
+            # set remember filters to True
+            if not self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input"
+                    ).get_attribute('checked'):
+                self.selenium.find_element_by_xpath(
+                    "//div[@class='js-remember-filters']/input").click()
             url = unquote(self.selenium.current_url)
             self.assertFalse(url.endswith(reverse('search_page')))
             self.assertNotIn(
