@@ -121,6 +121,33 @@ class RequestBase(REQUEST_CLASS):
             else:
                 if self.sort_by not in SORT_BY_ATTRIBUTES:
                     self.sort_by = None
+        # patch for preservation_method filter
+        # ffpe: xml_text:("EXPERIMENT_ATTRIBUTE TAG SAMPLE_PRESERVATION TAG VALUE FFPE")
+        # frozen: -xml_text:("EXPERIMENT_ATTRIBUTE TAG SAMPLE_PRESERVATION TAG VALUE FFPE")
+        if 'preservation_method' in self.query:
+            if 'ffpe' in self.query['preservation_method']:
+                if 'xml_text' in self.query:
+                    if isinstance(self.query['xml_text'], list):
+                        pass
+                    elif isinstance(self.query['xml_text'], tuple):
+                        self.query['xml_text'] = list(self.query['xml_text'])
+                    else:
+                        self.query['xml_text'] = [str(self.query['xml_text'])]
+                else:
+                    self.query['xml_text'] = []
+                self.query['xml_text'].append('EXPERIMENT_ATTRIBUTE TAG SAMPLE_PRESERVATION TAG VALUE FFPE')
+            elif 'frozen' in self.query['preservation_method']:
+                if '-xml_text' in self.query:
+                    if isinstance(self.query['-xml_text'], list):
+                        pass
+                    elif isinstance(self.query['-xml_text'], tuple):
+                        self.query['-xml_text'] = list(self.query['-xml_text'])
+                    else:
+                        self.query['-xml_text'] = [str(self.query['-xml_text'])]
+                else:
+                    self.query['-xml_text'] = []
+                self.query['-xml_text'].append('EXPERIMENT_ATTRIBUTE TAG SAMPLE_PRESERVATION TAG VALUE FFPE')
+            del self.query['preservation_method']
 
     def get_source_file(self, url):
         if 'test' in sys.argv:

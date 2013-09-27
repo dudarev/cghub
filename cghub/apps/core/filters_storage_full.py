@@ -257,6 +257,14 @@ ALL_FILTERS = OrderedDict([
         ]),
         "selectFilter": False,
     }),
+    ('preservation_method', {
+        "title": "By Preservation Method",
+        "filters": OrderedDict([
+            ("FFPE", "ffpe"),
+            ("frozen", "frozen"),
+        ]),
+        "selectFilter": False,
+    }),
     ('upload_date', {
         'title': 'By Upload Date',
         'filters': OrderedDict([
