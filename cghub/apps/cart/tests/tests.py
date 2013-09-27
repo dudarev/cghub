@@ -783,3 +783,50 @@ class CartCommandsTestCase(TestCase):
         self.assertIn('was created', stderr)
         self.assertIn(self.analysis_id, stderr)
         self.assertTrue(os.path.exists(path))
+
+    def test_clean_sessions(self):
+        self.assertEqual(Analysis.objects.count(), 0)
+        self.assertEqual(Session.objects.count(), 0)
+        self.assertEqual(CartModel.objects.count(), 0)
+        self.assertEqual(CartItem.objects.count(), 0)
+        # create session, cart, analysis and cart items
+        analysis1 = Analysis.objects.create(
+                analysis_id='017a4d4e-9f4b-4904-824e-060fde3ca223',
+                last_modified='2013-05-16T20:43:40Z',
+                state='live',
+                files_size=4666849442)
+        analysis2 = Analysis.objects.create(
+                analysis_id='016b792f-e659-4143-b833-163141e21363',
+                last_modified='2013-05-16T20:43:40Z',
+                files_size=388596051,
+                state='live')
+        create_session(self)
+        session = Session.objects.get(session_key=self.session.session_key)
+        cart = session.cart
+        # add some items to cart
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis1)
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis2)
+        # and one more session and cart
+        create_session(self)
+        session = Session.objects.get(session_key=self.session.session_key)
+        cart = session.cart
+        # add some items to cart
+        CartItem.objects.create(
+                cart=cart,
+                analysis=analysis1)
+        self.assertEqual(Analysis.objects.count(), 2)
+        self.assertEqual(Session.objects.count(), 4)
+        self.assertEqual(CartModel.objects.count(), 4)
+        self.assertEqual(CartItem.objects.count(), 3)
+        # try to remove sessions
+        stdout = StringIO()
+        stderr = StringIO()
+        call_command('clean_sessions', stdout=stdout, stderr=stderr)
+        self.assertEqual(Analysis.objects.count(), 2)
+        self.assertEqual(Session.objects.count(), 0)
+        self.assertEqual(CartModel.objects.count(), 0)
+        self.assertEqual(CartItem.objects.count(), 0)
