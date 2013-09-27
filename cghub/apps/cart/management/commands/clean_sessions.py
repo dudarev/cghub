@@ -6,7 +6,7 @@ from ...models import Analysis
 
 
 class Command(BaseCommand):
-    help = 'Updates full-metadata cache.'
+    help = 'Removes user session data, including carts.'
 
     def handle(self, *args, **options):
         self.stderr.write('Removing sessions ...\n')
