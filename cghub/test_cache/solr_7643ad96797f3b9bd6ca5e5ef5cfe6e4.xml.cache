@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">0</int><lst name="params"><str name="q">analysis_id:016b792f-e659-4143-b833-163141e21363</str><str name="rows">1000000</str><str name="fl">analysis_id,last_modified</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="analysis_id">016b792f-e659-4143-b833-163141e21363</str><date name="last_modified">2013-05-16T20:43:40Z</date></doc></result>
+</response>
