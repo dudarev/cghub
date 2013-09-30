@@ -254,7 +254,7 @@ ALL_FILTERS = OrderedDict([
             ])),
             ('unaligned', 'unaligned'),
         ]),
-        "selectFilter": False,
+        "selectFilter": True,
     }),
     ('preservation_method', {
         "title": "By Preservation Method",

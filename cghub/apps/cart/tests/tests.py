@@ -428,8 +428,8 @@ class CartCacheTestCase(TestCase):
     04578995-3609-4f09-bc12-7100a04ebc92 - 2013-09-21T23:10:02Z
     549571a3-98a7-4601-adb1-6951d770cc0e - 2013-06-03T20:59:49Z
     """
-    analysis_id = '04578995-3609-4f09-bc12-7100a04ebc92'
-    last_modified = '2013-09-21T23:10:02Z'
+    analysis_id = '017a4d4e-9f4b-4904-824e-060fde3ca223'
+    last_modified = '2013-05-16T20:43:40Z'
     analysis_id2 = '549571a3-98a7-4601-adb1-6951d770cc0e'
     last_modified2 = '2013-06-03T20:59:49Z'
     DATA_SET = {
