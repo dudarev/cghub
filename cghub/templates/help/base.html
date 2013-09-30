@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static from staticfiles %}
 
+{% block help_link %}<a href="{% url help_page %}" tabindex="29">{% endblock %}
+
 {% block extra_header_css %}
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/help.less' %}" media="all">

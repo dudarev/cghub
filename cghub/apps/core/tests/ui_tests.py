@@ -348,7 +348,7 @@ class NavigationLinksUITestCase(LiveServerTestCase):
             time.sleep(3)
             assert '/search/batch/' in driver.current_url
             # go to help page
-            driver.find_element_by_partial_link_text('Help').click()
+            driver.get(self.live_server_url + reverse('help_page'))
             time.sleep(3)
             assert '/help/' in driver.current_url
             # got to accessibility page

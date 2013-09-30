@@ -80,7 +80,7 @@ class CoreTestCase(TestCase):
     query = "6d54"
 
     def test_index(self):
-        response = self.client.get('/')
+        response = self.client.get(reverse('home_page'))
         self.assertEqual(response.status_code, 200)
         # check ajax urls is available
         self.assertContains(response, reverse('help_hint'))
@@ -91,6 +91,19 @@ class CoreTestCase(TestCase):
         self.assertRedirects(response, '%s?%s' % (
                 reverse('search_page'),
                 'state=%28live%29'))
+
+    def test_open_help_page_in_new_tab(self):
+        """
+        Menu help link contains 'target="_blank"'.
+        """
+        response = self.client.get(reverse('home_page'))
+        self.assertContains(response, '<a href="%s?from=%s" target="_blank"' % (
+                reverse('help_page'), reverse('home_page')))
+        # another behavior on help pages (Feature #2188)
+        response = self.client.get(reverse('help_page'))
+        self.assertNotContains(response, '<a href="%s?from=%s" target="_blank"' % (
+                reverse('help_page'), reverse('help_page')))
+        self.assertContains(response, '<a href="%s"' % reverse('help_page'))
 
     def test_bad_filter(self):
         response = self.client.get(reverse('search_page'), {
