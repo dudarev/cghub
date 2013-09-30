@@ -1,14 +1,7 @@
-{% extends 'base.html' %}
-{% load static from staticfiles %}
+{% extends 'help/base.html' %}
 {% block description %}{{ block.super }}{% endblock %}
 {% block title %}Help - {{ block.super }}{% endblock %}
-{% block extra_header_css %}
-    {% if debug %}
-        <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/help.less' %}" media="all">
-    {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/core/help.css' %}?v=3" media="all">
-    {% endif %}
-{% endblock %}
+
 {% block main_content %}
     <div class="span6 help-content">
         <h1>Help</h1>
