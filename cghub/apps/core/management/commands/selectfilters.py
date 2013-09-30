@@ -34,13 +34,14 @@ class FiltersProcessor(object):
 
     :param stdout: sys.stdout
     :param stderr: sys.stderr
+    :param verbosity: verbosity level (1,2,3)
     """
 
     def __init__(self, stdout, stderr, verbosity):
         self.stdout = stdout
         self.stderr = stderr
         self.verbosity = verbosity
-        self.CHARACTERS = string.ascii_uppercase + '0123456789' + string.ascii_lowercase
+        self.CHARACTERS = string.ascii_uppercase + '-_+0123456789' + string.ascii_lowercase
 
     def process(self, filter_name, options, selectfilters=False):
         """
@@ -53,7 +54,8 @@ class FiltersProcessor(object):
 
         if selectfilters:
             self.find_all_options(filter_name)
-            options = self.select_options(filter_name, options)
+            self.used_options = []
+            self.select_options(filter_name, options)
             # notify about not existent options
             new_options = set(self.all_options) - set(self.used_options)
             for option in new_options:
@@ -95,12 +97,11 @@ class FiltersProcessor(object):
         """
 
         result = []
-        self.used_options = []
 
         for option_name, option_value in options.iteritems():
             if isinstance(option_value, OrderedDict):
                 sub_result = self.select_options(filter_name, option_value)
-                if not result:
+                if not sub_result:
                     continue
                 result.append((option_name, OrderedDict(sub_result)))
             else:
@@ -130,6 +131,8 @@ class FiltersProcessor(object):
         options = []
         count = 0
         for c in self.CHARACTERS:
+            if not start and c in ('-', '+'):
+                continue
             query = {filter_name: '%s%s*' % (start, c)}
             api_request = RequestDetail(
                     query=query, limit=5, sort_by=filter_name)
@@ -137,19 +140,17 @@ class FiltersProcessor(object):
                 result = api_request.call().next()
             except StopIteration:
                 continue
-            count += api_request.hits
             if api_request.hits:
-                options.append(result.get(filter_name))
-                if all_count and all_count == count:
-                    return options
                 api_request = RequestDetail(
                         query=query, limit=5, sort_by='-%s' % filter_name)
-                try:
-                    result = api_request.call().next()
-                except StopIteration:
-                    result = None
-                # if some other filters which starts from start+c exists
-                if result and result.get(filter_name) not in options:
+                result2 = api_request.call().next()
+                if result.get(filter_name) == result2.get(filter_name):
+                    options.append(result.get(filter_name))
+                    count += api_request.hits
+                    if all_count and all_count == count:
+                        return options
+                else:
+                    # if some other filters which starts from start+c exists
                     for f in self._all_options(
                             filter_name=filter_name,
                             start='%s%s' % (start, c),

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
-<lst name="responseHeader"><int name="status">0</int><int name="QTime">1</int><lst name="params"><str name="q">aliquot_id:(0005d2d0-aede-4f5c-89fa-aed12abfadd6 OR 00007994-abeb-4b16-a6ad-7230300a29e9 OR aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)</str><str name="rows">1000000</str><str name="fl">analysis_id</str></lst></lst><result name="response" numFound="0" start="0"/>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">30</int><lst name="params"><str name="q">aliquot_id:(0005d2d0-aede-4f5c-89fa-aed12abfadd6 OR 00007994-abeb-4b16-a6ad-7230300a29e9 OR aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)</str><str name="rows">1000000</str><str name="fl">analysis_id</str></lst></lst><result name="response" numFound="0" start="0"/>
 </response>

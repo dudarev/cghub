@@ -19,14 +19,12 @@ API_TYPE="SOLR"
 
 if API_TYPE == "SOLR":
     if isStaging:
-        CGHUB_SERVER = 'http://192.35.223.223:8080'
-        #CGHUB_SERVER = 'http://stage.cghub.ucsc.edu:8080'
+        CGHUB_SERVER = 'http://stage.cghub.ucsc.edu:8080'
     else:
         CGHUB_SERVER = 'http://app01:8080'
 else:
     if isStaging:
-        #CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
-        CGHUB_SERVER = 'https://192.35.223.223'
+        CGHUB_SERVER = 'https://stage.cghub.ucsc.edu'
     else:
         CGHUB_SERVER = 'https://cghub.ucsc.edu'
 

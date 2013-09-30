@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">1</int><lst name="params"><str name="q">legacy_sample_id:(TCGA-AZ-6608-11A-01D-1835-10)</str><str name="rows">1000000</str><str name="fl">analysis_id</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="analysis_id">860ca061-681b-46dc-8e15-db2a2cbe1c21</str></doc></result>
+</response>

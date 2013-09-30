@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
-<lst name="responseHeader"><int name="status">0</int><int name="QTime">1</int><lst name="params"><str name="q">analysis_id:333a5cc4-741b-445c-93f9-9fde6f64b88f</str><str name="rows">1000000</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="alias">3a44a86a-4adf-4a7f-9a41-90f1c3033fd9</str><str name="aliquot_id">0ca11874-f9f6-4631-9a0a-1814a35f238c</str><str name="analysis_accession"/><str name="analysis_id">333a5cc4-741b-445c-93f9-9fde6f64b88f</str><str name="analysis_type">REFERENCE_ALIGNMENT</str><str name="analysis_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">23</int><lst name="params"><str name="q">analysis_id:333a5cc4-741b-445c-93f9-9fde6f64b88f</str><str name="rows">1000000</str></lst></lst><result name="response" numFound="1" start="0"><doc><str name="alias">3a44a86a-4adf-4a7f-9a41-90f1c3033fd9</str><str name="aliquot_id">0ca11874-f9f6-4631-9a0a-1814a35f238c</str><str name="analysis_accession"/><str name="analysis_id">333a5cc4-741b-445c-93f9-9fde6f64b88f</str><str name="analysis_type">REFERENCE_ALIGNMENT</str><str name="analysis_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;ANALYSIS_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/SRA.analysis.xsd?view=co"&gt;
   &lt;ANALYSIS alias="3a44a86a-4adf-4a7f-9a41-90f1c3033fd9" center_name="WUGSC"&gt;
     &lt;TITLE&gt;TCGA reference alignment of sample TCGA-D8-A3Z6-10A-01D-A23C-09&lt;/TITLE&gt;
@@ -143,7 +143,7 @@
     &lt;/DATA_BLOCK&gt;
   &lt;/ANALYSIS&gt;
 &lt;/ANALYSIS_SET&gt;
-</str><str name="analyte_code">D</str><str name="center_name">WUGSC</str><arr name="checksum"><str>899235c786eb7ab3cf7cbd5f2de6a5cd</str></arr><arr name="checksum_method"><str>MD5</str></arr><str name="disease_abbr">BRCA</str><str name="experiment_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+</str><str name="analyte_code">D</str><str name="center_name">WUGSC</str><arr name="checksum"><str>899235c786eb7ab3cf7cbd5f2de6a5cd</str><str>fe27b23afc13c33127eb08918e91c470</str></arr><arr name="checksum_method"><str>MD5</str><str>MD5</str></arr><str name="disease_abbr">BRCA</str><str name="experiment_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;EXPERIMENT_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/SRA.experiment.xsd?view=co"&gt;
   &lt;EXPERIMENT alias="78ac80dd-4f23-4430-a1be-678e7b48039b" center_name="WUGSC"&gt;
     &lt;STUDY_REF refname="phs000178" refcenter="NHGRI"/&gt;
@@ -167,7 +167,7 @@
     &lt;/PLATFORM&gt;
   &lt;/EXPERIMENT&gt;
 &lt;/EXPERIMENT_SET&gt;
-</str><arr name="filename"><str>899235c786eb7ab3cf7cbd5f2de6a5cd.bam</str></arr><arr name="filesize"><long>6294128967</long></arr><arr name="filetype"><str>bam</str></arr><date name="last_modified">2013-06-13T00:08:02Z</date><str name="legacy_sample_id">TCGA-D8-A3Z6-10A-01D-A23C-09</str><str name="library_strategy">WXS</str><str name="participant_id">a6e5f869-1182-4f81-b4bb-cf55261c8f3f</str><str name="platform">ILLUMINA</str><str name="reason">Failed to augment fileset</str><str name="refassem_short_name">GRCh37-lite</str><str name="run_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+</str><arr name="filename"><str>899235c786eb7ab3cf7cbd5f2de6a5cd.bam</str><str>899235c786eb7ab3cf7cbd5f2de6a5cd.bam.bai</str></arr><arr name="filesize"><long>6294128967</long><long>6827792</long></arr><arr name="filetype"><str>bam</str><str>bai</str></arr><date name="last_modified">2013-06-12T23:52:51Z</date><str name="legacy_sample_id">TCGA-D8-A3Z6-10A-01D-A23C-09</str><str name="library_strategy">WXS</str><str name="participant_id">a6e5f869-1182-4f81-b4bb-cf55261c8f3f</str><str name="platform">ILLUMINA</str><date name="published_date">2013-06-12T23:52:51Z</date><str name="refassem_short_name">GRCh37-lite</str><str name="run_xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;RUN_SET xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/SRA.run.xsd?view=co"&gt;
   &lt;RUN alias="b6ae9592-b3c4-4f8e-90fc-a055e385230b" center_name="WUGSC"&gt;
     &lt;EXPERIMENT_REF refname="78ac80dd-4f23-4430-a1be-678e7b48039b" refcenter="WUGSC"/&gt;
@@ -176,5 +176,5 @@
     &lt;EXPERIMENT_REF refname="78ac80dd-4f23-4430-a1be-678e7b48039b" refcenter="WUGSC"/&gt;
   &lt;/RUN&gt;
 &lt;/RUN_SET&gt;
-</str><str name="sample_id">026232e8-608b-420f-8b69-f51598ba17ca</str><str name="sample_type">10</str><str name="state">bad_data</str><str name="study">phs000178</str><str name="title">TCGA reference alignment of sample TCGA-D8-A3Z6-10A-01D-A23C-09</str><str name="tss_id">D8</str><date name="upload_date">2013-06-10T17:40:54Z</date></doc></result>
+</str><str name="sample_id">026232e8-608b-420f-8b69-f51598ba17ca</str><str name="sample_type">10</str><str name="state">live</str><str name="study">phs000178</str><str name="title">TCGA reference alignment of sample TCGA-D8-A3Z6-10A-01D-A23C-09</str><str name="tss_id">D8</str><date name="upload_date">2013-06-10T17:40:54Z</date></doc></result>
 </response>

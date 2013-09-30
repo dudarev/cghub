@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+<lst name="responseHeader"><int name="status">0</int><int name="QTime">1</int><lst name="params"><str name="q">sample_id:(916d1bd2-f503-4775-951c-20ff19dfe409)</str><str name="rows">1000000</str><str name="fl">analysis_id,state,reason,last_modified,upload_date,published_date,center_name,study,aliquot_id,filename,filesize,checksum,sample_accession,legacy_sample_id,disease_abbr,tss_id,participant_id,sample_id,analyte_code,sample_type,library_strategy,platform,refassem_short_name</str></lst></lst><result name="response" numFound="0" start="0"/>
+</response>

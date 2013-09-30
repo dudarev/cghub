@@ -73,3 +73,4 @@ UNITTEST-1	Run unit test (make test)	Long running, no errors expect
 ACCESSIBILITY-1	Skip navigation links	Skip navigation links shows on focus and hides when click on link or press enter or focus out. Focus shifts to targeted element on click
 ACCESSIBILITY-2	Tab order	Tab order is right
 ACCESSIBILITY-3	Table navigation via keyboard	Focus moves on ALT+ARROW pressed, popup shows on ALT+ENTER pressed, cell under focus always visible
+DOWNLOAD-1	Create manifiest for one CCLE BAM and download using gtdownload and public key	successful download
