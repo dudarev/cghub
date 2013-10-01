@@ -52,10 +52,16 @@ class Command(BaseCommand):
                         last_modified=result['last_modified'])
                 if analysis.last_modified != result['last_modified']:
                     analysis = update_analysis(result)
-                    self.stderr.write('- %s was updated\n' % analysis.analysis_id)
+                    if analysis:
+                        self.stderr.write('- %s was updated\n' % result['analysis_id'])
+                    else:
+                        self.stderr.write('- %s was skipped\n' % result['analysis_id'])
             except Analysis.DoesNotExist:
                 analysis = update_analysis(result)
-                self.stderr.write('- %s was created\n' % analysis.analysis_id)
+                if analysis:
+                    self.stderr.write('- %s was created\n' % result['analysis_id'])
+                else:
+                    self.stderr.write('- %s was skipped\n' % result['analysis_id'])
 
         self.stderr.write('Downloading not existent cache ...\n')
         self.done_count = 0

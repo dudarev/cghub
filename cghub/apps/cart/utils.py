@@ -42,7 +42,11 @@ def update_analysis(data):
         result = api_request.call().next()
     for attr in CART_SORT_ATTRIBUTES:
         setattr(analysis, attr, result.get(attr))
-    analysis.save()
+    try:
+        analysis.save()
+    except Exception as e:
+        cart_logger.error('Error while creating new Analysis: %s' % str(e))
+        return None
     return analysis
 
 
@@ -118,6 +122,8 @@ class Cart(object):
             return
         except Analysis.DoesNotExist:
             analysis = update_analysis(result)
+        if not analysis:
+            return
         item = CartItem(
                 cart=self.cart,
                 analysis=analysis)
