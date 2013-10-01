@@ -24,7 +24,7 @@ class Analysis(models.Model):
     checksum = models.CharField(max_length=36, blank=True, null=True)
     disease_abbr = models.CharField(max_length=36, blank=True, null=True)
     filename = models.CharField(max_length=250, blank=True, null=True)
-    legacy_sample_id = models.CharField(max_length=36, blank=True, null=True)
+    legacy_sample_id = models.CharField(max_length=50, blank=True, null=True)
     library_strategy = models.CharField(max_length=36, blank=True, null=True)
     published_date = models.CharField(max_length=20, blank=True, null=True)
     participant_id = models.CharField(max_length=36, blank=True, null=True)
@@ -33,7 +33,7 @@ class Analysis(models.Model):
     sample_accession = models.CharField(max_length=36, blank=True, null=True)
     sample_id = models.CharField(max_length=36, blank=True, null=True)
     sample_type = models.CharField(max_length=4, blank=True, null=True)
-    study = models.CharField(max_length=36, blank=True, null=True)
+    study = models.CharField(max_length=50, blank=True, null=True)
     tss_id = models.CharField(max_length=4, blank=True, null=True)
     upload_date = models.CharField(max_length=20, blank=True, null=True)
 
