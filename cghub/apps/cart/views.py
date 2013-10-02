@@ -4,6 +4,7 @@ from urllib2 import URLError
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.utils import simplejson as json
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.views.generic.base import TemplateView, View
@@ -27,10 +28,11 @@ def cart_add_selected_files(request):
     form = SelectedItemsForm(request.POST)
     if form.is_valid():
         try:
-            cart = Cart(request.session)
-            for result in form.cleaned_data['selected_items']:
-                cart.add(result)
-            cart.update_stats()
+            with transaction.commit_on_success():
+                cart = Cart(request.session)
+                for result in form.cleaned_data['selected_items']:
+                    cart.add(result)
+                cart.update_stats()
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding to cart: %s' % unicode(e))
@@ -62,12 +64,13 @@ def cart_add_all_files(request):
             if not queries:
                 queries = [filters]
 
-            cart = Cart(request.session)
-            for query in queries:
-                api_request = RequestMinimal(query=query)
-                for result in api_request.call():
-                    cart.add(result)
-                cart.update_stats()
+            with transaction.commit_on_success():
+                cart = Cart(request.session)
+                for query in queries:
+                    api_request = RequestMinimal(query=query)
+                    for result in api_request.call():
+                        cart.add(result)
+                    cart.update_stats()
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding all files to cart: %s' % unicode(e))
@@ -128,10 +131,11 @@ class CartAddRemoveItemsView(View):
         if 'remove' == action:
             form = AnalysisIDsForm(request.POST or None)
             if form.is_valid():
-                cart = Cart(request.session)
-                for analysis_id in form.cleaned_data['ids']:
-                    cart.remove(analysis_id)
-                cart.update_stats()
+                with transaction.commit_on_success():
+                    cart = Cart(request.session)
+                    for analysis_id in form.cleaned_data['ids']:
+                        cart.remove(analysis_id)
+                    cart.update_stats()
         return HttpResponseRedirect(reverse('cart_page'))
 
 
@@ -140,14 +144,15 @@ class CartAddItem(View):
     http_method_names = ['post']
 
     def post(self, request, analysis_id):
-        cart = Cart(request.session)
         api_request = RequestDetailJSON(query={'analysis_id': analysis_id})
         try:
             result = api_request.call().next()
         except StopIteration:
             raise URLError('No results for analysis_id == %s' % analysis_id)
-        cart.add(result)
-        cart.update_stats()
+        with transaction.commit_on_success():
+            cart = Cart(request.session)
+            cart.add(result)
+            cart.update_stats()
         return HttpResponseRedirect(reverse('cart_page'))
 
 
@@ -156,10 +161,10 @@ class CartClearView(View):
     Handels clearing cart
     """
     def post(self, request):
-        cart = Cart(request.session)
-        cart.clear()
-        url = reverse('cart_page')
-        return HttpResponseRedirect(url)
+        with transaction.commit_on_success():
+            cart = Cart(request.session)
+            cart.clear()
+        return HttpResponseRedirect(reverse('cart_page'))
 
 
 def manifest(request):

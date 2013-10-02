@@ -169,3 +169,35 @@ And this message will be shown only once:
             'content': 'Some error!'
         }]
         response = render('simetemplate.html', context)
+
+-------------------------
+Database and transcations
+-------------------------
+
+Seems like only InnoDB supports transactions.
+
+DATABASES settings should contains:
+
+.. code-block:: python
+
+DATABASES = {
+    'default': {
+        ...
+        'OPTIONS': {
+            'init_command': 'SET storage_engine=INNODB',
+            },
+        }
+}
+
+Transactions used to commit all changes at once or rollback all changes when adding/removing items to cart:
+
+.. code-block:: python
+
+    from django.db import transaction
+
+
+    with transaction.commit_on_success():
+        cart = Cart(request.session)
+        for analysis_id in form.cleaned_data['ids']:
+            cart.remove(analysis_id)
+        cart.update_stats()

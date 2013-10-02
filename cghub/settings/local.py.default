@@ -1,3 +1,14 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cghub_data_browser',
+        'OPTIONS': {
+            # InnoDB supports transactions
+            'init_command': 'SET storage_engine=INNODB',
+            },
+        }
+}
+
 # FULL_METADATA_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/full_metadata_cache'
 
 # # logging settings, example of using SysLogHandler

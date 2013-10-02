@@ -1,1 +1,12 @@
 FULL_METADATA_CACHE_DIR = '/tmp/full_metadata_cache/'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cghub_data_browser',
+        'OPTIONS': {
+            # InnoDB supports transactions
+            'init_command': 'SET storage_engine=INNODB',
+            },
+        }
+}
