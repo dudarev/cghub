@@ -4,18 +4,18 @@ import logging
 
 from StringIO import StringIO
 
-from django.http import HttpResponse
 from django.conf import settings
-from django.utils import timezone
-from django.template.loader import render_to_string, get_template
-from django.template import Context
 from django.contrib.sessions.models import Session
 from django.db import IntegrityError
 from django.db.models import Sum
+from django.template.loader import render_to_string, get_template
+from django.template import Context
+from django.utils import timezone
+from django.http import HttpResponse
 
 from cghub.apps.core.attributes import CART_SORT_ATTRIBUTES
-from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.requests import RequestDetailJSON, get_results_for_ids
+from cghub.apps.core.templatetags.search_tags import field_values
 from cghub.apps.core.utils import CSVUnicodeWriter, add_message, Gzipper
 
 from .cache import AnalysisException, get_analysis_xml
