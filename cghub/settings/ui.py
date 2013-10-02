@@ -51,14 +51,14 @@ This variable used to map them to something a human would understand.
 Format:
 dict <Column name>:<function>
 
-function obtains value and should return new value, for example:
+function obtains values (dict of attributes) and should return column value, for example:
 
 ::
 
-    def study_resolver(val):
-        if val.find('Other_Sequencing_Multiisolate') != -1:
+    def study_resolver(values):
+        if values['Study'].find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'
-        return val
+        return values['Study']
 
     VALUE_RESOLVERS = {
         'Study': study_resolver,
@@ -139,7 +139,7 @@ COLUMN_STYLES = {
         'width': 100, 'align': 'left', 'default_state': 'visible',
         },
     'TSS Id': {
-        'width': 50, 'align': 'left', 'default_state': 'hidden',
+        'width': 200, 'align': 'left', 'default_state': 'hidden',
         },
     'Uploaded': {
         'width': 80, 'align': 'left', 'default_state': 'hidden',
@@ -929,14 +929,15 @@ center_to_center_name = {
     'WUGSC': 'Washington University School of Medicine',
 }
 
-def study_resolver(val):
-    study = study_id_to_name.get(val)
+def study_resolver(values):
+    study = values['Study']
+    study = study_id_to_name.get(study)
     if study == None:
-        raise Exception("unknown study: \""+ str(val) + "\"")
+        raise Exception("unknown study: \""+ str(values['Study']) + "\"")
     return study
 
-def tss_resolver(tss_id):
-    tss_id = str(tss_id)  # FIXME: this should never be an int
+def tss_resolver(values):
+    tss_id = str(values['TSS Id'])  # FIXME: this should never be an int
     if (tss_id == None) or (len(tss_id.strip()) == 0):
         return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
     tss_desc = tss_id_to_description.get(tss_id)
@@ -945,12 +946,12 @@ def tss_resolver(tss_id):
     else:
         return tss_desc + " [" + tss_id + "]"
 
-def center_name_resolver(center):
-    return center_to_center_name.get(center, center)
+def center_name_resolver(values):
+    return center_to_center_name.get(values['Center Name'], values['Center Name'])
 
 VALUE_RESOLVERS = {
     'Study': study_resolver,
-    'TSS id': tss_resolver,
+    'TSS Id': tss_resolver,
     'Center Name': center_name_resolver,
 }
 

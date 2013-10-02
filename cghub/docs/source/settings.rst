@@ -128,10 +128,10 @@ Some column values can has an absurd names. To map them to something a human wou
 
 .. code-block:: python
 
-    def study_resolver(val):
-        if val.find('Other_Sequencing_Multiisolate') != -1:
+    def study_resolver(values):
+        if values['Study'].find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'
-        return val
+        return values['Study']
 
     VALUE_RESOLVERS = {
         'Study': study_resolver,
