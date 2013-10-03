@@ -23,7 +23,7 @@ jQuery(function ($) {
         },
         cacheElements:function () {
             cghub.search.$searchTable = $('table.data-table');
-            cghub.search.$addFilesForm = $('form#id_add_files_form');
+            cghub.search.$addFilesForm = $('#id_add_files_form');
             cghub.search.$addFilesButton = $('.add-to-cart-btn');
             cghub.search.$addAllFilesButton = $('button.add-all-to-cart-btn');
             cghub.search.$applyFiltersButton = $('button#id_apply_filters');
@@ -253,7 +253,9 @@ jQuery(function ($) {
                     }
                     cghub.search.updateRootItemValue(root);
                 }
-                cghub.search.updateToggleAll(list_item);
+                if($(f.target).val() != '(Toggle all)') {
+                    cghub.search.updateToggleAll(list_item);
+                }
             });
             /* show ddcls */
             $('.sidebar').css('visibility', 'visible');

@@ -143,6 +143,20 @@ jQuery(function ($) {
                 window.focus();
                 return false;
             });
+            // fix IE submit outer forms bug
+            if ($.browser.msie) {
+                $(document).on('click', '.js-cart-add-item-button', function(e) {
+                    var url = $(this).parent().attr('action');
+                    var form = document.createElement('form')
+                    form.action = url;
+                    form.method = 'POST';
+                    form.id = 'ie-form';
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                    return false;
+                });
+            }
         },
         changeCheckboxes:function () {
             cghub.table.$checkboxes.prop('checked', $(this).is(':checked'));
