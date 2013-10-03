@@ -1,7 +1,7 @@
-.. About using the API
+.. about css/js files handling
 
 Compiling CSS and JS
-============================================
+====================
 
 LESS is used to maintain stylesheets.
 Client side LESS compilator is used in developement environment.
@@ -9,31 +9,40 @@ Client side LESS compilator is used in developement environment.
 Some requirements should be satisfied to compile static files from LESS
 to CSS and Javascript minification for production environment.
 
-Install both nodejs 0.8.14 and npm either via packages
+Used 0.10.20 version of nodejs and grunt-cli v0.1.9.
 
-https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+Installation
+------------
 
-or directly from
-
-http://nodejs.org and http://npm.org
-
-Version 0.8.14 of nodejs is required for grunt 0.3.17.
+Remove all versions if exists:
 
 .. code-block:: bash
 
-    curl http://npmjs.org/install.sh | sh
+    sudo apt-get purge nodejs
+    sudo rm /usr/local/bin/grunt
+    sudo rm /usr/local/bin/grunt-less
+    rm node_modules
 
-Install grunt:
-
-.. code-block:: bash
-
-    sudo npm install -g grunt@0.3.17
-
-Install grunt-less:
+Install nodejs and grunt:
 
 .. code-block:: bash
 
-    sudo npm install -g grunt-less
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install nodejs
+    sudo npm install grunt-cli -g
+
+Install necessary modules:
+
+.. code-block:: bash
+
+    npm install grunt
+    npm install grunt-contrib-uglify
+    npm install grunt-recess
+    mv node_modules cghub/
+
+Usage
+-----
 
 To compile from LESS to CSS use ``less`` target:
 

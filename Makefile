@@ -82,10 +82,10 @@ else
 endif
 
 less:
-	grunt-less --config cghub/grunt.js less
+	grunt --gruntfile cghub/Gruntfile.js recess
 
 minjs:
-	grunt --config cghub/grunt.js min
+	grunt --gruntfile cghub/Gruntfile.js uglify
 
 selectfilters:
 	$(MANAGE) selectfilters
