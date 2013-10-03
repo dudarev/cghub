@@ -1,11 +1,15 @@
+"use strict";
+
 module.exports = function (grunt) {
-    "use strict";
     var staticFolder = 'static/',
         cssStaticFolder = staticFolder + 'css/',
         jsStaticFolder = staticFolder + 'js/';
-    grunt.loadNpmTasks('grunt-less');
+
+    grunt.loadNpmTasks('grunt-recess');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+
     grunt.initConfig({
-        less:{
+        recess:{
             bootstrap:{
                 src:cssStaticFolder + 'libs/bootstrap/less/bootstrap.less',
                 dest:cssStaticFolder + 'libs/bootstrap/bootstrap.css',
@@ -63,7 +67,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        min:{
+        uglify:{
             base:{
                 src:[jsStaticFolder + 'base.js',
                     jsStaticFolder + 'help.js'],
@@ -100,7 +104,7 @@ module.exports = function (grunt) {
             accessibility:{
                 src:[jsStaticFolder + 'accessibility.js'],
                 dest:jsStaticFolder + 'accessibility.min.js'
-            },
+            }
         }
     });
 };
