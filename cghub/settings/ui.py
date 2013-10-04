@@ -51,17 +51,23 @@ This variable used to map them to something a human would understand.
 Format:
 dict <Column name>:<function>
 
-function obtains values (dict of attributes) and should return column value, for example:
+function receives value should be displayed and dict if all values as arguments and should return new value, for example:
 
 ::
 
-    def study_resolver(values):
-        if values['Study'].find('Other_Sequencing_Multiisolate') != -1:
+    def study_resolver(value, values):
+        if value.find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'
-        return values['Study']
+        return value
+
+    def some_field_resolver(value, values):
+        if values['State'] == 'live':
+            return value
+        return ''
 
     VALUE_RESOLVERS = {
         'Study': study_resolver,
+        'Some Field': some_field_resolver,
     }
 """
 
@@ -929,15 +935,14 @@ center_to_center_name = {
     'WUGSC': 'Washington University School of Medicine',
 }
 
-def study_resolver(values):
-    study = values['Study']
-    study = study_id_to_name.get(study)
+def study_resolver(value, values):
+    study = study_id_to_name.get(value)
     if study == None:
-        raise Exception("unknown study: \""+ str(values['Study']) + "\"")
+        raise Exception("unknown study: \""+ str(value) + "\"")
     return study
 
-def tss_resolver(values):
-    tss_id = str(values['TSS Id'])  # FIXME: this should never be an int
+def tss_resolver(value, values):
+    tss_id = str(value)  # FIXME: this should never be an int
     if (tss_id == None) or (len(tss_id.strip()) == 0):
         return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
     tss_desc = tss_id_to_description.get(tss_id)
@@ -946,8 +951,8 @@ def tss_resolver(values):
     else:
         return tss_desc + " [" + tss_id + "]"
 
-def center_name_resolver(values):
-    return center_to_center_name.get(values['Center Name'], values['Center Name'])
+def center_name_resolver(value, values):
+    return center_to_center_name.get(value, value)
 
 VALUE_RESOLVERS = {
     'Study': study_resolver,

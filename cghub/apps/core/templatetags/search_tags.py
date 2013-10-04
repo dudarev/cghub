@@ -381,7 +381,7 @@ def table_row(result):
         value = fields.get(field_name, None)
         col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
-            value = settings.VALUE_RESOLVERS[field_name](fields)
+            value = settings.VALUE_RESOLVERS[field_name](value, fields)
         if value is None:
             continue
         col_style = settings.COLUMN_STYLES.get(field_name, DEFAULT_CULUMN_STYLE)
@@ -418,7 +418,7 @@ def details_table(result):
         value = fields.get(field_name, None)
         col_name = COLUMN_NAMES.get(field_name, None)
         if field_name in settings.VALUE_RESOLVERS:
-            value = settings.VALUE_RESOLVERS[field_name](fields)
+            value = settings.VALUE_RESOLVERS[field_name](value, fields)
         if value is None:
             continue
         if field_name == 'Reason' and value.isspace():
