@@ -8,7 +8,7 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/core/search.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/core/search.css' %}?v=7" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/search.css' %}?v=8" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -57,6 +57,12 @@
             <div>Found <span class="js-num-results">{{ num_results }}</span> results</div>
             <div class="applied-filters">{% applied_filters request %}</div>
         </section>
+        {% if search_notification %}
+            <div class="alert search-notification">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ search_notification|safe }}
+            </div>
+        {% endif %}
         <form action="{% url cart_add_remove_items action='add' %}" method="POST" id="id_add_files_form" data-many-files="{{ MANY_FILES }}">
             {% csrf_token %}
             <div class="btn-toolbar">
@@ -64,7 +70,6 @@
                     <button class="btn add-to-cart-btn js-common-tooltip" type="submit" data-key="results-add-to-cart-button">Add to cart</button>
                     <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button" >Add all to cart</button>
                 </div>
-
             </div>
             {% items_per_page request 10 25 50 %}
             <div class="column-select-label">
