@@ -8,7 +8,7 @@
   },
   {
     "study": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "phs000178": "TCGA",
         "*Other_Sequencing_Multiisolate": "CCLE",
@@ -112,7 +112,7 @@
       "title": "By Library Type"
     },
     "center_name": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "BCM": "BCM",
         "BCCAGSC": "BCCAGSC",
@@ -137,7 +137,7 @@
       "title": "By Platform"
     },
     "refassem_short_name": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "HG18 OR HG18_Broad_variant OR NCBI36_BCCAGSC_variant OR NCBI36_BCM_variant OR NCBI36_WUGSC_variant OR NCBI-human-build36": "NCBI36/HG18",
         "HG18": "-HG18",
@@ -158,7 +158,7 @@
       "title": "By Assembly"
     },
     "upload_date": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "": {
           "filter_name": "Any date",
@@ -184,7 +184,7 @@
       "title": "By Upload Date"
     },
     "last_modified": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "": {
           "filter_id": "id_date_any",
@@ -210,7 +210,7 @@
       "title": "By Modification Date"
     },
     "state": {
-      "selectFilter": false,
+      "selectOptions": false,
       "filters": {
         "live": "Live",
         "suppressed": "Suppressed",

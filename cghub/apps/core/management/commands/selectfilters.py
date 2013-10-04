@@ -24,7 +24,7 @@ class FiltersProcessor(object):
             ('HG19_Broad_variant', 'HG19_Broad_variant'),
         ])),
         ('GRCh37', 'GRCh37'),
-    ]), selectfilters=False)
+    ]), select_options=False)
     assert options == OrderedDict([
         ('HG19 OR HG19_Broad_variant', 'NCBI37/HG19'),
         ('HG19', ' - HG19'),
@@ -43,23 +43,27 @@ class FiltersProcessor(object):
         self.verbosity = verbosity
         self.CHARACTERS = string.ascii_uppercase + '-_+0123456789' + string.ascii_lowercase
 
-    def process(self, filter_name, options, selectfilters=False):
+    def process(
+            self, filter_name, options, select_options=False,
+            search_for_new_options=False):
         """
-        1. Run selectfilters algorithm is selectfilters == True
+        1. Run select options algorithm is select_options == True
         2. Process hierarchieal structures
         3. Transorm option/query to query/option
 
-        :param selectfilters: boolean, set to True if need to run selectfilters algorithm
+        :param select_options: boolean, set to True if need to run select_options algorithm
+        :param search_for_new_options: boolean, set to True, if need all options be scanned and displayed missing ones
         """
 
-        if selectfilters:
+        if select_options:
             self.find_all_options(filter_name)
             self.used_options = []
-            self.select_options(filter_name, options)
-            # notify about not existent options
-            new_options = set(self.all_options) - set(self.used_options)
-            for option in new_options:
-                self.stderr.write('! New option %s:%s. Please add this option to filters_storage_full.py\n' % (filter_name, option))
+            options = self.select_options(filter_name, options)
+            if search_for_new_options:
+                # notify about not existent options
+                new_options = set(self.all_options) - set(self.used_options)
+                for option in new_options:
+                    self.stderr.write('! New option %s:%s. Please add this option to filters_storage_full.py\n' % (filter_name, option))
             options = OrderedDict(options)
 
         new_dict, all_val = self.open_hierarchical_structures(options)
@@ -186,7 +190,9 @@ class Command(BaseCommand):
             options = processor.process(
                     filter_name=filter_name,
                     options=filter_data['filters'],
-                    selectfilters=filter_data.get('selectFilter', True))
+                    select_options=filter_data.get('selectOptions', True),
+                    search_for_new_options=filter_data.get(
+                            'searchForNewOptions', False))
             filter_data['filters'] = options
 
         # write filters found to filters_storage.json
