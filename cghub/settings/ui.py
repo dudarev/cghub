@@ -10,8 +10,8 @@ List of columns to display:
         'Study',
         'Disease',
 
-Available column_names: 'Aliquot Id', 'Assembly', 'Barcode', 'Center',
-'Center Name', 'Checksum', 'Disease', 'Disease Name', 'Experiment Type',
+Available column_names: 'Aliquot Id', 'Analyte Type', 'Assembly',
+'Barcode', 'Center', 'Center Name', 'Checksum', 'Disease', 'Disease Name',
 'Files Size', 'Library Type', 'Modified', 'Participant Id', 'Platform',
 'Platform Name', 'Published', 'Reason', 'Sample Id', 'Sample Accession',
 'Sample Type', 'Sample Type Name', 'State', 'Study', 'TSS Id',
@@ -72,6 +72,9 @@ COLUMN_STYLES = {
     'Analysis Id': {
         'width': 300, 'align': 'left', 'default_state': 'visible',
         },
+    'Analyte Type': {
+        'width': 120, 'align': 'left', 'default_state': 'hidden',
+        },
     'Assembly': {
         'width': 170, 'align': 'left', 'default_state': 'visible',
         },
@@ -92,9 +95,6 @@ COLUMN_STYLES = {
         },
     'Disease Name': {
         'width': 200, 'align': 'left', 'default_state': 'hidden',
-        },
-    'Experiment Type': {
-        'width': 120, 'align': 'left', 'default_state': 'hidden',
         },
     'Filename': {
         'width': 400, 'align': 'left', 'default_state': 'hidden',
@@ -154,7 +154,7 @@ TABLE_COLUMNS = (
     'Disease Name',
     'Sample Type',
     'Sample Type Name',
-    'Experiment Type',
+    'Analyte Type',
     'Library Type',
     'Center',
     'Center Name',
@@ -186,7 +186,7 @@ DETAILS_FIELDS = (
     'Disease Name',
     'Sample Type',
     'Sample Type Name',
-    'Experiment Type',
+    'Analyte Type',
     'Library Type',
     'Center',
     'Center Name',

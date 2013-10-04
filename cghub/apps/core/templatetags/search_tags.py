@@ -327,6 +327,9 @@ def field_values(result, humanize_files_size=True):
         files_size = file_size(files_size)
     return {
         'Aliquot Id': get_result_attr(result, 'aliquot_id'),
+        'Analyte Type': get_name_by_code(
+            'analyte_code',
+            get_result_attr(result, 'analyte_code')),
         'Assembly': get_result_attr(result, 'refassem_short_name'),
         'Barcode': get_result_attr(result, 'legacy_sample_id'),
         'Center': get_result_attr(result, 'center_name'),
@@ -338,9 +341,6 @@ def field_values(result, humanize_files_size=True):
         'Disease Name': get_name_by_code(
             'disease_abbr',
             get_result_attr(result, 'disease_abbr')),
-        'Experiment Type': get_name_by_code(
-            'analyte_code',
-            get_result_attr(result, 'analyte_code')),
         'Filename': get_result_attr(result, 'filename'),
         'Files Size': files_size,
         'Modified': get_result_attr(result, 'last_modified'),

@@ -13,6 +13,26 @@ Storage file for filters
 
 'filters' above are OrderedDict
 
+Hierarchical filters are supported, example:
+
+('refassem_short_name', {
+    'title': 'By Assembly',
+    'filters': OrderedDict([
+        ('NCBI36/HG18', OrderedDict([
+            ('NCBI-human-build36', 'NCBI-human-build36'),
+            ('NCBI36_BCCAGSC_variant', 'NCBI36_BCCAGSC_variant'),
+            ('NCBI36_BCM_variant', 'NCBI36_BCM_variant'),
+        ])),
+        ('GRCh37/HG19:', OrderedDict([
+            ('GRCh37', 'GRCh37'),
+            ('GRCh37-lite', 'GRCh37-lite'),
+            ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),
+        ])),
+        ('unaligned', 'unaligned'),
+    ]),
+    "selectFilter": True,
+})
+
 For dates it has special format:
 
 {
@@ -160,7 +180,7 @@ ALL_FILTERS = OrderedDict([
         }
     }),
     ("analyte_code", {
-        "title": "By Experiment Type",
+        "title": "By Analyte Type",
         "filters": OrderedDict([
             ("DNA", "D"),
             ("GenomePlex", "G"),

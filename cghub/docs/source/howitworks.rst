@@ -207,7 +207,7 @@ Displayed attributes
 
     - aliquot_id (Aliquot id)
     - analysis_id (Analysis Id)
-    - analyte_code (Experiment Type)
+    - analyte_code (Analyte Type)
     - center_name (Center)
     - disease_abbr (Disease)
     - filesize (used to calculate Files Size)
