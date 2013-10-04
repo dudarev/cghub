@@ -126,15 +126,25 @@ Some column values can has an absurd names. To map them to something a human wou
 
 ``settings/ui.py``:
 
+Format: dict <Column name>:<function>
+
+function receives value should be displayed and dict if all values as arguments and should return new value, for example:
+
 .. code-block:: python
 
-    def study_resolver(values):
-        if values['Study'].find('Other_Sequencing_Multiisolate') != -1:
+    def study_resolver(value, values):
+        if value.find('Other_Sequencing_Multiisolate') != -1:
             return 'CCLE'
-        return values['Study']
+        return value
+
+    def some_field_resolver(value, values):
+        if values['State'] == 'live':
+            return value
+        return ''
 
     VALUE_RESOLVERS = {
         'Study': study_resolver,
+        'Some Field': some_field_resolver,
     }
 
 

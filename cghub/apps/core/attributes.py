@@ -11,6 +11,7 @@ DATE_ATTRIBUTES = (
 COLUMN_NAMES = {
     'Aliquot Id': 'aliquot_id',
     'Analysis Id': 'analysis_id',
+    'Analyte Type': 'analyte_code',
     'Assembly':  'refassem_short_name',
     'Barcode': 'legacy_sample_id',
     'Center': 'center_name',
@@ -18,7 +19,6 @@ COLUMN_NAMES = {
     'Checksum': 'checksum',
     'Disease': 'disease_abbr',
     'Disease Name': 'disease_abbr',
-    'Experiment Type': 'analyte_code',
     'Filename': 'filename',
     'Files Size': 'files_size',
     'Library Type': 'library_strategy',

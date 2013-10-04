@@ -641,7 +641,7 @@ class TemplateTagsTestCase(TestCase):
         # test value_resolvers
         right_value = 'Right value'
 
-        def value_resolver(value):
+        def value_resolver(value, values):
             return right_value
 
         with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
@@ -663,7 +663,7 @@ class TemplateTagsTestCase(TestCase):
         # test value_resolvers
         right_value = 'Right value'
 
-        def value_resolver(value):
+        def value_resolver(value, values):
             return right_value
 
         with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):

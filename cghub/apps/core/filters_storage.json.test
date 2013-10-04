@@ -97,7 +97,7 @@
         "W": "WGA",
         "X": "WGA X"
       },
-      "title": "By Experiment Type"
+      "title": "By Analyte Type"
     },
     "library_strategy": {
       "filters": {

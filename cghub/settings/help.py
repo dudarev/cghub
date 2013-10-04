@@ -20,7 +20,7 @@ HELP_HINTS = {
     'filter:Library Type': 'Filter by the type of library protocol',
     'filter:Assembly': 'Filter by reference genome assembly',
     'filter:Center': 'Filter by submitting center',
-    'filter:Experiment Type': 'Filter by Molecular analyte',
+    'filter:Analyte Type': 'Filter by Molecular analyte',
     'filter:Upload Time': 'Filter by date the data set was uploaded',
     'filter:Modification Time': 'Filter by date the metadata was last modified',
     'filter:State': 'Filter by current state of the data at CGHub',
@@ -38,7 +38,7 @@ HELP_HINTS = {
     'Assembly': 'Reference genome assembly',
     'Center': 'Submitting center abbreviation',
     'Center Name': 'Submitting center name',
-    'Experiment Type': 'Molecular analyte that was sequenced',
+    'Analyte Type': 'Molecular analyte that was sequenced',
     'Uploaded': 'Date the data set was uploaded',
     'Modified': 'Date the metadata was last modified',
     'Sample Type': 'Type of the biological sample that was sequenced',
@@ -135,15 +135,15 @@ HELP_HINTS = {
     'Library Type:OTHER': 'Uncategorized library strategy',
 
     ##
-    # By Experiment Type
+    # By Analyte Type
     ##
-    'Experiment Type:DNA': 'DNA analyte',
-    'Experiment Type:GenomePlex': 'Whole Genome Amplification (WGA) produced using GenomePlex (Rubicon) DNA',
-    'Experiment Type:miRNA': 'mirVana RNA (Allprep DNA) produced by hybrid protocol',
-    'Experiment Type:RNA': 'RNA analyte',
-    'Experiment Type:Total RNA': 'Total RNA analyte',
-    'Experiment Type:WGA': 'Whole Genome Amplification (WGA) produced using Repli-G (Qiagen) DNA',
-    'Experiment Type:WGA X': 'Whole Genome Amplification (WGA) produced using Repli-G X (Qiagen) DNA (2nd Reaction)',
+    'Analyte Type:DNA': 'DNA analyte',
+    'Analyte Type:GenomePlex': 'Whole Genome Amplification (WGA) produced using GenomePlex (Rubicon) DNA',
+    'Analyte Type:miRNA': 'mirVana RNA (Allprep DNA) produced by hybrid protocol',
+    'Analyte Type:RNA': 'RNA analyte',
+    'Analyte Type:Total RNA': 'Total RNA analyte',
+    'Analyte Type:WGA': 'Whole Genome Amplification (WGA) produced using Repli-G (Qiagen) DNA',
+    'Analyte Type:WGA X': 'Whole Genome Amplification (WGA) produced using Repli-G X (Qiagen) DNA (2nd Reaction)',
 
     ##
     # Assembly - These are linked to the help/assemblies.html page and must be

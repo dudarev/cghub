@@ -28,7 +28,7 @@ TEST_SETTINGS = dict(
         'State',
         'Disease',
         'Sample Type',
-        'Experiment Type',
+        'Analyte Type',
         'Library Type',
         'Center',
         'Center Name',
@@ -44,7 +44,7 @@ TEST_SETTINGS = dict(
         'Disease Name',
         'Sample Type',
         'Sample Type Name',
-        'Experiment Type',
+        'Analyte Type',
         'Library Type',
         'Center',
         'Center Name',
@@ -66,6 +66,9 @@ TEST_SETTINGS = dict(
         'Analysis Id': {
             'width': 220, 'align': 'left', 'default_state': 'visible',
         },
+        'Analyte Type': {
+            'width': 95, 'align': 'left', 'default_state': 'hidden',
+        },
         'Assembly': {
             'width': 120, 'align': 'left', 'default_state': 'visible',
         },
@@ -80,9 +83,6 @@ TEST_SETTINGS = dict(
         },
         'Disease': {
             'width': 65, 'align': 'left', 'default_state': 'visible',
-        },
-        'Experiment Type': {
-            'width': 95, 'align': 'left', 'default_state': 'hidden',
         },
         'Filename': {
             'width': 300, 'align': 'left', 'default_state': 'hidden',
