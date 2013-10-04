@@ -42,7 +42,9 @@ Filters list can be edited in ``cghub/apps/core/filters_storage_full.py``:
         'filters': OrderedDict([
             ('TCGA', 'phs000178'),
             ('TCGA Benchmark', 'TCGA_MUT_BENCHMARK_4'),
-        ])
+        ]),
+        "selectOptions": True,
+        "searchForNewOptions": False,
     }),
     ('center_name', {
         'title': 'By Center',
@@ -72,7 +74,7 @@ Filters supports hierarchical structures:
             ('GRCh37', 'GRCh37'),
             ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     })
 
 In case of refassem_short_name, complex queries with "OR" are allowed:
@@ -86,6 +88,9 @@ In case of refassem_short_name, complex queries with "OR" are allowed:
         ]),
         'title': 'By Assembly',
     }),
+
+If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
+If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones (False is default value).
 
 ----------------------------
 Filters list shortening

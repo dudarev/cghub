@@ -776,7 +776,7 @@ class SelectFiltersTestCase(TestCase):
         processor = FiltersProcessor(stdout=stdout, stderr=stderr, verbosity=1)
         options = processor.process(
                 filter_name=filter_name, options=options,
-                selectfilters=False)
+                select_options=False)
         self.assertEqual(
             options,
             OrderedDict([

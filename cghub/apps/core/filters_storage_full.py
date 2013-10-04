@@ -7,7 +7,7 @@ Storage file for filters
         'filters': {
             'filter_title': 'filter_value',
         },
-        'selectFilter': True,
+        'selectOptions': True,
     }
 }
 
@@ -30,7 +30,7 @@ Hierarchical filters are supported, example:
         ])),
         ('unaligned', 'unaligned'),
     ]),
-    "selectFilter": True,
+    "selectOptions": True,
 })
 
 For dates it has special format:
@@ -43,13 +43,13 @@ For dates it has special format:
                 'filter_title': 'filter_name',
                 'filter_id': 'filter_id'
             },
-        'selectFilter': True,
+        'selectOptions': True,
         }
     }
 }
 
-If 'selectFilter' is True or unspecified, apply the select filter algorithm to
-this filter.
+If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
+If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones.
 """
 
 try:
@@ -86,7 +86,7 @@ ALL_FILTERS = OrderedDict([
             ("TARGET", "phs0004*"),
             ("TCGA Benchmark", "TCGA_MUT_BENCHMARK_4"),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
     ("disease_abbr", {
         "title": "By Disease",
@@ -133,6 +133,8 @@ ALL_FILTERS = OrderedDict([
             ("Uveal Melanoma", "UVM"),
             ("Wilms Tumor", "WT"),
         ]),
+        "selectOptions": True,
+        "searchForNewOptions": False,
     }),
     ("sample_type", {
         "title": "By Sample Type",
@@ -177,7 +179,10 @@ ALL_FILTERS = OrderedDict([
             "50": "CELL",
             "60": "XP",
             "61": "XCL",
-        }
+        },
+        "selectOptions": True,
+        "searchForNewOptions": False,
+        
     }),
     ("analyte_code", {
         "title": "By Analyte Type",
@@ -190,6 +195,8 @@ ALL_FILTERS = OrderedDict([
             ("WGA", "W"),
             ("WGA X", "X"),
         ]),
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
     ("library_strategy", {
         "title": "By Library Type",
@@ -224,6 +231,8 @@ ALL_FILTERS = OrderedDict([
             ("miRNA-Seq", "miRNA-Seq"),
             ("ncRNA-Seq", "ncRNA-Seq"),
         ]),
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
     ("center_name", {
         "title": "By Center",
@@ -238,7 +247,7 @@ ALL_FILTERS = OrderedDict([
             ("WUGSC", "WUGSC"),
             ("CGHub", "CGHUB"),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
     ("platform", {
         "title": "By Platform",
@@ -251,7 +260,9 @@ ALL_FILTERS = OrderedDict([
             ("Pacific Biosciences", "PACBIO_SMRT"),
             ("Ion Torrent", "ION_TORRENT"),
             ("Capillary electrophoresis", "CAPILLARY"),
-        ])
+        ]),
+        "selectOptions": True,
+        "searchForNewOptions":True,
     }),
     ('refassem_short_name', {
         'title': 'By Assembly',
@@ -274,7 +285,8 @@ ALL_FILTERS = OrderedDict([
             ])),
             ('unaligned', 'unaligned'),
         ]),
-        "selectFilter": True,
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
     ('preservation_method', {
         "title": "By Preservation Method",
@@ -282,7 +294,7 @@ ALL_FILTERS = OrderedDict([
             ("FFPE", "ffpe"),
             ("frozen", "frozen"),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
     ('upload_date', {
         'title': 'By Upload Date',
@@ -308,7 +320,7 @@ ALL_FILTERS = OrderedDict([
                 'filter_name': 'Last 12 months',
             }),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
     ("last_modified", {
         "title": "By Modification Date",
@@ -329,7 +341,7 @@ ALL_FILTERS = OrderedDict([
                 "filter_name": "Last 12 months",
                 "filter_id": "id_date_year"}),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
     ("state", {
         "title": "By State",
@@ -344,6 +356,6 @@ ALL_FILTERS = OrderedDict([
             ("Augmenting data", "augmenting_data"),
             ("Bad data", "bad_data"),
         ]),
-        "selectFilter": False,
+        "selectOptions": False,
     }),
 ])
