@@ -201,7 +201,7 @@ class CoreUITestCase(LiveServerTestCase):
             # check that warning is shown (only if id was not found)
             self.assertIn(
                     'The results maybe be incomplete or inconsistent due to limited about of textual data available.',
-                    driver.find_element_by_xpath('//div[@class="messages"]/div').text)
+                    driver.find_element_by_xpath('//div[@class="alert search-notification"]').text)
 
         def check_bad_query(key='bad*'):
             """

@@ -110,14 +110,13 @@ class SearchView(TemplateView):
                         filters.update({'all_metadata': browser_text_search.ws_query(q)})
                     else:
                         filters.update({'xml_text': '(%s)' % q})
-                    context['notifications'] = [{
-                            'level': 'alert',
-                            'content': '<strong>Warning:</strong> these results were '
-                            'produced by a free text work search of the metadata. '
-                            'The results maybe be incomplete or inconsistent due '
-                            'to limited about of textual data available. Use the '
+                    context['search_notification'] = ('<strong>Warning:</strong> '
+                            'these results were produced by a free text '
+                            'work search of the metadata. The results maybe '
+                            'be incomplete or inconsistent due to limited '
+                            'about of textual data available. Use the '
                             'filters to get s consistent set of results or '
-                            'search for a particular identifier.'}]
+                            'search for a particular identifier.')
 
             api_request = RequestDetail(
                     query=filters, sort_by=sort_by, offset=offset, limit=limit)
