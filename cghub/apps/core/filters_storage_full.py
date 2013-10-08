@@ -87,6 +87,7 @@ ALL_FILTERS = OrderedDict([
             ("TCGA Benchmark", "TCGA_MUT_BENCHMARK_4"),
         ]),
         "selectOptions": False,
+        "searchForNewOptions": False,
     }),
     ("disease_abbr", {
         "title": "By Disease",
@@ -134,7 +135,7 @@ ALL_FILTERS = OrderedDict([
             ("Wilms Tumor", "WT"),
         ]),
         "selectOptions": True,
-        "searchForNewOptions": False,
+        "searchForNewOptions": True,
     }),
     ("sample_type", {
         "title": "By Sample Type",
@@ -181,7 +182,7 @@ ALL_FILTERS = OrderedDict([
             "61": "XCL",
         },
         "selectOptions": True,
-        "searchForNewOptions": False,
+        "searchForNewOptions": True,
         
     }),
     ("analyte_code", {

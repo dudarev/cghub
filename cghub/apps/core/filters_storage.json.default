@@ -9,6 +9,7 @@
   {
     "study": {
       "selectOptions": false,
+      "searchForNewOptions": false,
       "filters": {
         "phs000178": "TCGA",
         "*Other_Sequencing_Multiisolate": "CCLE",
@@ -19,7 +20,7 @@
     },
     "disease_abbr": {
       "selectOptions": true,
-      "searchForNewOptions": false,
+      "searchForNewOptions": true,
       "filters": {
         "LAML": "Acute Myeloid Leukemia",
         "ACC": "Adrenocortical carcinoma",
@@ -79,7 +80,7 @@
         "10": "NB"
       },
       "selectOptions": true,
-      "searchForNewOptions": false,
+      "searchForNewOptions": true,
       "filters": {
         "05": "Additional - New Primary",
         "10": "Blood Derived Normal",
