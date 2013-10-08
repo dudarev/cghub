@@ -1,12 +1,10 @@
 {% load search_tags %}
 <div class="well sidebar" id="filters-bar">
+    {% include 'apply_filters_buttons.html' with base_tabindex=31 %}
     <h4><span class="js-common-tooltip" data-key="filters-bar">Filters</span></h4>
     {% render_filters %}
     <div class="js-remember-filters">
         <input type="checkbox" name="remember" value="remember"> Remember filter settings<br>
     </div>
-    <div class="search-btn-group">
-        <button class="btn js-common-tooltip" id="id_reset_filters" type="reset" data-key="filters-reset-button" data-url="{% url home_page %}" tabindex="48">Reset filters</button>
-        <button class="btn js-common-tooltip" id="id_apply_filters" type="submit" data-key="filters-apply-button" tabindex="49" data-search-url="{% url search_page %}">Apply filters</button>
-    </div>
+    {% include 'apply_filters_buttons.html' with base_tabindex=48 %}
 </div>
