@@ -536,7 +536,7 @@ class SidebarUITestCase(LiveServerTestCase):
                         "#ddcl-id-{0} > span:last-child > span".format(f)).click()
 
             # submit form
-            driver.find_element_by_id("id_apply_filters").click()
+            driver.find_element_by_xpath('//div[@id="filters-bar"]/div[1]/button[2]').click()
             url = unquote(driver.current_url)
 
             # check that all selected filters options exists in url
@@ -1118,7 +1118,7 @@ class SearchUITestCase(LiveServerTestCase):
                     self.selenium.find_element_by_id(
                             "id-{0}-ui-selector".format(filter_name)).text)
             # submit form
-            self.selenium.find_element_by_id("id_apply_filters").click()
+            self.selenium.find_element_by_xpath('//div[@id="filters-bar"]/div[1]/button[2]').click()
             # check url
             url = unquote(self.selenium.current_url)
             self.assertIn(option_attribute, url)
@@ -1142,7 +1142,8 @@ class SearchUITestCase(LiveServerTestCase):
                     "//div[@class='js-remember-filters']/input"
                     ).get_attribute('checked'))
             # submit
-            self.selenium.find_element_by_id("id_apply_filters").click()
+            self.selenium.find_element_by_xpath(
+                    '//div[@id="filters-bar"]/div[1]/button[2]').click()
             time.sleep(1)
             # go to home page
             self.selenium.get(self.live_server_url)
@@ -1191,7 +1192,8 @@ class SearchUITestCase(LiveServerTestCase):
                 self.selenium.find_element_by_css_selector(
                         "#ddcl-id-{0} > span:last-child > span".format(f)).click()
             # submit form
-            self.selenium.find_element_by_id("id_apply_filters").click()
+            self.selenium.find_element_by_xpath(
+                    '//div[@id="filters-bar"]/div[1]/button[2]').click()
             time.sleep(2)
             url = unquote(self.selenium.current_url)
             self.assertIn(reverse('search_page'), url)
@@ -1231,7 +1233,8 @@ class SearchUITestCase(LiveServerTestCase):
                     self.selenium.find_element_by_xpath(
                             '//div[@class="applied-filters"]').text)
             # submit form
-            self.selenium.find_element_by_id("id_apply_filters").click()
+            self.selenium.find_element_by_xpath(
+                    '//div[@id="filters-bar"]/div[1]/button[2]').click()
             time.sleep(2)
             self.assertIn(
                     option_name,
@@ -1670,11 +1673,12 @@ class ResetFiltersUITestCase(LiveServerTestCase):
             driver.find_element_by_xpath("//span[@id='ddcl-id-{0}']/span/span".format(filter_name)).click()
 
             # apply filters
-            driver.find_element_by_id("id_apply_filters").click()
+            driver.find_element_by_xpath(
+                    '//div[@id="filters-bar"]/div[1]/button[2]').click()
             self.assertNotEqual(default_filters, self.get_selected_filters())
 
             # try to reset filters
-            driver.find_element_by_id("id_reset_filters").click()
+            driver.find_element_by_xpath('//div[@id="filters-bar"]/div[1]/button[1]').click()
             self.assertEqual(default_filters, self.get_selected_filters())
 
 
@@ -1937,8 +1941,8 @@ class TabbingUITestCase(LiveServerTestCase):
             elements = (
                 '//ul[@id="accessibility-links"]/li[3]/a', # skip to summary link
                 '//ul[@class="nav"]/li[4]/a', # Accessibility page link
+                '//div[@id="filters-bar"]/div[1]/button[2]', # applye filters button
                 '//div[@id="filters-bar"]/span[1]/span[1]', # filter by study
-                '//button[@id="id_apply_filters"]', # applye filters button
                 '//section[@id="results-summary"]', # results summary
                 '//form[@id="id_add_files_form"]/div[1]/div[1]/button[1]', # add to cart button
                 '//div[@class="items-per-page-label"]/a[1]', # items per page link
@@ -2248,8 +2252,8 @@ class HelpHintsUITestCase(LiveServerTestCase):
 
             # reset button (common tooltip)
             driver.execute_script(
-                "$(window).scrollTop($('#id_reset_filters').offset().top - 100);")
-            reset_button = driver.find_element_by_id("id_reset_filters")
+                "$(window).scrollTop($('#filters-bar').offset().top - 100);")
+            reset_button = driver.find_element_by_xpath('//div[@id="filters-bar"]/div[1]/button[1]')
             self.check_tooltip(reset_button)
 
     def test_help_hints_in_details_popup(self):
