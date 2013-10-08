@@ -26,8 +26,8 @@ jQuery(function ($) {
             cghub.search.$addFilesForm = $('#id_add_files_form');
             cghub.search.$addFilesButton = $('.add-to-cart-btn');
             cghub.search.$addAllFilesButton = $('button.add-all-to-cart-btn');
-            cghub.search.$applyFiltersButton = $('button#id_apply_filters');
-            cghub.search.$resetFiltersButton = $('button#id_reset_filters');
+            cghub.search.$applyFiltersButton = $('button.js-apply-filters');
+            cghub.search.$resetFiltersButton = $('button.js-reset-filters');
             cghub.search.$selectAllLink = $('.select-all');
             cghub.search.$deselectAllLink = $('.clear-all');
             cghub.search.$filterSelects = $('select.filter-select');
