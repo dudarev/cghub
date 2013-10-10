@@ -5,6 +5,7 @@ from urllib2 import URLError
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.template import loader, Context, RequestContext
 from django.utils import simplejson as json
 from django.http import (
@@ -18,7 +19,8 @@ from cghub.apps.core import browser_text_search
 from .attributes import ATTRIBUTES
 from .forms import BatchSearchForm, AnalysisIDsForm
 from .requests import (
-            RequestDetail, RequestFull, SearchByIDs, get_results_for_ids)
+            RequestDetail, RequestFull, RequestMinimal, SearchByIDs,
+            get_results_for_ids)
 from .utils import (
             get_filters_dict, query_dict_to_str, paginator_params,
             add_message)
@@ -172,13 +174,13 @@ class BatchSearchView(TemplateView):
             if request.POST.get('add_to_cart'):
 
                 cart = Cart(request.session)
-                part = 0
-                for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
-                    query = {'analysis_id': ids[part : part + settings.MAX_ITEMS_IN_QUERY]}
-                    api_request = RequestDetail(query=query)
-                    for result in api_request.call():
-                        cart.add(result)
-                cart.update_stats()
+                with transaction.commit_on_success():
+                    for part in range(0, len(ids), settings.MAX_ITEMS_IN_QUERY):
+                        query = {'analysis_id': ids[part : part + settings.MAX_ITEMS_IN_QUERY]}
+                        api_request = RequestMinimal(query=query)
+                        for result in api_request.call():
+                            cart.add(result)
+                    cart.update_stats()
 
                 return HttpResponseRedirect(reverse('cart_page'))
             else:
@@ -207,13 +209,17 @@ class BatchSearchView(TemplateView):
                 unvalidated = form.cleaned_data.get('unvalidated_ids')
                 submitted = len(submitted_ids) + len(unvalidated)
 
-                search = SearchByIDs(ids=submitted_ids)
+                ids = []
                 found = {}
-                for attr in search.results:
-                    l = len(search.results[attr])
-                    if l:
-                        found[attr] = l
-                ids = sorted(search.get_ids())
+                for part in range(0, len(submitted_ids), settings.MAX_ITEMS_IN_QUERY):
+                    ids_part = submitted_ids[part : part + settings.MAX_ITEMS_IN_QUERY]
+                    search = SearchByIDs(ids=ids_part)
+                    for attr in search.results:
+                        l = len(search.results[attr])
+                        if l:
+                            found[attr] = found.get(attr, 0) + l
+                    ids += search.get_ids()
+                ids = sorted(ids)
                 offset, limit = paginator_params(request)
                 results = get_results_for_ids(
                         ids[offset:offset + limit],
