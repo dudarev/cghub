@@ -54,10 +54,6 @@ class BatchSearchForm(forms.Form):
             elif id not in unvalidated_ids:
                 unvalidated_ids.append(id)
 
-        if len(ids) > settings.MAX_ITEMS_IN_QUERY:
-            raise forms.ValidationError('Max count of ids that can be '
-                'submitted at once limited by %d' % settings.MAX_ITEMS_IN_QUERY)
-
         if not ids:
             raise forms.ValidationError('No valid ids were found')
 
