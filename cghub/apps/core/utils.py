@@ -81,6 +81,16 @@ def add_message(request, level, content):
     request.session.modified = True
 
 
+def xml_inline(xml):
+    """
+    Returns xml without newlines and tabs
+    """
+    xml = xml.replace('\t', ' ').replace('\n', ' ')
+    while xml.find('  ') != -1:
+        xml = xml.replace('  ', ' ')
+    return xml.replace(' <', '<').replace('> ', '>')
+
+
 def xml_add_spaces(xml, space=0, tab=2):
     """
     Iterator, returns xml with spaces.

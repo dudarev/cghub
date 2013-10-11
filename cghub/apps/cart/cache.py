@@ -7,7 +7,7 @@ from django.conf import settings
 
 from cghub.apps.core.utils import (
                         makedirs_group_write, generate_tmp_file_name,
-                        xml_add_spaces)
+                        xml_add_spaces, xml_inline)
 from cghub.apps.core.requests import RequestFull
 
 
@@ -98,10 +98,7 @@ def save_to_cart_cache(analysis_id, last_modified):
     # load most recent version
     # example tmp file name: 14985-MainThread-my-pc.tmp
     tmp_path = os.path.join(dir_path, generate_tmp_file_name())
-    xml = result['xml'].replace('\t', '').replace('\n', '')
-    while xml.find('  ') != -1:
-        xml = xml.replace('  ', ' ')
-    xml = xml.replace('> <', '><')
+    xml = xml_inline(result['xml'])
     formatted_xml = u''
     for s in xml_add_spaces(xml, space=-2, tab=2):
         formatted_xml += s
