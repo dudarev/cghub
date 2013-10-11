@@ -41,7 +41,8 @@ from ..templatetags.search_tags import (
 from ..templatetags.core_tags import without_header, messages
 from ..utils import (
                     get_filters_dict, query_dict_to_str, xml_add_spaces,
-                    paginator_params, generate_tmp_file_name, add_message)
+                    paginator_params, generate_tmp_file_name, add_message,
+                    xml_inline)
 from ..views import error_500
 
 
@@ -287,10 +288,7 @@ class CoreTestCase(TestCase):
 class RequestsTestCase(TestCase):
 
     def clean_xml(self, xml):
-        xml = xml.replace('\t', '').replace('\n', '')
-        while xml.find('  ') != -1:
-            xml = xml.replace('  ', ' ')
-        xml = xml.replace('> <', '><')
+        xml = xml_inline(xml)
         xml = u'%s%s' % (xml[0:72], xml[91:])
         # remove urls
         start = xml.find('<analysis_detail_uri>')
@@ -430,7 +428,12 @@ class UtilsTestCase(TestCase):
         self.assertNotIn(2, request.session['messages'])
         add_message(request=request, level=level, content=content)
         self.assertIn(2, request.session['messages'])
-        
+
+    def test_xml_inline(self):
+        self.assertEqual(
+                xml_inline('\t  <tag attr="123"\nattr2="456">123 11 <tag>\n'),
+                '<tag attr="123" attr2="456">123 11<tag>')
+
 
 class ContextProcessorsTestCase(TestCase):
 
