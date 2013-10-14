@@ -81,65 +81,6 @@ def add_message(request, level, content):
     request.session.modified = True
 
 
-def xml_inline(xml):
-    """
-    Returns xml without newlines and tabs
-    """
-    xml = xml.replace('\t', ' ').replace('\n', ' ')
-    while xml.find('  ') != -1:
-        xml = xml.replace('  ', ' ')
-    return xml.replace(' <', '<').replace('> ', '>')
-
-
-def xml_add_spaces(xml, space=0, tab=2):
-    """
-    Iterator, returns xml with spaces.
-
-    :param xml: input xml
-    :param space: initial space
-    :param tab: spaces count for one tab
-    """
-    ELEMENT_START, ELEMENT_STOP, ELEMENT_SINGLE = range(3)
-    position = 0
-    end_position = 0
-    last_element_type = ELEMENT_START
-    while end_position != -1:
-        # find next element
-        start_position = xml.find('<', position)
-        end_position = xml.find('>', position)
-        element = xml[start_position: end_position + 1]
-        # determine element type
-        element_type = ELEMENT_START
-        if element.find('</') != -1:
-            element_type = ELEMENT_STOP
-        elif element.find('/>') != -1:
-            element_type = ELEMENT_SINGLE
-        # decr space if block closed
-        if element_type == ELEMENT_STOP:
-            space -= tab
-        # get block content
-        content = xml[position:start_position]
-        # add newlines
-        if content:
-            yield content
-        if element_type == ELEMENT_SINGLE:
-            yield ' ' * space + element + '\n'
-        elif element_type == ELEMENT_STOP:
-            if last_element_type == ELEMENT_START:
-                yield element + '\n'
-            else:
-                yield ' ' * space + element + '\n'
-        elif last_element_type == ELEMENT_START:
-            yield '\n' + ' ' * space + element
-        else:
-            yield ' ' * space + element
-        # incr space if block open
-        if element_type == ELEMENT_START:
-            space += tab
-        position = end_position + 1
-        last_element_type = element_type
-
-
 def makedirs_group_write(path):
     "create a directory, including missing parents, ensuring it has group write permissions"
     old_mask = os.umask(0002)

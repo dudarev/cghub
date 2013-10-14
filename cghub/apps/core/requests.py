@@ -300,10 +300,7 @@ class RequestFull(RequestBase):
             xml = build_wsapi_xml(result)
         new_result = super(RequestFull, self).patch_result(result, result_xml)
         new_result['reason'] = result['reason'].text or ''
-        if settings.API_TYPE == 'WSAPI':
-            new_result['xml'] = xml.decode('utf-8')
-        else:
-            new_result['xml'] = xml
+        new_result['xml'] = xml
         return new_result
 
 

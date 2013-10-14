@@ -12,4 +12,5 @@ wsgiref==0.1.2
 nose==1.1.2
 selenium==2.35.0
 mock==1.0.1
+lxml==3.2.3
 # -e git+git://github.com/42cc/cghub-python-api.git#egg=cghub_python_api
