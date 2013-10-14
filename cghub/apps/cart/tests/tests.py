@@ -493,10 +493,21 @@ class CartCacheTestCase(TestCase):
                         self.analysis_id[:2],
                         self.analysis_id[2:4],
                         self.analysis_id)
+        older_version_date = '1900-10-29T21:56:12Z'
         try:
-            save_to_cart_cache(self.analysis_id, '1900-10-29T21:56:12Z')
+            save_to_cart_cache(self.analysis_id, older_version_date)
         except AnalysisException:
             assert False, 'Most recent file was not downloaded'
+        # check full_metadata_cache
+        cart_cache_file_path = get_cart_cache_file_path(
+                analysis_id=self.analysis_id,
+                last_modified=older_version_date)
+        with open(cart_cache_file_path, 'r') as f:
+            full_metadata_cache = f.read()
+        self.assertNotIn('Result', full_metadata_cache)
+        self.assertIn('analysis_id', full_metadata_cache)
+        for l in full_metadata_cache.split('\n'):
+            self.assertEqual(l[:4], '    ')
         if os.path.isdir(path):
             shutil.rmtree(path)
         # check access denied to files outside cache dir
