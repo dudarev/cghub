@@ -30,19 +30,16 @@ from ..filters_storage import ALL_FILTERS
 from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
 from ..requests import (
-                    RequestFull, RequestDetail, RequestID,
-                    ResultFromSOLRFile, SearchByIDs, build_wsapi_xml,
-                    get_results_for_ids)
+        RequestFull, RequestDetail, RequestID, ResultFromSOLRFile,
+        SearchByIDs, build_wsapi_xml, get_results_for_ids)
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
-                    get_name_by_code, table_header, table_row,
-                    file_size, details_table, period_from_query,
-                    only_date, get_sample_type_by_code)
+        get_name_by_code, table_header, table_row, file_size,
+        details_table, period_from_query, only_date, get_sample_type_by_code)
 from ..templatetags.core_tags import without_header, messages
 from ..utils import (
-                    get_filters_dict, query_dict_to_str, xml_add_spaces,
-                    paginator_params, generate_tmp_file_name, add_message,
-                    xml_inline)
+        get_filters_dict, query_dict_to_str, paginator_params,
+        generate_tmp_file_name, add_message)
 from ..views import error_500
 
 
@@ -287,33 +284,6 @@ class CoreTestCase(TestCase):
 
 class RequestsTestCase(TestCase):
 
-    def clean_xml(self, xml):
-        xml = xml_inline(xml)
-        xml = u'%s%s' % (xml[0:72], xml[91:])
-        # remove urls
-        start = xml.find('<analysis_detail_uri>')
-        stop = xml.find('</analysis_data_uri>')
-        if start != -1 and stop != -1:
-            xml = u'%s%s' % (xml[:start], xml[stop:])
-        return xml
-
-    def test_build_wsapi_xml(self):
-        path_wsapi = os.path.join(
-                os.path.dirname(__file__),
-                'test_data/full_metadata_xml_wsapi.xml')
-        path_solr = os.path.join(
-                os.path.dirname(__file__),
-                'test_data/full_metadata_xml_solr.xml')
-        api_request = ResultFromSOLRFile(query={'filename': path_solr})
-        result_solr = api_request.call().next()
-        xml_solr =  build_wsapi_xml(result_solr)
-        with codecs.open(path_wsapi, 'r', encoding='utf-8') as f:
-            xml_wsapi = f.read()
-        self.assertIn(settings.CGHUB_DOWNLOAD_SERVER, xml_solr)
-        xml_solr = self.clean_xml(xml_solr)
-        xml_wsapi = self.clean_xml(xml_wsapi)
-        self.assertEqual(xml_solr, xml_wsapi)
-
     def test_search_by_ids(self):
         search = SearchByIDs(ids=['123'])
         self.assertTrue(search.is_empty())
@@ -379,13 +349,6 @@ class UtilsTestCase(TestCase):
         for data in TEST_DATA_SET:
             self.assertEqual(query_dict_to_str(data['dict']), data['str'])
 
-    def test_xml_add_spaces(self):
-        xml = """<ResultSet date="2013-11-06 09:24:56"><Hits>10</Hits><Result id="1"><analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id><state>live</state><reason/><last_modified>2013-06-09T07:27:48Z</last_modified><upload_date>2013-06-09T06:51:41Z</upload_date></Result></ResultSet>"""
-        result = ''
-        for i in xml_add_spaces(xml, space=1, tab=2):
-            result += i
-        self.assertEqual(result, """\n <ResultSet date="2013-11-06 09:24:56">\n   <Hits>10</Hits>\n   <Result id="1">\n     <analysis_id>ad5ae127-56d1-4419-9dc9-f9385c839b99</analysis_id>\n     <state>live</state>\n     <reason/>\n     <last_modified>2013-06-09T07:27:48Z</last_modified>\n     <upload_date>2013-06-09T06:51:41Z</upload_date>\n   </Result>\n </ResultSet>\n """)
-
     def test_paginator_params(self):
         url = reverse('home_page')
         request = get_request(url=url)
@@ -428,11 +391,6 @@ class UtilsTestCase(TestCase):
         self.assertNotIn(2, request.session['messages'])
         add_message(request=request, level=level, content=content)
         self.assertIn(2, request.session['messages'])
-
-    def test_xml_inline(self):
-        self.assertEqual(
-                xml_inline('\t  <tag attr="123"\nattr2="456">123 11 <tag>\n'),
-                '<tag attr="123" attr2="456">123 11<tag>')
 
 
 class ContextProcessorsTestCase(TestCase):

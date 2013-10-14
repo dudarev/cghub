@@ -1,20 +1,14 @@
-import os.path
 import codecs
+import os.path
 
 from urllib2 import URLError
+from lxml import etree
 
 from django.conf import settings
 
 from cghub.apps.core.utils import (
-                        makedirs_group_write, generate_tmp_file_name,
-                        xml_add_spaces, xml_inline)
+        makedirs_group_write, generate_tmp_file_name)
 from cghub.apps.core.requests import RequestFull
-
-
-RESULT_START = '<Result id="1">'
-RESULT_STOP = '</Result>'
-FSIZE_START = '<filesize>'
-FSIZE_STOP = '</filesize>'
 
 
 class AnalysisException(Exception):
@@ -98,12 +92,18 @@ def save_to_cart_cache(analysis_id, last_modified):
     # load most recent version
     # example tmp file name: 14985-MainThread-my-pc.tmp
     tmp_path = os.path.join(dir_path, generate_tmp_file_name())
-    xml = xml_inline(result['xml'])
-    formatted_xml = u''
-    for s in xml_add_spaces(xml, space=-2, tab=2):
-        formatted_xml += s
+    parser = etree.XMLParser(
+            remove_blank_text=True, ns_clean=True,
+            recover=True)
+    tree = etree.fromstring(result['xml'], parser)
+    tree = tree.xpath('//Result[1]/child::*')
+    xml = ''
+    space = '    '
+    for el in tree:
+        xml += etree.tostring(el, pretty_print=True)
+    xml = ('\n%s' % space).join(xml.split('\n'))
     with codecs.open(tmp_path, 'w', encoding='utf-8') as f:
-        f.write(formatted_xml.strip())
+        f.write('%s%s' % (space, xml.strip()))
         f.close()
     # manage in a atomic manner
     os.rename(tmp_path, file_path)
@@ -119,13 +119,10 @@ def get_analysis_xml(analysis_id, last_modified):
         save_to_cart_cache(analysis_id, last_modified)
     with codecs.open(path, 'r', encoding='utf-8') as f:
         result = f.read()
-    start = result.find(RESULT_START) + len(RESULT_START)
-    stop = result.find(RESULT_STOP)
-    result = result[start:stop]
-    start = result.find(FSIZE_START)
+    start = result.find('<filesize>')
     files_size = 0
     # get only first file size
     if start != -1:
-        stop = result.find(FSIZE_STOP, start + 1)
-        files_size = int(result[start + len(FSIZE_START):stop])
+        stop = result.find('</filesize>', start + 1)
+        files_size = int(result[start + len('<filesize>'):stop])
     return result, files_size

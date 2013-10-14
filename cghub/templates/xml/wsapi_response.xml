@@ -1,4 +1,4 @@
-{% load core_tags %}<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+{% load core_tags %}
 <ResultSet date="{{ timestamp }}">
     <Query>analysis_id:{{ result.analysis_id.text }}</Query>
     <Hits>1</Hits>
