@@ -602,7 +602,8 @@ class TemplateTagsTestCase(TestCase):
         # test value_resolvers
         right_value = 'Right value'
 
-        def value_resolver(value, values):
+        def value_resolver(value, result):
+            self.assertIn('analysis_id', result)
             return right_value
 
         with self.settings(VALUE_RESOLVERS={'Study': value_resolver}):
