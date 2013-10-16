@@ -3,6 +3,7 @@ import datetime
 import os.path
 import shutil
 import sys
+import time
 
 try:
     from collections import OrderedDict
@@ -11,6 +12,7 @@ except ImportError:
 
 from cghub_python_api import SOLRRequest
 from mock import patch
+from os import utime
 from StringIO import StringIO
 from urllib2 import URLError
 
@@ -26,7 +28,7 @@ from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
-from ..filters_storage import ALL_FILTERS
+from ..filters_storage import Filters, JSON_FILTERS_FILE_NAME
 from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
 from ..requests import (
@@ -552,7 +554,7 @@ class TemplateTagsTestCase(TestCase):
                 "Limits can be numbers or it's string representation")
 
     def test_get_name_by_code_tag(self):
-        for section, section_data in ALL_FILTERS.iteritems():
+        for section, section_data in Filters.get_all_filters().iteritems():
             if section == "sample_type":
                 try:
                     for code, name in section_data[key].iteritems():
@@ -714,6 +716,35 @@ class TemplateTagsTestCase(TestCase):
 
 
 class SelectFiltersTestCase(TestCase):
+
+    def test_filters_storrage_update(self):
+        """
+        Test Filters class
+        """
+        if not os.path.exists(JSON_FILTERS_FILE_NAME):
+            shutil.copyfile(
+                    '%s.default' % JSON_FILTERS_FILE_NAME,
+                    JSON_FILTERS_FILE_NAME)
+            time.sleep(1)
+        old_argv = sys.argv
+        sys.argv = []
+        new_filters = {'somefilter': 'Filter name'}
+        self.assertNotEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        Filters._ALL_FILTERS['study']['filters'] = new_filters
+        self.assertEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        # touch file
+        with file(JSON_FILTERS_FILE_NAME, 'a'):
+            utime(JSON_FILTERS_FILE_NAME, None)
+        self.assertNotEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        with file(JSON_FILTERS_FILE_NAME, 'a'):
+            utime(JSON_FILTERS_FILE_NAME, None)
+        sys.argv = old_argv
 
     def test_selectfilters(self):
         """

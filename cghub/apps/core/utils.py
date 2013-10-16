@@ -10,10 +10,7 @@ from cStringIO import StringIO
 
 from django.conf import settings
 
-from .filters_storage import ALL_FILTERS
-
-
-ALLOWED_ATTRIBUTES = ALL_FILTERS.keys()
+from .filters_storage import Filters
 
 
 def get_filters_dict(filters):
@@ -21,7 +18,7 @@ def get_filters_dict(filters):
     Removes illegal filters from dict.
     """
     filters_dict = {}
-    for attr in ALLOWED_ATTRIBUTES:
+    for attr in Filters.get_all_filters().keys():
         if filters.get(attr):
             filters_dict[attr] = filters[attr]
     return filters_dict
