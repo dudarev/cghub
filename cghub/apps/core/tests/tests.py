@@ -11,6 +11,7 @@ except ImportError:
 
 from cghub_python_api import SOLRRequest
 from mock import patch
+from os import utime
 from StringIO import StringIO
 from urllib2 import URLError
 
@@ -26,7 +27,7 @@ from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
-from ..filters_storage import Filters
+from ..filters_storage import Filters, JSON_FILTERS_FILE_NAME
 from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
 from ..requests import (
@@ -552,7 +553,7 @@ class TemplateTagsTestCase(TestCase):
                 "Limits can be numbers or it's string representation")
 
     def test_get_name_by_code_tag(self):
-        for section, section_data in Filters.ALL_FILTERS.iteritems():
+        for section, section_data in Filters.get_all_filters().iteritems():
             if section == "sample_type":
                 try:
                     for code, name in section_data[key].iteritems():
@@ -719,11 +720,22 @@ class SelectFiltersTestCase(TestCase):
         """
         Test Filters class
         """
-        study_filter = Filters.ALL_FILTERS['study']['filters']
-        Filters.ALL_FILTERS['study']['filters'] = {'somefilter': 'Filter name'}
-        self.assertNotEqual(study_filter, Filters.ALL_FILTERS['study']['filters'])
-        Filters.update()
-        self.assertEqual(study_filter, Filters.ALL_FILTERS['study']['filters'])
+        new_filters = {'somefilter': 'Filter name'}
+        self.assertNotEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        Filters._ALL_FILTERS['study']['filters'] = new_filters
+        self.assertEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        # touch file
+        with file(JSON_FILTERS_FILE_NAME, 'a'):
+            utime(JSON_FILTERS_FILE_NAME, None)
+        self.assertNotEqual(
+                Filters.get_all_filters()['study']['filters'],
+                new_filters)
+        with file(JSON_FILTERS_FILE_NAME, 'a'):
+            utime(JSON_FILTERS_FILE_NAME, None)
 
     def test_selectfilters(self):
         """

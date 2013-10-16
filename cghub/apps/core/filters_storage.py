@@ -1,7 +1,10 @@
-import sys
+import datetime
 import os.path
+import sys
 
-from django.utils import simplejson as json
+from os import stat
+
+from django.utils import timezone, simplejson as json
 
 try:
     from collections import OrderedDict
@@ -15,11 +18,15 @@ JSON_FILTERS_FILE_NAME = os.path.join(
 
 
 class Filters(object):
-    DATE_FILTERS_HTML_IDS = {}
-    ALL_FILTERS = {}
+    _DATE_FILTERS_HTML_IDS = {}
+    _ALL_FILTERS = {}
+    LAST_TIMESTAMP = 0
 
     @classmethod
     def update(self):
+        timestamp = stat(JSON_FILTERS_FILE_NAME).st_mtime
+        if timestamp == self.LAST_TIMESTAMP:
+            return
         if 'test' in sys.argv:
             json_data_file = open('%s.test' % JSON_FILTERS_FILE_NAME, 'r')
         elif os.path.exists(JSON_FILTERS_FILE_NAME):
@@ -28,8 +35,16 @@ class Filters(object):
             json_data_file = open('%s.default' % JSON_FILTERS_FILE_NAME, 'r')
 
         json_data = json.load(json_data_file, object_pairs_hook=OrderedDict)
-        self.DATE_FILTERS_HTML_IDS = json_data[0]
-        self.ALL_FILTERS = json_data[1]
+        self._DATE_FILTERS_HTML_IDS = json_data[0]
+        self._ALL_FILTERS = json_data[1]
+        self.LAST_TIMESTAMP = timestamp
 
+    @classmethod
+    def get_date_filters_html_ids(self):
+        self.update()
+        return self._DATE_FILTERS_HTML_IDS
 
-Filters.update()
+    @classmethod
+    def get_all_filters(self):
+        self.update()
+        return self._ALL_FILTERS

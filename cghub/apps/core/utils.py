@@ -18,7 +18,7 @@ def get_filters_dict(filters):
     Removes illegal filters from dict.
     """
     filters_dict = {}
-    for attr in Filters.ALL_FILTERS.keys():
+    for attr in Filters.get_all_filters().keys():
         if filters.get(attr):
             filters_dict[attr] = filters[attr]
     return filters_dict

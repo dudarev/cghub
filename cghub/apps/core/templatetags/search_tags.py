@@ -87,7 +87,7 @@ def get_name_by_code(filter_section, code):
         if filter_section == "sample_type":
             raise Exception('Use get_sample_type_by_code tag for sample types.')
         else:
-            return Filters.ALL_FILTERS[filter_section]['filters'][code]
+            return Filters.get_all_filters()[filter_section]['filters'][code]
     except KeyError:
         return code
 
@@ -100,9 +100,9 @@ def get_sample_type_by_code(code, format):
 
     try:
         if format == 'full':
-            return Filters.ALL_FILTERS['sample_type']['filters'][code]
+            return Filters.get_all_filters()['sample_type']['filters'][code]
         elif format == 'shortcut':
-            return Filters.ALL_FILTERS['sample_type']['shortcuts'][code]
+            return Filters.get_all_filters()['sample_type']['shortcuts'][code]
         else:
             raise Exception('Unknown format for sample type.')
     except KeyError:
@@ -113,8 +113,8 @@ def get_sample_type_by_code(code, format):
 def render_filters():
     t = select_template(['filters.html', ])
     content = t.render(Context({
-        'all_filters': Filters.ALL_FILTERS,
-        'date_ids': Filters.DATE_FILTERS_HTML_IDS,
+        'all_filters': Filters.get_all_filters(),
+        'date_ids': Filters.get_date_filters_html_ids(),
     }))
     return content
 
@@ -189,7 +189,7 @@ def applied_filters(request):
 
         # Date filters differ from other filters, they should be parsed differently
         if f in ('last_modified', 'upload_date',):
-            applied_filter = Filters.ALL_FILTERS[f]['filters'].get(filters)
+            applied_filter = Filters.get_all_filters()[f]['filters'].get(filters)
             if applied_filter:
                 filter_name = applied_filter['filter_name']
             else:
@@ -204,20 +204,20 @@ def applied_filters(request):
             continue
 
         # Parsing other applied filters, e.g. u'(SARC OR STAD)'
-        title = Filters.ALL_FILTERS[f]['title'][3:]
+        title = Filters.get_all_filters()[f]['title'][3:]
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
 
         # Filters by assembly can use complex queries
         if f == 'refassem_short_name':
-            for value in Filters.ALL_FILTERS[f]['filters']:
+            for value in Filters.get_all_filters()[f]['filters']:
                 options = value.split(' OR ')
                 for option in options:
                     if option not in filters:
                         break
                 else:
                     filters_str += ', <span>%s</span>' % (
-                            remove_dashes(Filters.ALL_FILTERS[f]['filters'].get(value)))
+                            remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)))
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
@@ -226,12 +226,12 @@ def applied_filters(request):
         for value in filters:
             # do not put abbreviation in parenthesis if it is the same
             # or if the filter type is state
-            if Filters.ALL_FILTERS[f]['filters'].get(value) == value or f == 'state':
+            if Filters.get_all_filters()[f]['filters'].get(value) == value or f == 'state':
                 filters_str += ', <span>%s</span>' % (
-                        remove_dashes(Filters.ALL_FILTERS[f]['filters'].get(value)))
+                        remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)))
             else:
                 filters_str += ', <span>%s (%s)</span>' % (
-                        remove_dashes(Filters.ALL_FILTERS[f]['filters'].get(value)),
+                        remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)),
                         value)
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (

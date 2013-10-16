@@ -196,8 +196,7 @@ class Command(BaseCommand):
             filter_data['filters'] = options
 
         # write filters found to filters_storage.json
-        json_filters = open(JSON_FILTERS_FILE_NAME, 'w')
-        json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], json_filters, indent=2)
-        json_filters.close()
+        with open(JSON_FILTERS_FILE_NAME, 'w') as f:
+            json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], f, indent=2)
         if verbosity > 0:
             self.stderr.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)

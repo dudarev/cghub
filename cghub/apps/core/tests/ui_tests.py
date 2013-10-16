@@ -398,7 +398,7 @@ class SidebarUITestCase(LiveServerTestCase):
             self.selenium.find_element_by_id("ddcl-id-center_name").click()
 
             # get centers count
-            centers_count = len(Filters.ALL_FILTERS['center_name']['filters'])
+            centers_count = len(Filters.get_all_filters()['center_name']['filters'])
             # by center has <centers_count> centers, i0 - deselect all, i1-i<centers_count> - selections
             # click on 'All' to deselect all and check that no one selected
             driver.find_element_by_id("ddcl-id-center_name-i0").click()
@@ -488,8 +488,8 @@ class SidebarUITestCase(LiveServerTestCase):
             selected_options_ids = {}
 
             # create list of options to select
-            for f in Filters.ALL_FILTERS:
-                options = Filters.ALL_FILTERS[f]['filters']
+            for f in Filters.get_all_filters():
+                options = Filters.get_all_filters()[f]['filters']
                 if f in DATE_ATTRIBUTES:
                     # select second option (Today - '[NOW-1DAY+TO+NOW]')
                     selected_options_ids[f] = [1]
@@ -509,8 +509,8 @@ class SidebarUITestCase(LiveServerTestCase):
                         selected_options_values[f] = [i]
                         break
             # create list of unselected options:
-            for f in Filters.ALL_FILTERS:
-                for i in Filters.ALL_FILTERS[f]['filters']:
+            for f in Filters.get_all_filters():
+                for i in Filters.get_all_filters()[f]['filters']:
                     if i not in selected_options_values[f]:
                         unselected_options.append(i)
 
@@ -1079,7 +1079,7 @@ class SearchUITestCase(LiveServerTestCase):
                     "//div[@class='js-remember-filters']/input"
                     ).get_attribute('checked'))
             filter_name = 'center_name'
-            filter_object = Filters.ALL_FILTERS[filter_name]
+            filter_object = Filters.get_all_filters()[filter_name]
             options = filter_object['filters']
             self.assertTrue(len(options) > 1)
             self.assertNotIn(filter_name, TEST_SETTINGS['DEFAULT_FILTERS'])
@@ -1211,7 +1211,7 @@ class SearchUITestCase(LiveServerTestCase):
                             '//div[@class="applied-filters"]').text)
             # select one option in center_name filter
             filter_name = 'center_name'
-            filter_object = Filters.ALL_FILTERS[filter_name]
+            filter_object = Filters.get_all_filters()[filter_name]
             options = filter_object['filters']
             self.assertTrue(len(options) > 1)
             # select first option
@@ -1657,11 +1657,11 @@ class ResetFiltersUITestCase(LiveServerTestCase):
             default_filters = self.get_selected_filters()
 
             # find filter that not exists in defaults and set it
-            for f in Filters.ALL_FILTERS:
+            for f in Filters.get_all_filters():
                 if (
                         f not in TEST_SETTINGS['DEFAULT_FILTERS'] and
                         f not in DATE_ATTRIBUTES and
-                        len(Filters.ALL_FILTERS[f]['filters']) > 3):
+                        len(Filters.get_all_filters()[f]['filters']) > 3):
                     filter_name = f
                     break
 
