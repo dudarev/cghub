@@ -26,7 +26,7 @@ from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
 
-from ..filters_storage import ALL_FILTERS
+from ..filters_storage import Filters
 from ..forms import BatchSearchForm, AnalysisIDsForm
 from ..management.commands.selectfilters import FiltersProcessor
 from ..requests import (
@@ -552,7 +552,7 @@ class TemplateTagsTestCase(TestCase):
                 "Limits can be numbers or it's string representation")
 
     def test_get_name_by_code_tag(self):
-        for section, section_data in ALL_FILTERS.iteritems():
+        for section, section_data in Filters.ALL_FILTERS.iteritems():
             if section == "sample_type":
                 try:
                     for code, name in section_data[key].iteritems():
@@ -714,6 +714,16 @@ class TemplateTagsTestCase(TestCase):
 
 
 class SelectFiltersTestCase(TestCase):
+
+    def test_filters_storrage_update(self):
+        """
+        Test Filters class
+        """
+        study_filter = Filters.ALL_FILTERS['study']['filters']
+        Filters.ALL_FILTERS['study']['filters'] = {'somefilter': 'Filter name'}
+        self.assertNotEqual(study_filter, Filters.ALL_FILTERS['study']['filters'])
+        Filters.update()
+        self.assertEqual(study_filter, Filters.ALL_FILTERS['study']['filters'])
 
     def test_selectfilters(self):
         """
