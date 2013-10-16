@@ -10,9 +10,9 @@ from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
 
 from cghub.apps.core.attributes import DATE_ATTRIBUTES
-from cghub.apps.core.filters_storage_full import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 from cghub.apps.core.filters_storage import JSON_FILTERS_FILE_NAME
 from cghub.apps.core.requests import RequestDetail, RequestID
+from cghub.settings.filters import ALL_FILTERS, DATE_FILTERS_HTML_IDS
 
 
 class FiltersProcessor(object):
