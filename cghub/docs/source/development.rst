@@ -32,7 +32,7 @@ Setting up and running the app
 Filters customizing
 -----------------------
 
-Filters list can be edited in ``cghub/apps/core/filters_storage_full.py``:
+Filters list can be edited in ``cghub/settings/filters.py``:
 
 .. code-block:: python
 
@@ -115,8 +115,8 @@ Command output:
 
     Processing study filter
     Processing disease_abbr filter
-    ! New option disease_abbr:TEST. Please add this option to filters_storage_full.py
-    ! New option disease_abbr:provolone. Please add this option to filters_storage_full.py
+    ! New option disease_abbr:TEST. Please add this option to filters.py
+    ! New option disease_abbr:provolone. Please add this option to filters.py
     Processing sample_type filter
     Processing analyte_code filter
     Processing library_strategy filter
@@ -126,7 +126,7 @@ Command output:
     Processing upload_date filter
     Processing last_modified filter
 
-To add `provolone` name to filters, You should add this filter to filters_storage_full.py and reexecute ``selectfilters`` command.
+To add `provolone` name to filters, You should add this filter to cghub/settings/filters.py and reexecute ``selectfilters`` command.
 
 Filters list can be accessed from Filters class from ``filters_storage.py``:
 
@@ -135,8 +135,8 @@ Filters list can be accessed from Filters class from ``filters_storage.py``:
     from cghub.apps.core.filters_storage import Filters
 
 
-    print Filters.get_all_filters() # will show dict similar to ALL_FILTERS from filters_storage_full.py
-    print Filters.get_date_filters_html_ids() # will show dict similar to DATE_FILTERS_HTML_IDS from filters_storage_full.py
+    print Filters.get_all_filters() # will show dict similar to ALL_FILTERS from cghub/settings.filters.py
+    print Filters.get_date_filters_html_ids() # will show dict similar to DATE_FILTERS_HTML_IDS from cghub/settings/filters.py
 
 While testing, Filters class obtains data from filters_storage.json.test.
 Otherwise it tries to obtain data from filters_storage.json. If this file was not found, Filters class tries to obtain data from filters_storage.json.default.

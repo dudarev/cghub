@@ -63,7 +63,7 @@ class FiltersProcessor(object):
                 # notify about not existent options
                 new_options = set(self.all_options) - set(self.used_options)
                 for option in new_options:
-                    self.stderr.write('! New option %s:%s. Please add this option to filters_storage_full.py\n' % (filter_name, option))
+                    self.stderr.write('! New option %s:%s. Please add this option to cghub/settings/filters.py\n' % (filter_name, option))
             options = OrderedDict(options)
 
         new_dict, all_val = self.open_hierarchical_structures(options)
