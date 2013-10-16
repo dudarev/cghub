@@ -128,7 +128,21 @@ Command output:
 
 To add `provolone` name to filters, You should add this filter to filters_storage_full.py and reexecute ``selectfilters`` command.
 
-Filters list can be accessed from ``filters_storage.py``, where automatically creates ALL_FILTERS variable and populates by data stored in ``filters_storage.json``. If ``filters_storage.json`` will be missed, then ``filters_storage.json.default`` will be used instead.
+Filters list can be accessed from Filters class from ``filters_storage.py``:
+
+.. code-block:: python
+
+    from cghub.apps.core.filters_storage import Filters
+
+
+    print Filters.get_all_filters() # will show dict similar to ALL_FILTERS from filters_storage_full.py
+    print Filters.get_date_filters_html_ids() # will show dict similar to DATE_FILTERS_HTML_IDS from filters_storage_full.py
+
+While testing, Filters class obtains data from filters_storage.json.test.
+Otherwise it tries to obtain data from filters_storage.json. If this file was not found, Filters class tries to obtain data from filters_storage.json.default.
+
+Filters class loads filters from file only once.
+As exception it reloads filters if filters_storage.json was updated (modification_time was changed).
 
 ---------------------------
 Removing sessions and carts

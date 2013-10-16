@@ -24,20 +24,25 @@ class Filters(object):
 
     @classmethod
     def update(self):
-        timestamp = stat(JSON_FILTERS_FILE_NAME).st_mtime
-        if timestamp == self.LAST_TIMESTAMP:
-            return
         if 'test' in sys.argv:
+            if self._ALL_FILTERS:
+                return
             json_data_file = open('%s.test' % JSON_FILTERS_FILE_NAME, 'r')
-        elif os.path.exists(JSON_FILTERS_FILE_NAME):
-            json_data_file = open(JSON_FILTERS_FILE_NAME, 'r')
         else:
-            json_data_file = open('%s.default' % JSON_FILTERS_FILE_NAME, 'r')
+            try:
+                timestamp = stat(JSON_FILTERS_FILE_NAME).st_mtime
+                if timestamp == self.LAST_TIMESTAMP:
+                    return
+                json_data_file = open(JSON_FILTERS_FILE_NAME, 'r')
+                self.LAST_TIMESTAMP = timestamp
+            except OSError:
+                if self._ALL_FILTERS:
+                    return
+                json_data_file = open('%s.default' % JSON_FILTERS_FILE_NAME, 'r')
 
         json_data = json.load(json_data_file, object_pairs_hook=OrderedDict)
         self._DATE_FILTERS_HTML_IDS = json_data[0]
         self._ALL_FILTERS = json_data[1]
-        self.LAST_TIMESTAMP = timestamp
 
     @classmethod
     def get_date_filters_html_ids(self):

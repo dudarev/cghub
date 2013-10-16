@@ -3,6 +3,7 @@ import datetime
 import os.path
 import shutil
 import sys
+import time
 
 try:
     from collections import OrderedDict
@@ -720,6 +721,13 @@ class SelectFiltersTestCase(TestCase):
         """
         Test Filters class
         """
+        if not os.path.exists(JSON_FILTERS_FILE_NAME):
+            shutil.copyfile(
+                    '%s.default' % JSON_FILTERS_FILE_NAME,
+                    JSON_FILTERS_FILE_NAME)
+            time.sleep(1)
+        old_argv = sys.argv
+        sys.argv = []
         new_filters = {'somefilter': 'Filter name'}
         self.assertNotEqual(
                 Filters.get_all_filters()['study']['filters'],
@@ -736,6 +744,7 @@ class SelectFiltersTestCase(TestCase):
                 new_filters)
         with file(JSON_FILTERS_FILE_NAME, 'a'):
             utime(JSON_FILTERS_FILE_NAME, None)
+        sys.argv = old_argv
 
     def test_selectfilters(self):
         """
