@@ -135,7 +135,7 @@ ALL_FILTERS = OrderedDict([
             ("Wilms Tumor", "WT"),
         ]),
         "selectOptions": True,
-        "searchForNewOptions": True,
+        "searchForNewOptions": False,
     }),
     ("sample_type", {
         "title": "By Sample Type",

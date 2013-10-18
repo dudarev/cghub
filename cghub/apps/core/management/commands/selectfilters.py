@@ -6,7 +6,7 @@ except ImportError:
     from django.utils.simplejson import OrderedDict
 from optparse import make_option
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import simplejson as json
 
 from cghub.apps.core.attributes import DATE_ATTRIBUTES
@@ -41,6 +41,7 @@ class FiltersProcessor(object):
         self.stdout = stdout
         self.stderr = stderr
         self.verbosity = verbosity
+        self.new_options_count = 0
         self.CHARACTERS = string.ascii_uppercase + '-_+0123456789' + string.ascii_lowercase
 
     def process(
@@ -64,6 +65,7 @@ class FiltersProcessor(object):
                 new_options = set(self.all_options) - set(self.used_options)
                 for option in new_options:
                     self.stderr.write('! New option %s:%s. Please add this option to cghub/settings/filters.py\n' % (filter_name, option))
+                    self.new_options_count += 1
             options = OrderedDict(options)
 
         new_dict, all_val = self.open_hierarchical_structures(options)
@@ -200,3 +202,6 @@ class Command(BaseCommand):
             json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], f, indent=2)
         if verbosity > 0:
             self.stderr.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)
+        if processor.new_options_count:
+            # non zero exit code
+            raise CommandError('%d new options were found.' % processor.new_options_count)
