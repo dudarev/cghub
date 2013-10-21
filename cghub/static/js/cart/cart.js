@@ -20,11 +20,15 @@ jQuery(function ($) {
             cghub.cart.$downloadFileBtn = $('.cart-download');
             cghub.cart.$removeBtn = $('.cart-remove');
             cghub.cart.$clearBtn = $('.cart-clear');
+            cghub.cart.$form = $('#cart-form');
         },
         bindEvents:function () {
             cghub.cart.$downloadFileBtn.on('click', cghub.cart.downloadFile);
             cghub.cart.$removeBtn.on('click', cghub.cart.removeFromCart);
             cghub.cart.$clearBtn.on('click', cghub.cart.clearCart);
+            if (cghub.cart.$form.length) {
+                cghub.cart.$form[0].onsubmit = cghub.cart.formSubmit;
+            }
         },
         initFlexigrid:function () {
             cghub.cart.$searchTable.flexigrid({height: 'auto', showToggleBtn: false});
@@ -34,6 +38,11 @@ jQuery(function ($) {
             var $data_table = $('.bDiv table');
             $data_table.wrap($('<fieldset/>'));
             $data_table.parent().prepend($('<legend class="hidden">Select files to remove from cart:</legend>'));
+        },
+        // protection from submitting form before js initialised
+        formSubmit:function () {
+            console.log($(this).attr('action'));
+            if($(this).attr('action').indexOf('action') != -1) return false;
         },
         // replace current action with needed, /\/[a-z_]+\/$/ = "/some_action/",
         // slashes in '/.../' are needed!

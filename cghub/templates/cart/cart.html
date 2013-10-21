@@ -44,7 +44,7 @@
             </span>
         </section>
 
-        <form action="{% url cart_page %}action/" method="POST">
+        <form action="{% url cart_page %}action/" method="POST" id="cart-form" onsubmit="return false;">
             {% csrf_token %}
             {% if results %}
                 <div class="btn-toolbar">
@@ -141,6 +141,6 @@
         <script type="text/javascript" src="{% static 'js/cart/cart.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/table.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=5"></script>
+        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=6"></script>
     {% endif %}
 {% endblock %}
