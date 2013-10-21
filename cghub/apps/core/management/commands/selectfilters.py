@@ -123,19 +123,10 @@ class FiltersProcessor(object):
         return result
 
     def find_all_options(self, filter_name):
-        api_request = RequestID(query={filter_name: '*'}, limit=5)
-        try:
-            result = api_request.call().next()
-            all_count = api_request.hits
-        except StopIteration:
-            all_count = 0
-        self.all_options = self._all_options(
-                filter_name=filter_name,
-                all_count=all_count)
+        self.all_options = self._all_options(filter_name=filter_name)
 
-    def _all_options(self, filter_name, start='', all_count=None):
+    def _all_options(self, filter_name, start=''):
         options = []
-        count = 0
         for c in self.CHARACTERS:
             if not start and c in ('-', '+'):
                 continue
@@ -152,15 +143,20 @@ class FiltersProcessor(object):
                 result2 = api_request.call().next()
                 if result.get(filter_name) == result2.get(filter_name):
                     options.append(result.get(filter_name))
-                    count += api_request.hits
-                    if all_count and all_count == count:
-                        return options
                 else:
+                    # if option is exact
+                    api_request = RequestID(
+                            query={filter_name: '%s%s' % (start, c)},
+                            limit=5)
+                    try:
+                        api_request.call().next()
+                        options.append(result.get(filter_name))
+                    except StopIteration:
+                        pass
                     # if some other filters which starts from start+c exists
                     for f in self._all_options(
                             filter_name=filter_name,
-                            start='%s%s' % (start, c),
-                            all_count=api_request.hits):
+                            start='%s%s' % (start, c)):
                         if f not in options:
                             options.append(f)
         return options
