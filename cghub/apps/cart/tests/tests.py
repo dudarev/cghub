@@ -4,6 +4,7 @@ import codecs
 
 from mock import patch
 from StringIO import StringIO
+from MySQLdb import DatabaseError
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -262,7 +263,7 @@ class CartTestCase(TestCase):
         self.assertContains(response, 'Cart (1)')
         self.assertContains(response, 'Files in your cart: 1')
 
-    def test_cart_remove_files(self):
+    def test_cart_remove_items(self):
         # add files
         url = reverse('cart_add_remove_items', args=['add'])
         self.client.post(
@@ -288,6 +289,22 @@ class CartTestCase(TestCase):
         # make sure we do not have removed files in cart
         for f in rm_selected_files:
             self.assertEqual(f in response.content, False)
+
+        # test show notification instead of raise MySQLdb.DatabaseError
+        with patch('cghub.apps.cart.utils.Cart.remove') as cart_remove_mock:
+            cart_remove_mock.side_effect = DatabaseError
+            rm_selected_files = [
+                    self.RANDOM_IDS[2]['analysis_id']]
+            self.client.post(
+                        url, {'ids': ' '.join(rm_selected_files)},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def test_cart_clear(self):
+        # indirectly tested in CartUtilsTestCase.test_clear_cart
+        # test show notification instead of raise MySQLdb.DatabaseError
+        with patch('cghub.apps.cart.utils.Cart.clear') as cart_clear_mock:
+            cart_clear_mock.side_effect = DatabaseError
+            self.client.post(reverse('cart_clear'))
 
     def test_cart_pagination(self):
         # add 3 files to cart
