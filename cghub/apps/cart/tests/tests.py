@@ -27,7 +27,8 @@ from ..models import Cart as CartModel, CartItem, Analysis
 from ..utils import (
         Cart, manifest_xml_generator, metadata_xml_generator,
         summary_tsv_generator, update_analysis)
-from ..views import manifest, metadata, summary
+from ..views import (
+        manifest, metadata, summary, DATABASE_ERROR_NOTIFICATION)
 
 from .factories import AnalysisFactory, CartItemFactory
 
@@ -295,16 +296,18 @@ class CartTestCase(TestCase):
             cart_remove_mock.side_effect = DatabaseError
             rm_selected_files = [
                     self.RANDOM_IDS[2]['analysis_id']]
-            self.client.post(
-                        url, {'ids': ' '.join(rm_selected_files)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            response = self.client.post(
+                    url, {'ids': ' '.join(rm_selected_files)},
+                    HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True)
+            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_clear(self):
         # indirectly tested in CartUtilsTestCase.test_clear_cart
         # test show notification instead of raise MySQLdb.DatabaseError
         with patch('cghub.apps.cart.utils.Cart.clear') as cart_clear_mock:
             cart_clear_mock.side_effect = DatabaseError
-            self.client.post(reverse('cart_clear'))
+            response = self.client.post(reverse('cart_clear'), follow=True)
+            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_pagination(self):
         # add 3 files to cart

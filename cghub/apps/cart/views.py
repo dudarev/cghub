@@ -1,6 +1,7 @@
 import logging
 
 from urllib2 import URLError
+from MySQLdb import DatabaseError
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -13,7 +14,8 @@ from cghub.apps.core import browser_text_search
 from cghub.apps.core.forms import AnalysisIDsForm
 from cghub.apps.core.requests import (
         RequestMinimal, RequestDetailJSON, get_results_for_ids)
-from cghub.apps.core.utils import get_filters_dict, paginator_params
+from cghub.apps.core.utils import (
+        get_filters_dict, paginator_params, add_message)
 
 from .forms import SelectedItemsForm, AllItemsForm
 from .utils import (
@@ -22,6 +24,10 @@ from .utils import (
 
 
 cart_logger = logging.getLogger('cart')
+
+DATABASE_ERROR_NOTIFICATION = (
+        'Your previous add to cart is still in progress, '
+        'please try again in a few minutes.')
 
 
 def cart_add_selected_files(request):
@@ -131,11 +137,16 @@ class CartAddRemoveItemsView(View):
         if 'remove' == action:
             form = AnalysisIDsForm(request.POST or None)
             if form.is_valid():
-                with transaction.commit_on_success():
-                    cart = Cart(request.session)
-                    for analysis_id in form.cleaned_data['ids']:
-                        cart.remove(analysis_id)
-                    cart.update_stats()
+                try:
+                    with transaction.commit_on_success():
+                        cart = Cart(request.session)
+                        for analysis_id in form.cleaned_data['ids']:
+                            cart.remove(analysis_id)
+                        cart.update_stats()
+                except DatabaseError:
+                    add_message(
+                            request, 'error',
+                            DATABASE_ERROR_NOTIFICATION)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
@@ -161,9 +172,13 @@ class CartClearView(View):
     Handels clearing cart
     """
     def post(self, request):
-        with transaction.commit_on_success():
-            cart = Cart(request.session)
-            cart.clear()
+        try:
+            with transaction.commit_on_success():
+                cart = Cart(request.session)
+                cart.clear()
+        except DatabaseError:
+            add_message(
+                    request, 'error', DATABASE_ERROR_NOTIFICATION)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
