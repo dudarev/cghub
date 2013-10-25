@@ -51,6 +51,7 @@ SEARCH-28	search for 'a2'	'Warning: these results were produced by a free text w
 SEARCH-29	select all options for all filters (no applied filters), click on 'Apply filters', go to cart page and back to home	no applied filters remains		
 SEARCH-30	Show spinner with fixed position	Select few items and click on 'Add to cart' button	Spinner is shown in the center of screen
 SEARCH-31	Open item details page, check that all filenames are exists in details table	All filenames, filesizes and checksums are present in details table	
+SEARCH-32       Check that links inside results table works properly       Click on link, details popup shouldnt be shown, new browser tab should be opened       
 Batch search		
 BATCH SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
 BATCH SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		

@@ -977,7 +977,7 @@ VALUE_RESOLVERS = {
     'Study': study_resolver,
     'TSS Id': tss_resolver,
     'Center Name': center_name_resolver,
-    "Barcode": barcode_resolver,
+    'Barcode': barcode_resolver,
 }
 
 DEFAULT_PAGINATOR_LIMIT = 10
