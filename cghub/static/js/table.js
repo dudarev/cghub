@@ -108,9 +108,17 @@ jQuery(function ($) {
             });
         },
         activateItemDetailsLinks:function () {
+            // #1
+            // $(document).on('click', '.bDiv a', function(e) {
+            //     e.stopPropagation();
+            // });
             $(document).on('click', '.bDiv tr', function(obj){
                 var $first_td = $(obj.target).find('input[name=selected_files]');
-                if(obj.target.name=='selected_files' || $first_td.length) { return };
+                // #2
+                // if (obj.target.href != undefined) {
+                //     return;
+                // }
+                if(obj.target.name=='selected_files' || $first_td.length) { return; }
                 var $tr = $(this);
                 var modal = $($tr.attr('data-target'));
                 var loaded = false;
@@ -147,7 +155,7 @@ jQuery(function ($) {
             if ($.browser.msie) {
                 $(document).on('click', '.js-cart-add-item-button', function(e) {
                     var url = $(this).parent().attr('action');
-                    var form = document.createElement('form')
+                    var form = document.createElement('form');
                     form.action = url;
                     form.method = 'POST';
                     form.id = 'ie-form';
@@ -257,7 +265,7 @@ jQuery(function ($) {
             if(!nextStep.is('td')) return false;
             $('.tdSelected').removeClass("tdSelected");
             nextStep.addClass('tdSelected');
-            /* set focus to row checkbox */ 
+            /* set focus to row checkbox */
             nextStep.parents('tr').find('input').focus();
 
             cghub.table.scrollTableToCell(nextStep);
