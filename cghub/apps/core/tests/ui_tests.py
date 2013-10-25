@@ -21,16 +21,20 @@ from ..attributes import DATE_ATTRIBUTES, COLUMN_NAMES
 from .tests import create_session
 
 
+def center_resolver(value, values):
+    return '<a href="' + reverse('help_page') + '">' + value + '</a>'
+
+
 TEST_SETTINGS = dict(
     TABLE_COLUMNS=(
         'Analysis Id',
         'Study',
         'State',
+        'Center',
         'Disease',
         'Sample Type',
         'Analyte Type',
         'Library Type',
-        'Center',
         'Center Name',
         'Assembly',
         'Files Size',
@@ -112,6 +116,9 @@ TEST_SETTINGS = dict(
     DEFAULT_FILTERS={
         'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
         'state': ('live',),
+    },
+    VALUE_RESOLVERS = {
+        'Center': center_resolver,
     },
 )
 
@@ -858,6 +865,27 @@ class DetailsUITestCase(LiveServerTestCase):
             driver.find_element_by_css_selector('.add-to-cart-btn').click()
             time.sleep(5)
             self.check_popup_shows()
+
+    def test_links_in_table_cells(self):
+        """
+        1. Go to search page
+        2. Find link added by study resolver
+        3. Click on links
+        4. Check that page changed to help page (srudy_resolver function upper)
+        """
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            time.sleep(3)
+            self.assertNotIn(
+                    reverse('help_page'),
+                    self.selenium.current_url)
+            link = self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[5]/div/a")
+            link.click()
+            time.sleep(3)
+            self.assertIn(
+                    reverse('help_page'),
+                    self.selenium.current_url)
 
     def test_xml_display(self):
         """
@@ -1870,6 +1898,8 @@ class SkipNavUITestCase(LiveServerTestCase):
         3. Press tab, check that skip nav height more than 0
         4. Click on first link, check that height == 0 (skip to nav invisible)
         """
+        # FIXME: fails on OS X:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=791302
         with self.settings(**TEST_SETTINGS):
             driver = self.selenium
             ac = ActionChains(driver)
@@ -1934,6 +1964,8 @@ class TabbingUITestCase(LiveServerTestCase):
         1. Go to search page (default query)
         2. Check tabbing
         """
+        # FIXME: fails on OS X:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=791302
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
@@ -1955,6 +1987,8 @@ class TabbingUITestCase(LiveServerTestCase):
         1. Go to search page (default query)
         2. Check tabbing
         """
+        # FIXME: fails on OS X:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=791302
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url + reverse('batch_search_page'))
@@ -1976,6 +2010,8 @@ class TabbingUITestCase(LiveServerTestCase):
         2. Add ferst file to cart
         3. Check tabbing on cart page
         """
+        # FIXME: fails on OS X:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=791302
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)
@@ -2003,6 +2039,8 @@ class TabbingUITestCase(LiveServerTestCase):
         3. Go to details page
         3. Check tabbing on details page
         """
+        # FIXME: fails on OS X:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=791302
         with self.settings(**HELP_TEST_SETTINGS):
             driver = self.selenium
             driver.get(self.live_server_url)

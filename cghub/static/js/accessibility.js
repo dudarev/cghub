@@ -17,7 +17,8 @@ jQuery(function ($) {
         attachAbbrs:function(){
             cghub.accessibility.insertAbbrs('.sidebar > div .ui-dropdownchecklist-item > label');
             cghub.accessibility.insertAbbrs('.applied-filters > ul > li');
-            cghub.accessibility.insertAbbrs('.flexigrid td[headers] > div');
+            cghub.accessibility.insertAbbrs('.flexigrid td[headers] > div:not(:has(a))');
+            cghub.accessibility.insertAbbrs('.flexigrid td[headers] > div > a');
             cghub.accessibility.insertAbbrs('.details-content table td');
         },
         insertAbbrs: function(selector) {
