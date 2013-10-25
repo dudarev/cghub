@@ -72,6 +72,7 @@ and should return new value, for example:
         'Some Field': some_field_resolver,
     }
 """
+import urllib
 
 COLUMN_STYLES = {
     'Aliquot Id': {
@@ -943,15 +944,31 @@ def study_resolver(value, values):
         raise Exception("unknown study: \""+ str(value) + "\"")
     return study
 
+tcgaDccDataMatrixUrl = "https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm"
+
+def tcga_barcode_resolver(value, values):
+    # link TCGA sample barcode to DCC, which requires disease
+    disease_abbr = values.get("disease_abbr")
+    if (disease_abbr == None) or (disease_abbr == ""):
+        return value
+    dccUrl = tcgaDccDataMatrixUrl + "?" + urllib.urlencode((("mode", "ApplyFilter"), ("showMatrix", "true"), ("sampleList", value), ("diseaseType", disease_abbr)))
+    return '<a href="' + dccUrl + '" target="_blank">' + value + '</a>'
+    
+tcga_studies = frozenset(["TCGA", "phs000178"])
+def barcode_resolver(value, values):
+    if values["study"] in tcga_studies:
+        return tcga_barcode_resolver(value, values)
+    else:
+        return value
+
 def tss_resolver(value, values):
-    tss_id = str(value)  # FIXME: this should never be an int
-    if (tss_id == None) or (len(tss_id.strip()) == 0):
+    if (value == None) or (len(value.strip()) == 0):
         return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
-    tss_desc = tss_id_to_description.get(tss_id)
+    tss_desc = tss_id_to_description.get(value)
     if tss_desc == None:
         return "[" + tss_id + "]"
     else:
-        return tss_desc + " [" + tss_id + "]"
+        return tss_desc + " [" + value + "]"
 
 def center_name_resolver(value, values):
     return center_to_center_name.get(value, value)
@@ -960,6 +977,7 @@ VALUE_RESOLVERS = {
     'Study': study_resolver,
     'TSS Id': tss_resolver,
     'Center Name': center_name_resolver,
+    "Barcode": barcode_resolver,
 }
 
 DEFAULT_PAGINATOR_LIMIT = 10
