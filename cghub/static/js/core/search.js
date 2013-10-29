@@ -321,14 +321,19 @@ jQuery(function ($) {
                 success:function (data) {
                     if (data['action']=='redirect') {
                         window.location.href = data['redirect'];
-                    } else {
-                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
+                    }
+                    if (data['action']=='message') {
                         cghub.search.$addFilesButton.removeClass('disabled');
                         cghub.base.hideSpinner();
+                        cghub.base.showMessage(data['title'], data['content']);
+                    }
+                    if (data['action']=='error') {
+                        cghub.search.$addFilesButton.removeClass('disabled');
+                        cghub.base.hideSpinner();
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     cghub.search.$addFilesButton.removeClass('disabled');
                     cghub.base.hideSpinner();
                 }
@@ -371,18 +376,17 @@ jQuery(function ($) {
                         window.location.href = data['redirect'];
                     }
                     if (data['action']=='message') {
-                        cghub.base.showMessage(data['title'], data['content']);
                         $($button).removeClass('disabled');
                         cghub.base.hideSpinner();
+                        cghub.base.showMessage(data['title'], data['content']);
                     }
                     if (data['action']=='error') {
-                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                         $($button).removeClass('disabled');
                         cghub.base.hideSpinner();
+                        cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     }
                 },
                 error:function (){
-                    cghub.base.showMessage(cghub.search.addToCartErrorTitle, cghub.search.addToCartErrorContent);
                     $($button).removeClass('disabled');
                     cghub.base.hideSpinner();
                 }

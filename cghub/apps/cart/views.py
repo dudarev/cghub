@@ -1,11 +1,11 @@
 import logging
 
 from urllib2 import URLError
-from MySQLdb import DatabaseError
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.utils import DatabaseError
 from django.utils import simplejson as json
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.views.generic.base import TemplateView, View

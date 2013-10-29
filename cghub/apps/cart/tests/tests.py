@@ -4,12 +4,12 @@ import codecs
 
 from mock import patch
 from StringIO import StringIO
-from MySQLdb import DatabaseError
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.db.utils import DatabaseError
 from django.test import TestCase
 from django.utils import timezone, simplejson as json
 
