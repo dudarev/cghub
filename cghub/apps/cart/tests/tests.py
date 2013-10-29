@@ -4,12 +4,12 @@ import codecs
 
 from mock import patch
 from StringIO import StringIO
-from MySQLdb import DatabaseError
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.db.utils import DatabaseError
 from django.test import TestCase
 from django.utils import timezone, simplejson as json
 
@@ -249,6 +249,18 @@ class CartTestCase(TestCase):
         for f in self.RANDOM_IDS:
             self.assertIn(f['analysis_id'], response.content)
 
+        # test show notification instead of raise MySQLdb.DatabaseError
+        with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
+            cart_add_mock.side_effect = DatabaseError
+            response = self.client.post(
+                        url, {'selected_items': json.dumps(self.RANDOM_IDS)},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            response_json = json.loads(response.content)
+            self.assertEqual(
+                    response_json['action'], 'message')
+            self.assertEqual(
+                    response_json['content'], DATABASE_ERROR_NOTIFICATION)
+
     def test_cart_add_item(self):
         analysis_id = self.RANDOM_IDS[0]['analysis_id']
         # get method not allowed
@@ -263,6 +275,14 @@ class CartTestCase(TestCase):
         # make sure counter in header is OK
         self.assertContains(response, 'Cart (1)')
         self.assertContains(response, 'Files in your cart: 1')
+
+        # test show notification instead of raise MySQLdb.DatabaseError
+        with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
+            cart_add_mock.side_effect = DatabaseError
+            response = self.client.post(
+                    reverse('cart_add_item', args=[analysis_id]),
+                    follow=True)
+            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_remove_items(self):
         # add files
