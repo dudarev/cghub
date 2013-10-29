@@ -34,11 +34,17 @@ def cart_add_selected_files(request):
     form = SelectedItemsForm(request.POST)
     if form.is_valid():
         try:
-            with transaction.commit_on_success():
-                cart = Cart(request.session)
-                for result in form.cleaned_data['selected_items']:
-                    cart.add(result)
-                cart.update_stats()
+            try:
+                with transaction.commit_on_success():
+                    cart = Cart(request.session)
+                    for result in form.cleaned_data['selected_items']:
+                        cart.add(result)
+                    cart.update_stats()
+            except DatabaseError:
+                return {
+                    'action': 'message',
+                    'title': 'Please try again in a few minutes',
+                    'content': DATABASE_ERROR_NOTIFICATION}
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding to cart: %s' % unicode(e))
@@ -70,13 +76,19 @@ def cart_add_all_files(request):
             if not queries:
                 queries = [filters]
 
-            with transaction.commit_on_success():
-                cart = Cart(request.session)
-                for query in queries:
-                    api_request = RequestMinimal(query=query)
-                    for result in api_request.call():
-                        cart.add(result)
-                    cart.update_stats()
+            try:
+                with transaction.commit_on_success():
+                    cart = Cart(request.session)
+                    for query in queries:
+                        api_request = RequestMinimal(query=query)
+                        for result in api_request.call():
+                            cart.add(result)
+                        cart.update_stats()
+            except DatabaseError:
+                return {
+                    'action': 'message',
+                    'title': 'Please try again in a few minutes',
+                    'content': DATABASE_ERROR_NOTIFICATION}
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding all files to cart: %s' % unicode(e))
@@ -160,10 +172,15 @@ class CartAddItem(View):
             result = api_request.call().next()
         except StopIteration:
             raise URLError('No results for analysis_id == %s' % analysis_id)
-        with transaction.commit_on_success():
-            cart = Cart(request.session)
-            cart.add(result)
-            cart.update_stats()
+        try:
+            with transaction.commit_on_success():
+                cart = Cart(request.session)
+                cart.add(result)
+                cart.update_stats()
+        except DatabaseError:
+            add_message(
+                    request, 'error',
+                    DATABASE_ERROR_NOTIFICATION)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
