@@ -61,21 +61,37 @@ def paginator_params(request):
     return offset, limit
 
 
-def add_message(request, level, content):
+def add_message(request, level, content, once=False):
     """
     Adds message to messages pool stored in session.
-    :request: Request object
-    :level: error, success or info
-    :content: message content
+    :param request: Request object
+    :param level: error, success or info
+    :param content: message content
+    :param once: if True - show notification only once
     """
     messages = request.session.get('messages', {})
     if not messages:
         message_id = 1
     else:
         message_id = sorted(messages.keys())[-1] + 1
-    messages[message_id] = {'level': level, 'content': content}
+    messages[message_id] = {
+            'level': level, 'content': content,
+            'once': once}
     request.session['messages'] = messages
-    request.session.modified = True
+    request.session.save()
+    return message_id
+
+
+def remove_message(request, message_id):
+    """
+    Removes message from messages pool by message_id
+    :param request: Request object
+    :param message_id: message id
+    """
+    if 'messages' not in request.session:
+        return
+    del request.session['messages'][message_id]
+    request.session.save()
 
 
 def makedirs_group_write(path):
