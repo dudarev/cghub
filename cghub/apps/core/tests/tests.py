@@ -41,7 +41,7 @@ from ..templatetags.search_tags import (
 from ..templatetags.core_tags import without_header, messages
 from ..utils import (
         get_filters_dict, query_dict_to_str, paginator_params,
-        generate_tmp_file_name, add_message)
+        generate_tmp_file_name, add_message, remove_message)
 from ..views import error_500
 
 
@@ -384,15 +384,31 @@ class UtilsTestCase(TestCase):
         self.assertNotIn('messages', request.session)
         level = 'error'
         content = 'Some error!'
-        add_message(request=request, level=level, content=content)
+        message_id = add_message(
+                request=request, level=level, content=content)
         self.assertIn('messages', request.session)
+        self.assertIn(message_id, request.session['messages'])
         self.assertEqual(
-                request.session['messages'][1],
-                {'level': level, 'content': content})
+                request.session['messages'][message_id],
+                {'level': level, 'content': content, 'once': False})
         # test increase id
         self.assertNotIn(2, request.session['messages'])
-        add_message(request=request, level=level, content=content)
-        self.assertIn(2, request.session['messages'])
+        message_id = add_message(
+                request=request, level=level, content=content)
+        self.assertEqual(message_id, 2)
+        self.assertIn(message_id, request.session['messages'])
+
+        # test show once
+        message_id = add_message(
+                request=request, level=level,
+                content=content, once=True)
+        self.assertEqual(
+                request.session['messages'][message_id],
+                {'level': level, 'content': content, 'once': True})
+
+        # test remove message
+        remove_message(request=request, message_id=message_id)
+        self.assertNotIn(message_id, request.session['messages'])
 
 
 class ContextProcessorsTestCase(TestCase):
@@ -701,11 +717,20 @@ class TemplateTagsTestCase(TestCase):
         level = 'error'
         content = 'Some error!'
         request.session['messages'][1] = {
-                'level': level, 'content': content}
+                'level': level, 'content': content,
+                'once': False}
         result = messages({'request': request})
         self.assertIn('alert-%s' % level, result)
         self.assertIn('1', result)
         self.assertIn(content, result)
+        # test show message once
+        result = messages({'request': request})
+        self.assertIn('alert-%s' % level, result)
+        request.session['messages'][1]['once'] = True
+        result = messages({'request': request})
+        self.assertIn('alert-%s' % level, result)
+        result = messages({'request': request})
+        self.assertNotIn('alert-%s' % level, result)
         # test show messages from context
         result = messages({'notifications': [
                 {'level': level, 'content': content}

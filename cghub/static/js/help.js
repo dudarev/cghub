@@ -146,7 +146,7 @@ jQuery(function ($) {
         activateTableCellTooltipHelp:function () {
             cghub.help.activateTooltipsForSelector('.bDiv td[headers] div', function($target) {
                 if(!$.trim($target.text()).length) return '';
-                var index = $target.parent().index();
+                var index = $target.parents('td').index();
                 var columnName = $('.hDivBox table').find('tr').eq(0).find('th').eq(index).text();
                 if($.inArray(columnName.toLowerCase(), cghub.help.keysIgnore) != -1) return '';
                 return columnName + ':' + $target.text();

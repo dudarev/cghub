@@ -29,10 +29,16 @@ def messages(context):
     if 'request' in context:
         session = context['request'].session
         if session and 'messages' in session and session['messages']:
-            messages = session['messages']
             messages = [
                     {'id': i, 'level': message['level'], 'content': message['content']}
                     for i, message in session['messages'].iteritems()]
+            # remove messages that should be shown only once
+            messages_to_remove = [i for i, message in
+                    session['messages'].iteritems() if message.get('once')]
+            if messages_to_remove:
+                for i in messages_to_remove:
+                    del session['messages'][i]
+                session.save()
     if 'notifications' in context:
         for message in context['notifications']:
             messages.append(message)

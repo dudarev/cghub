@@ -15,7 +15,8 @@ from cghub.apps.core.forms import AnalysisIDsForm
 from cghub.apps.core.requests import (
         RequestMinimal, RequestDetailJSON, get_results_for_ids)
 from cghub.apps.core.utils import (
-        get_filters_dict, paginator_params, add_message)
+        get_filters_dict, paginator_params, add_message,
+        remove_message)
 
 from .forms import SelectedItemsForm, AllItemsForm
 from .utils import (
@@ -25,26 +26,27 @@ from .utils import (
 
 cart_logger = logging.getLogger('cart')
 
-DATABASE_ERROR_NOTIFICATION = (
-        'Your previous add to cart is still in progress, '
-        'please try again in a few minutes.')
-
 
 def cart_add_selected_files(request):
     form = SelectedItemsForm(request.POST)
     if form.is_valid():
         try:
+            message_id = add_message(
+                        request, 'info',
+                        settings.ADDING_TO_CART_IN_PROGRESS_NOTIFICATION)
             try:
                 with transaction.commit_on_success():
                     cart = Cart(request.session)
                     for result in form.cleaned_data['selected_items']:
                         cart.add(result)
                     cart.update_stats()
+                remove_message(request=request, message_id=message_id)
             except DatabaseError:
+                remove_message(request=request, message_id=message_id)
                 return {
                     'action': 'message',
-                    'title': 'Please try again in a few minutes',
-                    'content': DATABASE_ERROR_NOTIFICATION}
+                    'title': settings.DATABASE_ERROR_NOTIFICATION_TITLE,
+                    'content': settings.DATABASE_ERROR_NOTIFICATION}
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding to cart: %s' % unicode(e))
@@ -76,6 +78,9 @@ def cart_add_all_files(request):
             if not queries:
                 queries = [filters]
 
+            message_id = add_message(
+                        request, 'info',
+                        settings.ADDING_TO_CART_IN_PROGRESS_NOTIFICATION)
             try:
                 with transaction.commit_on_success():
                     cart = Cart(request.session)
@@ -84,11 +89,13 @@ def cart_add_all_files(request):
                         for result in api_request.call():
                             cart.add(result)
                         cart.update_stats()
+                remove_message(request, message_id)
             except DatabaseError:
+                remove_message(request, message_id)
                 return {
                     'action': 'message',
-                    'title': 'Please try again in a few minutes',
-                    'content': DATABASE_ERROR_NOTIFICATION}
+                    'title': settings.DATABASE_ERROR_NOTIFICATION_TITLE,
+                    'content': settings.DATABASE_ERROR_NOTIFICATION}
             return {'action': 'redirect', 'redirect': reverse('cart_page')}
         except Exception as e:
             cart_logger.error('Error while adding all files to cart: %s' % unicode(e))
@@ -158,7 +165,8 @@ class CartAddRemoveItemsView(View):
                 except DatabaseError:
                     add_message(
                             request, 'error',
-                            DATABASE_ERROR_NOTIFICATION)
+                            settings.DATABASE_ERROR_NOTIFICATION,
+                            once=True)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
@@ -180,7 +188,8 @@ class CartAddItem(View):
         except DatabaseError:
             add_message(
                     request, 'error',
-                    DATABASE_ERROR_NOTIFICATION)
+                    settings.DATABASE_ERROR_NOTIFICATION,
+                    once=True)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
@@ -195,7 +204,8 @@ class CartClearView(View):
                 cart.clear()
         except DatabaseError:
             add_message(
-                    request, 'error', DATABASE_ERROR_NOTIFICATION)
+                    request, 'error', 
+                    settings.DATABASE_ERROR_NOTIFICATION, once=True)
         return HttpResponseRedirect(reverse('cart_page'))
 
 
