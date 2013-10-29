@@ -177,6 +177,30 @@ Adding messages:
 
 This message will be visible on all pages until it will be slosed by user.
 
+Message can be removed by its id:
+
+.. code-block:: python
+
+    from cghub.apps.core.utils import add_message, remove_message
+
+
+    def myview(request):
+        message_id = add_message(request=request, level='error', content='Some error!')
+        ...
+        remove_message(request, message_id)
+
+Message can be deleted right after it will be shown:
+
+.. code-block:: python
+
+    from cghub.apps.core.utils import add_message, remove_message
+
+
+    def myview(request):
+        message_id = add_message(
+                request=request, level='error',
+                content='Some error!', once=True)
+
 And this message will be shown only once:
 
 .. code-block:: python

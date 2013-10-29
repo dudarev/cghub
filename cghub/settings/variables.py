@@ -24,3 +24,12 @@ TOOLTIP_HOVER_TIME = 250
 
 # regexp for aliquot_id, analysis_id, participant_id, sample_id
 ID_PATTERN = '^[0-9abcdef]{8}-[0-9abcdef]{4}-[0-9abcdef]{4}-[0-9abcdef]{4}-[0-9abcdef]{12}$'
+
+# notifications
+DATABASE_ERROR_NOTIFICATION = (
+        'Your previous add to cart is still in progress, '
+        'please try again in a few minutes.')
+DATABASE_ERROR_NOTIFICATION_TITLE = (
+        'Please try again in a few minutes')
+ADDING_TO_CART_IN_PROGRESS_NOTIFICATION = (
+        'Adding to cart is still in progress ...')

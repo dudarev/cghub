@@ -27,8 +27,7 @@ from ..models import Cart as CartModel, CartItem, Analysis
 from ..utils import (
         Cart, manifest_xml_generator, metadata_xml_generator,
         summary_tsv_generator, update_analysis)
-from ..views import (
-        manifest, metadata, summary, DATABASE_ERROR_NOTIFICATION)
+from ..views import manifest, metadata, summary
 
 from .factories import AnalysisFactory, CartItemFactory
 
@@ -259,7 +258,7 @@ class CartTestCase(TestCase):
             self.assertEqual(
                     response_json['action'], 'message')
             self.assertEqual(
-                    response_json['content'], DATABASE_ERROR_NOTIFICATION)
+                    response_json['content'], settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_add_item(self):
         analysis_id = self.RANDOM_IDS[0]['analysis_id']
@@ -282,7 +281,7 @@ class CartTestCase(TestCase):
             response = self.client.post(
                     reverse('cart_add_item', args=[analysis_id]),
                     follow=True)
-            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
+            self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_remove_items(self):
         # add files
@@ -319,7 +318,7 @@ class CartTestCase(TestCase):
             response = self.client.post(
                     url, {'ids': ' '.join(rm_selected_files)},
                     HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True)
-            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
+            self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_clear(self):
         # indirectly tested in CartUtilsTestCase.test_clear_cart
@@ -327,7 +326,7 @@ class CartTestCase(TestCase):
         with patch('cghub.apps.cart.utils.Cart.clear') as cart_clear_mock:
             cart_clear_mock.side_effect = DatabaseError
             response = self.client.post(reverse('cart_clear'), follow=True)
-            self.assertContains(response, DATABASE_ERROR_NOTIFICATION)
+            self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_pagination(self):
         # add 3 files to cart
