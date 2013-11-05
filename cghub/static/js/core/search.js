@@ -491,6 +491,7 @@ jQuery(function ($) {
                 $d.datepicker({
                     changeMonth: true,
                     changeYear: true,
+                    maxDate: cghub.base.toUTC(new Date),
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
                     dateFormat: 'yy/mm/dd',
@@ -556,34 +557,32 @@ jQuery(function ($) {
         },
         convertPeriodToValue:function(start_date, end_date) {
             var MS = 86400000; // ms in one day
-            var current = new Date();
-            var current_parsed = Date.parse(current);
+            var now_utc = cghub.base.toUTC(new Date());
             var end_parsed = Date.parse(end_date);
             var start_parsed = Date.parse(start_date);
             $('.dp-container > .text-error').remove();
-            if (start_parsed > current_parsed) {
-                start_parsed = current_parsed;
+            if (start_parsed > now_utc) {
+                start_parsed = now_utc;
             }
-            if (end_parsed > current_parsed) {
-                end_parsed = current_parsed;
+            if (end_parsed > now_utc) {
+                end_parsed = now_utc;
             }
             if (end_parsed < start_parsed) {
                 var buf = start_parsed;
                 start_parsed = end_parsed;
                 end_parsed = buf;
             }
-            var now_to_end = Math.floor(( current_parsed - end_parsed) / MS);
-            var start_to_now = Math.floor(( current_parsed - start_parsed) / MS);
+            var now_to_end = Math.floor(( now_utc - end_parsed) / MS);
+            var start_to_now = Math.floor(( now_utc - start_parsed) / MS);
             if(start_to_now == now_to_end) {start_to_now += 1;}
             var start_str = '[NOW-' + start_to_now + 'DAY';
             var end_str = 'NOW-' + now_to_end + 'DAY]';
-            if ((current_parsed - end_parsed)/MS < 1) { end_str = 'NOW]'; }
+            if ((now_utc - end_parsed)/MS < 1) { end_str = 'NOW]'; }
             return start_str + ' TO ' + end_str;
         },
         convertValueToPeriod:function(value) {
             var MS = 86400000;
-            var current = new Date();
-            var current_parsed = Date.parse(current);
+            var now_utc = cghub.base.toUTC(new Date());
             // Get the number of days
             var values = value.slice(1, -1).split(' TO ');
             var start_now = parseInt(values[0].split('-').reverse()[0].slice(0, -3));
@@ -591,8 +590,8 @@ jQuery(function ($) {
             // Convert each to date objects
             isNaN(start_now) ? start_now = 0 : start_now = start_now * MS;
             isNaN(end_now) ? end_now = 0 : end_now = end_now * MS;
-            var start_date = new Date(current_parsed - start_now);
-            var end_date = new Date(current_parsed - end_now);
+            var start_date = new Date(now_utc - start_now);
+            var end_date = new Date(now_utc - end_now);
             start_date = $.datepicker.formatDate('yy/mm/dd', start_date);
             end_date = $.datepicker.formatDate('yy/mm/dd', end_date);
             return start_date + ' - ' + end_date;
