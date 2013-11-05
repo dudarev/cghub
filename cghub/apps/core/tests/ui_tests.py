@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 from urllib2 import unquote
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -618,31 +619,36 @@ class CustomPeriodUITestCase(LiveServerTestCase):
             'start': date(year, 2, 10),
             'end': date(year, 2, 15),
             'res_start': date(year, 2, 10),
-            'res_end': date(year, 2, 15)},
+            'res_end': date(year, 2, 15),
+            'success': True},
         {
             # another month
             'start': date(year, 1, 10),
             'end': date(year, 3, 15),
             'res_start': date(year, 1, 10),
-            'res_end': date(year, 3, 15)},
+            'res_end': date(year, 3, 15),
+            'success': True},
         {
             # today
             'start': date(year, 2, 10),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 9),
-            'res_end': date(year, 2, 10)},
+            'res_end': date(year, 2, 10),
+            'success': True},
         {
             # future
             'start': date(year, 2, 10),
             'end': date.today() + timedelta(days=10),
             'res_start': date(year, 2, 10),
-            'res_end': date.today()},
+            'res_end': date.today(),
+            'success': False},
         {
             # swapped
             'start': date(year, 2, 15),
             'end': date(year, 2, 10),
             'res_start': date(year, 2, 10),
-            'res_end': date(year, 2, 15)},
+            'res_end': date(year, 2, 15),
+            'success': True},
     )
 
     @classmethod
@@ -744,7 +750,13 @@ class CustomPeriodUITestCase(LiveServerTestCase):
                 driver.find_element_by_id("ddcl-id-upload_date").click()
                 driver.find_element_by_css_selector(
                         '#ddcl-id-upload_date-ddw .js-pick-period').click()
-                self.set_datepicker_date(dates['start'], dates['end'])
+                try:
+                    self.set_datepicker_date(dates['start'], dates['end'])
+                except NoSuchElementException as e:
+                    if not dates['success']:
+                        # fututre dates are disabled
+                        continue
+                    raise e
                 # click 'Submin' in custom period popup
                 driver.find_element_by_css_selector("button.btn-submit.btn").click()
                 # check that displayed right period

@@ -491,6 +491,7 @@ jQuery(function ($) {
                 $d.datepicker({
                     changeMonth: true,
                     changeYear: true,
+                    maxDate: cghub.base.toUTC(new Date),
                     defaultDate: $d.data('defaultdate'),
                     yearRange: "c-2y:c",
                     dateFormat: 'yy/mm/dd',
