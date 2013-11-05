@@ -171,7 +171,7 @@ jQuery(function ($) {
                 var select = cghub.search.$filterSelects[i];
                 if ($(select).hasClass('date-filters')) {
                     $(select).dropdownchecklist({
-                        width: 180,
+                        width: 185,
                         zIndex: 1010,
                         explicitClose: 'close'
                     });
@@ -200,17 +200,17 @@ jQuery(function ($) {
                     });
                     $(select).dropdownchecklist({
                         firstItemChecksAll: true,
-                        width: 180,
+                        width: 185,
                         zIndex: 1010,
                         textFormatFunction: cghub.search.ddclTextFormatFunction,
                         onComplete: cghub.search.ddclOnComplete,
                         explicitClose: 'close'
                     });
-                    /* Fixing width bug */
-                    var width = $(select).next().next().width();
-                    $(select).next().next().width(width + 30);
                     cghub.search.ddclOnComplete(select);
                 }
+                /* Fixing width bug */
+                var width = $(select).next().next().width();
+                $(select).next().next().width(width + 30);
                 /* Bug #1982, connect <label> and ui-dropdownchecklist-selector by attaching id to selector */
                 $(select).attr("id", $(select).prev().attr('for'));
             }
