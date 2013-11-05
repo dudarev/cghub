@@ -32,6 +32,11 @@ jQuery(function ($) {
             cghub.base.defineActiveLink();
             cghub.base.$searchForm.on('submit', cghub.base.checkSearchField);
         },
+        toUTC:function(now) {
+            return new Date(
+                now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+                now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+        },
         showMessage: function (title, content) {
             cghub.base.$messageModal.find('.modal-label').text(title);
             cghub.base.$messageModal.find('.modal-body').html(content);
