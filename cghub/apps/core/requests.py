@@ -365,7 +365,7 @@ class SearchByIDs(object):
                 for result in api_request.call():
                     self.results[attr].append(result)
                     found = True
-                # stop if id was found
+                # stop if single id was found
                 if found and len(self.other_ids) == 1:
                     break
 
