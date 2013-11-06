@@ -99,7 +99,7 @@ class SearchView(TemplateView):
             if q:
                 # search by ids first
                 search = SearchByIDs(
-                        ids=[q.upper(), q.lower()],
+                        ids=[q],
                         filters=filters,
                         request_cls=RequestDetail)
                 if not search.is_empty():

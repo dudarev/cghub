@@ -332,7 +332,7 @@ class SearchByIDs(object):
     Allows to search by multiple ids.
     """
 
-    ID_ATTRS = ('aliquot_id', 'analysis_id', 'participant_id', 'sample_id')
+    ID_ATTRS = ('analysis_id', 'aliquot_id', 'participant_id', 'sample_id')
 
     def __init__(self, ids, request_cls=RequestID, filters=None):
         """
@@ -346,11 +346,11 @@ class SearchByIDs(object):
         self.other_ids = []
         id_regexp = re.compile(settings.ID_PATTERN)
         for i in ids:
-            if id_regexp.match(i):
+            if id_regexp.match(i.lower()):
                 # other ids: aliquot_id, analysis_id, participant_id, sample_id
-                self.other_ids.append(i)
+                self.other_ids.append(i.lower())
             else:
-                self.legacy_sample_ids.append(i)
+                self.legacy_sample_ids.append(i.upper())
         self.search()
 
     def search(self):
@@ -361,8 +361,14 @@ class SearchByIDs(object):
                 query = dict(self.filters)
                 query[attr] = self.other_ids
                 api_request = self.request_cls(query=query)
+                found = False
                 for result in api_request.call():
                     self.results[attr].append(result)
+                    found = True
+                # stop if id was found
+                if found and len(self.other_ids) == 1:
+                    break
+
         if self.legacy_sample_ids:
             self.results['legacy_sample_id'] = []
             query = dict(self.filters)
