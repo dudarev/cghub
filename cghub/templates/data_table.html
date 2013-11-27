@@ -8,12 +8,13 @@
                     <label for="id-check-all-checkbox" class="hidden">Check all</label>
                     <input id="id-check-all-checkbox" class="js-select-all" type="checkbox">
                 </th>
+                <th data-width="25"></th>
                 {% table_header request %}
             </tr>
         </thead>
         <tbody>
         {% for r in results %}
-            <tr data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-analysis_id="{{ r.analysis_id }}" data-context-menu="#table-context-menu">
+            <tr data-analysis_id="{{ r.analysis_id }}">
                 <td>
                     <label for="cb-{{ r.analysis_id }}" class="hidden">Select {{ r.analysis_id }}</label>
                     <input class="data-table-checkbox" type="checkbox" name="selected_files"
@@ -42,6 +43,7 @@
                                                             data-tss_id="{{ r.tss_id }}"
                                                             data-upload_date="{{ r.upload_date }}">
                 </td>
+                <td class="details-link" title="Item details" data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-context-menu="#table-context-menu"></td>
                 {% table_row r %}
             </tr>
         {% endfor %}

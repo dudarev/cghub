@@ -491,7 +491,7 @@ div.colCopy {
 
 .flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td
 	{
-	background: #d9ebf5;
+	background-color: #d9ebf5;
 	border-left: 1px solid #eef8ff;
 	/* border-bottom: 1px dotted #a8d8eb; */
 }
