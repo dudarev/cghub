@@ -45,8 +45,9 @@ class Paginator(object):
         return getvars
 
     def _get_url(self, path, getvars, limit, offset):
-        url = self.url_template.format(path=path, getvars=getvars,
-            limit=limit, offset=offset)
+        url = self.url_template.format(
+                path=path, getvars=getvars,
+                limit=limit, offset=offset)
         if '?&' in url:
             url = url.replace('?&', '?')
         return url
@@ -54,15 +55,17 @@ class Paginator(object):
     def prev_button(self):
         return {
             'is_active': self.current_page > 1,
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.offset - self.limit)),
+            'url': self._get_url(
+                    path=self.get_path(), getvars=self.get_vars(),
+                    limit=self.limit, offset=(self.offset - self.limit)),
         }
 
     def next_button(self):
         return {
             'is_active': self.current_page < self.pages_count,
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.offset + self.limit)),
+            'url': self._get_url(
+                    path=self.get_path(), getvars=self.get_vars(),
+                    limit=self.limit, offset=(self.offset + self.limit)),
         }
 
     def buttons(self):
@@ -72,13 +75,14 @@ class Paginator(object):
         p.append({
             'is_active': True,
             'is_current': self.current_page == 1,
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=0),
+            'url': self._get_url(
+                    path=self.get_path(), getvars=self.get_vars(),
+                    limit=self.limit, offset=0),
             'n': 1,
         })
         numbers.append(1)
         # space
-        if self.current_page > self.paginator_buttons + 1:
+        if self.current_page > self.paginator_buttons + 2:
             p.append({
                 'is_active': False,
                 'is_current': False,
@@ -97,13 +101,14 @@ class Paginator(object):
             p.append({
                 'is_active': True,
                 'is_current': self.current_page == i,
-                'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.limit * (i - 1))),
+                'url': self._get_url(
+                        path=self.get_path(), getvars=self.get_vars(),
+                        limit=self.limit, offset=(self.limit * (i - 1))),
                 'n': i,
             })
             numbers.append(i)
         # space
-        if self.current_page + self.paginator_buttons < self.pages_count:
+        if self.current_page + self.paginator_buttons + 1 < self.pages_count:
             p.append({
                 'is_active': False,
                 'is_current': False,
@@ -114,8 +119,10 @@ class Paginator(object):
             p.append({
                 'is_active': True,
                 'is_current': self.current_page == self.pages_count,
-                'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.limit * (self.pages_count - 1))),
+                'url': self._get_url(
+                        path=self.get_path(), getvars=self.get_vars(),
+                        limit=self.limit, offset=(
+                                self.limit * (self.pages_count - 1))),
                 'n': self.pages_count,
             })
         return p
