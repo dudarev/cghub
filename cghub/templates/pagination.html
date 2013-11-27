@@ -9,7 +9,7 @@
             {% endwith %}
             {% with buttons=paginator.buttons %}
                 {% for button in buttons %}
-                <li{% if not button.is_active %} class="disabled"{% else %}{% if button.is_current %} class="active"{% endif %}{% endif %}><a href="{% if button.is_active %}{{ button.url }}{% else %}javascript:void(0){% endif %}"><span class="hidden">page </span>{{ button.n }}</a></li>
+                <li{% if not button.is_active %} class="disabled"{% else %}{% if button.is_current %} class="active"{% endif %}{% endif %}><a href="{% if button.is_active and not button.is_current %}{{ button.url }}{% else %}javascript:void(0){% endif %}"><span class="hidden">page </span>{{ button.n }}</a></li>
                 {% endfor %}
             {% endwith %}
             {% with next=paginator.next_button %}

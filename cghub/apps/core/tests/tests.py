@@ -294,7 +294,6 @@ class RequestsTestCase(TestCase):
             'TCGA-AZ-6608-11A-01D-1835-10'
         ]
         search = SearchByIDs(ids=ids)
-        print search.results
         self.assertEqual(search.results, {
                 'analysis_id': [{'analysis_id': '916d1bd2-f503-4775-951c-20ff19dfe409'}],
                 'legacy_sample_id': [{'analysis_id': '860ca061-681b-46dc-8e15-db2a2cbe1c21'}]})
