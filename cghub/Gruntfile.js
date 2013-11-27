@@ -73,6 +73,15 @@ module.exports = function (grunt) {
                     jsStaticFolder + 'help.js'],
                 dest:jsStaticFolder + 'base.min.js'
             },
+            jquery_libs:{
+                src:[jsStaticFolder + 'libs/jquery-1.7.2.min.js',
+                    jsStaticFolder + 'libs/jquery-ui-1.8.20.custom.min.js',
+                    jsStaticFolder + 'libs/jquery.cookie.min.js',
+                    jsStaticFolder + 'libs/URI.min.js',
+                    jsStaticFolder + 'libs/ui.dropdownchecklist-1.4-min.js',
+                    jsStaticFolder + 'libs/jquery.placeholder.min.js'],
+                dest:jsStaticFolder + 'jquery.libs.min.js'
+            },
             xmldisplay:{
                 src:[jsStaticFolder + 'libs/XMLDisplay.js'],
                 dest:jsStaticFolder + 'libs/XMLDisplay.min.js'
