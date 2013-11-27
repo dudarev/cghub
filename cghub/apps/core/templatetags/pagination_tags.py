@@ -2,39 +2,31 @@ from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from cghub.apps.core.utils import paginator_params
+from ..utils import paginator_params
 
 
 register = template.Library()
 
 
 class Paginator(object):
+
     def __init__(self, context):
-        # context
         self.context = context
-
-        # num_results
-        self.num_results = self.context['num_results']
-
+        self.num_results = context['num_results']
         self.offset, self.limit = paginator_params(context['request'])
-
-        # is_paginated
-        self.is_paginated = self.limit or self.offset
-
-        # pages count
-        pages_count, partial_page = divmod(self.num_results,
-            self.limit or self.num_results)
+        self.is_paginated = self.limit < self.num_results
+        pages_count, partial_page = divmod(self.num_results, self.limit)
         self.pages_count = pages_count + (partial_page and 1 or 0)
-
-        # url tempalte
+        self.current_page = self.offset / self.limit + 1
         self.url_template = '{path}?{getvars}&offset={offset}&limit={limit}'
+        # number of buttons to show prev and after current page
+        self.paginator_buttons = getattr(settings, 'PAGINATOR_BUTTONS', 2)
 
     def get_path(self):
         request = self.context['request']
-        # patch for the home page were all paginator 
-        # links should refer to search page
-        if request.path == u'/':
-            return u'/search/'
+        # patch for the home page
+        if request.path == reverse('home_page'):
+            return reverse('search_page')
         return request.path
 
     def get_vars(self):
@@ -52,64 +44,81 @@ class Paginator(object):
             getvars = ''
         return getvars
 
-    def current_page(self):
-        return {
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=self.offset),
-            'page_number': self.offset / self.limit,
-            }
-
-    def next_page(self):
-        return {
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.offset + self.limit)),
-            'page_number': self.offset / self.limit + 1
-        }
-
-    def prev_page(self):
-        return {
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=(self.offset - self.limit)),
-            'page_number': self.offset / self.limit - 1
-        }
-
-    def pages(self):
-        ps = []
-        for page_number in xrange(self.pages_count):
-            ps.append({
-                'url': self._get_url(path=self.get_path(),
-                    getvars=self.get_vars(), limit=self.limit,
-                    offset=page_number * self.limit),
-                'page_number': page_number,
-                })
-        return ps
-
-    def get_first(self):
-        return {
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                                 limit=self.limit, offset=0),
-            'page_number': 0
-        }
-
-    def get_last(self):
-        return {
-            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
-                limit=self.limit, offset=(self.pages_count - 1) * self.limit),
-            'page_number': self.pages_count - 1
-        }
-
-    def has_prev(self):
-        return self.offset > 0
-
-    def has_next(self):
-        return (self.num_results - self.offset) > self.limit
-
     def _get_url(self, path, getvars, limit, offset):
         url = self.url_template.format(path=path, getvars=getvars,
             limit=limit, offset=offset)
         if '?&' in url:
             url = url.replace('?&', '?')
         return url
+
+    def prev_button(self):
+        return {
+            'is_active': self.current_page > 1,
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=(self.offset - self.limit)),
+        }
+
+    def next_button(self):
+        return {
+            'is_active': self.current_page < self.pages_count,
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=(self.offset + self.limit)),
+        }
+
+    def buttons(self):
+        p = []
+        numbers = []
+        # first page
+        p.append({
+            'is_active': True,
+            'is_current': self.current_page == 1,
+            'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=0),
+            'n': 1,
+        })
+        numbers.append(1)
+        # space
+        if self.current_page > self.paginator_buttons + 1:
+            p.append({
+                'is_active': False,
+                'is_current': False,
+                'n': '...',
+            })
+        # prev nad next n pages
+        for i in range(
+                self.current_page - self.paginator_buttons,
+                self.current_page + self.paginator_buttons + 1):
+            if i < 1:
+                continue
+            if i > self.pages_count:
+                continue
+            if i in numbers:
+                continue
+            p.append({
+                'is_active': True,
+                'is_current': self.current_page == i,
+                'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=(self.limit * (i - 1))),
+                'n': i,
+            })
+            numbers.append(i)
+        # space
+        if self.current_page + self.paginator_buttons < self.pages_count:
+            p.append({
+                'is_active': False,
+                'is_current': False,
+                'n': '...',
+            })
+        # last page
+        if self.pages_count not in numbers:
+            p.append({
+                'is_active': True,
+                'is_current': self.current_page == self.pages_count,
+                'url': self._get_url(path=self.get_path(), getvars=self.get_vars(),
+                                 limit=self.limit, offset=(self.limit * (self.pages_count - 1))),
+                'n': self.pages_count,
+            })
+        return p
 
 
 @register.inclusion_tag('pagination.html', takes_context=True)
