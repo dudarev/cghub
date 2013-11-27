@@ -139,12 +139,18 @@
         tr td.tdSelected {
             background-color: #ddddbb;
         }
-        // clickable rows
-        tr {
+        .details-link {
             cursor: pointer;
-            td:first-child {
-                cursor: default;
-            }
+            overflow: hidden;
+            background-image: url('../../img/info.png');
+            background-position: center;
+            background-repeat: no-repeat;
+            -webkit-user-select: none; /* Chrome/Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+ */
+            /* Rules below not implemented in browsers yet */
+            -o-user-select: none;
+            user-select: none;
         }
     }
     div.hDiv th span {

@@ -106,21 +106,18 @@ jQuery(function ($) {
             cghub.table.$tableHeaderContainer.on('scroll', function() {
                 cghub.table.$tableContainer.scrollLeft(cghub.table.$tableHeaderContainer.scrollLeft());
             });
+            /* context menu */
+            cghub.table.$flexigrid.find('.details-link').contextmenu();
         },
         activateItemDetailsLinks:function () {
-            $(document).on('click', '.bDiv a', function(e) {
-                e.stopPropagation();
-            });
-            $(document).on('click', '.bDiv tr', function(obj){
-                var $first_td = $(obj.target).find('input[name=selected_files]');
-                if(obj.target.name=='selected_files' || $first_td.length) { return; }
-                var $tr = $(this);
-                var modal = $($tr.attr('data-target'));
+            $(document).on('click', '.bDiv .details-link', function(obj){
+                var $td = $(this);
+                var modal = $($td.attr('data-target'));
                 var loaded = false;
                 modal.on('shown', function(){
                     if (!loaded){
                         // ajax is hack for for IE10
-                        modal.find('.modal-body').load($tr.attr('data-details-url')+'?ajax=1', function(response, status, xhr){
+                        modal.find('.modal-body').load($td.attr('data-details-url')+'?ajax=1', function(response, status, xhr){
                             if (status == "error") {
                                 modal.find('.modal-body').html('There was an error loading data. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>');
                             } else {
@@ -130,7 +127,7 @@ jQuery(function ($) {
                     }
                 }).on('show', function(){
                     modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for Analysis Id '+$tr.attr('data-analysis_id'));
+                    modal.find('.modal-label').html('Details for Analysis Id '+$td.parents('tr').attr('data-analysis_id'));
                 }).modal('show');
                 return false;
             });
@@ -140,9 +137,9 @@ jQuery(function ($) {
                 return false;
             });
             $(document).on('click', '.js-details-page', function() {
-                var $tr = $($(this).parents('ul').data('e').target).parents('tr');
+                var $td = $($(this).parents('ul').data('e').target).parents('td');
                 /* open in new tab */
-                window.open($tr.attr('data-details-url'), '_blank');
+                window.open($td.attr('data-details-url'), '_blank');
                 window.focus();
                 return false;
             });

@@ -8,7 +8,7 @@
     {% if debug %}
         <link rel="stylesheet/less" type="text/css" href="{% static 'css/cart/cart.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/cart/cart.css' %}?v=8" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/cart/cart.css' %}?v=9" media="all">
     {% endif %}
 {% endblock %}
 {% block accessibility_links %}
@@ -141,6 +141,6 @@
         <script type="text/javascript" src="{% static 'js/cart/cart.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/table.js' %}"></script>
     {% else %}
-        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=7"></script>
+        <script type="text/javascript" src="{% static 'js/cart/cart.min.js' %}?v=8"></script>
     {% endif %}
 {% endblock %}
