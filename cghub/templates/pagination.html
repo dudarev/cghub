@@ -1,46 +1,22 @@
-{% if paginator and paginator.is_paginated %}
-    <div class="pagination">
-        <div class="pull-left pagination-results">Found {{ num_results }} results</div>
-        <div class="pagination-centered">
-            <ul>
-                <li class="{% if not paginator.has_prev %}disabled{% endif %}">
-                    <a href="{% if paginator.has_prev %}{{ paginator.prev_page.url }}{% else %}javascript:void(0){% endif %}">Prev<span class="hidden"> page</span></a>
-                </li>
-                {% with pages=paginator.pages tpc=paginator.pages_count cpn=paginator.current_page.page_number %}
-                    {% if cpn > 3 %}
-                        <li class=""><a href="{{ paginator.get_first.url }}"><span class="hidden">page </span>{{ paginator.get_first.page_number|add:1 }}</a></li>
-                        {% if cpn > 4 %}
-                            <li class="disabled"><a href="javascript:void(0)"><span class="hidden">some pages links are skipped</span>...</a></li>
-                        {% endif %}
-                    {% endif %}
-                    {% if paginator.has_prev %}
-                        {% for page in paginator.get_pagination_prev %}
-                                <li class="">
-                                    <a href="{{ page.url }}"><span class="hidden">page </span>{{ page.page_number|add:1 }}</a>
-                                </li>
-                        {% endfor %}
-                    {% endif %}
-                                <li class="active">
-                                    <a href="{{ paginator.current_page.url }}"><span class="hidden">page </span>{{ paginator.current_page.page_number|add:1 }}</a>
-                                </li>
-                    {% if paginator.has_next %}
-                        {% for page in paginator.get_pagination_next %}
-                                <li class="">
-                                    <a href="{{ page.url }}"><span class="hidden">page </span>{{ page.page_number|add:1 }}</a>
-                                </li>
-                        {% endfor %}
-                    {% endif %}
-                    {% if cpn|add:5 < tpc %}
-                        <li class="disabled"><a href="javascript:void(0)"><span class="hidden">some pages links are skipped</span>...</a></li>
-                    {% endif %}
-                    {% if cpn < tpc|add:-4 %}
-                        <li class=""><a href="{{ paginator.get_last.url }}"><span class="hidden">page </span>{{ paginator.get_last.page_number|add:1 }}</a></li>
-                    {% endif %}
-                {% endwith %}
-                <li class="{% if not paginator.has_next %}disabled{% endif %}">
-                    <a href="{% if paginator.has_next %}{{ paginator.next_page.url }}{% else %}javascript:void(0){% endif %}">Next <span class="hidden"> page</span></a>
-                </li>
-            </ul>
-        </div>
+<div class="pagination">
+    <div class="pull-left pagination-results">Found {{ num_results }} results</div>
+    <div class="pagination-centered">
+        <ul>
+            {% with prev=paginator.prev_button %}
+            <li{% if not prev.is_active %} class="disabled"{% endif %}>
+                <a href="{% if prev.is_active %}{{ prev.url }}{% else %}javascript:void(0){% endif %}">Prev<span class="hidden"> page</span></a>
+            </li>
+            {% endwith %}
+            {% with buttons=paginator.buttons %}
+                {% for button in buttons %}
+                <li{% if not button.is_active %} class="disabled"{% else %}{% if button.is_current %} class="active"{% endif %}{% endif %}><a href="{% if button.is_active %}{{ button.url }}{% else %}javascript:void(0){% endif %}"><span class="hidden">page </span>{{ button.n }}</a></li>
+                {% endfor %}
+            {% endwith %}
+            {% with next=paginator.next_button %}
+            <li{% if not next.is_active %} class="disabled"{% endif %}>
+                <a href="{% if next.is_active %}{{ next.url }}{% else %}javascript:void(0){% endif %}">Next<span class="hidden"> page</span></a>
+            </li>
+            {% endwith %}
+        </ul>
     </div>
-{% endif %}
+</div>

@@ -806,6 +806,28 @@ class SelectFiltersTestCase(TestCase):
             )
         )
 
+    def test_pagination_templatetag(self):
+        request = HttpRequest()
+        request.GET = {'offset': '20', 'limit': '10'}
+        request.path = reverse('search_page')
+        result = Template(
+            "{% load pagination_tags %}"
+            "{% pagination %}"
+        ).render(Context({
+            'request': request,
+            'num_results': 103,
+
+        }))
+        self.assertIn(
+            '<a href="/search/?offset=10&amp;limit=10">Prev<span class="hidden"> page</span></a>',
+            result)
+        self.assertIn(
+            '<li><a href="/search/?offset=0&amp;limit=10"><span class="hidden">page </span>1</a></li>',
+            result)
+        self.assertIn(
+            '<li class="disabled"><a href="javascript:void(0)"><span class="hidden">page </span>...</a></li>',
+            result)
+
 
 class BatchSearchTestCase(TestCase):
 
@@ -949,25 +971,6 @@ class SearchViewPaginationTestCase(TestCase):
             reverse('home_page') + '?q={query}'.format(query=self.query),
             follow=True)
         self.assertTrue('search' in response.redirect_chain[0][0])
-
-
-class PaginatorUnitTestCase(TestCase):
-
-    def test_get_first_method(self):
-        request = HttpRequest()
-        paginator = Paginator({'num_results': 100, 'request': request})
-        self.assertEqual(
-            paginator.get_first(),
-            {'url': '?offset=0&limit=10', 'page_number': 0}
-        )
-
-    def test_get_last_method(self):
-        request = HttpRequest()
-        paginator = Paginator({'num_results': 100, 'request': request})
-        self.assertEqual(
-            paginator.get_last(),
-            {'url': '?offset=90&limit=10', 'page_number': 9}
-        )
 
 
 class MetadataViewTestCase(TestCase):
