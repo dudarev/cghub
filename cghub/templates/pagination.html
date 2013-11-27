@@ -7,25 +7,33 @@
                     <a href="{% if paginator.has_prev %}{{ paginator.prev_page.url }}{% else %}javascript:void(0){% endif %}">Prev<span class="hidden"> page</span></a>
                 </li>
                 {% with pages=paginator.pages tpc=paginator.pages_count cpn=paginator.current_page.page_number %}
-                    {% if cpn > 2 %}
+                    {% if cpn > 3 %}
                         <li class=""><a href="{{ paginator.get_first.url }}"><span class="hidden">page </span>{{ paginator.get_first.page_number|add:1 }}</a></li>
-                        {% if cpn != 3 %}
+                        {% if cpn > 4 %}
                             <li class="disabled"><a href="javascript:void(0)"><span class="hidden">some pages links are skipped</span>...</a></li>
                         {% endif %}
                     {% endif %}
-                    {% for page in pages %}
-                        {% with pn=page.page_number %}
-                            {% if pn > cpn|add:-3 and pn < cpn|add:3 %}
-                                <li class="{% if page.page_number == cpn %}active{% endif %}">
+                    {% if paginator.has_prev %}
+                        {% for page in paginator.get_pagination_prev %}
+                                <li class="">
                                     <a href="{{ page.url }}"><span class="hidden">page </span>{{ page.page_number|add:1 }}</a>
                                 </li>
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
-                    {% if cpn < tpc|add:-3 %}
-                        {% if cpn != tpc|add:-4 %}
+                        {% endfor %}
+                    {% endif %}
+                                <li class="active">
+                                    <a href="{{ paginator.current_page.url }}"><span class="hidden">page </span>{{ paginator.current_page.page_number|add:1 }}</a>
+                                </li>
+                    {% if paginator.has_next %}
+                        {% for page in paginator.get_pagination_next %}
+                                <li class="">
+                                    <a href="{{ page.url }}"><span class="hidden">page </span>{{ page.page_number|add:1 }}</a>
+                                </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if cpn|add:5 < tpc %}
                         <li class="disabled"><a href="javascript:void(0)"><span class="hidden">some pages links are skipped</span>...</a></li>
-                        {% endif %}
+                    {% endif %}
+                    {% if cpn < tpc|add:-4 %}
                         <li class=""><a href="{{ paginator.get_last.url }}"><span class="hidden">page </span>{{ paginator.get_last.page_number|add:1 }}</a></li>
                     {% endif %}
                 {% endwith %}

@@ -31,7 +31,7 @@ class Paginator(object):
 
     def get_path(self):
         request = self.context['request']
-        # patch for the home page were all paginator 
+        # patch for the home page were all paginator
         # links should refer to search page
         if request.path == u'/':
             return u'/search/'
@@ -111,6 +111,26 @@ class Paginator(object):
             url = url.replace('?&', '?')
         return url
 
+    def get_pagination_prev(self):
+        # prev peges limit
+        limit = 3
+        prev_page_number = self.current_page()['page_number']
+        if prev_page_number-limit > 0:
+            prev_pages = self.pages()[prev_page_number-limit: prev_page_number]
+            return prev_pages
+        else:
+            prev_pages = self.pages()[:prev_page_number]
+            return prev_pages
+
+    def get_pagination_next(self):
+        #next pages limit
+        limit = 3
+        next_page_number = self.current_page()['page_number'] +1
+        if next_page_number + limit < self.pages_count:
+            next_pages = self.pages()[ next_page_number: next_page_number + limit]
+            return next_pages
+        else:
+            return self.pages()[next_page_number:]
 
 @register.inclusion_tag('pagination.html', takes_context=True)
 def pagination(context):
