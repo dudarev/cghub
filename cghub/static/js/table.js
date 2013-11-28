@@ -208,7 +208,9 @@ jQuery(function ($) {
                 /* show details in new tab */
                 var target = $('td.tdSelected');
                 if(target.length) {
-                    window.open(target.parents('tr').attr('data-details-url'), '_blank');
+                    window.open(
+                            target.parents('tr').find('.details-link').attr('data-details-url'),
+                            '_blank');
                     window.focus();
                 }
                 return false;
@@ -217,7 +219,7 @@ jQuery(function ($) {
             if(charCode == 18) return false;
             if(charCode == 13) {
                 /* show details popup on alt + enter click */
-                $('td.tdSelected').click();
+                $('td.tdSelected').parents('tr').find('.details-link').click();
                 return false;
             }
             if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
