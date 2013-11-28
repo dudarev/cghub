@@ -192,7 +192,7 @@ class CartUITestCase(LiveServerTestCase):
                 pass
 
             # download Manifest XML
-            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/button[1]')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[1]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -203,7 +203,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File manifest.xml wasn't downloaded"
 
             # download Metadata XML
-            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[2]/button[1]')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[2]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -214,7 +214,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File metadata.xml wasn't downloaded"
 
             # download Summary TSV
-            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[3]/button[1]')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[3]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -225,9 +225,8 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File summary.tsv wasn't downloaded"
 
             # download gunzipped Manifest XML
-            driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/button[2]').click()
-            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/div[1]/ul/li/a[1]')
-            btn.click()
+            driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/input').click()
+            driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[1]').click()
             driver.implicitly_wait(5)
             try:
                 os.remove(os.path.join(
@@ -235,6 +234,7 @@ class CartUITestCase(LiveServerTestCase):
                         'manifest.xml.gz'))
             except OSError:
                 assert False, "File manifest.xml.gz wasn't downloaded"
+            driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/input').click()
 
             # select first file in table
             checkbox = driver.find_element_by_css_selector(
@@ -326,18 +326,18 @@ class SortWithinCartUITestCase(LiveServerTestCase):
                 # scroll table
                 self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1))
+                        ".position().left);".format(i + 2))
                 # after first click element element is asc sorted
                 self.selenium.find_element_by_partial_link_text(column).click()
 
                 # getting top element in the column
-                selector = "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[{}]".format(i + 2)
+                selector = "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[{}]".format(i + 3)
                 first = self.selenium.find_element_by_xpath(selector).text
 
                 # scroll table
                 self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1))
+                        ".position().left);".format(i + 2))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_xpath(selector).text
