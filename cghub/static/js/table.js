@@ -137,7 +137,7 @@ jQuery(function ($) {
                 return false;
             });
             $(document).on('click', '.js-details-page', function() {
-                var $td = $($(this).parents('ul').data('e').target).parents('td');
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
                 /* open in new tab */
                 window.open($td.attr('data-details-url'), '_blank');
                 window.focus();

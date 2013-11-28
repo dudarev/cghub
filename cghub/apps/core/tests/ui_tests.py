@@ -892,7 +892,7 @@ class DetailsUITestCase(LiveServerTestCase):
                     reverse('help_page'),
                     self.selenium.current_url)
             link = self.selenium.find_element_by_xpath(
-                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[5]/div/a")
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[6]/div/a")
             link.click()
             time.sleep(3)
             self.assertIn(
@@ -967,7 +967,7 @@ class DetailsUITestCase(LiveServerTestCase):
             ac.context_click(td)
             ac.perform()
             driver.find_element_by_css_selector('.js-details-page').click()
-            time.sleep(5)
+            time.sleep(3)
             driver.switch_to_window(driver.window_handles[-1])
             page_header = driver.find_element_by_class_name('page-header').text
             assert (analysis_id in driver.current_url and 'details' in driver.current_url)
@@ -1459,7 +1459,7 @@ class SearchUITestCase(LiveServerTestCase):
                 self.selenium.execute_script(
                         "$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1))
+                        ".position().left);".format(i + 2))
                 # after first click element element is asc sorted
                 elements = self.selenium.find_elements_by_xpath('//a[@class="sort-link"][contains(text(), "%s")]' % column)
                 if not elements:
@@ -1471,13 +1471,13 @@ class SearchUITestCase(LiveServerTestCase):
                         break
 
                 # getting top element in the column
-                selector = "//div[@class='bDiv']//table/tbody/tr[1]/td[{}]".format(i + 2)
+                selector = "//div[@class='bDiv']//table/tbody/tr[1]/td[{}]".format(i + 3)
                 first = self.selenium.find_element_by_xpath(selector).text
 
                 # scroll table
                 self.selenium.execute_script("$('.bDiv')"
                         ".scrollLeft($('th[axis=col{0}]')"
-                        ".position().left);".format(i + 1))
+                        ".position().left);".format(i + 2))
                 # resort
                 self.selenium.find_element_by_partial_link_text(column).click()
                 second = self.selenium.find_element_by_xpath(selector).text
@@ -1523,7 +1523,7 @@ class ColumnSelectUITestCase(LiveServerTestCase):
         driver = self.selenium
         # get columns count
         column_count = len(driver.find_elements_by_xpath(
-                        "//div[@class='hDivBox']/table/thead/tr/th")) - 1
+                        "//div[@class='hDivBox']/table/thead/tr/th")) - 2
         # Find select on search or cart page
         if location == 'search':
             select = driver.find_element_by_xpath(
@@ -1543,27 +1543,29 @@ class ColumnSelectUITestCase(LiveServerTestCase):
         r = range(column_count)
         for i in r:
             driver.find_element_by_xpath(
-                    "//label[@for='ddcl-id-columns-selector-i%d']" % (i + 1)).click()
+                    "//label[@for='ddcl-id-columns-selector-i%d']" % (i + 2)).click()
             # check that all previous columns are hidden
             for j in r[:(i + 1)]:
                 driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
                 assert not driver.find_element_by_xpath(
-                        "//th[@axis='col%d']" % (j + 1)).is_displayed()
+                        "//th[@axis='col%d']" % (j + 2)).is_displayed()
             # check that all next columns are visible
             for j in r[(i + 1):]:
                 driver.execute_script("$('.bDiv')"
                         ".scrollLeft($('.flexigrid table thead tr th[axis=col%d]')"
                         ".position().left)" % j)
-                assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 1)).is_displayed()
+                assert driver.find_element_by_xpath("//th[@axis='col%d']" % (j + 2)).is_displayed()
             # check that last column takes all free space
             if i < column_count - 1:
                 full_width = driver.find_element_by_class_name('hDiv').value_of_css_property('width')[:-2]
                 full_width = int(full_width.split('.')[0])
                 all_columns_width = driver.find_element_by_xpath(
-                        "//th[@axis='col0']").size.get('width', 0)
-                for x in range(1, column_count + 1):
+                        "//th[@axis='col0']").size.get('width', 0
+                        ) + driver.find_element_by_xpath(
+                        "//th[@axis='col1']").size.get('width', 0)
+                for x in range(2, column_count + 2):
                     col = driver.find_element_by_xpath("//th[@axis='col%d']" % x)
                     if col.is_displayed():
                         all_columns_width += col.size.get('width', 0)
@@ -1646,7 +1648,8 @@ class ColumnSelectUITestCase(LiveServerTestCase):
             for col in TEST_SETTINGS['TABLE_COLUMNS']:
                 if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'visible':
                     default_count += 1
-            self.assertEqual(visible, default_count)
+            # details link also is column (+1)
+            self.assertEqual(visible - 1, default_count)
 
 
 class ResetFiltersUITestCase(LiveServerTestCase):
@@ -2059,7 +2062,7 @@ class TabbingUITestCase(LiveServerTestCase):
             time.sleep(3)
             # go to file details page
             details_url = driver.find_element_by_xpath(
-                            '//div[@class="bDiv"]//tbody/tr[1]'
+                            '//div[@class="bDiv"]//tbody/tr[1]/td[2]'
                             ).get_attribute('data-details-url')
             driver.get('%s%s' % (self.live_server_url, details_url))
             time.sleep(3)
@@ -2107,6 +2110,7 @@ class TableNavigationUITestCase(LiveServerTestCase):
             selectors = driver.find_elements_by_xpath('//td[@class="tdSelected"]')
             self.assertEqual(len(selectors), 1)
             self.ac.key_down(Keys.ALT)
+            self.ac.key_up(Keys.ARROW_RIGHT)
             self.ac.key_up(Keys.ARROW_RIGHT)
             self.ac.perform()
             time.sleep(1)
@@ -2206,7 +2210,7 @@ class HelpHintsUITestCase(LiveServerTestCase):
                 continue
             counter += 1
             if col == name:
-                return counter + 1
+                return counter + 2
 
     def check_tooltip(self, target):
         """
@@ -2364,7 +2368,7 @@ class HelpHintsUITestCase(LiveServerTestCase):
 
             driver.find_element_by_id("ddcl-id-columns-selector").click()
             study_column_option = driver.find_element_by_xpath(
-                    "//input[@id='ddcl-id-columns-selector-i2']/../label")
+                    "//input[@id='ddcl-id-columns-selector-i3']/../label")
             self.check_tooltip(study_column_option)
 
     def test_help_hints_in_columns_ddcl_on_cart_page(self):
@@ -2387,7 +2391,7 @@ class HelpHintsUITestCase(LiveServerTestCase):
             time.sleep(3)
             driver.find_element_by_id("ddcl-id-columns-selector").click()
             study_column_option = driver.find_element_by_xpath(
-                    "//input[@id='ddcl-id-columns-selector-i2']/../label")
+                    "//input[@id='ddcl-id-columns-selector-i3']/../label")
             self.check_tooltip(study_column_option)
 
     def test_help_popups(self):
