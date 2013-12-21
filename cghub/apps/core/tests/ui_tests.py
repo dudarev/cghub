@@ -1649,7 +1649,7 @@ class ColumnSelectUITestCase(LiveServerTestCase):
                 if TEST_SETTINGS['COLUMN_STYLES'][col]['default_state'] == 'visible':
                     default_count += 1
             # details link also is column (+1)
-            self.assertEqual(visible - 1, default_count)
+            self.assertEqual(visible, default_count)
 
 
 class ResetFiltersUITestCase(LiveServerTestCase):

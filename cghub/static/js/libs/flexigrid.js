@@ -330,47 +330,52 @@
                 this.rePosDrag();
                 this.fixHeight();
             },
-            toggleCol: function (cid, visible) {
-                var ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];
-                var n = $('thead th', g.hDiv).index(ncol);
-                var cb = $('input[value=' + cid + ']', g.nDiv)[0];
+            toggleCol: function (cids, visible) {
+                var cid, ncol, n, cb;
                 var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
-                if (visible == null) {
-                    visible = ncol.hidden;
-                }
-                if ($('input:checked', g.nDiv).length < p.minColToggle && !visible) {
-                    return false;
-                }
-                // Saving hidden columns to sessionStorage
-                if (visible) {
-                    hiddenColumns.splice(hiddenColumns.indexOf(cid), 1);
-                } else if (hiddenColumns.indexOf(cid) < 0) {
-                    hiddenColumns = hiddenColumns.concat(cid);
-                }
-                sessionStorage.setItem('hiddenColumns', hiddenColumns)
-
-                if (visible) {
-                    ncol.hidden = false;
-                    $(ncol).show();
-                    cb.checked = true;
-                } else {
-                    ncol.hidden = true;
-                    $(ncol).hide();
-                    cb.checked = false;
-                }
-                $('tbody tr', t).each(
-                    function () {
-                        if (visible) {
-                            $('td:eq(' + n + ')', this).show();
-                        } else {
-                            $('td:eq(' + n + ')', this).hide();
-                        }
+                for (var ic=0; ic<cids.length; ic++) {
+                    cid = cids[ic];
+                    if(!cid.length) continue;
+                    ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];
+                    if (visible == null) {
+                        visible = ncol.hidden;
                     }
-                );
-                this.rePosDrag();
-                if (p.onToggleCol) {
-                    p.onToggleCol(cid, visible);
+                    n = $('thead th', g.hDiv).index(ncol);
+                    cb = $('input[value=' + cid + ']', g.nDiv)[0];
+                    if ($('input:checked', g.nDiv).length < p.minColToggle && !visible) {
+                        continue;
+                    }
+                    // Saving hidden columns to sessionStorage
+                    if (visible) {
+                        hiddenColumns.splice(hiddenColumns.indexOf(cid), 1);
+                    } else if (hiddenColumns.indexOf(cid) < 0) {
+                        hiddenColumns = hiddenColumns.concat(cid);
+                    }
+
+                    if (visible) {
+                        ncol.hidden = false;
+                        $(ncol).show();
+                        cb.checked = true;
+                    } else {
+                        ncol.hidden = true;
+                        $(ncol).hide();
+                        cb.checked = false;
+                    }
+                    $('tbody tr', t).each(
+                        function () {
+                            if (visible) {
+                                $('td:eq(' + n + ')', this).show();
+                            } else {
+                                $('td:eq(' + n + ')', this).hide();
+                            }
+                        }
+                    );
+                    if (p.onToggleCol) {
+                        p.onToggleCol(cid, visible);
+                    }
                 }
+                this.rePosDrag();
+                sessionStorage.setItem('hiddenColumns', hiddenColumns);
                 g.adjustTableWidth();
                 return visible;
             },
@@ -1401,7 +1406,7 @@
             });
             $('td.ndcol2', g.nDiv).click(function () {
                 if ($('input:checked', g.nDiv).length <= p.minColToggle && $(this).prev().find('input')[0].checked) return false;
-                return g.toggleCol($(this).prev().find('input').val());
+                return g.toggleCol([$(this).prev().find('input').val()]);
             });
             $('input.togCol', g.nDiv).click(function () {
                 if ($('input:checked', g.nDiv).length < p.minColToggle && this.checked == false) return false;
@@ -1507,12 +1512,7 @@
             } else {
                 hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
             }
-
-            for (var i = hiddenColumns.length - 1; i >= 0; i--) {
-                if (hiddenColumns[i]) {this.grid.toggleCol(hiddenColumns[i], false)}
-            }
-
-            grid.adjustTableWidth();
+            this.grid.toggleCol(hiddenColumns, false);
 
             // Init the column select menu
             // select presented columns
@@ -1539,7 +1539,7 @@
                         // toggle those which are (not checked and in defaults) or (checked and not in defaults)
                         if (!checkbox.checked && defaultColumns.indexOf(checkbox.value) != -1 ||
                             checkbox.checked && defaultColumns.indexOf(checkbox.value) == -1){
-                            grid.toggleCol(checkbox.value, !checkbox.checked);
+                            grid.toggleCol([checkbox.value], !checkbox.checked);
                             setCheckboxStatus(checkbox.value, !checkbox.checked);
                         }
                         if(!checkbox.checked) {
@@ -1574,11 +1574,11 @@
                     var value = $(checkbox).val(),
                         allOption = $(selector).next().next().find('input[value = "(Toggle all)"]');
                     if (value != '(Toggle all)') {
-                        grid.toggleCol(value, $(checkbox).is(':checked'))
+                        grid.toggleCol([value], $(checkbox).is(':checked'))
                     } else {
                         var is_checked = allOption.is(':checked');
                         $(selector).next().next().find('input[value != "(Toggle all)"]').each(function(i, el) {
-                            grid.toggleCol($(el).val(), is_checked)
+                            grid.toggleCol([$(el).val()], is_checked)
                         })
                     }
                 },
@@ -1613,7 +1613,7 @@
     }; //end flexOptions
     $.fn.flexToggleCol = function (cid, visible) { // function to reload grid
         return this.each(function () {
-            if (this.grid) this.grid.toggleCol(cid, visible);
+            if (this.grid) this.grid.toggleCol([cid], visible);
         });
     }; //end flexToggleCol
     $.fn.flexAddData = function (data) { // function to add data to grid
