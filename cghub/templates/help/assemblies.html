@@ -2,6 +2,17 @@
 {% block description %}{{ block.super }}{% endblock %}
 {% block title %}Reference Assemblies - Help - {{ block.super }}{% endblock %}
 
+{% block extra_header_css %}
+    {{ block.super }}
+    <style>
+        .table.accession-table {margin-top: 5px; border: 1px solid #aaa;}
+        .table.accession-table td {border-left: 1px solid #aaa; border-top: 1px solid #aaa;}
+        .table.accession-table td:first-child {border-left: 1px solid transparent;}
+        .table.accession-table tr td:nth-child(odd) {text-align: right;}
+        .table.accession-table tr td:nth-child(even) {border-left: 1px solid #eee;}
+    </style>
+{% endblock %}
+
 {% block accessibility_links %}
 <ul title="Accessibility links" id="accessibility-links">
     <li>
@@ -191,7 +202,7 @@
           <dt><span id="GRCh37-lite_HPV_Redux-build">GRCh37-lite-+-HPV_Redux-build</span></dt>
           <dd>-GRCh37-lite appended with a nonredundant subset of common human
             papilloma viruses.  Included are HPV types and accessions are:
-            <table>
+            <table class="table table-bordered accession-table">
             <tr>
             <td>1</td><td>NC_001356.1</td>
             <td>2</td><td>NC_001352.1</td>
@@ -224,6 +235,7 @@
             <td>90</td><td>NC_004104.1</td>
             <td>92</td><td>NC_004500.1</td>
             <td>96</td><td>NC_005134.2</td>
+            <td></td><td></td>
             </tr><tr>
             <td>101</td><td>NC_008189.1</td>
             <td>103</td><td>NC_008188.1</td>
