@@ -1,10 +1,10 @@
 {% load search_tags %}
 <div class="well sidebar" id="filters-bar">
+    <h3><span class="js-common-tooltip" data-key="filters-bar">Filters</span></h3>
     {% include 'apply_filters_buttons.html' with base_tabindex=31 %}
-    <h4><span class="js-common-tooltip" data-key="filters-bar">Filters</span></h4>
     {% render_filters %}
     <div class="js-remember-filters">
-        <input type="checkbox" name="remember" value="remember"> Remember filter settings<br>
+        <input type="checkbox" name="remember" value="remember" tabindex="48"> Remember filter settings<br>
     </div>
-    {% include 'apply_filters_buttons.html' with base_tabindex=48 %}
+    {% include 'apply_filters_buttons.html' with base_tabindex=49 %}
 </div>

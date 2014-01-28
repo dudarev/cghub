@@ -161,7 +161,6 @@ class FiltersProcessor(object):
                             options.append(f)
         return options
 
-
 class Command(BaseCommand):
     """
     Verbosity levels (manage.py --verbosity 0):

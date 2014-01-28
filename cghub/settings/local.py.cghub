@@ -30,6 +30,8 @@ else:
 
 FULL_METADATA_CACHE_DIR = '/scratch/var/cache/cghub-data-browser/full_metadata_cache'
 
+# this is what gets encoded in the metadata
+CGHUB_DOWNLOAD_SERVER = 'https://cghub.ucsc.edu'
 
 # number of processes to use for  update_full_metadata_cache
 MULTIPROCESSING_CORES = 12

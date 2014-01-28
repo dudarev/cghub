@@ -48,7 +48,7 @@ SEARCH-25	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live,
 SEARCH-26	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results, search input is empty		
 SEARCH-27	reset filters, search by 66fdf4dd-91dd-494c-bb21-7b29d05ab7f4, unselect CCLE study, search by 66fdf4dd-91dd-494c-bb21-7b29d05ab7f4	First time - found 1 result, without CCLE study - no results found	
 SEARCH-28	search for 'a2'	'Warning: these results were produced by a free text work search of the metadata...' should be shown	
-SEARCH-29	select all options for all filters (no applied filters), click on 'Apply filters', go to cart page and back to home	no applied filters remains		
+SEARCH-29	select all for all filters (no applied filters),  click on 'Apply filters', go to cart page and back to the browse page.	filters should have remained set to all		
 SEARCH-30	Show spinner with fixed position	Select few items and click on 'Add to cart' button	Spinner is shown in the center of screen
 SEARCH-31	Open item details page, check that all filenames are exists in details table	All filenames, filesizes and checksums are present in details table	
 SEARCH-32       Check that links inside results table works properly       Click on link, details popup shouldnt be shown, new browser tab should be opened       

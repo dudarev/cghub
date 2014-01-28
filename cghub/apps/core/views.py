@@ -115,10 +115,10 @@ class SearchView(TemplateView):
                         filters.update({'xml_text': '(%s)' % q})
                     context['search_notification'] = ('<strong>Warning:</strong> '
                             'these results were produced by a free text '
-                            'work search of the metadata. The results maybe '
+                            'word search of the metadata. The results maybe '
                             'be incomplete or inconsistent due to limited '
-                            'about of textual data available. Use the '
-                            'filters to get s consistent set of results or '
+                            'amount of textual metadata available. Use the '
+                            'filters to get a consistent set of results or '
                             'search for a particular identifier.')
 
             api_request = RequestDetail(

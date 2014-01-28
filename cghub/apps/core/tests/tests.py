@@ -124,7 +124,7 @@ class CoreTestCase(TestCase):
         self.assertContains(
                 response,
                 'The results maybe be incomplete or inconsistent due '
-                'to limited about of textual data available.')
+                'to limited amount of textual metadata available.')
 
     def test_search_all(self):
         response = self.client.get(reverse('search_page'))
