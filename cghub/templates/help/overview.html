@@ -39,14 +39,37 @@
           intersection of the filters and a text search, as described below.
         </p>
 
-        <h2> <span id="text-search">Text Search</span> </h2>
-        <p>A full-text search of the metadata is also supported by entering
-        text in the Search box that appears on the right side of the menu bar.
-        For example, a bar code ID can be entered in this box to search for
-        its occurrence in the metadata.</p>
+        <h2> <span id="sorting">Sorting</span> </h2>
+        <p>
+          The browse and cart lists can be sorted on most columns in ascending
+          and descending order by clicking on the column header.  The sorting
+          functions to group related items together.  Since the sorted is
+          implemented in the database using the stored code, the results are
+          not necessarily sorted in alpha-numerical order.
+        </p>
+        <p>
+          Note: sorting is not currently supported on the file size column.
+        </p>
 
-        <p>Text search results are restricted by the currently applied
-        filters.</p>
+        <h2> <span id="text-search">Identifier and Text Search</span> </h2>
+        <p>Identifier and full-text search of the metadata is also supported by entering
+        text in the <em>Search</em> box that appears on the right side of the menu bar.
+        </p>
+
+        <p>The search first attempts and identifier search with the text that was entered,
+          checking for one of the following identifiers:</p>
+        <ul>
+          <li>sample barcode</li>
+          <li>analysis id</li>
+          <li>aliquot id</li>
+          <li>sample id</li>
+          <li>participant id</li>
+        </ul>
+
+        <p>If no hits are returned as an identifier, a full-text search of
+        the XML metadata is done. The English text in the metadata is very
+        limited. Searches for terms like disease name will produce limited or
+        no results. Use the filters whenever possible.</p>
 
         <p>To search the metadata for a phrase (more than one word separated
         by spaces) enclose the item in quotations (for example: "Illumina
@@ -57,10 +80,9 @@
         that meet all the specified search terms.  For example, searching for
         "RNA-Seq Illlumina" will select only entries having references to both
         "RNA-Seq" and "Illumina" in their metadata.</p>
-
-        <p>Note: English text in the metadata is very limited. Searches for
-        terms like disease name will produce limited or no results. Use the
-        filters whenever possible.</p>
  
+        <p>Search results are restricted by the currently applied
+        filters.</p>
+
     </div>
 {% endblock %}

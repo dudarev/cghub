@@ -43,7 +43,7 @@
                                                             data-tss_id="{{ r.tss_id }}"
                                                             data-upload_date="{{ r.upload_date }}">
                 </td>
-                <td class="details-link" title="Item details" data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-context-menu="#table-context-menu"></td>
+                <td class="details-link" title="Item details" data-details-url="{% url item_details r.analysis_id %}" data-target="#itemDetailsModal" data-context-menu="#table-context-menu" tabindex="0"></td>
                 {% table_row r %}
             </tr>
         {% endfor %}

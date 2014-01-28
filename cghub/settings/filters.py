@@ -23,7 +23,7 @@ Hierarchical filters are supported, example:
             ('NCBI36_BCCAGSC_variant', 'NCBI36_BCCAGSC_variant'),
             ('NCBI36_BCM_variant', 'NCBI36_BCM_variant'),
         ])),
-        ('GRCh37/HG19:', OrderedDict([
+        ('GRCh37/HG19', OrderedDict([
             ('GRCh37', 'GRCh37'),
             ('GRCh37-lite', 'GRCh37-lite'),
             ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),
@@ -276,7 +276,7 @@ ALL_FILTERS = OrderedDict([
                 ('HG18', 'HG18'),
                 ('HG18_Broad_variant', 'HG18_Broad_variant'),
             ])),
-            ('GRCh37/HG19:', OrderedDict([
+            ('GRCh37/HG19', OrderedDict([
                 ('GRCh37', 'GRCh37'),
                 ('GRCh37-lite', 'GRCh37-lite'),
                 ('GRCh37_BI_Variant', 'GRCh37_BI_Variant'),

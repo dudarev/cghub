@@ -40,19 +40,23 @@ HELP_HINTS = {
     'Center Name': 'Submitting center name',
     'Analyte Type': 'Molecular analyte that was sequenced',
     'Uploaded': 'Date the data set was uploaded',
+    'Published': 'Date the data set was available for download',
     'Modified': 'Date the metadata was last modified',
     'Sample Type': 'Type of the biological sample that was sequenced',
     'Sample Type Name': 'Description of the biological sample that was sequenced',
     'State': 'Current state of the data at CGHub',
     'Barcode': 'Aliquot barcode. <a href="https://wiki.nci.nih.gov/display/TCGA/Working+with+TCGA+Data" target="_blank">More information on TCGA barcodes</a>.',
     'Sample Accession': 'NCBI sample accession when available',
-    'Files Size': 'Size of the data set (GB for gigabytes, MB for megabytes)',
+    'Filename': 'Name of the primary data file',
+    'Files Size': 'Size of the primary data file (GB for gigabytes, MB for megabytes)',
+    'Checksum': 'MD5 checksum of the primary data file',
     'Platform': 'Sequencing platform abbreviation',
     'Platform Name': 'Sequencing platform',
-    'Analysis id': 'CGHub identifier of the data set',
-    'TSS id': 'Tissue source site and study with identifier code',
-    'Participant id': 'Participant identifier',
-    'Sample id': 'Sample identifier',
+    'Analysis Id': 'CGHub identifier of the data set (UUID)',
+    'Participant Id': 'Participant identifier (UUID)',
+    'Sample Id': 'Sample identifier (UUID)',
+    'Aliquot Id': 'Aliquot identifier (UUID)',
+    'TSS Id': 'Tissue source site identifier code',
 
     ##
     # Studies
@@ -176,6 +180,8 @@ HELP_HINTS = {
     'State:Uploading': 'Uploading the data file(s) is in progress',
     'State:Validating sample': 'Additional sample metadata is collected from the DCC',
     'State:Augmenting data': 'Supplementary data files are being added to the data set, temporarily unavailable for download',
+    'State:Suppressed': 'Data has been suppressed',
+    'State:Redacted': 'Sample has been redacted',
 
     ##
     # Sample type
@@ -199,6 +205,18 @@ HELP_HINTS = {
     'Sample Type:CELL': 'Cell Lines (50)',
     'Sample Type:XP': 'Primary Xenograft Tissue (60)',
     'Sample Type:XCL': 'Cell Line Derived Xenograft Tissue (61)',
+
+    ##
+    # Platform
+    ##
+    'Platform:LS454': '454',
+    'Platform:ILLUMINA': 'Illumina',
+    'Platform:HELICOS': 'Helicos',
+    'Platform:ABI_SOLID': 'ABI Solid',
+    'Platform:COMPLETE_GENOMICS': 'Complete Genomics',
+    'Platform:PACBIO_SMRT': 'Pacific Biosciences',
+    'Platform:ION_TORRENT': 'Ion Torrent',
+    'Platform:CAPILLARY': 'Capillary electrophoresis',
 
     ##
     # Results panel
