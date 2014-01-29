@@ -106,8 +106,7 @@ module.exports = function (grunt) {
                 dest:jsStaticFolder + 'core/batch_search.min.js'
             },
             flexigrid:{
-                src:[jsStaticFolder + 'libs/flexigrid.js',
-                    jsStaticFolder + 'libs/bootstrap-contextmenu.js'],
+                src:[jsStaticFolder + 'libs/flexigrid.js'],
                 dest:jsStaticFolder + 'libs/flexigrid.min.js'
             },
             accessibility:{

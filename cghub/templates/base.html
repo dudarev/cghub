@@ -134,12 +134,11 @@
 </script>
 {% if debug %}
     <script type="text/javascript" src="{% static 'js/libs/flexigrid.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/libs/bootstrap-contextmenu.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/help.js' %}"></script>
 {% else %}
-    <script type="text/javascript" src="{% static 'js/libs/flexigrid.min.js' %}?v=5"></script>
+    <script type="text/javascript" src="{% static 'js/libs/flexigrid.min.js' %}?v=6"></script>
     <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/base.min.js' %}?v=11"></script>
 {% endif %}
@@ -147,7 +146,7 @@
 {% if debug %}
     <script type="text/javascript" src="{% static 'js/accessibility.js' %}"></script>
 {% else %}
-    <script type="text/javascript" src="{% static 'js/accessibility.min.js' %}?v=1"></script>
+    <script type="text/javascript" src="{% static 'js/accessibility.min.js' %}?v=2"></script>
 {% endif %}
 </body>
 </html>

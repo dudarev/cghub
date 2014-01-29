@@ -18,10 +18,10 @@ Settings:
         <analysis_data_uri>{{ CGHUB_DOWNLOAD_SERVER }}/cghub/data/analysis/download/c728433b-ac0b-8390-e040-ad451e4134f3</analysis_data_uri>
 """
 
-CGHUB_SERVER = 'https://192.35.223.223'
+# CGHUB_SERVER = 'https://192.35.223.223'
 CGHUB_SERVER_SOLR_URI = '/solr/select/'
-# CGHUB_SERVER = 'http://127.0.0.1:8983'
+CGHUB_SERVER = 'http://127.0.0.1:8983'
 API_HTTP_ERROR_ATTEMPTS = 5
 API_HTTP_ERROR_SLEEP_AFTER = 1
-API_TYPE = 'WSAPI'
+API_TYPE = 'SOLR'
 CGHUB_DOWNLOAD_SERVER = 'http://app01:8080'

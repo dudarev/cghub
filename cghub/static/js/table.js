@@ -1,4 +1,69 @@
 /*jslint browser: true*/
+
+!function ($) {
+    /*
+    * used code from
+    * bootstrap-contextmenu.js
+    * by Nikolai Fedotov
+    */
+    "use strict";
+    var ContextMenu = function (element) {
+        /* show on click (replace click to contextmenu if necessary) */
+        $(element).on('click.context-menu.data-api', this.show);
+        $(element).on('keydown.context-menu.data-api', this.show);
+        $('html').on('click.context-menu.data-api', clearMenus);
+        $('.dropdown-close').on('focus.context-menu.data-api', clearMenus);
+    }
+    ContextMenu.prototype = {
+        constructor: ContextMenu,
+        show: function (e) {
+            var $this = $(this);
+            if ($this.is('.disabled, :disabled')) return;
+            clearMenus();
+            var pos_x = 0, pos_y = 0;
+            if(e.clientX) {
+                /* mouse event */
+                pos_x = e.clientX;
+                pos_y = e.clientY;
+            } else {
+                if (e.ctrlKey || e.altKey) return;
+                var position = $(e.target).offset();
+                var charCode = (e.which) ? e.which : e.keyCode;
+                if(charCode != 13 && charCode != 32) {
+                    clearMenus();
+                    return;
+                };
+                pos_x = position.left - $(window).scrollLeft();
+                pos_y = position.top + $(e.target).outerHeight() - $(window).scrollTop();
+            }
+
+            var $menu = $($this.data('context-menu'));
+            $menu.data('e', e)
+                .css('position', 'fixed')
+                .css('left', pos_x)
+                .css('top', pos_y)
+                .css('display', 'block')
+            $menu.find('li').first().find('a').focus();
+            return false
+        }
+
+    }
+    function clearMenus() {
+        $('.context-menu')
+            .css('display','none')
+            .data('e',undefined)
+    }
+
+    $.fn.contextmenu = function (option) {
+        return this.each(function () {
+            var $this = $(this);
+            if (!$this.data('context-menu-obj')) $this.data('context-menu-obj', new ContextMenu(this));
+        })
+    }
+    $.fn.contextmenu.Constructor = ContextMenu
+}(jQuery);
+
+
 jQuery(function ($) {
     'use strict';
     var cghub = {};
@@ -131,15 +196,49 @@ jQuery(function ($) {
                 }).modal('show');
                 return false;
             });
+            /* activate link for details popup */
             $(document).on('click', '.js-details-popup', function() {
                 var $tr = $($(this).parents('ul').data('e').target).parents('td');
                 $tr.trigger('click');
                 return false;
             });
+            $(document).on('keydown', '.js-details-popup', function(e) {
+                var charCode = (e.which) ? e.which : e.keyCode;
+                if(charCode != 13 && charCode != 32) return;
+                var $td = $($(e.target).parents('ul').data('e').target);
+                $td.trigger('click');
+                return false;
+            });
+            /* activate link to details page */
             $(document).on('click', '.js-details-page', function() {
                 var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
                 /* open in new tab */
                 window.open($td.attr('data-details-url'), '_blank');
+                window.focus();
+                return false;
+            });
+            $(document).on('keydown', '.js-details-page', function(e) {
+                var charCode = (e.which) ? e.which : e.keyCode;
+                if(charCode != 13 && charCode != 32) return;
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
+                /* open in new tab */
+                window.open($td.attr('data-details-url'), '_blank');
+                window.focus();
+                return false;
+            });
+            /* activate link to sample metadata at dcc */
+            $(document).on('click', '.js-sample-metadata', function() {
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
+                /* open in new tab */
+                window.open($td.find('span').data('url'), '_blank');
+                window.focus();
+                return false;
+            });
+            $(document).on('keydown', '.js-sample-metadata', function(e) {
+                var charCode = (e.which) ? e.which : e.keyCode;
+                if(charCode != 13 && charCode != 32) return;
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
+                window.open($td.find('span').data('url'), '_blank');
                 window.focus();
                 return false;
             });
