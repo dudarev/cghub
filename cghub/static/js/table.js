@@ -26,6 +26,7 @@
                 pos_x = e.clientX;
                 pos_y = e.clientY;
             } else {
+                if (e.ctrlKey || e.altKey) return;
                 var position = $(e.target).offset();
                 var charCode = (e.which) ? e.which : e.keyCode;
                 if(charCode != 13 && charCode != 32) {
@@ -195,6 +196,7 @@ jQuery(function ($) {
                 }).modal('show');
                 return false;
             });
+            /* activate link for details popup */
             $(document).on('click', '.js-details-popup', function() {
                 var $tr = $($(this).parents('ul').data('e').target).parents('td');
                 $tr.trigger('click');
@@ -207,6 +209,7 @@ jQuery(function ($) {
                 $td.trigger('click');
                 return false;
             });
+            /* activate link to details page */
             $(document).on('click', '.js-details-page', function() {
                 var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
                 /* open in new tab */
@@ -220,6 +223,22 @@ jQuery(function ($) {
                 var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
                 /* open in new tab */
                 window.open($td.attr('data-details-url'), '_blank');
+                window.focus();
+                return false;
+            });
+            /* activate link to sample metadata at dcc */
+            $(document).on('click', '.js-sample-metadata', function() {
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
+                /* open in new tab */
+                window.open($td.find('span').data('url'), '_blank');
+                window.focus();
+                return false;
+            });
+            $(document).on('keydown', '.js-sample-metadata', function(e) {
+                var charCode = (e.which) ? e.which : e.keyCode;
+                if(charCode != 13 && charCode != 32) return;
+                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
+                window.open($td.find('span').data('url'), '_blank');
                 window.focus();
                 return false;
             });

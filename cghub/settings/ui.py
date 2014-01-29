@@ -952,7 +952,7 @@ def tcga_barcode_resolver(value, values):
     if (disease_abbr == None) or (disease_abbr == ""):
         return value
     dccUrl = tcgaDccDataMatrixUrl + "?" + urllib.urlencode((("mode", "ApplyFilter"), ("showMatrix", "true"), ("sampleList", value), ("diseaseType", disease_abbr)))
-    return '<span tabindex="0"><a href="' + dccUrl + '" target="_blank">' + value + '</a></span>'
+    return '<span data-url="%s">%s</span>' % (dccUrl, value)
     
 tcga_studies = frozenset(["TCGA", "phs000178"])
 def barcode_resolver(value, values):
