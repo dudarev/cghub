@@ -915,12 +915,9 @@ class DetailsUITestCase(LiveServerTestCase):
             driver = self.selenium
             driver.get(self.live_server_url)
             # Click on 'Metadata XML' in details popup
-            td = driver.find_element_by_xpath(
-                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
-            td.click()
 
-            time.sleep(1)
-            driver.find_element_by_css_selector('.js-details-popup').click()
+            self.selenium.execute_script(
+                "jQuery(function ($) {var td = $($('.details-link')[0]); this.cghub.table.showDetailsPopup(td);})")
 
             time.sleep(3)
             driver.find_element_by_xpath('//a[contains(text(), "Show metadata XML")]').click()

@@ -174,39 +174,38 @@ jQuery(function ($) {
             /* context menu */
             cghub.table.$flexigrid.find('.details-link').contextmenu();
         },
+        showDetailsPopup:function(td) {
+            var modal = $(td.attr('data-target'));
+            var loaded = false;
+            modal.on('shown', function(){
+                if (!loaded){
+                    // ajax is hack for for IE10
+                    modal.find('.modal-body').load(td.attr('data-details-url')+'?ajax=1', function(response, status, xhr){
+                        if (status == "error") {
+                            modal.find('.modal-body').html('There was an error loading data. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>');
+                        } else {
+                            loaded = true;
+                        }
+                    });
+                }
+            }).on('show', function(){
+                modal.find('.modal-body').html('Loading ...');
+                modal.find('.modal-label').html('Details for Analysis Id ' + td.parents('tr').attr('data-analysis_id'));
+            }).modal('show');
+            return false;
+        },
         activateItemDetailsLinks:function () {
-            $(document).on('click', '.bDiv .details-link', function(obj){
-                var $td = $(this);
-                var modal = $($td.attr('data-target'));
-                var loaded = false;
-                modal.on('shown', function(){
-                    if (!loaded){
-                        // ajax is hack for for IE10
-                        modal.find('.modal-body').load($td.attr('data-details-url')+'?ajax=1', function(response, status, xhr){
-                            if (status == "error") {
-                                modal.find('.modal-body').html('There was an error loading data. Please contact admin: <a href="mailto:'+cghub.vars.supportEmail+'">'+cghub.vars.supportEmail+'</a>');
-                            } else {
-                                loaded = true;
-                            }
-                        });
-                    }
-                }).on('show', function(){
-                    modal.find('.modal-body').html('Loading ...');
-                    modal.find('.modal-label').html('Details for Analysis Id '+$td.parents('tr').attr('data-analysis_id'));
-                }).modal('show');
-                return false;
-            });
             /* activate link for details popup */
             $(document).on('click', '.js-details-popup', function() {
-                var $tr = $($(this).parents('ul').data('e').target).parents('td');
-                $tr.trigger('click');
+                var $td = $($(this).parents('ul').data('e').target).parents('td');
+                cghub.table.showDetailsPopup($td);
                 return false;
             });
             $(document).on('keydown', '.js-details-popup', function(e) {
                 var charCode = (e.which) ? e.which : e.keyCode;
                 if(charCode != 13 && charCode != 32) return;
                 var $td = $($(e.target).parents('ul').data('e').target);
-                $td.trigger('click');
+                cghub.table.showDetailsPopup($td);
                 return false;
             });
             /* activate link to details page */
