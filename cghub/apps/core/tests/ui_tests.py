@@ -616,24 +616,24 @@ class CustomPeriodUITestCase(LiveServerTestCase):
     year = date.today().year
     TEST_DATES = (
         {
-            'start': date(year, 2, 10),
-            'end': date(year, 2, 15),
-            'res_start': date(year, 2, 10),
-            'res_end': date(year, 2, 15),
+            'start': date(year - 1, 2, 10),
+            'end': date(year - 1, 2, 15),
+            'res_start': date(year - 1, 2, 10),
+            'res_end': date(year - 1, 2, 15),
             'success': True},
         {
             # another month
-            'start': date(year, 1, 10),
-            'end': date(year, 3, 15),
-            'res_start': date(year, 1, 10),
-            'res_end': date(year, 3, 15),
+            'start': date(year - 1, 1, 10),
+            'end': date(year - 1, 3, 15),
+            'res_start': date(year - 1, 1, 10),
+            'res_end': date(year - 1, 3, 15),
             'success': True},
         {
             # today
-            'start': date(year, 2, 10),
-            'end': date(year, 2, 10),
-            'res_start': date(year, 2, 9),
-            'res_end': date(year, 2, 10),
+            'start': date(year - 1, 2, 10),
+            'end': date(year - 1, 2, 10),
+            'res_start': date(year - 1, 2, 9),
+            'res_end': date(year - 1, 2, 10),
             'success': True},
         {
             # future
@@ -644,10 +644,10 @@ class CustomPeriodUITestCase(LiveServerTestCase):
             'success': False},
         {
             # swapped
-            'start': date(year, 2, 15),
-            'end': date(year, 2, 10),
-            'res_start': date(year, 2, 10),
-            'res_end': date(year, 2, 15),
+            'start': date(year - 1, 2, 15),
+            'end': date(year - 1, 2, 10),
+            'res_start': date(year - 1, 2, 10),
+            'res_end': date(year - 1, 2, 15),
             'success': True},
     )
 
@@ -918,8 +918,13 @@ class DetailsUITestCase(LiveServerTestCase):
             td = driver.find_element_by_xpath(
                     "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
             td.click()
+
+            time.sleep(1)
+            driver.find_element_by_css_selector('.js-details-popup').click()
+
             time.sleep(3)
             driver.find_element_by_xpath('//a[contains(text(), "Show metadata XML")]').click()
+
             time.sleep(3)
             self.assertIn('#raw-xml', driver.current_url)
             # test 'Collapse', 'Expand', 'Collapse all' and 'Expand all' buttons
@@ -964,7 +969,7 @@ class DetailsUITestCase(LiveServerTestCase):
                     "//div[@class='bDiv']/fieldset/table/tbody/tr[1]").get_attribute('data-analysis_id')
             # open row context menu and click 'Show details in new window'
             ac = ActionChains(driver)
-            ac.context_click(td)
+            ac.click(td)
             ac.perform()
             driver.find_element_by_css_selector('.js-details-page').click()
             time.sleep(3)
