@@ -317,7 +317,8 @@ jQuery(function ($) {
             if(charCode == 18) return false;
             if(charCode == 13) {
                 /* show details popup on alt + enter click */
-                $('td.tdSelected').parents('tr').find('.details-link').click();
+                var $td = $('td.tdSelected').parents('tr').find('.details-link');
+                cghub.table.showDetailsPopup($td);
                 return false;
             }
             if($.inArray(charCode, [37, 39, 38, 40]) == -1) return;
