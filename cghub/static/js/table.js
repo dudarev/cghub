@@ -231,23 +231,6 @@ jQuery(function ($) {
                 cghub.table.showDetailsPopup($td);
                 return false;
             });
-            /* activate link to details page */
-            $(document).on('click', '.js-details-page', function() {
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
-                /* open in new tab */
-                window.open($td.attr('data-details-url'), '_blank');
-                window.focus();
-                return false;
-            });
-            $(document).on('keydown', '.js-details-page', function(e) {
-                var charCode = (e.which) ? e.which : e.keyCode;
-                if(charCode != 13 && charCode != 32) return;
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
-                /* open in new tab */
-                window.open($td.attr('data-details-url'), '_blank');
-                window.focus();
-                return false;
-            });
             // fix IE submit outer forms bug
             if ($.browser.msie) {
                 $(document).on('click', '.js-cart-add-item-button', function(e) {

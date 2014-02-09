@@ -74,6 +74,9 @@ and should return new value, for example:
 """
 import urllib
 
+from django.core.urlresolvers import reverse
+
+
 COLUMN_STYLES = {
     'Aliquot Id': {
         'width': 300, 'align': 'left', 'default_state': 'hidden',
@@ -977,9 +980,15 @@ def sample_metadata_menu_item(values):
     else:
         return None
 
+
+def details_page_menu_item(values):
+    return reverse('item_details', args=(values.get('analysis_id'),))
+
+
 ROW_MENU_ITEMS = [
-    # Details and Show details in new window will be shown
+    # Details popup menu item will be shown
     # regardless of this values.
+    ('Show details in new window', details_page_menu_item),
     ('Sample metadata at DCC', sample_metadata_menu_item),
 ]
 
