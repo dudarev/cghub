@@ -38,6 +38,16 @@
             }
 
             var $menu = $($this.data('context-menu'));
+
+            /* add additional menu items */
+            var menu_additional_item_class = 'menu-item-additional';
+            var additional_menu_items = $(e.target).parents('tr').data('menu').split(',');
+            $('.' + menu_additional_item_class).remove();
+            $.each(additional_menu_items, function(n, val) {
+                var data = val.split('|');
+                $menu.find('.dropdown-bottom').before($('<li><a href="' + data[1] + '" target="_blank" tabindex="55" class="' + menu_additional_item_class + '">' + data[0] + '</a></li>'));
+            })
+
             $menu.data('e', e)
                 .css('position', 'fixed')
                 .css('left', pos_x)
