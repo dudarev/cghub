@@ -119,6 +119,35 @@ Default configuration is located in ``settings/ui.py``:
     'Disease',
     ...
 
+Table row menu custom fields
+----------------------------
+
+Can be configured in project settings.
+Default configuration is located in ``settings/ui.py``:
+
+Allows to add custom table row menu items.
+Every custom menu item should consist from menu item name and link
+(every custom menu item is just a link).
+Details menu item (open item details popup) adds by default.
+
+Format:
+list <Menu item name>, <function that returns link>
+
+Example:
+
+::
+
+    def details_page_menu_item(values):
+        return reverse('item_details', args=(values.get('analysis_id'),))
+
+    ROW_MENU_ITEMS = [
+        ('Show details in new window', details_page_menu_item),
+        ...
+    ]
+
+values - row data dict.
+Menu item will be shown only if link is not None.
+
 Change values displayed in table
 --------------------------------
 
