@@ -45,7 +45,9 @@
             $('.' + menu_additional_item_class).remove();
             $.each(additional_menu_items, function(n, val) {
                 var data = val.split('|');
-                $menu.find('.dropdown-bottom').before($('<li><a href="' + data[1] + '" target="_blank" tabindex="55" class="' + menu_additional_item_class + '">' + data[0] + '</a></li>'));
+                if (data.length == 2) {
+                    $menu.find('.dropdown-bottom').before($('<li class="' + menu_additional_item_class + '"><a href="' + data[1] + '" target="_blank" tabindex="55">' + data[0] + '</a></li>'));
+                }
             })
 
             $menu.data('e', e)
@@ -67,7 +69,18 @@
     $.fn.contextmenu = function (option) {
         return this.each(function () {
             var $this = $(this);
-            if (!$this.data('context-menu-obj')) $this.data('context-menu-obj', new ContextMenu(this));
+            if (!$this.data('context-menu-obj')) {
+                $this.data('context-menu-obj', new ContextMenu(this));
+
+                /* close menu on esc */
+                $(document).on('keydown', '#table-context-menu', function(e) {
+                    var charCode = (e.which) ? e.which : e.keyCode;
+                    if(charCode == 27) {
+                        clearMenus();
+                        return false;
+                    };
+                });
+            }
         })
     }
     $.fn.contextmenu.Constructor = ContextMenu
