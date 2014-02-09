@@ -38,6 +38,18 @@
             }
 
             var $menu = $($this.data('context-menu'));
+
+            /* add additional menu items */
+            var menu_additional_item_class = 'menu-item-additional';
+            var additional_menu_items = $(e.target).parents('tr').data('menu').split(',');
+            $('.' + menu_additional_item_class).remove();
+            $.each(additional_menu_items, function(n, val) {
+                var data = val.split('|');
+                if (data.length == 2) {
+                    $menu.find('.dropdown-bottom').before($('<li class="' + menu_additional_item_class + '"><a href="' + data[1] + '" target="_blank" tabindex="55">' + data[0] + '</a></li>'));
+                }
+            })
+
             $menu.data('e', e)
                 .css('position', 'fixed')
                 .css('left', pos_x)
@@ -57,7 +69,18 @@
     $.fn.contextmenu = function (option) {
         return this.each(function () {
             var $this = $(this);
-            if (!$this.data('context-menu-obj')) $this.data('context-menu-obj', new ContextMenu(this));
+            if (!$this.data('context-menu-obj')) {
+                $this.data('context-menu-obj', new ContextMenu(this));
+
+                /* close menu on esc */
+                $(document).on('keydown', '#table-context-menu', function(e) {
+                    var charCode = (e.which) ? e.which : e.keyCode;
+                    if(charCode == 27) {
+                        clearMenus();
+                        return false;
+                    };
+                });
+            }
         })
     }
     $.fn.contextmenu.Constructor = ContextMenu
@@ -206,39 +229,6 @@ jQuery(function ($) {
                 if(charCode != 13 && charCode != 32) return;
                 var $td = $($(e.target).parents('ul').data('e').target);
                 cghub.table.showDetailsPopup($td);
-                return false;
-            });
-            /* activate link to details page */
-            $(document).on('click', '.js-details-page', function() {
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
-                /* open in new tab */
-                window.open($td.attr('data-details-url'), '_blank');
-                window.focus();
-                return false;
-            });
-            $(document).on('keydown', '.js-details-page', function(e) {
-                var charCode = (e.which) ? e.which : e.keyCode;
-                if(charCode != 13 && charCode != 32) return;
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('.details-link');
-                /* open in new tab */
-                window.open($td.attr('data-details-url'), '_blank');
-                window.focus();
-                return false;
-            });
-            /* activate link to sample metadata at dcc */
-            $(document).on('click', '.js-sample-metadata', function() {
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
-                /* open in new tab */
-                window.open($td.find('span').data('url'), '_blank');
-                window.focus();
-                return false;
-            });
-            $(document).on('keydown', '.js-sample-metadata', function(e) {
-                var charCode = (e.which) ? e.which : e.keyCode;
-                if(charCode != 13 && charCode != 32) return;
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
-                window.open($td.find('span').data('url'), '_blank');
-                window.focus();
                 return false;
             });
             // fix IE submit outer forms bug

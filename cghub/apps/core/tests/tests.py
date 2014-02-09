@@ -37,7 +37,8 @@ from ..requests import (
 from ..templatetags.pagination_tags import Paginator
 from ..templatetags.search_tags import (
         get_name_by_code, table_header, table_row, file_size,
-        details_table, period_from_query, only_date, get_sample_type_by_code)
+        details_table, period_from_query, only_date, get_sample_type_by_code,
+        data_menu)
 from ..templatetags.core_tags import without_header, messages
 from ..utils import (
         get_filters_dict, query_dict_to_str, paginator_params,
@@ -647,6 +648,20 @@ class TemplateTagsTestCase(TestCase):
             res = table_row(RESULT)
             self.assertIn(right_value, res)
             self.assertNotIn(RESULT['study'], res)
+
+    def test_data_menu(self):
+
+        def example_menu1(values):
+            return values.get('study') + '+'
+
+        def example_menu2(values):
+            return values.get('study') + '-'
+
+        with self.settings(ROW_MENU_ITEMS=[
+                ('Example menu 1', example_menu1),
+                ('Example menu 2', example_menu2)]):
+            self.assertEqual(data_menu({'study': 'TCGA'}),
+            'Example menu 1|TCGA+,Example menu 2|TCGA-')
 
     def test_period_from_query(self):
         test_data = (
