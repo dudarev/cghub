@@ -944,23 +944,6 @@ def study_resolver(value, values):
         raise Exception("unknown study: \""+ str(value) + "\"")
     return study
 
-tcgaDccDataMatrixUrl = "https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm"
-
-def tcga_barcode_resolver(value, values):
-    # link TCGA sample barcode to DCC, which requires disease
-    disease_abbr = values.get("disease_abbr")
-    if (disease_abbr == None) or (disease_abbr == ""):
-        return value
-    dccUrl = tcgaDccDataMatrixUrl + "?" + urllib.urlencode((("mode", "ApplyFilter"), ("showMatrix", "true"), ("sampleList", value), ("diseaseType", disease_abbr)))
-    return '<span data-url="%s">%s</span>' % (dccUrl, value)
-    
-tcga_studies = frozenset(["TCGA", "phs000178"])
-def barcode_resolver(value, values):
-    if values["study"] in tcga_studies:
-        return tcga_barcode_resolver(value, values)
-    else:
-        return value
-
 def tss_resolver(value, values):
     if (value == None) or (len(value.strip()) == 0):
         return ""  # TARGET/CGCI don't have tss_id due to privacy concerns
@@ -977,8 +960,28 @@ VALUE_RESOLVERS = {
     'Study': study_resolver,
     'TSS Id': tss_resolver,
     'Center Name': center_name_resolver,
-    'Barcode': barcode_resolver,
 }
+
+tcgaDccDataMatrixUrl = "https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm"
+tcga_studies = frozenset(["TCGA", "phs000178"])
+
+def sample_metadata_menu_item(values):
+    if values["study"] in tcga_studies:
+        disease_abbr = values.get("disease_abbr")
+        legacy_sample_id = values.get("legacy_sample_id")
+        if (disease_abbr == None) or (disease_abbr == ""):
+            return legacy_sample_id
+        return tcgaDccDataMatrixUrl + "?" + urllib.urlencode((
+                ("mode", "ApplyFilter"), ("showMatrix", "true"),
+                ("sampleList", legacy_sample_id), ("diseaseType", disease_abbr)))
+    else:
+        return None
+
+ROW_MENU_ITEMS = [
+    # Details and Show details in new window will be shown
+    # regardless of this values.
+    ('Sample metadata at DCC', sample_metadata_menu_item),
+]
 
 DEFAULT_PAGINATOR_LIMIT = 10
 

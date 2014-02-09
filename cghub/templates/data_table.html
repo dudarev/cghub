@@ -14,7 +14,7 @@
         </thead>
         <tbody>
         {% for r in results %}
-            <tr data-analysis_id="{{ r.analysis_id }}">
+            <tr data-analysis_id="{{ r.analysis_id }}" data-menu="{% data_menu r %}">
                 <td>
                     <label for="cb-{{ r.analysis_id }}" class="hidden">Select {{ r.analysis_id }}</label>
                     <input class="data-table-checkbox" type="checkbox" name="selected_files"
@@ -66,8 +66,7 @@
         <a href="#" class="dropdown-close" tabindex="54"></a>
         <li><a href="#" class="js-details-popup" tabindex="55">Details</a></li>
         <li><a href="#" class="js-details-page" tabindex="56">Show details in new window</a></li>
-        <li><a href="#" class="js-sample-metadata" tabindex="57">Sample metadata at DCC</a></li>
-        <a href="#" class="dropdown-close" tabindex="57"></a>
+        <a href="#" class="dropdown-close dropdown-bottom" tabindex="57"></a>
     </ul>
     {% comment %}
         Show this modal before adding great amount of files to cart

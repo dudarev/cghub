@@ -225,22 +225,6 @@ jQuery(function ($) {
                 window.focus();
                 return false;
             });
-            /* activate link to sample metadata at dcc */
-            $(document).on('click', '.js-sample-metadata', function() {
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
-                /* open in new tab */
-                window.open($td.find('span').data('url'), '_blank');
-                window.focus();
-                return false;
-            });
-            $(document).on('keydown', '.js-sample-metadata', function(e) {
-                var charCode = (e.which) ? e.which : e.keyCode;
-                if(charCode != 13 && charCode != 32) return;
-                var $td = $($(this).parents('ul').data('e').target).parents('tr').find('td[headers="id-col-legacy_sample_id"]');
-                window.open($td.find('span').data('url'), '_blank');
-                window.focus();
-                return false;
-            });
             // fix IE submit outer forms bug
             if ($.browser.msie) {
                 $(document).on('click', '.js-cart-add-item-button', function(e) {

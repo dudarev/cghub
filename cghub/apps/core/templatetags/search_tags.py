@@ -79,6 +79,20 @@ def only_date(value):
 
 
 @register.simple_tag
+def data_menu(values):
+    """
+    Returns formatted row menu items list:
+    'menu_item_name_1|link_1,menu_item_name_2|link_2,...'
+    """
+    menu_items = []
+    for mi_name, mi_resolver in settings.ROW_MENU_ITEMS:
+        link = mi_resolver(values)
+        if link:
+            menu_items.append('|'.join([mi_name, link]))
+    return ','.join(menu_items)
+
+
+@register.simple_tag
 def get_name_by_code(filter_section, code):
     """
     If name for such code does not exist return the code.
