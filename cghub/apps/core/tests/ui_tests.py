@@ -25,6 +25,12 @@ from .tests import create_session
 def center_resolver(value, values):
     return '<a href="' + reverse('help_page') + '">' + value + '</a>'
 
+def details_page_menu_item(values):
+    return reverse('item_details', args=(values.get('analysis_id'),))
+
+def test_menu_item(values):
+    return 'http://google.com'
+
 
 TEST_SETTINGS = dict(
     TABLE_COLUMNS=(
@@ -121,6 +127,10 @@ TEST_SETTINGS = dict(
     VALUE_RESOLVERS = {
         'Center': center_resolver,
     },
+    ROW_MENU_ITEMS = [
+        ('Show details in new window', details_page_menu_item),
+        ('Test menu', test_menu_item),
+    ]
 )
 
 def back_to_bytes(size_str):
@@ -896,10 +906,30 @@ class DetailsUITestCase(LiveServerTestCase):
             link = self.selenium.find_element_by_xpath(
                     "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[6]/div/a")
             link.click()
-            time.sleep(3)
+            time.sleep(2)
             self.assertIn(
                     reverse('help_page'),
                     self.selenium.current_url)
+
+    def test_row_menu(self):
+        """
+        1. Go to search page
+        2. Click on first item info icon
+        3. Check that Test menu is present (see test_menu_item in this file)
+        """
+        with self.settings(**TEST_SETTINGS):
+            self.selenium.get(self.live_server_url)
+            time.sleep(2)
+            self.assertEqual(
+                len(self.selenium.find_elements_by_link_text('Test menu')),
+                0)
+            td = self.selenium.find_element_by_xpath(
+                    "//div[@class='bDiv']/fieldset/table/tbody/tr[1]/td[2]")
+            td.click()
+            time.sleep(1)
+            self.assertEqual(
+                len(self.selenium.find_elements_by_link_text('Test menu')),
+                1)
 
     def test_xml_display(self):
         """
@@ -970,7 +1000,7 @@ class DetailsUITestCase(LiveServerTestCase):
             ac = ActionChains(driver)
             ac.click(td)
             ac.perform()
-            driver.find_element_by_css_selector('.js-details-page').click()
+            driver.find_element_by_partial_link_text('Show details in new window').click()
             time.sleep(3)
             driver.switch_to_window(driver.window_handles[-1])
             page_header = driver.find_element_by_class_name('page-header').text
@@ -2140,7 +2170,6 @@ class TableNavigationUITestCase(LiveServerTestCase):
             assert context_menu.is_displayed()
             # check that details popup button visible
             assert driver.find_element_by_css_selector('.js-details-popup').is_displayed()
-            assert driver.find_element_by_css_selector('.js-sample-metadata').is_displayed()
 
             # FIXME: works in browser but not in selenium
             # try to press alt + enter
