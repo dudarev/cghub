@@ -1000,7 +1000,7 @@ def sample_metadata_menu_item(values):
         disease_abbr = values.get("disease_abbr")
         legacy_sample_id = values.get("legacy_sample_id")
         if (disease_abbr == None) or (disease_abbr == ""):
-            return legacy_sample_id
+            return None
         return tcgaDccDataMatrixUrl + "?" + urllib.urlencode((
                 ("mode", "ApplyFilter"), ("showMatrix", "true"),
                 ("sampleList", legacy_sample_id), ("diseaseType", disease_abbr)))
