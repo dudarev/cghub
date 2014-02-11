@@ -186,21 +186,23 @@ class BatchSearchView(TemplateView):
             else:
                 ids = sorted(ids)
                 results = []
-                try:
-                    offset = int(request.GET.get('offset', 0))
-                    limit = int(request.GET.get(
-                            'limit', settings.DEFAULT_PAGINATOR_LIMIT))
-                except ValueError:
-                    offset = 0
-                    limit = settings.DEFAULT_PAGINATOR_LIMIT
+                offset, limit = paginator_params(request)
                 for i in ids[offset:(offset + limit)]:
                     results.append(i)
 
                 results = get_results_for_ids(results, sort_by='analysis_id')
 
-                return self.render_to_response({
+                response = self.render_to_response({
                         'form': form, 'ids': ids,
                         'results': results})
+
+                if response.status_code == 200:
+                    response.set_cookie(
+                            settings.PAGINATOR_LIMIT_COOKIE, limit,
+                            max_age=settings.COOKIE_MAX_AGE,
+                            path=reverse('home_page'))
+
+                return response
         else:
             # submitted search form
             form = BatchSearchForm(request.POST or None, request.FILES or None)
@@ -227,10 +229,20 @@ class BatchSearchView(TemplateView):
 
                 if not results:
                     form.errors['__all__'] = form.error_class(["No results found."])
-                return self.render_to_response({
+
+                response = self.render_to_response({
                         'form': form, 'found': found, 'ids': ids,
                         'submitted': submitted, 'results': results,
                         'unvalidated': unvalidated})
+
+                if response.status_code == 200:
+                    response.set_cookie(
+                            settings.PAGINATOR_LIMIT_COOKIE, limit,
+                            max_age=settings.COOKIE_MAX_AGE,
+                            path=reverse('home_page'))
+
+                return response
+
             return self.render_to_response({
                         'form': form, 'found': None})
 

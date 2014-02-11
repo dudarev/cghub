@@ -252,6 +252,15 @@ class CoreTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '25')
+            # test set limit in batch search
+            data = {
+                'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
+                '00007994-abeb-4b16-a6ad-7230300a29e9'}
+            response = self.client.post(
+                '%s?limit=10&offset=0' % reverse('batch_search_page'), data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '10')
 
     def test_custom_fields(self):
         """
