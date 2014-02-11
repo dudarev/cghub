@@ -1840,7 +1840,6 @@ class BatchSearchUITestCase(LiveServerTestCase):
         time.sleep(1)
         error = self.selenium.find_element_by_xpath('//ul[@class="errorlist"]').text
         self.assertIn('No results found', error)
-        
 
     def test_batch_search_results_edit(self):
         """
@@ -1848,11 +1847,13 @@ class BatchSearchUITestCase(LiveServerTestCase):
         2. Enter 2 analysis ids
         3. Click on 'Search' button
         4. Try to find items in table
-        5. Select first item, click on 'Remove' button
-        6. Check that only one item is available
-        7. Click on 'Add 1 items to cart'
-        8. Check that 'cart' in url
-        9. Check cart items count
+        5. Click on 25 items per page
+        6. Check that this value appears in cookie
+        7. Select first item, click on 'Remove' button
+        8. Check that only one item is available
+        9. Click on 'Add 1 items to cart'
+        10. Check that 'cart' in url
+        11. Check cart items count
         """
         self.selenium.get('%s%s' % (
                 self.live_server_url,
@@ -1873,11 +1874,20 @@ class BatchSearchUITestCase(LiveServerTestCase):
                 len(self.selenium.find_elements_by_xpath(
                         '//div[@class="bDiv"]/fieldset/table/tbody/tr')),
                 2)
+        # check items per page works properly
+        self.selenium.add_cookie({
+                'name': settings.PAGINATOR_LIMIT_COOKIE, 'value': '10', 'path' : '/'})
+        self.selenium.find_element_by_xpath(
+                        "//div[@class='items-per-page-label']"
+                        "//a[contains(text(), '25')]").click()
+        time.sleep(2)
+        self.assertEqual(
+                self.selenium.get_cookie(settings.PAGINATOR_LIMIT_COOKIE)['value'], '25')
+        # remove
         checkbox = self.selenium.find_element_by_xpath(
                 '//div[@class="bDiv"]/fieldset/table/tbody/tr[1]/td[1]/div/input')
         checkbox.click()
         time.sleep(1)
-        # remove
         self.selenium.find_element_by_xpath(
                 '//div[@class="cart-btn-group"]/button[1]').click()
         time.sleep(2)
