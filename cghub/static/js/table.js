@@ -182,7 +182,6 @@ jQuery(function ($) {
         },
         bindEvents:function () {
             cghub.table.activateItemDetailsLinks();
-            cghub.table.$itemsPerPageLink.unbind('click');
             cghub.table.$itemsPerPageLink.on('click', cghub.selected.save);
             cghub.table.$pageLink.on('click', cghub.selected.save);
             cghub.table.$selectAllCheckbox.on('change', cghub.table.changeCheckboxes);
