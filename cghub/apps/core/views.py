@@ -10,7 +10,7 @@ from django.template import loader, Context, RequestContext
 from django.utils import simplejson as json
 from django.http import (
             QueryDict, HttpResponseRedirect, HttpResponse,
-            HttpResponseServerError)
+            HttpResponseServerError, HttpResponseNotFound)
 from django.views.generic.base import TemplateView, View
 
 from cghub.apps.cart.utils import item_metadata, Cart
@@ -320,3 +320,13 @@ def error_500(request):
     else:
         context['error'] = None
     return HttpResponseServerError(t.render(Context(context)))
+
+
+def error_404(request):
+    """
+    Custom error 404 handler.
+    Connected in cghub.urls.
+    """
+    t = loader.get_template('404.html')
+    context = RequestContext(request)
+    return HttpResponseNotFound(t.render(Context(context)))

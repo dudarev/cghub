@@ -3,15 +3,29 @@
 {% block description %}{{ block.super }}{% endblock %}
 {% block title %}Server error - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=6" media="all">
+    {% if debug %}
+        <link rel="stylesheet" type="text/less" href="{% static 'css/core/error.less' %}" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=6" media="all">
+    {% endif %}
 {% endblock %}
 {% block messages %}{% endblock %}
 {% block main_content %}
 <div class="span10 offset1" style="margin-top: 20px;">
     <h1>Error</h1>
     <p>Internal server error. Please contact <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
+
+    <button class="btn js-session-reset">Reset session</button>
+
     {% if error %}
-        Details: <pre>{{ error }}</pre></p>
+        <br><br>Details: <pre>{{ error }}</pre>
     {% endif %}
 </div>
+{% endblock %}
+{% block extra_body_js %}
+<script>
+    jQuery(function ($) {
+        $('.js-session-reset').on('click', this.cghub.base.resetSession);
+    });
+</script>
 {% endblock %}

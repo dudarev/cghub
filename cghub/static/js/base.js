@@ -134,6 +134,19 @@ jQuery(function ($) {
                 };
             });
         },
+        resetSession:function() {
+            /* remove all cookies */
+            var cookies = $.cookie();
+            for(var cookie in cookies) {
+                console.log(cookie);
+               $.removeCookie(cookie, {path: '/'});
+            }
+            $.removeCookie('sessionid', {path: '/'});
+            /* clear sessionStorage */
+            sessionStorage.clear();
+            /* redirect to index page */
+            //window.location.href = '/';
+        },
     };
     cghub.base.init();
 });

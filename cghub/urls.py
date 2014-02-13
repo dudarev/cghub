@@ -11,6 +11,9 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^$', HomeView.as_view(), name='home_page'),
+    # TODO: remove me (#457)
+    url('^500/$', 'cghub.apps.core.views.error_500', name='error500'),
+    #
     url(r'^search/$', SearchView.as_view(), name='search_page'),
     url(r'^search/batch/$', BatchSearchView.as_view(), name='batch_search_page'),
     url(r'^details/(?P<analysis_id>'
@@ -35,3 +38,5 @@ urlpatterns += patterns('django.views.generic.simple',
 urlpatterns += staticfiles_urlpatterns()
 
 handler500 = 'cghub.apps.core.views.error_500'
+handler404 = 'cghub.apps.core.views.error_404'
+

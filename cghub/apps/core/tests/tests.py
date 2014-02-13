@@ -27,6 +27,7 @@ from django.utils.importlib import import_module
 from django.http import HttpRequest, QueryDict
 
 from cghub.apps.cart.utils import Cart
+from cghub import urls
 
 from ..filters_storage import Filters, JSON_FILTERS_FILE_NAME
 from ..forms import BatchSearchForm, AnalysisIDsForm
@@ -43,7 +44,7 @@ from ..templatetags.core_tags import without_header, messages
 from ..utils import (
         get_filters_dict, query_dict_to_str, paginator_params,
         generate_tmp_file_name, add_message, remove_message)
-from ..views import error_500
+from ..views import error_500, error_404
 
 
 def create_session(self):
@@ -1056,12 +1057,21 @@ class SettingsTestCase(TestCase):
 
 class ErrorViewsTestCase(TestCase):
 
+    def test_error_404(self):
+        self.assertTrue(urls.handler404.endswith('.error_404'))
+        factory = RequestFactory()
+        request = factory.get('/')
+        response = error_404(request)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('This page was not found.', response.content)
+
     def test_error_500(self):
+        self.assertTrue(urls.handler500.endswith('.error_500'))
         factory = RequestFactory()
         request = factory.get('/')
         r = error_500(request)
         self.assertEqual(r.status_code, 500)
-        self.assertTrue(str(r).find('Internal server error.') != -1)
+        self.assertIn('Internal server error.', r.content)
         error_value = 'some val'
         with patch.object(sys, 'exc_info', return_value=(URLError, error_value, 'some_tb')) as mock_exc_info:
             r = error_500(request)
