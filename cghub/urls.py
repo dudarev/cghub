@@ -21,6 +21,8 @@ urlpatterns = patterns(
         MetadataView.as_view(), name='metadata'),
     url(r'^message/(?P<message_id>\d+)/remove/$',
         MessageView.as_view(), name='message_remove'),
+    url(r'^logout/', 'django.contrib.auth.views.logout',
+        {'next_page': '/'}, name='logout'),
     url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^help/', include('cghub.apps.help.urls')),
     url(r'^admin/', include(admin.site.urls)),
@@ -35,3 +37,5 @@ urlpatterns += patterns('django.views.generic.simple',
 urlpatterns += staticfiles_urlpatterns()
 
 handler500 = 'cghub.apps.core.views.error_500'
+handler404 = 'cghub.apps.core.views.error_404'
+

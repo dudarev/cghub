@@ -134,6 +134,20 @@ jQuery(function ($) {
                 };
             });
         },
+        resetSession:function() {
+            /* remove all cookies */
+            var cookies = $.cookie();
+            for(var cookie in cookies) {
+                console.log(cookie);
+               $.removeCookie(cookie, {path: '/'});
+            }
+            $.removeCookie('sessionid', {path: '/'});
+            /* clear sessionStorage */
+            sessionStorage.clear();
+            /* logout to clear session
+            http://stackoverflow.com/questions/12436521/why-cant-i-get-sessionid-on-the-client-side */
+            window.location.href = cghub.vars.logoutPageUrl;
+        },
     };
     cghub.base.init();
 });

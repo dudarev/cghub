@@ -317,6 +317,31 @@ class CoreUITestCase(LiveServerTestCase):
         self.assertFalse(self.selenium.find_element_by_xpath(
                 '//div[@class="js-spinner spinner"]').is_displayed())
 
+    def test_reset_session(self):
+        """
+        1. Go to cart page
+        2. Add some cookie
+        3. Remember sessionid cookie
+        4. Call cghub.base.resetSession
+        5. Check that page changed to index page
+        6. Check that sessionid was changed
+        7. Check that custom cookie was removed
+        """
+        INDEX_PAGE_URL = '%s/' % self.live_server_url
+        self.selenium.get('%s%s' % (self.live_server_url, reverse('cart_page')))
+        time.sleep(2)
+        self.assertNotEqual(self.selenium.current_url, INDEX_PAGE_URL)
+        NEW_PAGE_LIMIT = 111
+        self.selenium.add_cookie({
+                'name': settings.PAGINATOR_LIMIT_COOKIE, 'value': NEW_PAGE_LIMIT, 'path' : '/'})
+        sessionid = self.selenium.get_cookie(settings.SESSION_COOKIE_NAME)['value']
+        self.selenium.execute_script(
+                'jQuery(function ($) {this.cghub.base.resetSession()})')
+        time.sleep(2)
+        self.assertEqual(self.selenium.current_url, INDEX_PAGE_URL)
+        self.assertNotEqual(self.selenium.get_cookie(settings.SESSION_COOKIE_NAME)['value'], sessionid)
+        self.assertEqual(self.selenium.get_cookie(settings.PAGINATOR_LIMIT_COOKIE), None)
+
 
 class NavigationLinksUITestCase(LiveServerTestCase):
 
