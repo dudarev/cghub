@@ -6,12 +6,12 @@
     {% if debug %}
         <link rel="stylesheet" type="text/less" href="{% static 'css/core/error.less' %}" media="all">
     {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=6" media="all">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=7" media="all">
     {% endif %}
 {% endblock %}
 {% block messages %}{% endblock %}
 {% block main_content %}
-<div class="span10 offset1" style="margin-top: 20px;">
+<div class="span10 offset1">
     <h1>Error</h1>
     <p>Internal server error. Please contact <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.</p>
 

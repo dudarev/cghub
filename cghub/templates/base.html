@@ -126,6 +126,7 @@
         cghub.vars = {
             helpHintUrl: "{% url help_hint %}",
             helpTextUrl: "{% url help_text %}",
+            logoutPageUrl: "{% url logout %}",
             supportEmail: "{{ SUPPORT_EMAIL }}",
             tooltipHoverTime: {{ TOOLTIP_HOVER_TIME }},
             csrfToken: '{{ csrf_token }}'
@@ -140,7 +141,7 @@
 {% else %}
     <script type="text/javascript" src="{% static 'js/libs/flexigrid.min.js' %}?v=6"></script>
     <script type="text/javascript" src="{% static 'js/libs/bootstrap/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/base.min.js' %}?v=11"></script>
+    <script type="text/javascript" src="{% static 'js/base.min.js' %}?v=12"></script>
 {% endif %}
 {% block extra_body_js %} {% endblock %}
 {% if debug %}

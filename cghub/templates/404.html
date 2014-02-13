@@ -3,11 +3,15 @@
 {% block description %}{{ block.super }}{% endblock %}
 {% block title %}This page is not found - {{ block.super }}{% endblock %}
 {% block extra_header_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=6" media="all">
+    {% if debug %}
+        <link rel="stylesheet" type="text/less" href="{% static 'css/core/error.less' %}" media="all">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}?v=7" media="all">
+    {% endif %}
 {% endblock %}
 {% block messages %}{% endblock %}
 {% block main_content %}
-<div class="span6 offset1" style="margin-top: 20px;">
+<div class="span6 offset1">
     <h1>Error</h1>
     <p>This page was not found.</p>
 </div>

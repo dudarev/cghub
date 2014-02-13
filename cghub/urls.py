@@ -11,9 +11,6 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^$', HomeView.as_view(), name='home_page'),
-    # TODO: remove me (#457)
-    url('^500/$', 'cghub.apps.core.views.error_500', name='error500'),
-    #
     url(r'^search/$', SearchView.as_view(), name='search_page'),
     url(r'^search/batch/$', BatchSearchView.as_view(), name='batch_search_page'),
     url(r'^details/(?P<analysis_id>'
@@ -24,6 +21,8 @@ urlpatterns = patterns(
         MetadataView.as_view(), name='metadata'),
     url(r'^message/(?P<message_id>\d+)/remove/$',
         MessageView.as_view(), name='message_remove'),
+    url(r'^logout/', 'django.contrib.auth.views.logout',
+        {'next_page': '/'}, name='logout'),
     url(r'^cart/', include('cghub.apps.cart.urls')),
     url(r'^help/', include('cghub.apps.help.urls')),
     url(r'^admin/', include(admin.site.urls)),

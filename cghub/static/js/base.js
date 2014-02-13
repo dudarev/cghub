@@ -144,8 +144,9 @@ jQuery(function ($) {
             $.removeCookie('sessionid', {path: '/'});
             /* clear sessionStorage */
             sessionStorage.clear();
-            /* redirect to index page */
-            //window.location.href = '/';
+            /* logout to clear session
+            http://stackoverflow.com/questions/12436521/why-cant-i-get-sessionid-on-the-client-side */
+            window.location.href = cghub.vars.logoutPageUrl;
         },
     };
     cghub.base.init();
