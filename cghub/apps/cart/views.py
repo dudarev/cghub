@@ -268,6 +268,7 @@ DOWNLOAD_VIEWS = {
     'manifest': manifest,
     'metadata': metadata,
     'summary': summary,
+    'urls': data_urls,
 }
 
 
