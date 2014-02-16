@@ -1023,6 +1023,6 @@ ROW_MENU_ITEMS = [
 DEFAULT_PAGINATOR_LIMIT = 10
 
 DEFAULT_FILTERS = {
-    'study': ('phs000178','*Other_Sequencing_Multiisolate', 'phs0004* OR phs000218'),
+    'study': ('phs000178','*Other_Sequencing_Multiisolate', 'phs0004*', 'phs000218'),
     'state': ('live',),
 }
