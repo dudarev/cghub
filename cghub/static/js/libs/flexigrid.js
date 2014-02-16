@@ -337,6 +337,9 @@
                     cid = cids[ic];
                     if(!cid.length) continue;
                     ncol = $("th[axis='col" + cid + "']", this.hDiv)[0];
+                    if(!ncol) {
+                        continue;
+                    }
                     if (visible == null) {
                         visible = ncol.hidden;
                     }

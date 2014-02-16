@@ -50,6 +50,8 @@ For dates it has special format:
 
 If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
 If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones.
+
+Only refasem_short_name and study can use queries with AND statement (for example: "phs0004* OR phs000218").
 """
 
 try:

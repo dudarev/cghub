@@ -222,16 +222,19 @@ def applied_filters(request):
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
 
-        # Filters by assembly can use complex queries
-        if f == 'refassem_short_name':
+        # Filters by assembly and study can use complex queries
+        if f in ('refassem_short_name', 'study'):
             for value in Filters.get_all_filters()[f]['filters']:
                 options = value.split(' OR ')
                 for option in options:
                     if option not in filters:
                         break
                 else:
-                    filters_str += ', <span>%s</span>' % (
-                            remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)))
+                    visible_value = remove_dashes(Filters.get_all_filters()[f]['filters'].get(value))
+                    if visible_value == value:
+                        filters_str += ', <span>%s</span>' % visible_value
+                    else:
+                        filters_str += ', <span>%s (%s)</span>' % (visible_value, value)
             filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
                     '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
                                                 title, filters_str[2:])
