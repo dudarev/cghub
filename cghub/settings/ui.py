@@ -252,6 +252,7 @@ study_id_to_name = {
     "TCGA Benchmark": "TCGA Benchmark",
     "phs000178": "TCGA",
     "Homo sapiens Other_Sequencing_Multiisolate": "CCLE",
+    "phs000218": "TARGET",
     "phs000463": "TARGET (ALL I)",
     "phs000464": "TARGET (ALL II)",
     "phs000465": "TARGET (AML)",
@@ -1022,6 +1023,6 @@ ROW_MENU_ITEMS = [
 DEFAULT_PAGINATOR_LIMIT = 10
 
 DEFAULT_FILTERS = {
-    'study': ('phs000178','*Other_Sequencing_Multiisolate', 'phs0004*'),
+    'study': ('phs000178','*Other_Sequencing_Multiisolate', 'phs0004* OR phs000218'),
     'state': ('live',),
 }
