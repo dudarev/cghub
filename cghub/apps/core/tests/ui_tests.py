@@ -174,6 +174,9 @@ class CoreUITestCase(LiveServerTestCase):
         self.selenium.quit()
         super(CoreUITestCase, self).tearDownClass()
 
+    def tearDown(self):
+        self.selenium.delete_all_cookies()
+
     def test_access_without_trailing_slash(self):
         """
         Access application without trailing slash in URL.
@@ -234,8 +237,8 @@ class CoreUITestCase(LiveServerTestCase):
             search_field.clear()
             search_field.send_keys(key)
             search_field.submit()
-            # check popup visible
             time.sleep(1)
+            # check popup visible
             assert popup.is_displayed()
             popup.find_element_by_css_selector(".modal-header .close").click()
             time.sleep(1)
