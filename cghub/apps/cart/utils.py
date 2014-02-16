@@ -303,6 +303,45 @@ def summary_tsv_generator(request, compress=False):
     yield zipper.close()
 
 
+def urls_tsv_generator(request, compress=False):
+    """
+    Returns analysis_data_uri urls tsv for all cart items.
+
+    :param request: django Request object
+    :param compress: set to True to enable compression
+    """
+    cart = Cart(request.session)
+    zipper = Gzipper(filename='urls.tsv', compress=compress)
+    iterator = cart.cart.items.all().iterator()
+    count_all = cart.all_count
+    count = 0
+    while True:
+        urls_list = []
+        for i in xrange(settings.MAX_ITEMS_IN_QUERY):
+            try:
+                urls_list.append(next(iterator).analysis.analysis_id)
+            except StopIteration:
+                break
+        if not urls_list:
+            break
+        for i in urls_list:
+            zipper.write('%s/cghub/data/analysis/download/%s\n' % (
+                    settings.CGHUB_DOWNLOAD_SERVER,
+                    i
+                ))
+            count += 1
+        yield zipper.read()
+    if count != count_all:
+        cart_logger.error('Error while composing urls tsv.')
+        add_message(
+                request=request,
+                level='error',
+                content='An error occured while composing urls tsv.')
+        request.session.save()
+        zipper.write(u'\nError!')
+    yield zipper.close()
+
+
 def item_metadata(analysis_id, last_modified):
     content = render_to_string('xml/analysis_xml_header.xml', {
                         'date': datetime.datetime.strftime(

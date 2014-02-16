@@ -181,6 +181,9 @@ class CartUITestCase(LiveServerTestCase):
                         'manifest.xml'))
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
+                        'urls.xml'))
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
                         'metadata.xml'))
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
@@ -202,8 +205,19 @@ class CartUITestCase(LiveServerTestCase):
             except OSError:
                 assert False, "File manifest.xml wasn't downloaded"
 
-            # download Metadata XML
+            # download data urls
             btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[2]')
+            btn.click()
+            driver.implicitly_wait(5)
+            try:
+                os.remove(os.path.join(
+                        settings.FULL_METADATA_CACHE_DIR,
+                        'urls.tsv'))
+            except OSError:
+                assert False, "File urls.tsv wasn't downloaded"
+
+            # download Metadata XML
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[3]')
             btn.click()
             driver.implicitly_wait(5)
             try:
@@ -214,7 +228,7 @@ class CartUITestCase(LiveServerTestCase):
                 assert False, "File metadata.xml wasn't downloaded"
 
             # download Summary TSV
-            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[3]')
+            btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[4]')
             btn.click()
             driver.implicitly_wait(5)
             try:

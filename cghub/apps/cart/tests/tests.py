@@ -26,7 +26,7 @@ from ..forms import SelectedItemsForm, AllItemsForm
 from ..models import Cart as CartModel, CartItem, Analysis
 from ..utils import (
         Cart, manifest_xml_generator, metadata_xml_generator,
-        summary_tsv_generator, update_analysis)
+        summary_tsv_generator, urls_tsv_generator, update_analysis)
 from ..views import manifest, metadata, summary
 
 from .factories import AnalysisFactory, CartItemFactory
@@ -605,6 +605,23 @@ class CartCacheTestCase(TestCase):
         for i in iterator:
             result += i
         self.assertIn('summary.tsv', result)
+
+        # analysis_data_uri list generator
+        iterator = urls_tsv_generator(request)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn(self.analysis_id ,result)
+        self.assertIn(self.analysis_id2 ,result)
+        self.assertIn('http' ,result)
+        self.assertNotIn('Error!', result)
+
+        # test compressing for analysis_data_uri list
+        iterator = urls_tsv_generator(request, compress=True)
+        result = ''
+        for i in iterator:
+            result += i
+        self.assertIn('urls.tsv', result)
 
         # metadata xml generator
         iterator = metadata_xml_generator(request)

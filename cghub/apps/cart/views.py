@@ -21,7 +21,7 @@ from cghub.apps.core.utils import (
 from .forms import SelectedItemsForm, AllItemsForm
 from .utils import (
         Cart, manifest_xml_generator, metadata_xml_generator,
-        summary_tsv_generator)
+        summary_tsv_generator, urls_tsv_generator)
 
 
 cart_logger = logging.getLogger('cart')
@@ -223,6 +223,20 @@ def manifest(request):
     return response
 
 
+def data_urls(request):
+    if request.GET.get('gzip'):
+        response = HttpResponse(
+                urls_tsv_generator(request, compress=True),
+                content_type='application/x-gzip')
+        response['Content-Disposition'] = 'attachment; filename=urls.tsv.gz'
+    else:
+        response = HttpResponse(
+                urls_tsv_generator(request),
+                content_type='text/tsv')
+        response['Content-Disposition'] = 'attachment; filename=urls.tsv'
+    return response
+
+
 def metadata(request):
     if request.GET.get('gzip'):
         response = HttpResponse(
@@ -254,6 +268,7 @@ DOWNLOAD_VIEWS = {
     'manifest': manifest,
     'metadata': metadata,
     'summary': summary,
+    'urls': data_urls,
 }
 
 
