@@ -55,13 +55,16 @@ Paging
 ------
 
 Search results are paged when requested from the server. Paging is done by WSI API.
-Default number of results per page may be set in ``settings/ui.py``:
+List of allowed numbers of items per page may be set in ``settings/variables.py``:
 
 .. code-block:: python
 
-    # ui.py
+    # settings/variables.py
 
-    DEFAULT_PAGINATOR_LIMIT = 10
+    PAGINATOR_LIMITS = [15, 25, 50]
+
+Default items per page is PAGINATOR_LIMITS[0].
+
 
 Columns ordering and styles
 ---------------------------
