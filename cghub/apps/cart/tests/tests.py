@@ -624,7 +624,7 @@ class CartCacheTestCase(TestCase):
         result = ''
         for i in iterator:
             result += i
-        self.assertIn('urls.tsv', result)
+        self.assertIn('urls.txt', result)
 
         # metadata xml generator
         iterator = metadata_xml_generator(request)

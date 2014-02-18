@@ -228,12 +228,12 @@ def data_urls(request):
         response = HttpResponse(
                 urls_tsv_generator(request, compress=True),
                 content_type='application/x-gzip')
-        response['Content-Disposition'] = 'attachment; filename=urls.tsv.gz'
+        response['Content-Disposition'] = 'attachment; filename=urls.txt.gz'
     else:
         response = HttpResponse(
                 urls_tsv_generator(request),
                 content_type='text/tsv')
-        response['Content-Disposition'] = 'attachment; filename=urls.tsv'
+        response['Content-Disposition'] = 'attachment; filename=urls.txt'
     return response
 
 

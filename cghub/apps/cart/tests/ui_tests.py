@@ -74,7 +74,7 @@ class CartUITestCase(LiveServerTestCase):
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
         fp.set_preference("browser.download.dir", settings.FULL_METADATA_CACHE_DIR)
-        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv,application/x-gzip")
+        fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml,text/tsv,text/txt,application/x-gzip")
 
         self.selenium = webdriver.Firefox(firefox_profile=fp)
         self.selenium.set_window_size(1280, 800)
@@ -212,9 +212,9 @@ class CartUITestCase(LiveServerTestCase):
             try:
                 os.remove(os.path.join(
                         settings.FULL_METADATA_CACHE_DIR,
-                        'urls.tsv'))
+                        'urls.txt'))
             except OSError:
-                assert False, "File urls.tsv wasn't downloaded"
+                assert False, "File urls.txt wasn't downloaded"
 
             # download Metadata XML
             btn = driver.find_element_by_xpath('//div[@class="btn-toolbar"]/div[2]/button[3]')
