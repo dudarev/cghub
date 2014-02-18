@@ -82,162 +82,171 @@ class CoreTestCase(TestCase):
     query = "6d54"
 
     def test_index(self):
-        response = self.client.get(reverse('home_page'))
-        self.assertEqual(response.status_code, 200)
-        # check ajax urls is available
-        self.assertContains(response, reverse('help_hint'))
-        self.assertContains(response, reverse('help_text'))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('home_page'))
+            self.assertEqual(response.status_code, 200)
+            # check ajax urls is available
+            self.assertContains(response, reverse('help_hint'))
+            self.assertContains(response, reverse('help_text'))
 
     def test_index_redirect_to_search_if_get_specified(self):
-        response = self.client.get('/', {'state': '(live)'})
-        self.assertRedirects(response, '%s?%s' % (
-                reverse('search_page'),
-                'state=%28live%29'))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get('/', {'state': '(live)'})
+            self.assertRedirects(response, '%s?%s' % (
+                    reverse('search_page'),
+                    'state=%28live%29'))
 
     def test_open_help_page_in_new_tab(self):
         """
         Menu help link contains 'target="_blank"'.
         """
-        response = self.client.get(reverse('home_page'))
-        self.assertContains(response, '<a href="%s?from=%s" target="_blank"' % (
-                reverse('help_page'), reverse('home_page')))
-        # another behavior on help pages (Feature #2188)
-        response = self.client.get(reverse('help_page'))
-        self.assertNotContains(response, '<a href="%s?from=%s" target="_blank"' % (
-                reverse('help_page'), reverse('help_page')))
-        self.assertContains(response, '<a href="%s"' % reverse('help_page'))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('home_page'))
+            self.assertContains(response, '<a href="%s?from=%s" target="_blank"' % (
+                    reverse('help_page'), reverse('home_page')))
+            # another behavior on help pages (Feature #2188)
+            response = self.client.get(reverse('help_page'))
+            self.assertNotContains(response, '<a href="%s?from=%s" target="_blank"' % (
+                    reverse('help_page'), reverse('help_page')))
+            self.assertContains(response, '<a href="%s"' % reverse('help_page'))
 
     def test_bad_filter(self):
-        response = self.client.get(reverse('search_page'), {
-                'state': 'notexistent'})
-        self.assertEqual(response.status_code, 200)
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page'), {
+                    'state': 'notexistent'})
+            self.assertEqual(response.status_code, 200)
 
     def test_non_existent_search(self):
-        response = self.client.get(reverse('search_page'), {
-                'q': 'non_existent_search_query'})
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('No results found' in response.content)
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page'), {
+                    'q': 'non_existent_search_query'})
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('No results found' in response.content)
 
     def test_existent_search(self):
-        response = self.client.get(reverse('search_page'), {
-                'q': '%s' % self.query})
-        self.assertEqual(response.status_code, 200)
-        # search by query alert (if no ids were found)
-        self.assertContains(
-                response,
-                'The results maybe be incomplete or inconsistent due '
-                'to limited amount of textual metadata available.')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page'), {
+                    'q': '%s' % self.query})
+            self.assertEqual(response.status_code, 200)
+            # search by query alert (if no ids were found)
+            self.assertContains(
+                    response,
+                    'The results maybe be incomplete or inconsistent due '
+                    'to limited amount of textual metadata available.')
 
     def test_search_all(self):
-        response = self.client.get(reverse('search_page'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No applied filters')
-        # test empty last_query is saved
-        response = self.client.get(reverse('home_page'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No applied filters')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'No applied filters')
+            # test empty last_query is saved
+            response = self.client.get(reverse('home_page'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'No applied filters')
 
     def test_item_details_view(self):
         analysis_id = '916d1bd2-f503-4775-951c-20ff19dfe409'
         bad_analysis_id = 'badd1bd2-f503-4775-951c-123456789112'
-        try:
-            response = self.client.get(reverse(
-                    'item_details', kwargs={'analysis_id': bad_analysis_id}))
-        except URLError as e:
-            self.assertIn('No results for analysis_id', str(e))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            try:
+                response = self.client.get(reverse(
+                        'item_details', kwargs={'analysis_id': bad_analysis_id}))
+            except URLError as e:
+                self.assertIn('No results for analysis_id', str(e))
 
-        response = self.client.get(
-                        reverse('item_details',
-                        kwargs={'analysis_id': analysis_id}))
-        self.assertEqual(response.status_code, 200)
-        result = response.context['res']
-        self.assertNotContains(response, u'No data.')
-        self.assertContains(response, result['center_name'])
-        # not ajax
-        self.assertContains(response, '<head>')
-        self.assertContains(response, '<script>LoadXMLString')
-        self.assertContains(response, 'Add to cart')
-        self.assertNotContains(response, 'In your cart')
-        # TODO: add test for reason shows only for state != live
-        # try ajax request
-        response = self.client.get(
-                        reverse('item_details',
-                        kwargs={'analysis_id': analysis_id}),
-                        {'ajax': 1},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, result['center_name'])
-        self.assertNotContains(response, '<script>LoadXMLString')
-        self.assertContains(response, 'Show metadata XML')
-        self.assertContains(response, 'Add to cart')
-        self.assertNotContains(response, 'In your cart')
-        # test if response contains some of needed fields
-        self.assertContains(response, 'Modified')
-        self.assertContains(response, 'Disease')
-        self.assertContains(response, 'Disease Name')
-        self.assertContains(response, 'Sample Accession')
-        # test raw_xml
-        self.assertTrue(response.context['raw_xml'])
-        # check all entries are present
-        self.assertIn('run_xml', response.context['raw_xml'])
-        # check reason is present
-        self.assertFalse(response.context['res']['reason'] is None)
-        # test reason field
-        analysis_id2 = '333a5cc4-741b-445c-93f9-9fde6f64b88f' # state = bad_data
-        response = self.client.get(reverse(
-                'item_details', kwargs={'analysis_id': analysis_id2}))
-        self.assertEqual(response.status_code, 200)
-        # show 'Add to cart' button only if item not in cart
-        create_session(self)
-        cart = Cart(self.session)
-        cart.add(result)
-        response = self.client.get(
-                        reverse('item_details',
-                        kwargs={'analysis_id': analysis_id}))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Add to cart')
-        self.assertContains(response, 'In your cart')
-        # try ajax request
-        response = self.client.get(
-                        reverse('item_details',
-                        kwargs={'analysis_id': analysis_id}),
-                        {'ajax': 1},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Add to cart')
-        self.assertContains(response, 'In your cart')
+            response = self.client.get(
+                            reverse('item_details',
+                            kwargs={'analysis_id': analysis_id}))
+            self.assertEqual(response.status_code, 200)
+            result = response.context['res']
+            self.assertNotContains(response, u'No data.')
+            self.assertContains(response, result['center_name'])
+            # not ajax
+            self.assertContains(response, '<head>')
+            self.assertContains(response, '<script>LoadXMLString')
+            self.assertContains(response, 'Add to cart')
+            self.assertNotContains(response, 'In your cart')
+            # TODO: add test for reason shows only for state != live
+            # try ajax request
+            response = self.client.get(
+                            reverse('item_details',
+                            kwargs={'analysis_id': analysis_id}),
+                            {'ajax': 1},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, result['center_name'])
+            self.assertNotContains(response, '<script>LoadXMLString')
+            self.assertContains(response, 'Show metadata XML')
+            self.assertContains(response, 'Add to cart')
+            self.assertNotContains(response, 'In your cart')
+            # test if response contains some of needed fields
+            self.assertContains(response, 'Modified')
+            self.assertContains(response, 'Disease')
+            self.assertContains(response, 'Disease Name')
+            self.assertContains(response, 'Sample Accession')
+            # test raw_xml
+            self.assertTrue(response.context['raw_xml'])
+            # check all entries are present
+            self.assertIn('run_xml', response.context['raw_xml'])
+            # check reason is present
+            self.assertFalse(response.context['res']['reason'] is None)
+            # test reason field
+            analysis_id2 = '333a5cc4-741b-445c-93f9-9fde6f64b88f' # state = bad_data
+            response = self.client.get(reverse(
+                    'item_details', kwargs={'analysis_id': analysis_id2}))
+            self.assertEqual(response.status_code, 200)
+            # show 'Add to cart' button only if item not in cart
+            create_session(self)
+            cart = Cart(self.session)
+            cart.add(result)
+            response = self.client.get(
+                            reverse('item_details',
+                            kwargs={'analysis_id': analysis_id}))
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, 'Add to cart')
+            self.assertContains(response, 'In your cart')
+            # try ajax request
+            response = self.client.get(
+                            reverse('item_details',
+                            kwargs={'analysis_id': analysis_id}),
+                            {'ajax': 1},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, 'Add to cart')
+            self.assertContains(response, 'In your cart')
 
     def test_save_filters_state(self):
         """
         Filters should be persistent only if 'remember filter settings' is checked.
         Only filters can be persistent, not query.
         """
-        response = self.client.get(
-                '%s?state=(live)&q=%s' % (reverse('search_page'), self.query))
-        self.assertEqual(
-                self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
-                '')
-        response = self.client.get(reverse('home_page'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, self.query)
-        self.assertNotContains(response, 'data-filters="live"')
-        # save query
-        response = self.client.get(
-                '%s?state=(live)&q=%s&remember=true' % (reverse('search_page'), self.query))
-        self.assertEqual(
-                self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
-                'q=%s&state=(live)&remember=true' % self.query)
-        response = self.client.get(reverse('home_page'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, self.query)
-        self.assertContains(response, 'data-filters="live"')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(
+                    '%s?state=(live)&q=%s' % (reverse('search_page'), self.query))
+            self.assertEqual(
+                    self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
+                    '')
+            response = self.client.get(reverse('home_page'))
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, self.query)
+            self.assertNotContains(response, 'data-filters="live"')
+            # save query
+            response = self.client.get(
+                    '%s?state=(live)&q=%s&remember=true' % (reverse('search_page'), self.query))
+            self.assertEqual(
+                    self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
+                    'q=%s&state=(live)&remember=true' % self.query)
+            response = self.client.get(reverse('home_page'))
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, self.query)
+            self.assertContains(response, 'data-filters="live"')
 
     def test_save_limit_in_cookies(self):
         DEFAULT_FILTERS = {
                 'study': ('phs000178', '*Other_Sequencing_Multiisolate'),
                 'state': ('live',),
                 'upload_date': '[NOW-7DAY+TO+NOW]'}
-        with self.settings(DEFAULT_FILTERS = DEFAULT_FILTERS):
+        with self.settings(DEFAULT_FILTERS=DEFAULT_FILTERS, PAGINATOR_LIMITS=[10, 25, 50]):
             response = self.client.get(
                     '%s?%s' % (
                             reverse('search_page'),
@@ -245,7 +254,7 @@ class CoreTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                     response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value,
-                    str(settings.DEFAULT_PAGINATOR_LIMIT))
+                    str(settings.PAGINATOR_LIMITS[0]))
             response = self.client.get(
                     '%s?%s&limit=25' % (
                             reverse('search_page'),
@@ -361,15 +370,16 @@ class UtilsTestCase(TestCase):
             self.assertEqual(query_dict_to_str(data['dict']), data['str'])
 
     def test_paginator_params(self):
-        url = reverse('home_page')
-        request = get_request(url=url)
-        self.assertEqual(paginator_params(request), (0, 10))
-        request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
-        self.assertEqual(paginator_params(request), (0, 25))
-        request = get_request(url=url + '?offset=10')
-        self.assertEqual(paginator_params(request), (10, 10))
-        request = get_request(url=url + '?limit=50')
-        self.assertEqual(paginator_params(request), (0, 50))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            url = reverse('home_page')
+            request = get_request(url=url)
+            self.assertEqual(paginator_params(request), (0, 10))
+            request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
+            self.assertEqual(paginator_params(request), (0, 25))
+            request = get_request(url=url + '?offset=10')
+            self.assertEqual(paginator_params(request), (10, 10))
+            request = get_request(url=url + '?limit=50')
+            self.assertEqual(paginator_params(request), (0, 50))
 
     def test_generate_tmp_file_name(self):
         """
@@ -533,50 +543,40 @@ class TemplateTagsTestCase(TestCase):
             '<b>Library Type</b>: <span>WGS</span>, <span>WXS</span></li></ul>')
 
     def test_items_per_page_tag(self):
-        request = HttpRequest()
-        default_limit = settings.DEFAULT_PAGINATOR_LIMIT
-        default_limit_link = ('<a href="?limit={limit}&amp;offset=0"><span class="hidden">'
-                'view </span>{limit}'.format(limit=default_limit))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            request = HttpRequest()
+            default_limit = settings.PAGINATOR_LIMITS[0]
+            default_limit_link = ('<a href="?limit={limit}&amp;offset=0"><span class="hidden">'
+                    'view </span>{limit}'.format(limit=default_limit))
 
-        request.GET = QueryDict('', mutable=False)
-        template = Template(
-                "{% load pagination_tags %}{% items_per_page request " +
-                str(default_limit) + " 100 %}")
-        result = template.render(RequestContext(request, {}))
-        self.assertIn('<a href="?limit=100&amp;offset=0"><span class="hidden">view </span>100', result)
-        self.assertTrue(not default_limit_link in result)
-
-        request.GET = QueryDict('limit=100', mutable=False)
-        result = template.render(RequestContext(request, {}))
-        self.assertTrue(not '<a href="?limit=100" '
-                    'title="View 100 items per page">100</a>' in result)
-        self.assertTrue(default_limit_link in result)
-
-        # test offset
-        # offset=10, limit=10 -> offset=0, limit=25
-        # offset=20, limit=10 -> offset=0, limit=25
-        # offset=30, limit=10 -> offset=25, limit=25
-        template = Template(
-                "{% load pagination_tags %}{% items_per_page request " +
-                "10 25 %}")
-        request.GET = QueryDict('limit=10&offset=10', mutable=False)
-        result = template.render(RequestContext(request, {}))
-        self.assertNotIn('offset=10', result)
-        self.assertIn('offset=0', result)
-        request.GET = QueryDict('limit=10&offset=30', mutable=False)
-        result = template.render(RequestContext(request, {}))
-        self.assertNotIn('offset=10', result)
-        self.assertIn('offset=25', result)
-
-        template = Template(
-            "{% load pagination_tags %}{% items_per_page request 10 'incorrect_data' %}")
-        try:
+            request.GET = QueryDict('', mutable=False)
+            template = Template(
+                    "{% load pagination_tags %}{% items_per_page request %}")
             result = template.render(RequestContext(request, {}))
-            assert 'No exception raised for incorrect data'
-        except Exception as e:
-            self.assertEqual(
-                e.message,
-                "Limits can be numbers or it's string representation")
+            self.assertIn('<a href="?limit=50&amp;offset=0"><span class="hidden">view </span>50', result)
+            self.assertNotIn(default_limit_link, result)
+
+            request.GET = QueryDict('limit=50', mutable=False)
+            result = template.render(RequestContext(request, {}))
+            self.assertNotIn(
+                    '<a href="?limit=50" title="View 50 items per page">50</a>',
+                    result)
+            self.assertIn(default_limit_link, result)
+
+            # test offset
+            # offset=10, limit=10 -> offset=0, limit=25
+            # offset=20, limit=10 -> offset=0, limit=25
+            # offset=30, limit=10 -> offset=25, limit=25
+            template = Template(
+                    "{% load pagination_tags %}{% items_per_page request %}")
+            request.GET = QueryDict('limit=10&offset=10', mutable=False)
+            result = template.render(RequestContext(request, {}))
+            self.assertNotIn('offset=10', result)
+            self.assertIn('offset=0', result)
+            request.GET = QueryDict('limit=10&offset=30', mutable=False)
+            result = template.render(RequestContext(request, {}))
+            self.assertNotIn('offset=10', result)
+            self.assertIn('offset=25', result)
 
     def test_get_name_by_code_tag(self):
         for section, section_data in Filters.get_all_filters().iteritems():
@@ -832,26 +832,27 @@ class SelectFiltersTestCase(TestCase):
         )
 
     def test_pagination_templatetag(self):
-        request = HttpRequest()
-        request.GET = {'offset': '20', 'limit': '10'}
-        request.path = reverse('search_page')
-        result = Template(
-            "{% load pagination_tags %}"
-            "{% pagination %}"
-        ).render(Context({
-            'request': request,
-            'num_results': 103,
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            request = HttpRequest()
+            request.GET = {'offset': '20', 'limit': '10'}
+            request.path = reverse('search_page')
+            result = Template(
+                "{% load pagination_tags %}"
+                "{% pagination %}"
+            ).render(Context({
+                'request': request,
+                'num_results': 103,
 
-        }))
-        self.assertIn(
-            '<a href="/search/?offset=10&amp;limit=10">Prev<span class="hidden"> page</span></a>',
-            result)
-        self.assertIn(
-            '<li><a href="/search/?offset=0&amp;limit=10"><span class="hidden">page </span>1</a></li>',
-            result)
-        self.assertIn(
-            '<li class="disabled"><a href="javascript:void(0)"><span class="hidden">page </span>...</a></li>',
-            result)
+            }))
+            self.assertIn(
+                '<a href="/search/?offset=10&amp;limit=10">Prev<span class="hidden"> page</span></a>',
+                result)
+            self.assertIn(
+                '<li><a href="/search/?offset=0&amp;limit=10"><span class="hidden">page </span>1</a></li>',
+                result)
+            self.assertIn(
+                '<li class="disabled"><a href="javascript:void(0)"><span class="hidden">page </span>...</a></li>',
+                result)
 
 
 class BatchSearchTestCase(TestCase):
@@ -891,39 +892,40 @@ class BatchSearchTestCase(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_batch_search_view(self):
-        response = self.client.get(reverse('batch_search_page'))
-        self.assertEqual(response.status_code, 200)
-        # submit wrong data
-        data = {'text': 'badtext'}
-        response = self.client.post(reverse('batch_search_page'), data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'No valid ids were found')
-        # submit not existed analysis_id
-        data = {
-            'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
-            '00007994-abeb-4b16-a6ad-7230300a29e9 '
-            'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
-        response = self.client.post(reverse('batch_search_page'), data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Found by analysis_id: 2')
-        # some items were deleted
-        ids = response.content
-        ids = ids[ids.find('<textarea'):ids.find('</textarea>')]
-        ids = ids[ids.find('>') + 1:]
-        create_session(self)
-        data = {'ids': ids}
-        response = self.client.post(reverse('batch_search_page'), data)
-        self.assertEqual(response.status_code, 200)
-        # ok, adding files to cart
-        data = {'ids': ids, 'add_to_cart': 'true'}
-        response = self.client.post(reverse('batch_search_page'), data)
-        self.assertRedirects(response, reverse('cart_page'))
-        cart = Cart(session=self.client.session)
-        self.assertEqual(cart.all_count, 2)
-        # redirect to batch_search_page if all items were deleted
-        data = {'ids': ''}
-        response = self.client.post(reverse('batch_search_page'), data)
-        self.assertRedirects(response, reverse('batch_search_page'))
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('batch_search_page'))
+            self.assertEqual(response.status_code, 200)
+            # submit wrong data
+            data = {'text': 'badtext'}
+            response = self.client.post(reverse('batch_search_page'), data)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'No valid ids were found')
+            # submit not existed analysis_id
+            data = {
+                'text': '0005d2d0-aede-4f5c-89fa-aed12abfadd6 '
+                '00007994-abeb-4b16-a6ad-7230300a29e9 '
+                'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}
+            response = self.client.post(reverse('batch_search_page'), data)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'Found by analysis_id: 2')
+            # some items were deleted
+            ids = response.content
+            ids = ids[ids.find('<textarea'):ids.find('</textarea>')]
+            ids = ids[ids.find('>') + 1:]
+            create_session(self)
+            data = {'ids': ids}
+            response = self.client.post(reverse('batch_search_page'), data)
+            self.assertEqual(response.status_code, 200)
+            # ok, adding files to cart
+            data = {'ids': ids, 'add_to_cart': 'true'}
+            response = self.client.post(reverse('batch_search_page'), data)
+            self.assertRedirects(response, reverse('cart_page'))
+            cart = Cart(session=self.client.session)
+            self.assertEqual(cart.all_count, 2)
+            # redirect to batch_search_page if all items were deleted
+            data = {'ids': ''}
+            response = self.client.post(reverse('batch_search_page'), data)
+            self.assertRedirects(response, reverse('batch_search_page'))
 
     def test_analysis_ids_form(self):
         data = {
@@ -947,55 +949,60 @@ class SearchViewPaginationTestCase(TestCase):
         self.default_results_count = api_request.hits
 
     def test_pagination_default_pagination(self):
-        response = self.client.get(reverse('search_page') +
-                                   '?q={query}&offset={offset}&limit={limit}'.format(
-                                       query=self.query, offset=None, limit=None))
-        self.assertContains(response, '1')
-        self.assertContains(response, '2')
-        self.assertContains(response, 'Prev')
-        self.assertContains(response, 'Next')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page') +
+                                       '?q={query}&offset={offset}&limit={limit}'.format(
+                                           query=self.query, offset=None, limit=None))
+            self.assertContains(response, '1')
+            self.assertContains(response, '2')
+            self.assertContains(response, 'Prev')
+            self.assertContains(response, 'Next')
 
     def test_pagination_one_page_limit_pagination(self):
-        response = self.client.get(
-            reverse('search_page') +
-            '?q={query}&offset={offset}&limit={limit}'.format(
-                query=self.query, offset=0, limit=self.default_results_count))
-        self.assertContains(response, '1')
-        self.assertContains(response, 'active')
-        # Prev and Next are both disabled
-        self.assertContains(response, 'disabled', 2)
-        self.assertContains(response, 'Prev')
-        self.assertContains(response, 'Next')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(
+                reverse('search_page') +
+                '?q={query}&offset={offset}&limit={limit}'.format(
+                    query=self.query, offset=0, limit=self.default_results_count))
+            self.assertContains(response, '1')
+            self.assertContains(response, 'active')
+            # Prev and Next are both disabled
+            self.assertContains(response, 'disabled', 2)
+            self.assertContains(response, 'Prev')
+            self.assertContains(response, 'Next')
 
     def test_pagination_one_per_page_limit_pagination(self):
-        response = self.client.get(reverse('search_page') +
-                                   '?q={query}&offset={offset}&limit={limit}'.format(
-                                       query=self.query, offset=0, limit=1))
-        self.assertContains(response, 'active')
-        self.assertContains(response, 'Prev')
-        self.assertContains(response, 'Next')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(reverse('search_page') +
+                                       '?q={query}&offset={offset}&limit={limit}'.format(
+                                           query=self.query, offset=0, limit=1))
+            self.assertContains(response, 'active')
+            self.assertContains(response, 'Prev')
+            self.assertContains(response, 'Next')
 
     def test_pagination_limit_saved_in_cookie(self):
         """
         If offset is not specified in get, then will be used
         offset saved in cookie or default offset.
         """
-        request = get_request()
-        context = {'request': request, 'num_results': 100}
-        result = Paginator(context)
-        self.assertEqual(result.pages_count, 10)
-        context['request'].COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
-        result = Paginator(context)
-        self.assertEqual(result.pages_count, 4)
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            request = get_request()
+            context = {'request': request, 'num_results': 100}
+            result = Paginator(context)
+            self.assertEqual(result.pages_count, 10)
+            context['request'].COOKIES[settings.PAGINATOR_LIMIT_COOKIE] = 25
+            result = Paginator(context)
+            self.assertEqual(result.pages_count, 4)
 
     def test_redirect_from_home_page(self):
         """
         Test redirect from home page if any GET parameters are specified.
         """
-        response = self.client.get(
-            reverse('home_page') + '?q={query}'.format(query=self.query),
-            follow=True)
-        self.assertTrue('search' in response.redirect_chain[0][0])
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            response = self.client.get(
+                reverse('home_page') + '?q={query}'.format(query=self.query),
+                follow=True)
+            self.assertTrue('search' in response.redirect_chain[0][0])
 
 
 class MetadataViewTestCase(TestCase):

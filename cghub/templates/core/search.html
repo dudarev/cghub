@@ -71,7 +71,7 @@
                     <button class="btn add-all-to-cart-btn js-common-tooltip" type="button" data-key="results-add-all-to-cart-button" >Add all to cart</button>
                 </div>
             </div>
-            {% items_per_page request 10 25 50 %}
+            {% items_per_page request %}
             <div class="column-select-label">
                 <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
                     Columns:
@@ -81,7 +81,7 @@
                 <option value="(Toggle all)">(Toggle all)</option>
             </select>
             {% include 'data_table.html' %}
-            {% items_per_page request 10 25 50 %}
+            {% items_per_page request %}
             {% pagination %}
             <div class="btn-toolbar">
                 <div class="search-btn-group">
