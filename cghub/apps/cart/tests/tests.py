@@ -202,7 +202,6 @@ class CartUtilsTestCase(TestCase):
             if attr == 'analysis_id':
                 self.assertEqual(page1[0], page2[1])
                 self.assertEqual(page1[1], page2[0])
-        
 
 
 class CartTestCase(TestCase):
@@ -228,97 +227,100 @@ class CartTestCase(TestCase):
         self.cart_page_url = reverse('cart_page')
 
     def test_cart_add_items(self):
-        url = reverse('cart_add_remove_items', args=['add'])
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            url = reverse('cart_add_remove_items', args=['add'])
 
-        self.client.post(
-                        url, {'selected_items': json.dumps(self.RANDOM_IDS)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # go to cart page
-        response = self.client.get(self.cart_page_url)
-        self.assertEqual(response.status_code, 200)
+            self.client.post(
+                            url, {'selected_items': json.dumps(self.RANDOM_IDS)},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            # go to cart page
+            response = self.client.get(self.cart_page_url)
+            self.assertEqual(response.status_code, 200)
 
-        # make sure counter in header is OK
-        self.assertContains(response, 'Cart (3)')
-        self.assertContains(response, 'Files in your cart: 3')
+            # make sure counter in header is OK
+            self.assertContains(response, 'Cart (3)')
+            self.assertContains(response, 'Files in your cart: 3')
 
-        # make sure we have 3 files in cart
-        self.assertEqual(len(response.context['results']), 3)
+            # make sure we have 3 files in cart
+            self.assertEqual(len(response.context['results']), 3)
 
-        # make sure we have files we've posted
-        for f in self.RANDOM_IDS:
-            self.assertIn(f['analysis_id'], response.content)
+            # make sure we have files we've posted
+            for f in self.RANDOM_IDS:
+                self.assertIn(f['analysis_id'], response.content)
 
-        # test show notification instead of raise MySQLdb.DatabaseError
-        with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
-            cart_add_mock.side_effect = DatabaseError
-            response = self.client.post(
-                        url, {'selected_items': json.dumps(self.RANDOM_IDS)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-            response_json = json.loads(response.content)
-            self.assertEqual(
-                    response_json['action'], 'message')
-            self.assertEqual(
-                    response_json['content'], settings.DATABASE_ERROR_NOTIFICATION)
+            # test show notification instead of raise MySQLdb.DatabaseError
+            with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
+                cart_add_mock.side_effect = DatabaseError
+                response = self.client.post(
+                            url, {'selected_items': json.dumps(self.RANDOM_IDS)},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                response_json = json.loads(response.content)
+                self.assertEqual(
+                        response_json['action'], 'message')
+                self.assertEqual(
+                        response_json['content'], settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_add_item(self):
-        analysis_id = self.RANDOM_IDS[0]['analysis_id']
-        # get method not allowed
-        response = self.client.get(
-                reverse('cart_add_item', args=[analysis_id]))
-        self.assertEqual(response.status_code, 405)
-        response = self.client.post(
-                reverse('cart_add_item', args=[analysis_id]), follow=True)
-        self.assertRedirects(response, self.cart_page_url)
-        self.assertEqual(response.status_code, 200)
-
-        # make sure counter in header is OK
-        self.assertContains(response, 'Cart (1)')
-        self.assertContains(response, 'Files in your cart: 1')
-
-        # test show notification instead of raise MySQLdb.DatabaseError
-        with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
-            cart_add_mock.side_effect = DatabaseError
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            analysis_id = self.RANDOM_IDS[0]['analysis_id']
+            # get method not allowed
+            response = self.client.get(
+                    reverse('cart_add_item', args=[analysis_id]))
+            self.assertEqual(response.status_code, 405)
             response = self.client.post(
-                    reverse('cart_add_item', args=[analysis_id]),
-                    follow=True)
-            self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
+                    reverse('cart_add_item', args=[analysis_id]), follow=True)
+            self.assertRedirects(response, self.cart_page_url)
+            self.assertEqual(response.status_code, 200)
+
+            # make sure counter in header is OK
+            self.assertContains(response, 'Cart (1)')
+            self.assertContains(response, 'Files in your cart: 1')
+
+            # test show notification instead of raise MySQLdb.DatabaseError
+            with patch('cghub.apps.cart.utils.Cart.add') as cart_add_mock:
+                cart_add_mock.side_effect = DatabaseError
+                response = self.client.post(
+                        reverse('cart_add_item', args=[analysis_id]),
+                        follow=True)
+                self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_remove_items(self):
         # add files
-        url = reverse('cart_add_remove_items', args=['add'])
-        self.client.post(
-                        url, {'selected_items': json.dumps(self.RANDOM_IDS)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # remove files
-        rm_selected_files = [
-                self.RANDOM_IDS[0]['analysis_id'],
-                self.RANDOM_IDS[1]['analysis_id']]
-        url = reverse('cart_add_remove_items', args=['remove'])
-        self.client.post(
-                        url, {'ids': ' '.join(rm_selected_files)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        # go to cart page
-        response = self.client.get(self.cart_page_url)
-        self.assertEqual(len(response.context['results']), 1)
-
-        # make sure counter in header is OK
-        self.assertContains(response, 'Cart (1)')
-        self.assertContains(response, 'Files in your cart: 1')
-
-        # make sure we do not have removed files in cart
-        for f in rm_selected_files:
-            self.assertEqual(f in response.content, False)
-
-        # test show notification instead of raise MySQLdb.DatabaseError
-        with patch('cghub.apps.cart.utils.Cart.remove') as cart_remove_mock:
-            cart_remove_mock.side_effect = DatabaseError
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            url = reverse('cart_add_remove_items', args=['add'])
+            self.client.post(
+                            url, {'selected_items': json.dumps(self.RANDOM_IDS)},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            # remove files
             rm_selected_files = [
-                    self.RANDOM_IDS[2]['analysis_id']]
-            response = self.client.post(
-                    url, {'ids': ' '.join(rm_selected_files)},
-                    HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True)
-            self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
+                    self.RANDOM_IDS[0]['analysis_id'],
+                    self.RANDOM_IDS[1]['analysis_id']]
+            url = reverse('cart_add_remove_items', args=['remove'])
+            self.client.post(
+                            url, {'ids': ' '.join(rm_selected_files)},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+            # go to cart page
+            response = self.client.get(self.cart_page_url)
+            self.assertEqual(len(response.context['results']), 1)
+
+            # make sure counter in header is OK
+            self.assertContains(response, 'Cart (1)')
+            self.assertContains(response, 'Files in your cart: 1')
+
+            # make sure we do not have removed files in cart
+            for f in rm_selected_files:
+                self.assertEqual(f in response.content, False)
+
+            # test show notification instead of raise MySQLdb.DatabaseError
+            with patch('cghub.apps.cart.utils.Cart.remove') as cart_remove_mock:
+                cart_remove_mock.side_effect = DatabaseError
+                rm_selected_files = [
+                        self.RANDOM_IDS[2]['analysis_id']]
+                response = self.client.post(
+                        url, {'ids': ' '.join(rm_selected_files)},
+                        HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=True)
+                self.assertContains(response, settings.DATABASE_ERROR_NOTIFICATION)
 
     def test_cart_clear(self):
         # indirectly tested in CartUtilsTestCase.test_clear_cart
@@ -330,34 +332,35 @@ class CartTestCase(TestCase):
 
     def test_cart_pagination(self):
         # add 3 files to cart
-        url = reverse('cart_add_remove_items', args=['add'])
-        self.client.post(
-                        url, {'selected_items': json.dumps(self.RANDOM_IDS)},
-                        HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        # go to cart page
-        response = self.client.get(self.cart_page_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Items per page:')
+        with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            url = reverse('cart_add_remove_items', args=['add'])
+            self.client.post(
+                            url, {'selected_items': json.dumps(self.RANDOM_IDS)},
+                            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            # go to cart page
+            response = self.client.get(self.cart_page_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'Items per page:')
 
-        # 2 items per page
-        response = self.client.get(reverse('cart_page') +
-                                   '?offset={offset}&limit={limit}'.format(
-                                       offset=0, limit=2))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '1')
-        self.assertContains(response, '2')
-        self.assertContains(response, 'Prev')
-        self.assertContains(response, 'Next')
-        self.assertContains(response, 'Items per page:')
+            # 2 items per page
+            response = self.client.get(reverse('cart_page') +
+                                       '?offset={offset}&limit={limit}'.format(
+                                           offset=0, limit=2))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, '1')
+            self.assertContains(response, '2')
+            self.assertContains(response, 'Prev')
+            self.assertContains(response, 'Next')
+            self.assertContains(response, 'Items per page:')
 
-        # 2 items per page, 2nd page
-        response = self.client.get(reverse('cart_page') +
-                                   '?offset={offset}&limit={limit}'.format(
-                                       offset=2, limit=2))
-        self.assertEqual(response.status_code, 200)
-        # test limit saved to cookies
-        self.assertEqual(
-            response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '2')
+            # 2 items per page, 2nd page
+            response = self.client.get(reverse('cart_page') +
+                                       '?offset={offset}&limit={limit}'.format(
+                                           offset=2, limit=2))
+            self.assertEqual(response.status_code, 200)
+            # test limit saved to cookies
+            self.assertEqual(
+                response.cookies[settings.PAGINATOR_LIMIT_COOKIE].value, '2')
 
     def test_cart_sorting(self):
         # add 3 files to cart
@@ -621,7 +624,7 @@ class CartCacheTestCase(TestCase):
         result = ''
         for i in iterator:
             result += i
-        self.assertIn('urls.tsv', result)
+        self.assertIn('urls.txt', result)
 
         # metadata xml generator
         iterator = metadata_xml_generator(request)

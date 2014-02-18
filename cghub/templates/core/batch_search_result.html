@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    {% items_per_page request 10 25 50 %}
+    {% items_per_page request %}
 
     <div class="column-select-label">
         <label for="id-columns-selector" class="js-common-tooltip" data-key="columns-menu">
@@ -41,7 +41,7 @@
 
     {% include 'data_table.html' %}
 
-    {% items_per_page request 10 25 50 %}
+    {% items_per_page request %}
 
     {% with num_results=ids|length %}
         {% pagination %}

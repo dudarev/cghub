@@ -135,16 +135,12 @@ def pagination(context):
 
 
 @register.simple_tag
-def items_per_page(request, *limits):
+def items_per_page(request):
     """
     Output is something like this:
-    Items per page: 10 | 25 | 50 | 100
     """
     links = ''
-    for limit in limits:
-        # Checking for correct data have been passed
-        if not str(limit).isdigit():
-            raise Exception("Limits can be numbers or it's string representation")
+    for limit in settings.PAGINATOR_LIMITS:
         get = request.GET.copy()
         offset, old_limit = paginator_params(request)
 

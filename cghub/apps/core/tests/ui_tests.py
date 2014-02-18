@@ -130,7 +130,8 @@ TEST_SETTINGS = dict(
     ROW_MENU_ITEMS = [
         ('Show details in new window', details_page_menu_item),
         ('Test menu', test_menu_item),
-    ]
+    ],
+    PAGINATOR_LIMITS = [10, 25, 50],
 )
 
 def back_to_bytes(size_str):

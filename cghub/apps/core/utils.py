@@ -52,12 +52,13 @@ def paginator_params(request):
     offset = offset and offset.isdigit() and int(offset) or 0
     limit = request.GET.get('limit')
     if limit and limit.isdigit():
-        limit = int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        # first paginator limit is default value
+        limit = int(limit) or settings.PAGINATOR_LIMITS[0]
     elif settings.PAGINATOR_LIMIT_COOKIE in request.COOKIES:
         limit = str(request.COOKIES[settings.PAGINATOR_LIMIT_COOKIE])
-        limit = limit.isdigit() and int(limit) or settings.DEFAULT_PAGINATOR_LIMIT
+        limit = limit.isdigit() and int(limit) or settings.PAGINATOR_LIMITS[0]
     else:
-        limit = settings.DEFAULT_PAGINATOR_LIMIT
+        limit = settings.PAGINATOR_LIMITS[0]
     return offset, limit
 
 

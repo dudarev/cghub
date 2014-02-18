@@ -311,7 +311,7 @@ def urls_tsv_generator(request, compress=False):
     :param compress: set to True to enable compression
     """
     cart = Cart(request.session)
-    zipper = Gzipper(filename='urls.tsv', compress=compress)
+    zipper = Gzipper(filename='urls.txt', compress=compress)
     iterator = cart.cart.items.all().iterator()
     count_all = cart.all_count
     count = 0
