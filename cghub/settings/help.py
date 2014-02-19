@@ -243,17 +243,17 @@ HELP_HINTS = {
     ##
     # Cart
     ##
-    'Remove from cart': 'Removes the selected items from the cart, one at a time or multiple items at once',
-    'Clear cart': 'Removes all items from the cart',
-    'Download manifest': 'Creates a manifest file (manifest.xml) that can be passed to GeneTorrent to download all the selected items in your cart',
-    'Download metadata': 'Creates a file (metadata.xml) which contains a full dump of the metadata from selected items which you can parse offline',
-    'Download summary TSV': 'Creates a summary of the basic metadata associated with each item in a tab-separated-value formatted file (TSV)',
+    'common:cart-remove': 'Removes the selected items from the cart, one at a time or multiple items at once',
+    'common:cart-clear': 'Removes all items from the cart',
+    'common:cart-download-manifest': 'Creates a manifest file (manifest.xml) that can be passed to GeneTorrent to download all the selected items in your cart',
+    'common:cart-download-urls': 'Creates an analysis data urls file (urls.txt)',
+    'common:cart-download-metadata': 'Creates a file (metadata.xml) which contains a full dump of the metadata from selected items which you can parse offline',
+    'common:cart-download-summary': 'Creates a summary of the basic metadata associated with each item in a tab-separated-value formatted file (TSV)',
 
     ##
     # metadata viewer
     ##
-    'Show Metadata XML:': 'View the full metadata in XML format',
-    'Collapse all': 'collapse all metadata XML on the screen',
-    'Expand all': 'Expand all the metadata associated with the current item displayed',
-    'Download XML': 'Download a complete XML file that can be displayed in your browser or pr',
+    'common:details-show-xml': 'View the full metadata in XML format',
+    'common:details-xml-download': 'Download a complete XML file that can be displayed in your browser',
+    'common:details-add-to-cart': 'Add item to cart',
 }
