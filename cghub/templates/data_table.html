@@ -6,7 +6,7 @@
             <tr>
                 <th class="data-table-checkbox-header" data-width='15'>
                     <label for="id-check-all-checkbox" class="hidden">Check all</label>
-                    <input id="id-check-all-checkbox" class="js-select-all" type="checkbox">
+                    <input id="id-check-all-checkbox" class="js-select-all" type="checkbox" alt="Select all items on current page">
                 </th>
                 <th data-width="25"></th>
                 {% table_header request %}
@@ -17,7 +17,7 @@
             <tr data-analysis_id="{{ r.analysis_id }}" data-menu="{% data_menu r %}">
                 <td>
                     <label for="cb-{{ r.analysis_id }}" class="hidden">Select {{ r.analysis_id }}</label>
-                    <input class="data-table-checkbox" type="checkbox" name="selected_files"
+                    <input class="data-table-checkbox" type="checkbox" name="selected_files" alt="Select item"
                                                             id="cb-{{ r.analysis_id }}"
                                                             value="{{ r.analysis_id }}"
                                                             data-aliquot_id="{{ r.aliquot_id }}"
