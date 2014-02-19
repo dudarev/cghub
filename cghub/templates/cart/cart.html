@@ -49,14 +49,14 @@
             {% if results %}
                 <div class="btn-toolbar">
                     <div class="cart-btn-group">
-                        <button class="btn cart-remove">Remove from cart</button>
-                        <button class="btn cart-clear">Clear cart</button>
+                        <button class="btn cart-remove js-common-tooltip" data-key="cart-remove">Remove from cart</button>
+                        <button class="btn cart-clear js-common-tooltip" data-key="cart-clear">Clear cart</button>
                     </div>
                     <div class="cart-btn-group">
-                        <button class="btn cart-download" data-download="manifest">Download manifest</button>
-                        <button class="btn cart-download" data-download="urls">Download data URLs</button>
-                        <button class="btn cart-download" data-download="metadata">Download metadata</button>
-                        <button class="btn cart-download" data-download="summary">Download summary TSV</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-manifest" data-download="manifest">Download manifest</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-urls" data-download="urls">Download data URLs</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-metadata" data-download="metadata">Download metadata</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-summary" data-download="summary">Download summary TSV</button>
                         <label for="cb-comressed1">Compressed</label>
                         <input type="checkbox" id="cb-compressed1" class="js-compressed" value="compressed" />
                     </div>
@@ -75,14 +75,14 @@
                 {% pagination %}
                 <div class="btn-toolbar">
                     <div class="cart-btn-group">
-                        <button class="btn cart-remove">Remove from cart</button>
-                        <button class="btn cart-clear">Clear cart</button>
+                        <button class="btn cart-remove js-common-tooltip" data-key="cart-remove">Remove from cart</button>
+                        <button class="btn cart-clear js-common-tooltip" data-key="cart-clear">Clear cart</button>
                     </div>
                     <div class="cart-btn-group">
-                        <button class="btn cart-download" data-download="manifest">Download manifest</button>
-                        <button class="btn cart-download" data-download="urls">Download data URLs</button>
-                        <button class="btn cart-download" data-download="metadata">Download metadata</button>
-                        <button class="btn cart-download" data-download="summary">Download summary TSV</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-manifest" data-download="manifest">Download manifest</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-urls" data-download="urls">Download data URLs</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-metadata" data-download="metadata">Download metadata</button>
+                        <button class="btn cart-download js-common-tooltip" data-key="cart-download-summary" data-download="summary">Download summary TSV</button>
                         <label for="cb-comressed2">Compressed</label>
                         <input type="checkbox" id="cb-compressed2" class="js-compressed" value="compressed" />
                     </div>
