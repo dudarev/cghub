@@ -6,7 +6,7 @@ except ImportError:
     from django.utils.simplejson import OrderedDict
 from optparse import make_option
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils import simplejson as json
 
 from cghub.apps.core.attributes import DATE_ATTRIBUTES
@@ -44,9 +44,7 @@ class FiltersProcessor(object):
         self.new_options_count = 0
         self.CHARACTERS = string.ascii_uppercase + '-_+0123456789' + string.ascii_lowercase
 
-    def process(
-            self, filter_name, options, select_options=False,
-            search_for_new_options=False):
+    def process(self, filter_name, options, select_options=False):
         """
         1. Run select options algorithm is select_options == True
         2. Process hierarchieal structures
@@ -60,16 +58,24 @@ class FiltersProcessor(object):
             self.find_all_options(filter_name)
             self.used_options = []
             options = self.select_options(filter_name, options)
-            if search_for_new_options:
-                # notify about not existent options
-                new_options = set(self.all_options) - set(self.used_options)
-                for option in new_options:
-                    self.stderr.write('! New option %s:%s. Please add this option to cghub/settings/filters.py\n' % (filter_name, option))
-                    self.new_options_count += 1
             options = OrderedDict(options)
 
         new_dict, all_val = self.open_hierarchical_structures(options)
         return OrderedDict(new_dict)
+
+    def find_new_options(self, filter_name, options):
+        """
+        Search for new options.
+        """
+        self.find_all_options(filter_name)
+        self.used_options = []
+        self.select_options(filter_name, options)
+        print self.all_options
+        print self.used_options
+        new_options = set(self.all_options) - set(self.used_options)
+        for option in new_options:
+            self.new_options_count += 1
+            self.stderr.write('! New option %s:%s. Please add this option to cghub/settings/filters.py\n' % (filter_name, option))
 
     def open_hierarchical_structures(self, options, depth=0):
         result = []
@@ -169,7 +175,7 @@ class Command(BaseCommand):
     2 or greater: print as much information as possible (typically for debugging)
     """
 
-    help = 'Process filters from filters_storrage_full.py.'
+    help = 'Process filters from settings/filters.py. Removes unused options for filters.'
 
     def handle(self, *args, **options):
         verbosity = int(options['verbosity'])
@@ -187,9 +193,7 @@ class Command(BaseCommand):
             options = processor.process(
                     filter_name=filter_name,
                     options=filter_data['filters'],
-                    select_options=filter_data.get('selectOptions', True),
-                    search_for_new_options=filter_data.get(
-                            'searchForNewOptions', False))
+                    select_options=filter_data.get('selectOptions', True))
             filter_data['filters'] = options
 
         # write filters found to filters_storage.json
@@ -197,6 +201,3 @@ class Command(BaseCommand):
             json.dump([DATE_FILTERS_HTML_IDS, ALL_FILTERS], f, indent=2)
         if verbosity > 0:
             self.stderr.write('\nWrote to %s.\n' % JSON_FILTERS_FILE_NAME)
-        if processor.new_options_count:
-            # non zero exit code
-            raise CommandError('%d new options were found.' % processor.new_options_count)
