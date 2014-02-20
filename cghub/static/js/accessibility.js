@@ -28,12 +28,17 @@ jQuery(function ($) {
                 var text = $(this).text().trim();
                 var html = $(this).html().trim();
 
-                var parts = text.split(/([\-\_\/\s])/); // split by '-', '_', '/', ' ' to get array of pure strings and separators
+                var parts = text.split(/([\-\_\/\s\(\)])/); // split by '-', '_', '/', ' ', '(', ')' to get array of pure strings and separators
 
+                var part = '';
                 for (var i in parts) {
-                    var found = parts[i].match(/[A-Z]{2,5}/g);
+                    part = parts[i];
+                    var found = part.match(/^[A-Z]{2,5}$/g);
                     if (found && found.length == 1){
-                        html = html.replace(parts[i], ('<abbr>' + parts[i] + '</abbr>'));
+                        html = html.replace(part + ' ', ('<abbr>' + part + '</abbr> '));
+                        html = html.replace(' ' + part, (' <abbr>' + part + '</abbr>'));
+                        html = html.replace('(' + part, ('(<abbr>' + part + '</abbr>'));
+                        html = html.replace(part + ')', ('<abbr>' + part + '</abbr>)'));
                     }
                 }
                 $(this).html(html);
