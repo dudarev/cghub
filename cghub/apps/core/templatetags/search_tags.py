@@ -202,7 +202,7 @@ def applied_filters(request):
             continue
 
         # Date filters differ from other filters, they should be parsed differently
-        if f in ('last_modified', 'upload_date',):
+        if f in ('last_modified', 'upload_date'):
             applied_filter = Filters.get_all_filters()[f]['filters'].get(filters)
             if applied_filter:
                 filter_name = applied_filter['filter_name']
@@ -223,7 +223,7 @@ def applied_filters(request):
         filters_str = ''
 
         # Filters by assembly and study can use complex queries
-        if f in ('refassem_short_name', 'study'):
+        if f in ('refassem_short_name', 'study', 'disease_abbr'):
             for value in Filters.get_all_filters()[f]['filters']:
                 options = value.split(' OR ')
                 for option in options:

@@ -77,7 +77,7 @@ Filters supports hierarchical structures:
         "selectOptions": False,
     })
 
-In case of refassem_short_name, complex queries with "OR" are allowed:
+In case of refassem_short_name, study and dissease_abbr, complex queries with "OR" are allowed:
 
 .. code-block:: python
 

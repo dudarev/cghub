@@ -76,7 +76,7 @@ jQuery(function ($) {
                 var $select = $(el);
                 var section = $select.attr('data-section');
                 if(section in filters) {
-                    if(section == 'refassem_short_name' || section == 'study') {
+                    if(section == 'refassem_short_name' || section == 'study' || section == 'disease_abbr') {
                         $select.find('option').each(function(j, opt) {
                             var values = $(opt).val().split(' OR ');
                             var enable_option = true;

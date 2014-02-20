@@ -96,8 +96,7 @@ ALL_FILTERS = OrderedDict([
         "title": "By Disease",
         "filters": OrderedDict([
             ("Acute Lymphoblastic Leukemia", "ALL"),
-            ("Acute Myeloid Leukemia", "AML"),
-            ("Acute Myeloid Leukemia", "LAML"),
+            ("Acute Myeloid Leukemia", "LAML OR AML"),
             ("Adrenocortical carcinoma", "ACC"),
             ("Bladder Urothelial Carcinoma", "BLCA"),
             ("Brain Lower Grade Glioma", "LGG"),
