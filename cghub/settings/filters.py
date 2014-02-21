@@ -48,10 +48,15 @@ For dates it has special format:
     }
 }
 
-If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
+If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter
+(used by ``selectoptions`` management command).
 If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones.
+(used by ``searchoptions`` management command)
 
-Only refasem_short_name and study can use queries with AND statement (for example: "phs0004* OR phs000218").
+If filter name starts from 'INVISIBLE', it will be not displayed even if it will be found.
+
+Only refasem_short_name and study can use queries with OR statement
+(for example: "phs0004* OR phs000218") (wildcart at end and start of string is supported).
 """
 
 try:
@@ -88,9 +93,12 @@ ALL_FILTERS = OrderedDict([
             ("CCLE", "*Other_Sequencing_Multiisolate"),
             ("TARGET", "phs0004* OR phs000218"),
             ("TCGA Benchmark", "TCGA_MUT_BENCHMARK_4"),
+            ("INVISIBLE1", "CGTEST"),
+            ("INVISIBLE2", "TEST_CGI_CHECK"),
+            ("INVISIBLE3", "CGHUB_PERFORMANCE_TESTING"),
         ]),
-        "selectOptions": False,
-        "searchForNewOptions": False,
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
     ("disease_abbr", {
         "title": "By Disease",

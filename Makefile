@@ -87,8 +87,11 @@ less:
 minjs:
 	grunt --gruntfile cghub/Gruntfile.js uglify
 
-selectfilters:
-	$(MANAGE) selectfilters
+selectoptions:
+	$(MANAGE) selectoptions
+
+searchoptions:
+	$(MANAGE) searchoptions
 
 ##
 # cghub specific setup targets.

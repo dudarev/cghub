@@ -82,10 +82,11 @@ CART-14	Add all to cart' button adds all files to cart.	Add all to cart' button 
 CART-15	Repetitive Search/Add to cart cycles.   1. Clear filters,  2. Set date uploaded to a period ending before the current date. 3. Set disease filter to "all" iniitally 4. Do the following, removing one Disease entry each iteration     a) Set Filter - capture count   (note time taken)     b) Hit "add all to cart" (note time taken)     c) Note time and count in cart if got message  "Confirmation of adding files to cart Y/N" after hitting "Y" if prompted)     d) Note if "Notice: Still obtaining data.. Reload to check for completion" mesage appears, checking time and count.  Hit reload every minute or so checking count again.     e) Record end time and end result count, check final count in cart compared to filtering results	
 CART-16	Select few items on current page, go to next page and select few more items, press on `Add to cart`	All selected items are added to cart	
 Management		
-MANAGEMENT-1	`selectfilters` management command selects only used filters options		
-MANAGEMENT-2	`update_full_metadata_cache` creates Analysises objects for all analysises and downloads full metadata cache files for every analysis	Analysises are created (can be checked in admin), full metadata cache exists	
-MANAGEMENT-3	`clean_sessions` management command removes all Session, Cart, CartItem and Analysis objects
-MANAGEMENT-4	After switching between WSAPI/SOLR site still works properly		
+MANAGEMENT-1	`selectoptions` management command selects only used filters options		
+MANAGEMENT-2    `searchoptions` management command shows existent but missing in filters options
+MANAGEMENT-3	`update_full_metadata_cache` creates Analysises objects for all analysises and downloads full metadata cache files for every analysis	Analysises are created (can be checked in admin), full metadata cache exists	
+MANAGEMENT-4	`clean_sessions` management command removes all Session, Cart, CartItem and Analysis objects
+MANAGEMENT-5	After switching between WSAPI/SOLR site still works properly		
 DISPLAY-1	Check for FOUC.   Start web browser or refresh the current page if you're already on a search result page of the browser.	The page should load with the correct table layout and dimension right from the beginning.  No "Flash Of Unstyled Content".
 UNITTEST-1	Run unit test (make test)	Long running, no errors expect
 ACCESSIBILITY-1	Skip navigation links	Skip navigation links shows on focus and hides when click on link or press enter or focus out. Focus shifts to targeted element on click

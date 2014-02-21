@@ -31,7 +31,7 @@ from cghub import urls
 
 from ..filters_storage import Filters, JSON_FILTERS_FILE_NAME
 from ..forms import BatchSearchForm, AnalysisIDsForm
-from ..management.commands.selectfilters import FiltersProcessor
+from ..management.commands.selectoptions import FiltersProcessor
 from ..requests import (
         RequestFull, RequestDetail, RequestID, ResultFromSOLRFile,
         SearchByIDs, build_wsapi_xml, get_results_for_ids)
@@ -794,7 +794,7 @@ class SelectFiltersTestCase(TestCase):
             utime(JSON_FILTERS_FILE_NAME, None)
         sys.argv = old_argv
 
-    def test_selectfilters(self):
+    def test_selectoptions(self):
         """
         filters_storage.json.test will be used while testing
         """
@@ -814,7 +814,8 @@ class SelectFiltersTestCase(TestCase):
         filter_name = 'refassem_short_name'
         stdout = StringIO()
         stderr = StringIO()
-        processor = FiltersProcessor(stdout=stdout, stderr=stderr, verbosity=1)
+        processor = FiltersProcessor(
+                stdout=stdout, stderr=stderr, verbosity=1)
         options = processor.process(
                 filter_name=filter_name, options=options,
                 select_options=False)
@@ -830,6 +831,13 @@ class SelectFiltersTestCase(TestCase):
                 ('GRCh37', 'GRCh37')]
             )
         )
+        # test FiltersProcessor.check_in_all_options
+        processor.all_options = ['abcd', 'xyz', 'cbcd']
+        self.assertEqual(processor.check_in_all_options('*bcd'), ['abcd', 'cbcd'])
+        self.assertEqual(processor.check_in_all_options('x*'), ['xyz'])
+        self.assertEqual(processor.check_in_all_options('abcd'), ['abcd'])
+        self.assertEqual(processor.check_in_all_options('nnn'), [])
+
 
     def test_pagination_templatetag(self):
         with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
