@@ -48,10 +48,15 @@ For dates it has special format:
     }
 }
 
-If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
+If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter
+(used by ``selectoptions`` management command).
 If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones.
+(used by ``searchoptions`` management command)
 
-Only refasem_short_name and study can use queries with AND statement (for example: "phs0004* OR phs000218").
+If filter name starts from 'INVISIBLE', it will be not displayed even if it will be found.
+
+Only refasem_short_name and study can use queries with OR statement
+(for example: "phs0004* OR phs000218") (wildcart at end and start of string is supported).
 """
 
 try:

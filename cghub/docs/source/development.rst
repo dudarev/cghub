@@ -77,7 +77,7 @@ Filters supports hierarchical structures:
         "selectOptions": False,
     })
 
-In case of refassem_short_name, study and dissease_abbr, complex queries with "OR" are allowed:
+In case of refassem_short_name, study and dissease_abbr, complex queries with "OR" are allowed (wildcard at start and end of string is supported):
 
 .. code-block:: python
 
@@ -89,25 +89,61 @@ In case of refassem_short_name, study and dissease_abbr, complex queries with "O
         'title': 'By Assembly',
     }),
 
-If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter.
-If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones (False is default value).
+If 'selectOptions' is True or unspecified, apply the select options algorithm to this filter (used by selectoptions management command).
+If 'searchForNewOptions' is True, will be scanned all options and displayed missing ones (False is default value) (used by searchoptions management command).
+
+If filter name starts from 'INVISIBLE', it will be not displayed even if it will be found. For example:
+
+.. code-block:: python
+
+    ("study", {
+        "title": "By Study",
+        "filters": OrderedDict([
+            ("TCGA", "phs000178"),
+            ("CCLE", "*Other_Sequencing_Multiisolate"),
+            ("TARGET", "phs0004* OR phs000218"),
+            ("TCGA Benchmark", "TCGA_MUT_BENCHMARK_4"),
+            ("INVISIBLE1", "CGTEST"),
+            ("INVISIBLE2", "TEST_CGI_CHECK"),
+            ("INVISIBLE3", "CGHUB_PERFORMANCE_TESTING"),
+        ]),
+        "selectOptions": True,
+        "searchForNewOptions": True,
+    }),
 
 ----------------------------
 Filters list shortening
 ----------------------------
 
-There are many possible options for filters in the sidebar. Not all of them are used by CGHub. To reduce the list a management command ``selectfilters`` is written. It should be used as following:
+There are many possible options for filters in the sidebar. Not all of them are used by CGHub. To reduce the list a management command ``selectoptions`` is written. It should be used as following:
 
 .. code-block:: bash
 
-    $ python manage.py selectfilters
+    $ python manage.py selectoptions
 
 Can be used verbosity option.
 Setting the verbose level to 0 would cause only error message and the warnings about need to add new filters be printed. If there are no problems, selectfilters would be completely silent:
 
 .. code-block:: bash
 
-    $ python manage.py selectfilters --verbosity 0
+    $ python manage.py selectoptions --verbosity 0
+
+Command output:
+
+.. code-block:: bash
+
+    Processing study filter
+    Processing disease_abbr filter
+    Processing sample_type filter
+    Processing analyte_code filter
+    Processing library_strategy filter
+    Processing center_name filter
+    Processing platform filter
+    Processing refassem_short_name filter
+    Processing upload_date filter
+    Processing last_modified filter
+
+Also exists ``searchoptions`` management command. It just search and display existent options that missing from filters.
 
 Command output:
 
@@ -126,7 +162,7 @@ Command output:
     Processing upload_date filter
     Processing last_modified filter
 
-To add `provolone` name to filters, You should add this filter to cghub/settings/filters.py and reexecute ``selectfilters`` command.
+To add `provolone` name to filters, You should add this filter to cghub/settings/filters.py and reexecute ``selectoptions`` command.
 
 Filters list can be accessed from Filters class from ``filters_storage.py``:
 
