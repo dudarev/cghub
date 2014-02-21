@@ -70,8 +70,6 @@ class FiltersProcessor(object):
         self.find_all_options(filter_name)
         self.used_options = []
         self.select_options(filter_name, options)
-        print self.all_options
-        print self.used_options
         new_options = set(self.all_options) - set(self.used_options)
         for option in new_options:
             self.new_options_count += 1
@@ -100,6 +98,23 @@ class FiltersProcessor(object):
                 val.append(option_value)
         return result, ' OR '.join(val)
 
+    def check_in_all_options(self, query):
+        """
+        self.all_options == ['CGTEST', 'Homo sapiens Other_Sequencing_Multiisolate', 'phs000467', ...]
+        contains *Other_Sequencing_Multiisolate.
+        """
+        found = []
+        for o in self.all_options:
+            if o == query:
+                found.append(o)
+            if query.startswith('*'):
+                if o.endswith(query[1:]):
+                    found.append(o)
+            if query.endswith('*'):
+                if o.startswith(query[:-1]):
+                    found.append(o)
+        return found
+
     def select_options(self, filter_name, options):
         """
         Remove unused filters
@@ -120,11 +135,14 @@ class FiltersProcessor(object):
                 # check is option was used
                 used = False
                 for o in option_value.split(' OR '):
-                    if o in self.all_options:
+                    found = self.check_in_all_options(o)
+                    if found:
                         used = True
-                        if o not in self.used_options:
-                            self.used_options.append(o)
-                if used:
+                        for f in found:
+                            if f not in self.used_options:
+                                self.used_options.append(f)
+                # options with name.startswith('INVISIBLE') will be not included in result
+                if used and not option_name.startswith('INVISIBLE'):
                     result.append((option_name, option_value))
         return result
 
