@@ -286,9 +286,10 @@ ALL_FILTERS = OrderedDict([
             ("UNC-LCCC", "UNC-LCCC"),
             ("USC-JHU", "USC-JHU"),
             ("WUGSC", "WUGSC"),
-            ("CGHub", "CGHUB"),
+            ("Complete Genomics", "CompleteGenomics"),
         ]),
-        "selectOptions": False,
+        "selectOptions": False,  # FIXME: specify when CGHub can be listed as ignored
+        "searchForNewOptions": False,
     }),
     ("platform", {
         "title": "By Platform",
@@ -398,5 +399,6 @@ ALL_FILTERS = OrderedDict([
             ("Bad data", "bad_data"),
         ]),
         "selectOptions": False,
+        "searchForNewOptions": False,
     }),
 ])
