@@ -25,6 +25,7 @@ HELP_HINTS = {
     'filter:Modification Time': 'Filter by date the metadata was last modified',
     'filter:State': 'Filter by current state of the data at CGHub',
     'filter:Platform': 'Filter by sequencing platform',
+    'common:remember-filters' : 'Remember the filter settings when revisiting the Data Browser',
     'common:filters-reset-button': 'Reset the filters and search text to their default state',
     'common:filters-apply-button': 'Run a search with the specified filters',
 
@@ -105,6 +106,7 @@ HELP_HINTS = {
     "Disease:KIRC": "Kidney renal clear cell carcinoma",
     "Disease:KIRP": "Kidney renal papillary cell carcinoma",
     "Disease:LAML": "Acute Myeloid Leukemia",
+    "Disease:AML": "Acute Myeloid Leukemia",
     "Disease:LCLL": "Chronic Lymphocytic Leukemia",
     "Disease:LCML": "Chronic Myelogenous Leukemia",
     "Disease:LGG":  "Brain Lower Grade Glioma",
@@ -286,10 +288,10 @@ HELP_HINTS = {
     ##
     'common:cart-remove': 'Removes the selected items from the cart, one at a time or multiple items at once',
     'common:cart-clear': 'Removes all items from the cart',
-    'common:cart-download-manifest': 'Creates a manifest file (manifest.xml) that can be passed to GeneTorrent to download all the selected items in your cart',
-    'common:cart-download-urls': 'Creates an analysis data urls file (urls.txt)',
-    'common:cart-download-metadata': 'Creates a file (metadata.xml) which contains a full dump of the metadata from selected items which you can parse offline',
-    'common:cart-download-summary': 'Creates a summary of the basic metadata associated with each item in a tab-separated-value formatted file (TSV)',
+    'common:cart-download-manifest': 'Create a manifest file (manifest.xml) that can be passed to GeneTorrent to download all the selected items in your cart',
+    'common:cart-download-urls': 'Create a file of analysis data URLs, one per line (urls.txt).  This can be easily parsed for use in partitioning downloads.',
+    'common:cart-download-metadata': 'Create a file of the SRA metadata for all items in the cart (metadata.xml).',
+    'common:cart-download-summary': 'Creates a summary of the basic metadata associated with each item in a tab-separated-value formatted file (summary.tsv)',
 
     ##
     # metadata viewer

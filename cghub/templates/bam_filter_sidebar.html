@@ -3,7 +3,7 @@
     <div class="js-common-tooltip filters-header" data-key="filters-bar">Filters</div>
     {% include 'apply_filters_buttons.html' with base_tabindex=31 %}
     {% render_filters %}
-    <div class="js-remember-filters">
+    <div class="js-remember-filters js-common-tooltip" data-key="remember-filters">
         <input type="checkbox" name="remember" value="remember" tabindex="48" alt="Remember filter settings"> Remember filter settings<br>
     </div>
     {% include 'apply_filters_buttons.html' with base_tabindex=49 %}
