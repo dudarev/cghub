@@ -1178,7 +1178,7 @@ class SearchUITestCase(LiveServerTestCase):
             time.sleep(3)
             # check that 'remember filter settings' is selected by default
             self.assertTrue(self.selenium.find_element_by_xpath(
-                    "//div[@class='js-remember-filters']/input"
+                    "//div[@class='js-remember-filters js-common-tooltip']/input"
                     ).get_attribute('checked'))
             filter_name = 'center_name'
             filter_object = Filters.get_all_filters()[filter_name]
@@ -1239,9 +1239,9 @@ class SearchUITestCase(LiveServerTestCase):
                             "id-{0}-ui-selector".format(filter_name)).text)
             # disable filters remembering
             self.selenium.find_element_by_xpath(
-                    "//div[@class='js-remember-filters']/input").click()
+                    "//div[@class='js-remember-filters js-common-tooltip']/input").click()
             self.assertFalse(self.selenium.find_element_by_xpath(
-                    "//div[@class='js-remember-filters']/input"
+                    "//div[@class='js-remember-filters js-common-tooltip']/input"
                     ).get_attribute('checked'))
             # submit
             self.selenium.find_element_by_xpath(
@@ -1272,10 +1272,10 @@ class SearchUITestCase(LiveServerTestCase):
             time.sleep(3)
             # set remember filters to True
             if not self.selenium.find_element_by_xpath(
-                    "//div[@class='js-remember-filters']/input"
+                    "//div[@class='js-remember-filters js-common-tooltip']/input"
                     ).get_attribute('checked'):
                 self.selenium.find_element_by_xpath(
-                    "//div[@class='js-remember-filters']/input").click()
+                    "//div[@class='js-remember-filters js-common-tooltip']/input").click()
             url = unquote(self.selenium.current_url)
             self.assertFalse(url.endswith(reverse('search_page')))
             self.assertNotIn(
