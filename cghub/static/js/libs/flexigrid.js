@@ -1058,7 +1058,6 @@
             $('.tDiv2').append(btnDiv);
         }
 
-
         $(t).before(g.hDiv);
         g.hTable.cellPadding = 0;
         g.hTable.cellSpacing = 0;
@@ -1537,12 +1536,17 @@
             function checkOnlyDefaultColumns(){
                 var allColumnCheckboxes = columnSelectMenu.next().next().find('input[value != "(Toggle all)"]'),
                     allChecked=true;
+                var columns_show = [], columns_hide = [];
                 allColumnCheckboxes.each(
                     function(i, checkbox){
                         // toggle those which are (not checked and in defaults) or (checked and not in defaults)
                         if (!checkbox.checked && defaultColumns.indexOf(checkbox.value) != -1 ||
                             checkbox.checked && defaultColumns.indexOf(checkbox.value) == -1){
-                            grid.toggleCol([checkbox.value], !checkbox.checked);
+                            if(checkbox.checked) {
+                                columns_hide.push(checkbox.value);
+                            } else {
+                                columns_show.push(checkbox.value);
+                            }
                             setCheckboxStatus(checkbox.value, !checkbox.checked);
                         }
                         if(!checkbox.checked) {
@@ -1550,6 +1554,8 @@
                         }
                     }
                 );
+                grid.toggleCol(columns_hide, false);
+                grid.toggleCol(columns_show, true);
                 setCheckboxStatus('(Toggle all)', allChecked);
             }
             function onComplete(selector) {
@@ -1579,10 +1585,11 @@
                     if (value != '(Toggle all)') {
                         grid.toggleCol([value], $(checkbox).is(':checked'))
                     } else {
-                        var is_checked = allOption.is(':checked');
+                        var all_columns = [];
                         $(selector).next().next().find('input[value != "(Toggle all)"]').each(function(i, el) {
-                            grid.toggleCol([$(el).val()], is_checked)
-                        })
+                            all_columns.push($(el).val());
+                        });
+                        grid.toggleCol(all_columns, allOption.is(':checked'));
                     }
                 },
                 explicitClose: 'close'
