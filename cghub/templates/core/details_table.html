@@ -7,10 +7,8 @@
             <a href="{% url item_details analysis_id %}#raw-xml" class="btn">Show metadata XML</a>
             <span>In your cart</span>
         {% else %}
-            <form action="{% url cart_add_item analysis_id %}" method="POST">
-                <a href="{% url item_details analysis_id %}#raw-xml" class="btn js-common-tooltip" data-key="details-show-xml">Show metadata XML</a>
-                <button type="submit" class="btn js-cart-add-item-button js-common-tooltip" data-key="details-add-to-cart">Add to cart</button>
-            </form>
+            <a href="{% url item_details analysis_id %}#raw-xml" class="btn js-common-tooltip" data-key="details-show-xml">Show metadata XML</a>
+            <button type="submit" class="btn js-cart-add-item-button js-common-tooltip" data-key="details-add-to-cart" data-action="{% url cart_add_item analysis_id %}">Add to cart</button>
         {% endif %}
     {% else %}
         <h2 class="hidden">Details table:</h2>

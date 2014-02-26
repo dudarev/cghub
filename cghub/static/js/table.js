@@ -230,20 +230,17 @@ jQuery(function ($) {
                 cghub.table.showDetailsPopup($td);
                 return false;
             });
-            // fix IE submit outer forms bug
-            if ($.browser.msie) {
-                $(document).on('click', '.js-cart-add-item-button', function(e) {
-                    var url = $(this).parent().attr('action');
-                    var form = document.createElement('form');
-                    form.action = url;
-                    form.method = 'POST';
-                    form.id = 'ie-form';
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                    return false;
-                });
-            }
+            /* we can't insert fom inside another form
+            (http://stackoverflow.com/questions/9947529/chrome-is-eating-my-first-inner-form-why) */
+            $(document).on('click', '.js-cart-add-item-button', function(e) {
+                var form = document.createElement('form');
+                form.action = $(this).data('action');
+                form.method = 'POST';
+                form.id = 'ie-form';
+                document.body.appendChild(form);
+                form.submit();
+                return false;
+            });
         },
         changeCheckboxes:function () {
             cghub.table.$checkboxes.prop('checked', $(this).is(':checked'));
