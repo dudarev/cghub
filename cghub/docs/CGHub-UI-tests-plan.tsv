@@ -22,7 +22,7 @@ SIDEBAR-10	Remember filter settings toggle 2	Check checkbox, select filters, sub
 Search		
 SEARCH-1	Entering a search term `a2' and hitting enter leads to correct page	
 SEARCH-2	No search results when nothing is found	A message is displayed when no results are found:  (try aaa)
-SEARCH-3	Results are paginated if more than 10	If more than 10 results are returned, they are grouped in groups of 10. 
+SEARCH-3	Results are paginated if more than 15	If more than 15 results are returned, they are grouped in groups of 15.  Other options are 25, and 50 per page 
 SEARCH-4	Total number of results is shown	A page with results has a message 
 SEARCH-5	Used filters are shown	On search results page a message about used filters is shown. For example: 
 SEARCH-6	Page navigation links	Links , , 1, 2, etc. lead to correct search results pages. 
@@ -44,26 +44,26 @@ SEARCH-21	Check search box done not persistence when browser window is closed an
 SEARCH-22	search for analysis id: ee4756b2-8596-44e9-8477-854932a44e71	1 result
 SEARCH-23	search for barcode: TCGA-A1-A0SM-10A-02W-A097-09	1 result
 SEARCH-24	search for aliquot id 99ac224e-ad08-4ba8-a486-7668f4142f87	1 result
-SEARCH-25	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	9 live, 11 total
+SEARCH-25	search for participant id 784de7ac-8424-42eb-83d4-a1bebaa42b97	10 live, 12 total
 SEARCH-26	search for sample id 58d5d36a-daec-449c-803c-13bdcde876ee	4 results, search input is empty		
 SEARCH-27	reset filters, search by 66fdf4dd-91dd-494c-bb21-7b29d05ab7f4, unselect CCLE study, search by 66fdf4dd-91dd-494c-bb21-7b29d05ab7f4	First time - found 1 result, without CCLE study - no results found	
 SEARCH-28	search for 'a2'	'Warning: these results were produced by a free text work search of the metadata...' should be shown	
 SEARCH-29	select all for all filters (no applied filters),  click on 'Apply filters', go to cart page and back to the browse page.	filters should have remained set to all		
-SEARCH-30	Show spinner with fixed position	Select few items and click on 'Add to cart' button	Spinner is shown in the center of screen
-SEARCH-31	Open item details page, check that all filenames are exists in details table	All filenames, filesizes and checksums are present in details table	
-SEARCH-32       Check that links inside results table works properly       Click on link, details popup shouldnt be shown, new browser tab should be opened       
+SEARCH-30	Show working barber pole indicator with fixed position	Select few items and click on 'Add to cart' button	Indicator is shown in the center of screen
+SEARCH-31	Open item details page from info menue, check that all filenames are exists in details table	All filenames, filesizes and checksums are present in details table	
+SEARCH-32       Check that links in TCGA entry to DCC work properly       Click on info menu, select link to DCC, new browser tab should be opened		
 Batch search		
-BATCH SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
-BATCH SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		
-BATCH SEARCH-3	Enter TCGA-A1-A0SM-01A-11D-A099-09 into textarea.	Found 1 result by legacy_sample_id		
-BATCH SEARCH-4	Enter TCGA-A1-A0SM-01A-11D-A099-09, select file and press 'Reset'.	All fields in form should become empty		
-BATCH SEARCH-5	On batch search result page summary is shown.			
-BATCH SEARCH-6	On batch search result page select few items and press 'Remove selected items'.	Removed items are not visible table		
-BATCH SEARCH-7	On batch search result page press 'Add n items to cart'.	Redirect to cart page, items present in cart		
-BATCH SEARCH-8	Pagination works properly on batch search result page.	Page changed on click on pages links		
-BATCH SEARCH-9	Details popup shows on click on results table row on batch search result page.	Details popup shows details for item that was clicked on		
-BATCH SEARCH-10	Add some text to text field on batch search page and select file, click on 'Reset' button	Fields should be become empty
-BATCH SEARCH-11	Items in result table are sorted by Analysis Id by default		
+BATCH_SEARCH-1	Enter 784de7ac-8424-42eb-83d4-a1bebaa42b97 into textarea.	Found 11 by participant_id		
+BATCH_SEARCH-2	Select file with few analysis_ids on separate lines.	Found n files by analysis_id		
+BATCH_SEARCH-3	Enter TCGA-A1-A0SM-01A-11D-A099-09 into textarea.	Found 1 result by legacy_sample_id		
+BATCH_SEARCH-4	Enter TCGA-A1-A0SM-01A-11D-A099-09, select file and press 'Reset'.	All fields in form should become empty		
+BATCH_SEARCH-5	On batch search result page summary is shown.	List of ids is here https://docs.google.com/a/ucsc.edu/file/d/0B6N3uoLscMxGLXRZU01SWXlZYjQ/edit		
+BATCH_SEARCH-6	On batch search result page select few items and press 'Remove selected items'.	Removed items are not visible table		
+BATCH_SEARCH-7	On batch search result page press 'Add n items to cart'.	Redirect to cart page, items present in cart		
+BATCH_SEARCH-8	Pagination works properly on batch search result page.	Page changed on click on pages links		
+BATCH_SEARCH-9	Info menu shows on click on info icon in results table row on batch search result page.	Details popup select from menu and can enter details popup for item that was clicked on		
+BATCH_SEARCH-10	Add text to text field on batch search page. Click on 'Reset' button	Fields should be become empty
+BATCH_SEARCH-11	Items in result table are sorted by Analysis Id by default		
 Cart functionality		
 CART-1	Items from search results may be added to cart by selecting checkboxes	When button is clicked, selected items will be added to cart. User will be redirected to the cart page. 
 CART-2	Select all' checkbox selects all items	Checkbox in header of the table can check or uncheck all other checkboxes in the table.
@@ -73,14 +73,15 @@ CART-5	Items may be removed from the cart	When checkboxes are checked and 'Remov
 CART-6	All items may be removed from cart by click on 'Clear cart' button	When user clicks 'Clear cart' button, cart is being cleared, no matter if checkboxes are selected or not. 
 CART-7	Select all checkbox works the same way, on the cart page, as in browser search results area (main results area/home page)	see CART-2 
 CART-8	Headers may sort cart content (some of collumns can be unsortable)	When clicking cart table headers, table content  is sorted correspondingly See SEARCH-7 
-CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart should be downloaded in XML format.  
+CART-9	Manifest may be downloaded in XML format	When 'Download manifest' button is clicked, manifest for all items in the cart should be downloaded in XML format.  Check that manifest.xml is parsable by gtDownload by starting a download (kill after download begins).
 CART-10	Metadata may be downloaded in XML format	When 'Download metadata' button is clicked, metadata for all items in the cart should be downloaded in XML format. 
 CART-11	Summary may be downloaded in TSV format	When 'Download summary TSV' button is clicked, summary for all items in the cart should be downloaded in TSV format. 
-CART-12	manifest.xml, metadata.xml and summary.tsv can be downloaded as compressed file	Add few files to cart, open pull down menu of interested file, click on gzip compressed. Saved file should has '.gz' extension	
+CART-12	manifest.xml, urls.txt, metadata.xml and summary.tsv can be downloaded as compressed file	Add few files to cart, open pull down menu of interested file, click on gzip compressed. Saved file should has '.gz' extension	
 CART-13	Columns fill all space in the table.	Same as SEARCH-9 but in Cart. 
 CART-14	Add all to cart' button adds all files to cart.	Add all to cart' button when clicked adds all files from search results to the cart. 
 CART-15	Repetitive Search/Add to cart cycles.   1. Clear filters,  2. Set date uploaded to a period ending before the current date. 3. Set disease filter to "all" iniitally 4. Do the following, removing one Disease entry each iteration     a) Set Filter - capture count   (note time taken)     b) Hit "add all to cart" (note time taken)     c) Note time and count in cart if got message  "Confirmation of adding files to cart Y/N" after hitting "Y" if prompted)     d) Note if "Notice: Still obtaining data.. Reload to check for completion" mesage appears, checking time and count.  Hit reload every minute or so checking count again.     e) Record end time and end result count, check final count in cart compared to filtering results	
 CART-16	Select few items on current page, go to next page and select few more items, press on `Add to cart`	All selected items are added to cart	
+CART-17	URLs of items in cat may be downloaded in text format	When 'Download data URLs' button is clicked, file for URLs  all items in the cart should be downloaded in text format.
 Management		
 MANAGEMENT-1	`selectoptions` management command selects only used filters options		
 MANAGEMENT-2    `searchoptions` management command shows existent but missing in filters options

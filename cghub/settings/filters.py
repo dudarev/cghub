@@ -93,9 +93,9 @@ ALL_FILTERS = OrderedDict([
             ("CCLE", "*Other_Sequencing_Multiisolate"),
             ("TARGET", "phs0004* OR phs000218"),
             ("TCGA Benchmark", "TCGA_MUT_BENCHMARK_4"),
-            ("INVISIBLE1", "CGTEST"),
-            ("INVISIBLE2", "TEST_CGI_CHECK"),
-            ("INVISIBLE3", "CGHUB_PERFORMANCE_TESTING"),
+            ("INVISIBLE_CGTEST", "CGTEST"),
+            ("INVISIBLE_TEST_CGI_CHECK", "TEST_CGI_CHECK"),
+            ("INVISIBLE_CGHUB_PERFORMANCE_TESTING", "CGHUB_PERFORMANCE_TESTING"),
         ]),
         "selectOptions": True,
         "searchForNewOptions": True,
@@ -143,9 +143,10 @@ ALL_FILTERS = OrderedDict([
             ("Uterine Corpus Endometrioid Carcinoma", "UCEC"),
             ("Uveal Melanoma", "UVM"),
             ("Wilms Tumor", "WT"),
+            ("INVISIBLE_TEST", "TEST"),
         ]),
         "selectOptions": True,
-        "searchForNewOptions": False,
+        "searchForNewOptions": True,
     }),
     ("sample_type", {
         "title": "By Sample Type",
@@ -287,9 +288,10 @@ ALL_FILTERS = OrderedDict([
             ("USC-JHU", "USC-JHU"),
             ("WUGSC", "WUGSC"),
             ("Complete Genomics", "CompleteGenomics"),
+            ("INVISIBLE_CGHUB", "CGHUB")
         ]),
-        "selectOptions": False,  # FIXME: specify when CGHub can be listed as ignored
-        "searchForNewOptions": False,
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
     ("platform", {
         "title": "By Platform",
@@ -398,7 +400,7 @@ ALL_FILTERS = OrderedDict([
             ("Augmenting data", "augmenting_data"),
             ("Bad data", "bad_data"),
         ]),
-        "selectOptions": False,
-        "searchForNewOptions": False,
+        "selectOptions": True,
+        "searchForNewOptions": True,
     }),
 ])
