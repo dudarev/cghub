@@ -77,7 +77,7 @@ Filters supports hierarchical structures:
         "selectOptions": False,
     })
 
-In case of refassem_short_name, study and dissease_abbr, complex queries with "OR" are allowed (wildcard at start and end of string is supported):
+OR statement and wildcard at start and end of string are allowed:
 
 .. code-block:: python
 

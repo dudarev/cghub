@@ -76,7 +76,17 @@ jQuery(function ($) {
                 var $select = $(el);
                 var section = $select.attr('data-section');
                 if(section in filters) {
-                    if(section == 'refassem_short_name' || section == 'study' || section == 'disease_abbr') {
+                    if (section == 'last_modified' || section == 'upload_date') {
+                        var value = filters[section][0];
+                        var time_filter = $select.find('option[value = "' + value + '"]');
+                        if (time_filter.length > 0) {
+                            time_filter.attr('selected', 'selected');
+                        } else {
+                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value})
+                                .text(cghub.search.convertValueToPeriod(value));
+                            $select.append($new_opt);
+                        }
+                    } else {
                         $select.find('option').each(function(j, opt) {
                             var values = $(opt).val().split(' OR ');
                             var enable_option = true;
@@ -90,20 +100,6 @@ jQuery(function ($) {
                                 $(opt).attr('selected', 'selected');
                             }
                         });
-                    } else if (section == 'last_modified' || section == 'upload_date') {
-                        var value = filters[section][0];
-                        var time_filter = $select.find('option[value = "' + value + '"]');
-                        if (time_filter.length > 0) {
-                            time_filter.attr('selected', 'selected');
-                        } else {
-                            var $new_opt = $('<option/>').attr({'selected': 'selected','value': value})
-                                .text(cghub.search.convertValueToPeriod(value));
-                            $select.append($new_opt);
-                        }
-                    } else {
-                        for(var i=0; i<filters[section].length; i++) {
-                            $select.find('option[value="' + filters[section][i] + '"]').attr('selected', 'selected');
-                        }
                     }
                 } else {
                     /* for date filters */

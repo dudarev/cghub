@@ -55,7 +55,7 @@ If 'searchForNewOptions' is True, will be scanned all options and displayed miss
 
 If filter name starts from 'INVISIBLE', it will be not displayed even if it will be found.
 
-Only refasem_short_name and study can use queries with OR statement
+OR statement are allowed.
 (for example: "phs0004* OR phs000218") (wildcart at end and start of string is supported).
 """
 
