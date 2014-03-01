@@ -222,37 +222,20 @@ def applied_filters(request):
         filters = filters[1:-1].split(' OR ')
         filters_str = ''
 
-        # Filters by assembly and study can use complex queries
-        if f in ('refassem_short_name', 'study', 'disease_abbr'):
-            for value in Filters.get_all_filters()[f]['filters']:
-                options = value.split(' OR ')
-                for option in options:
-                    if option not in filters:
-                        break
-                else:
-                    visible_value = remove_dashes(Filters.get_all_filters()[f]['filters'].get(value))
-                    if visible_value == value:
-                        filters_str += ', <span>%s</span>' % visible_value
-                    else:
-                        filters_str += ', <span>%s (%s)</span>' % (visible_value, value)
-            filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
-                                                title, filters_str[2:])
-            continue
-
-        for value in filters:
-            # do not put abbreviation in parenthesis if it is the same
-            # or if the filter type is state
-            if Filters.get_all_filters()[f]['filters'].get(value) == value or f == 'state':
-                filters_str += ', <span>%s</span>' % (
-                        remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)))
+        for value in Filters.get_all_filters()[f]['filters']:
+            options = value.split(' OR ')
+            for option in options:
+                if option not in filters:
+                    break
             else:
-                filters_str += ', <span>%s (%s)</span>' % (
-                        remove_dashes(Filters.get_all_filters()[f]['filters'].get(value)),
-                        value)
+                visible_value = remove_dashes(Filters.get_all_filters()[f]['filters'].get(value))
+                if visible_value == value:
+                    filters_str += ', <span>%s</span>' % visible_value
+                else:
+                    filters_str += ', <span>%s (%s)</span>' % (visible_value, value)
         filtered_by_str += '<li data-name="' + f + '" data-filters="' + \
-                    '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
-                                                title, filters_str[2:])
+                '&amp;'.join(filters) + '"><b>%s</b>: %s</li>' % (
+                                            title, filters_str[2:])
 
     filtered_by_str += '</ul>'
     return filtered_by_str
