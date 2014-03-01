@@ -400,7 +400,7 @@ ALL_FILTERS = OrderedDict([
             ("Augmenting data", "augmenting_data"),
             ("Bad data", "bad_data"),
         ]),
-        "selectOptions": True,
+        "selectOptions": False,
         "searchForNewOptions": True,
     }),
 ])
