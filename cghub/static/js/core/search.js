@@ -12,6 +12,7 @@ jQuery(function ($) {
         nothingSelectedTitle: 'No selected files',
         nothingSelectedContent: 'Please select some files to add them to cart',
         spaceStr: '\xa0\xa0\xa0\xa0',
+        spaceStrIE: '    ',
         init:function () {
             cghub.search.cacheElements();
             cghub.search.bindEvents();
@@ -78,7 +79,7 @@ jQuery(function ($) {
                 if(section in filters) {
                     if (section == 'last_modified' || section == 'upload_date') {
                         var value = filters[section][0];
-                        var time_filter = $select.find('option[value = "' + value + '"]');
+                        var time_filter = $select.find('option[value="' + value + '"]');
                         if (time_filter.length > 0) {
                             time_filter.attr('selected', 'selected');
                         } else {
@@ -212,12 +213,15 @@ jQuery(function ($) {
             /* multiselect feature for hierarchical filters, ticket:395 */
             $('#filters-bar .ui-dropdownchecklist-item label').each(function(i, f) {
                 var level = $(f).text().split(cghub.search.spaceStr).length - 1;
+                if($.browser.msie && level == 0) {
+                    level = $(f).text().split(cghub.search.spaceStrIE).length - 1;
+                }
                 $(f).parent().attr('data-level', level);
             });
-            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"][value=""]').each(function(i, f) {
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:[value=""]').each(function(i, f) {
                 cghub.search.updateRootItemValue($(f).parent());
             });
-            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"][value=""]').on('change', function(f) {
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:[value=""]').on($.browser.msie ? 'propertychange' : 'change', function(f) {
                 var list_item = $(f.target).parent();
                 var level = parseInt(list_item.data('level'));
                 var next = list_item.next();
@@ -237,7 +241,7 @@ jQuery(function ($) {
                 }
                 cghub.search.updateToggleAll(list_item);
             });
-            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on('change', function(f) {
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on($.browser.msie ? 'propertychange' : 'change', function(f) {
                 var list_item = $(f.target).parent();
                 var level = parseInt(list_item.data('level'));
                 if (level > 0) {

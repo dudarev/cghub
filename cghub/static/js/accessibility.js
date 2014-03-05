@@ -32,7 +32,7 @@ jQuery(function ($) {
 
                 var part = '';
                 for (var i in parts) {
-                    part = parts[i];
+                    part = parts[i].toString();
                     var found = part.match(/^[A-Z]{2,5}$/g);
                     if (found && found.length == 1){
                         html = html.replace(part + ' ', ('<abbr>' + part + '</abbr> '));
