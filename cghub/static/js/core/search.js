@@ -221,7 +221,8 @@ jQuery(function ($) {
             $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:[value=""]').each(function(i, f) {
                 cghub.search.updateRootItemValue($(f).parent());
             });
-            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:[value=""]').on($.browser.msie ? 'propertychange' : 'change', function(f) {
+            /* checkboxChange triggers in ui.dropdownchecklist.js */
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:[value=""]').on('checkboxChange', function(f) {
                 var list_item = $(f.target).parent();
                 var level = parseInt(list_item.data('level'));
                 var next = list_item.next();
@@ -229,6 +230,7 @@ jQuery(function ($) {
                 while(parseInt(next.data('level')) > level) {
                     next.find('input').prop('checked', new_val);
                     next = next.next();
+                    if(!next) break;
                 }
                 if(level > 0) {
                     while (parseInt(list_item.data('level')) < level) {
@@ -241,7 +243,7 @@ jQuery(function ($) {
                 }
                 cghub.search.updateToggleAll(list_item);
             });
-            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on($.browser.msie ? 'propertychange' : 'change', function(f) {
+            $('#filters-bar .ui-dropdownchecklist-item input[type="checkbox"]:not([value=""])').on('checkboxChange', function(f) {
                 var list_item = $(f.target).parent();
                 var level = parseInt(list_item.data('level'));
                 if (level > 0) {

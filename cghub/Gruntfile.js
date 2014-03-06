@@ -78,7 +78,7 @@ module.exports = function (grunt) {
                     jsStaticFolder + 'libs/jquery-ui-1.8.20.custom.min.js',
                     jsStaticFolder + 'libs/jquery.cookie.min.js',
                     jsStaticFolder + 'libs/URI.min.js',
-                    jsStaticFolder + 'libs/ui.dropdownchecklist-1.4-min.js',
+                    jsStaticFolder + 'libs/ui.dropdownchecklist.js',
                     jsStaticFolder + 'libs/jquery.placeholder.min.js'],
                 dest:jsStaticFolder + 'jquery.libs.min.js'
             },
