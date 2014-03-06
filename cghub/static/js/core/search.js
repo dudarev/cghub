@@ -213,7 +213,7 @@ jQuery(function ($) {
             /* multiselect feature for hierarchical filters, ticket:395 */
             $('#filters-bar .ui-dropdownchecklist-item label').each(function(i, f) {
                 var level = $(f).text().split(cghub.search.spaceStr).length - 1;
-                if($.browser.msie && level == 0) {
+                if($.browser.msie && parseInt($.browser.version) < 9) {
                     level = $(f).text().split(cghub.search.spaceStrIE).length - 1;
                 }
                 $(f).parent().attr('data-level', level);
