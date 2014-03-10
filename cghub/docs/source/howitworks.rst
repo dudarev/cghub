@@ -129,6 +129,16 @@ It works next way:
     - cache existance will be checked for every Analysis object
     - if cache does not exists, it will be downloaded
 
+
+Remember filters
+================
+
+Filters will be restored when:
+
+    - `remember filters` checkbox is enabled
+    - user came from another page of the site
+
+
 Adding files to cart
 ====================
 
@@ -166,6 +176,7 @@ First, will be attempt to find results by aliquot_id, analysis_id,
 participant_id, sample_id and legacy_sample_id.
 If Results will be found, they will be displayed. Otherwise, will be done search by xml_text (in this case warning message will be shown).
 Is some filters are selected, they will be used.
+
 
 Batch search
 ============

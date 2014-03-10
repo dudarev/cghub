@@ -48,11 +48,11 @@ jQuery(function ($) {
             cghub.search.$manyItemsModal.find('.js-yes').on('click', cghub.search.addAllFiles);
         },
         initRememberFilters: function() {
-            var remember = sessionStorage.getItem('remember-filters');
-            if(remember===null) {remember = 'true'};
+            var remember = $.cookie('remember_filters');
+            if(remember == undefined) {remember = 'true'};
             cghub.search.$rememberFiltersCheckbox.prop('checked', remember == 'true');
             cghub.search.$rememberFiltersCheckbox.on('change', function() {
-                sessionStorage.setItem('remember-filters', $(this).prop('checked'));
+                $.cookie('remember_filters', $(this).prop('checked'), {path: '/'});
             })
         },
         onNavbarSearchFormSubmit: function () {
@@ -456,11 +456,6 @@ jQuery(function ($) {
             var filters = cghub.search.getFiltersValues();
             var href = URI(cghub.search.$applyFiltersButton.data('search-url'));
             if(!filters['is_error']) {
-                if(cghub.search.$rememberFiltersCheckbox.prop('checked')) {
-                    filters['filters']['remember'] = 'true';
-                } else {
-                    delete filters['filters']['remember'];
-                }
                 if($.isEmptyObject(filters['filters'])) {
                     window.location.href = href;
                 } else {

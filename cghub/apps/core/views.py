@@ -4,6 +4,7 @@ import sys
 from urllib2 import URLError
 
 from django.conf import settings
+from django.contrib.sites.models import get_current_site
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template import loader, Context, RequestContext
@@ -68,7 +69,12 @@ class HomeView(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        if settings.LAST_QUERY_COOKIE in request.COOKIES:
+        remember = request.COOKIES.get(settings.REMEMBER_FILTERS_COOKIE, 'true') == 'true'
+        referer = request.META.get('HTTP_REFERER', '')
+        current_site = get_current_site(request)
+        # `remember filters` option is enabled or user come from current site
+        remember = remember or referer.find(current_site.domain) != -1
+        if remember and settings.LAST_QUERY_COOKIE in request.COOKIES:
             self.query = {}
             for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
                 parts = i.split('=')
@@ -79,7 +85,10 @@ class HomeView(TemplateView):
             self.query = settings.DEFAULT_FILTERS
         # populating GET with query for proper work of applied_filters templatetag
         request.GET = QueryDict(query_dict_to_str(self.query), mutable=True)
-        return super(HomeView, self).get(request, *args, **kwargs)
+        response = super(HomeView, self).get(request, *args, **kwargs)
+        if not remember:
+            response.delete_cookie(settings.LAST_QUERY_COOKIE)
+        return response
 
 
 class SearchView(TemplateView):
@@ -141,14 +150,11 @@ class SearchView(TemplateView):
         response = self.render_to_response(context)
         # save current query to cookie
         if response.status_code == 200:
-            if request.GET and request.GET.get('remember', 'false') == 'true':
-                query = request.GET.urlencode(safe='()[]*')
-                response.set_cookie(settings.LAST_QUERY_COOKIE,
-                        query,
-                        max_age=settings.COOKIE_MAX_AGE,
-                        path=reverse('home_page'))
-            else:
-                response.delete_cookie(settings.LAST_QUERY_COOKIE)
+            query = request.GET.urlencode(safe='()[]*')
+            response.set_cookie(settings.LAST_QUERY_COOKIE,
+                    query,
+                    max_age=settings.COOKIE_MAX_AGE,
+                    path=reverse('home_page'))
             response.set_cookie(settings.PAGINATOR_LIMIT_COOKIE,
                     self.paginator_limit,
                     max_age=settings.COOKIE_MAX_AGE,
