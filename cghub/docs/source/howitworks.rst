@@ -138,6 +138,12 @@ Filters will be restored when:
     - `remember filters` checkbox is enabled
     - user came from another page of the site
 
+This feature requires proper Site domain specified in admin:
+
+    - login to /admin/
+    - Click on Sites link
+    - set proper value for domain name (for example, `browser.cghub.ucsc.edu`)
+
 
 Adding files to cart
 ====================
