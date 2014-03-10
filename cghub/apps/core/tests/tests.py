@@ -17,6 +17,7 @@ from StringIO import StringIO
 from urllib2 import URLError
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.template import Template, Context, RequestContext
@@ -136,6 +137,7 @@ class CoreTestCase(TestCase):
 
     def test_search_all(self):
         with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
+            self.client.cookies[settings.REMEMBER_FILTERS_COOKIE] = 'true'
             response = self.client.get(reverse('search_page'))
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'No applied filters')
@@ -220,26 +222,31 @@ class CoreTestCase(TestCase):
         Filters should be persistent only if 'remember filter settings' is checked.
         Only filters can be persistent, not query.
         """
+        study = 'phs000178'
         with self.settings(PAGINATOR_LIMITS=[10, 25, 50]):
             response = self.client.get(
-                    '%s?state=(live)&q=%s' % (reverse('search_page'), self.query))
+                    '%s?state=(live)' % reverse('search_page'))
             self.assertEqual(
                     self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
-                    '')
-            response = self.client.get(reverse('home_page'))
-            self.assertEqual(response.status_code, 200)
-            self.assertNotContains(response, self.query)
-            self.assertNotContains(response, 'data-filters="live"')
+                    'state=(live)')
             # save query
             response = self.client.get(
-                    '%s?state=(live)&q=%s&remember=true' % (reverse('search_page'), self.query))
-            self.assertEqual(
-                    self.client.cookies.get(settings.LAST_QUERY_COOKIE).value,
-                    'q=%s&state=(live)&remember=true' % self.query)
+                    '%s?state=(live)&study=(%s)' % (reverse('search_page'), study))
+            self.client.cookies[settings.REMEMBER_FILTERS_COOKIE] = 'true'
             response = self.client.get(reverse('home_page'))
             self.assertEqual(response.status_code, 200)
             self.assertNotContains(response, self.query)
-            self.assertContains(response, 'data-filters="live"')
+            self.assertContains(response, 'data-filters="%s"' % study)
+            # with referer from current site
+            del self.client.cookies[settings.REMEMBER_FILTERS_COOKIE]
+            current_domain = Site.objects.get_current().domain
+            response = self.client.get(reverse('home_page'), HTTP_REFERER=current_domain)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'data-filters="%s"' % study)
+            # `remember filters` is disabled and referer from outside
+            response = self.client.get(reverse('home_page'))
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, 'data-filters="%s"' % study)
 
     def test_save_limit_in_cookies(self):
         DEFAULT_FILTERS = {

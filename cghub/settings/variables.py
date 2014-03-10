@@ -1,6 +1,9 @@
 # also specified in search.js
 LAST_QUERY_COOKIE = 'last_query'
 
+# remember filters flag, keep synchronized with search.js
+REMEMBER_FILTERS_COOKIE = 'remember_filters'
+
 # paginator limit cookie name
 PAGINATOR_LIMIT_COOKIE = 'paginator_limit'
 
