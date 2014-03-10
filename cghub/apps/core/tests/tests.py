@@ -238,7 +238,7 @@ class CoreTestCase(TestCase):
             self.assertNotContains(response, self.query)
             self.assertContains(response, 'data-filters="%s"' % study)
             # with referer from current site
-            del self.client.cookies[settings.REMEMBER_FILTERS_COOKIE]
+            self.client.cookies[settings.REMEMBER_FILTERS_COOKIE] = 'false'
             current_domain = Site.objects.get_current().domain
             response = self.client.get(reverse('home_page'), HTTP_REFERER=current_domain)
             self.assertEqual(response.status_code, 200)

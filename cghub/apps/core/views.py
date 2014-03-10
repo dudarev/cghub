@@ -69,7 +69,7 @@ class HomeView(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        remember = request.COOKIES.get(settings.REMEMBER_FILTERS_COOKIE) == 'true'
+        remember = request.COOKIES.get(settings.REMEMBER_FILTERS_COOKIE, 'true') == 'true'
         referer = request.META.get('HTTP_REFERER', '')
         current_site = get_current_site(request)
         # `remember filters` option is enabled or user come from current site
@@ -85,7 +85,10 @@ class HomeView(TemplateView):
             self.query = settings.DEFAULT_FILTERS
         # populating GET with query for proper work of applied_filters templatetag
         request.GET = QueryDict(query_dict_to_str(self.query), mutable=True)
-        return super(HomeView, self).get(request, *args, **kwargs)
+        response = super(HomeView, self).get(request, *args, **kwargs)
+        if not remember:
+            response.delete_cookie(settings.LAST_QUERY_COOKIE)
+        return response
 
 
 class SearchView(TemplateView):

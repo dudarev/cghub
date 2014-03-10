@@ -49,10 +49,10 @@ jQuery(function ($) {
         },
         initRememberFilters: function() {
             var remember = $.cookie('remember_filters');
-            if(remember===null) {remember = 'true'};
+            if(remember == undefined) {remember = 'true'};
             cghub.search.$rememberFiltersCheckbox.prop('checked', remember == 'true');
             cghub.search.$rememberFiltersCheckbox.on('change', function() {
-                $.cookie('remember_filters'+name, $(this).prop('checked'), {path: '/'});
+                $.cookie('remember_filters', $(this).prop('checked'), {path: '/'});
             })
         },
         onNavbarSearchFormSubmit: function () {
