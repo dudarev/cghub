@@ -196,7 +196,7 @@ jQuery(function ($) {
             cghub.help.activateTooltipsForSelector('.base-content div.applied-filters li span', function($target) {
                 var text = $($target).parents('li').text();
                 var filterName = text.substring(0, text.indexOf(':'));
-                var filterValue = $target.text().trim()
+                var filterValue = $.trim($target.text());
                 if (filterValue.indexOf('(') != -1) {
                     filterValue = filterValue.substring(0, filterValue.indexOf(' ('));
                 }

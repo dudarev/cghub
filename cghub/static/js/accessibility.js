@@ -25,8 +25,8 @@ jQuery(function ($) {
             var $elements = $(selector);
             if(!$elements.length) return;
             $elements.each(function(){
-                var text = $(this).text().trim();
-                var html = $(this).html().trim();
+                var text = $.trim($(this).text());
+                var html = $.trim($(this).html());
 
                 var parts = text.split(/([\-\_\/\s\(\)])/); // split by '-', '_', '/', ' ', '(', ')' to get array of pure strings and separators
 
