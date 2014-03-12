@@ -239,8 +239,9 @@ class CoreTestCase(TestCase):
             self.assertContains(response, 'data-filters="%s"' % study)
             # with referer from current site
             self.client.cookies[settings.REMEMBER_FILTERS_COOKIE] = 'false'
-            current_domain = Site.objects.get_current().domain
-            response = self.client.get(reverse('home_page'), HTTP_REFERER=current_domain)
+            response = self.client.get(
+                    reverse('home_page'),
+                    HTTP_REFERER=settings.SITE_DOMAIN)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'data-filters="%s"' % study)
             # `remember filters` is disabled and referer from outside

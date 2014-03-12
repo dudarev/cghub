@@ -1,3 +1,7 @@
+# site domain name, used for determination is user came
+# from current site or from outside by comparing with http referer
+SITE_DOMAIN = 'browser.cghub.ucsc.edu'
+
 # also specified in search.js
 LAST_QUERY_COOKIE = 'last_query'
 
