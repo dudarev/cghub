@@ -132,6 +132,7 @@ TEST_SETTINGS = dict(
         ('Test menu', test_menu_item),
     ],
     PAGINATOR_LIMITS = [10, 25, 50],
+    SITE_DOMAIN = 'localhost',
 )
 
 def back_to_bytes(size_str):
@@ -1241,19 +1242,18 @@ class SearchUITestCase(LiveServerTestCase):
                     "//div[@class='js-remember-filters js-common-tooltip']/input"
                     ).get_attribute('checked'))
             # Go to cart page and back
-            # FIXME: seems like REFERER doesn't work in test
-            # self.selenium.find_element_by_partial_link_text('Cart').click()
-            # time.sleep(1)
-            # self.selenium.find_element_by_partial_link_text('Browser').click()
-            # time.sleep(2)
+            self.selenium.find_element_by_partial_link_text('Cart').click()
+            time.sleep(1)
+            self.selenium.find_element_by_partial_link_text('Browser').click()
+            time.sleep(2)
             # check url
-            # url = unquote(self.selenium.current_url)
-            # self.assertNotIn(option_attribute, url)
+            url = unquote(self.selenium.current_url)
+            self.assertNotIn(option_attribute, url)
             # check selected options
-            # self.assertIn(
-            #         option_name,
-            #         self.selenium.find_element_by_id(
-            #                 "id-{0}-ui-selector".format(filter_name)).text)
+            self.assertIn(
+                    option_name,
+                    self.selenium.find_element_by_id(
+                            "id-{0}-ui-selector".format(filter_name)).text)
             # go to home page without referer
             self.selenium.get(self.live_server_url)
             time.sleep(2)

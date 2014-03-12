@@ -4,7 +4,6 @@ import sys
 from urllib2 import URLError
 
 from django.conf import settings
-from django.contrib.sites.models import get_current_site
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template import loader, Context, RequestContext
@@ -71,9 +70,8 @@ class HomeView(TemplateView):
     def get(self, request, *args, **kwargs):
         remember = request.COOKIES.get(settings.REMEMBER_FILTERS_COOKIE, 'true') == 'true'
         referer = request.META.get('HTTP_REFERER', '')
-        current_site = get_current_site(request)
         # `remember filters` option is enabled or user come from current site
-        remember = remember or referer.find(current_site.domain) != -1
+        remember = remember or referer.find(settings.SITE_DOMAIN) != -1
         if remember and settings.LAST_QUERY_COOKIE in request.COOKIES:
             self.query = {}
             for i in request.COOKIES[settings.LAST_QUERY_COOKIE].split('&'):
