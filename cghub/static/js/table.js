@@ -253,8 +253,8 @@ jQuery(function ($) {
         repairSelection:function() {
             var selected_items = cghub.selected.ids();
             if (selected_items.length) {
-                for (var item in selected_items) {
-                    var checkbox = $('.data-table-checkbox[value='+selected_items[item]+']');
+                for (var i=0; i<selected_items.length; i++) {
+                    var checkbox = $('.data-table-checkbox[value='+selected_items[i]+']');
                     if(checkbox.length) {
                         checkbox.prop('checked', true);
                     }
