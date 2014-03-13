@@ -169,7 +169,10 @@ jQuery(function ($) {
                     $(select).dropdownchecklist({
                         width: 185,
                         zIndex: 1010,
-                        explicitClose: 'close'
+                        explicitClose: 'close',
+                        onItemClick: function(self, element) {
+                            $(element).find('.js-custom-option').prop('selected', false);
+                        },
                     });
                 } else {
                     /* add space for subitems */
