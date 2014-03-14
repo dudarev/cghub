@@ -31,7 +31,7 @@ SEARCH-7	Sorting is done by clicking table headlines (some of collumns may be un
 SEARCH-8	Select Items per page of 25, then 50	More items are displays 
 SEARCH-9	Fewer columns fill all space of the table.	When selected fewer columns, they fill all free space in the table. No blank space should be on the right side. 
 SEARCH-10	When focusing table cell or column with tooltips for more than 1/2 second help hint appears.  Tooltips should be on all headers and on abbreviation column values.  They will not appear on name or identifier columns.	Correct tooltip appears 
-SEARCH-11	When table row is clicked, popup with details is shown.	When user clicks on a table row, popup with details appears. Details also include link to details page with metadata XML displayed. Popup also contains button to add item to cart (if it not already added)
+SEARCH-11	When info icon and then details link are clicked, popup with details is shown.	 Details also include link to details page with metadata XML displayed. Popup also contains button to add item to cart (if it not already added)
 SEARCH-12	Metadata XML nodes on the details page can be collapsed or expanded.	When user clicks on a 'Collapse all' (double minus) or 'Expand all' (double plus) button XML data is collapsed and expanded respectively. 
 SEARCH-13	Details page contains 'Add to cart' button (if item not already added to cart)	On click on button, item will be added to cart, user will be redirected to cart page	
 SEARCH-14	Details popup contains 'Add to cart' button (if item not already added to cart)	On click on button, item will be added to cart, user will be redirected to cart page	

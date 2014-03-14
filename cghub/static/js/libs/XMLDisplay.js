@@ -233,7 +233,7 @@ function ToggleSubElements(el, show) {
     var ElementToShow = '';
     ElementToShow = 'div_content_' + ElementID;
     ElementToShow = CompatibleGetElementByID(ElementToShow);
-    var arr = ElementToShow.parentNode.getElementsByClassName('Clickable');
+    var arr = ElementToShow.parentNode.querySelectorAll('.Clickable');
     var length = arr.length,
         element = null;
     for (var i = 0; i < length; i++) {
