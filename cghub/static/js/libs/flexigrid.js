@@ -278,10 +278,10 @@
                 g.adjustTableWidth();
             },
             adjustTableWidth: function () {
-                var $hDivBox = $('.hDivBox');
+                var $hDivBox = $('div.hDivBox', this.hDiv);
                 var widthDiff = $hDivBox.parent().width() - $hDivBox.width();
-                var $oldLast = $('th div.flLastCol', this.hDiv);
-                var $newLast = $('th:visible:last div', this.hDiv);
+                var $oldLast = $('th > div.flLastCol', this.hDiv);
+                var $newLast = $('th:visible:last > div', this.hDiv);
                 if($oldLast && $newLast) {
                     // if not same columns
                     if($oldLast.parent().index() != $newLast.parent().index()) {
@@ -295,8 +295,8 @@
                                     g.addTitleToCell($tdDiv);
                             });
                         this.hDiv.scrollLeft = this.bDiv.scrollLeft;
-                        this.rePosDrag();
-                        this.fixHeight();
+                        /* this.rePosDrag(); */
+                        /* this.fixHeight(); */
                         $oldLast.removeClass('flLastCol');
                         widthDiff = $hDivBox.parent().width() - 2 - $hDivBox.width();
                     }
@@ -316,13 +316,13 @@
                 $newLast.addClass('flLastCol');
                 $newLast.css('width', nw);
                 if($.browser.mozilla) {
-                    $('.bDiv').find('table').width($hDivBox.width());
+                    $('table', this.bDiv).width($hDivBox.width());
                 } else {
-                    $('.bDiv').find('table').width($hDivBox.width() - 1);
+                    $('table', this.bDiv).width($hDivBox.width() - 1);
                 }
                 $('tr', this.bDiv).each(
                     function () {
-                        var $tdDiv = $('td:eq(' + $newLast.parent().index() + ') div', this);
+                        var $tdDiv = $('td:eq(' + $newLast.parent().index() + ') > div', this);
                         $tdDiv.css('width', nw);
                         g.addTitleToCell($tdDiv);
                 });
@@ -333,6 +333,15 @@
             toggleCol: function (cids, visible) {
                 var cid, ncol, n, cb;
                 var hiddenColumns = (sessionStorage.getItem('hiddenColumns') || '').split(',');
+                if(!g.tds) {
+                    /* cash table tds */
+                    g.tds = [];
+                    $('tbody tr', t).each(
+                        function () {
+                            g.tds.push($('td', this));
+                        }
+                    );
+                }
                 for (var ic=0; ic<cids.length; ic++) {
                     cid = cids[ic];
                     if(!cid.length) continue;
@@ -364,12 +373,12 @@
                         $(ncol).hide();
                         cb.checked = false;
                     }
-                    $('tbody tr', t).each(
-                        function () {
+                    $.each(g.tds,
+                        function (pos, el) {
                             if (visible) {
-                                $('td:eq(' + n + ')', this).show();
+                                el.eq(n).show();
                             } else {
-                                $('td:eq(' + n + ')', this).hide();
+                                el.eq(n).hide();
                             }
                         }
                     );
@@ -377,7 +386,6 @@
                         p.onToggleCol(cid, visible);
                     }
                 }
-                this.rePosDrag();
                 sessionStorage.setItem('hiddenColumns', hiddenColumns);
                 g.adjustTableWidth();
                 return visible;
